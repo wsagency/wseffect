@@ -50,6 +50,21 @@
 - **Smallest compliant fix:** Add a `differences` note to the report JSON and Markdown summary, listing verified differences (including the bench's minimal controller-only worker if it remains).
 
 
+## 2026-10-19 — C3 fixture requires unavailable wseffect API
+
+- **Issue:** C3's original fixture requirement uses `wseffect()`, but the plan makes Lane C depend only on Lane 0 and this base has no `wseffect()` export.
+- **Evidence:** Plan lines 86–87 list Lane C's dependency as Lane 0, while lines 909–915 require a C3 mini-app using `wseffect()`. At base `35640c5`, `packages/app/src/index.ts` contains only `export {}`. Spec APP-23 lines 335–337 defines the `framework` code-splitting group that the fixture must mirror.
+- **Resolution:** Per user direction, do not wait for Lane A. Build `tools/fixtures/mini-app` as plain Foldkit + Vite with `foldkit()`, a manual `build.rolldownOptions.output.codeSplitting.groups` `framework` group, three pages including two lazy pages via dynamic import, the gallery `data-perf` hooks, and its PWA. Keep both gates dependent only on build output and those hooks. When Lane D lands, point the gates at the gallery and delete this temporary fixture.
+- **Smallest compliant fix:** Replace the `wseffect()` fixture with that standalone Foldkit/Vite fixture; no gate implementation may depend on wseffect internals.
+
+
+## 2026-10-19 — D1 size attribution option missing from C3 task
+
+- **Issue:** D1 requires a source-map attribution run using `tools/gates/size.ts --attribute`, but the C3 task does not specify that mode or how the build produces source maps.
+- **Evidence:** Spec §11 GATE-S1 lines 484–485 requires attribution when the shell exceeds its budget; plan C3 lines 915–925 defines `size.ts` without `--attribute`, while D1 lines 1006–1008 invokes it.
+- **Resolution:** C3 adds an attribute-only mode over the index/framework source maps and enables fixture maps with `SOURCEMAP=on`. It reports per-source Brotli-q11 weights from `sourcesContent` and labels them as indicative, not an additive decomposition of minified chunk bytes.
+- **Smallest compliant fix:** Add the `--attribute` mode to C3's `size.ts` and honor `SOURCEMAP=on` in the fixture's Vite config so D1 can invoke the specified command.
+
 ## A2-M6: Framework chunk detection must follow resolved package roots
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.

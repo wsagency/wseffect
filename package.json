@@ -11,7 +11,8 @@
     "lint": "pnpm --filter @wsagency/wseffect-app build:lint && oxlint",
     "test": "pnpm --recursive --if-present test && node --test scripts/*.test.ts && node scripts/check-update-coverage.ts",
     "check:repo": "node scripts/check-repo.ts",
-    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo"
+    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo",
+    "gate:size": "node tools/gates/size.ts"
   },
   "devDependencies": {
     "@effect/platform-browser": "4.0.5",

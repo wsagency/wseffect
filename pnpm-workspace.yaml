@@ -2,6 +2,7 @@ packages:
   - packages/*
   - apps/*
   - bench/*
+  - tools/fixtures/*
 
 managePackageManagerVersions: false
 strictPeerDependencies: true
