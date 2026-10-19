@@ -119,3 +119,8 @@
 - **Evidence:** The pre-change `bench/baselines/size.json` had an empty `entries` object; the comparator iterated only baseline entries and checked `reason` without requiring candidate-baseline changes.
 - **Resolution:** Compare against `origin/main`'s merge-base baseline, require every current artifact in the candidate `size.json`, and require both changed bytes and a reason for explained growth.
 - **Smallest compliant fix:** Seed the mini-app artifacts with observed measurements and reject missing or undersized candidate entries.
+
+## 2026-10-19 — APP-23 framework group must contain boot runtime only; clarify GATE-S1
+
+- **Issue:** APP-23's earlier "all `node_modules`" rule included page-only `@foldkit/ui` menu/dialog and Floating UI in the eager framework chunk. Lane D measured S1 at 117,469 B before narrowing the group and 98,306 B afterward.
+- **Amendment:** APP-23 now groups only the resolved package roots for `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`; all other modules use default splitting. Its build test must assert the framework excludes page-only dependencies, including `@foldkit/ui` menu/dialog and Floating UI. GATE-S1 counts the entry and framework JavaScript only; CSS counts in GATE-S2's first-visit transfer. The plan's A8 and C3 test requirements reflect this.

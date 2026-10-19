@@ -332,10 +332,10 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 
 ### 7.9 Chunking
 
-- **APP-23 Stable `framework` chunk.** The `wseffect()` Vite plugin sets `build.rolldownOptions.output.codeSplitting.groups` to one group named `framework`. That group matches modules resolved from `node_modules` or from any `@wsagency/wseffect-*` package directory.
+- **APP-23 Stable `framework` chunk.** The `wseffect()` Vite plugin sets `build.rolldownOptions.output.codeSplitting.groups` to one group named `framework`. It matches only modules resolved under these boot-runtime package roots: `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`. Resolve each root from the app and match its real path; every other module uses Rolldown's default splitting. In particular, page-only dependencies such as `@foldkit/ui` menu/dialog and Floating UI stay out of the eager framework chunk.
   - **Effect:** pages import shared code from `framework-*` instead of from the entry, so changing one page does not rename every chunk.
-  - **Test:** building the gallery twice, with only one page source changed, changes exactly two asset filenames: the entry and that page.
-  - **Evidence:** default chunking renamed 24 of 25 chunks, the `framework` group 2 of 25. The cost is about 0.6 KiB brotli [F:885-889].
+  - **Test:** build the gallery twice, with only one page source changed, and assert exactly two asset filenames change: the entry and that page. Assert that the `framework` chunk includes the boot-runtime packages above and excludes page-only dependencies, including `@foldkit/ui` menu/dialog and Floating UI.
+  - **Evidence:** default chunking renamed 24 of 25 chunks, the `framework` group 2 of 25. Lane D measurement S1 fell from 117,469 B to 98,306 B after restricting the framework group. This narrows the eager group to avoid loading page-only dependencies at boot.
 
 ## 8. wseffect-app: PWA and versioning
 
@@ -481,7 +481,7 @@ These rules come from the performance research repercussions [P:144-155].
 - "Brotli" means Node `zlib` brotli at quality 11: of the built file for shell figures, and of the response body as served for first-visit figures.
 
 **Gates:**
-- **GATE-S1 Shell size.** The entry chunk plus the `framework` chunk of the gallery production build total ≤ 122,880 B (120 KiB) brotli.
+- **GATE-S1 Shell size.** The entry JavaScript chunk plus the `framework` JavaScript chunk of the gallery production build total ≤ 122,880 B (120 KiB) brotli. This gate counts JavaScript only; CSS is counted by GATE-S2's first-visit transfer.
   - Reference: the research shell measured 94,557 B (6,097 B entry + 88,460 B `framework`) **without Themes JavaScript** [F:889; App. A.4]. The foundation shell has not been measured.
   - The first implementation-plan task that builds the gallery records the real foundation shell size in `bench/baselines/size.json`.
   - If that size exceeds 122,880 B, the gate is not raised silently: the PR reports the measured size with a source-map attribution and an explanation, and the user decides whether the budget changes or the code does. Until that decision, the `size` job stays failing.

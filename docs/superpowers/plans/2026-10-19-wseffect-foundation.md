@@ -257,7 +257,8 @@ Tabs.create<Value extends string>(): { Model, Message, OutMessage, init, update,
 { "unit": "B", "compression": "brotli-q11",
   "entries": { "<artifact-id>": { "bytes": 0, "reason": "string" } } }
 ```
-Artifact ids: `shell` (entry + framework chunk), `first-visit`, `page:<key>`, `styles.css`.
+Artifact ids: `shell` (entry + framework JavaScript chunks), `first-visit`, `page:<key>`, `styles.css`.
+- **`bench/baselines/size.json`** (owned by C3): `shell` is GATE-S1's brotli-q11 total for the entry and framework JavaScript chunks only; CSS is counted in `first-visit` under GATE-S2.
 
 **`bench/baselines/perf.json`** (owned by C4):
 ```json
@@ -630,7 +631,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - Linked packages are found from `pnpm-lock.yaml` `importers.<app>.dependencies.*.version` starting with `link:` or `file:` (transitively); tracked files come from `git ls-files`.
 - [ ] **Step 2: Write the failing plugin tests** (APP-23, PWA-1..4, PWA-7). Run `vite build` programmatically on `test/fixtures/app-pages` with `wseffect({ primaryPages: ['alpha'], pwa: {manifest} })`:
   - `dist/version.json` equals `{ buildId }`, and the same string occurs in the entry JS.
-  - Output contains a `framework-*.js` chunk; page chunks import from it and not from `index-*`.
+  - Output contains a `framework-*.js` chunk; page chunks import from it and not from `index-*`. Assert the framework contains `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`, and excludes page-only dependencies such as `@foldkit/ui` menu/dialog and Floating UI.
   - `sw.js` precache URLs include `index.html`, the entry, `framework-*`, `alpha-*` and not `beta-*`.
   - `sw.js` contains `CacheFirst`, `wseffect-pages`, `maxEntries:200`, `maxAgeSeconds:2592000`, `clientsClaim()`.
   - With `pwa: false`: no `sw.js`, and the entry contains no `workbox`.
@@ -640,8 +641,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `computeBuildId` runs in the plugin's `config` hook.
   - `define` covers both constants.
   - `generateBundle` emits `version.json` via `this.emitFile`.
-  - Chunking: `build.rolldownOptions.output.codeSplitting.groups = [{ name: 'framework', test: isFrameworkModule }]`. In the plugin's `config` hook, find every installed `@wsagency/wseffect-*` package from the app root: walk `node_modules/@wsagency` up the directory chain, resolve each package with `createRequire(<root>/package.json)`, and take the `realpath` of its package root. `isFrameworkModule(id)` is true when `id` contains `/node_modules/`, or when the realpath of `id` (query stripped) equals or lies under one of those package roots. Do not match consumer source paths by pattern (such as `packages/app/`), because linked workspace packages resolve outside `node_modules`.
-  - Test the classifier as part of the Step 2 build test: page chunks import from `framework-*`, and changing one page source changes exactly two asset filenames (entry and that page).
+  - Chunking: `build.rolldownOptions.output.codeSplitting.groups = [{ name: 'framework', test: isFrameworkModule }]`. Resolve the real package roots for only `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window` from the app root; `isFrameworkModule(id)` is true only when the query-stripped realpath of `id` equals or lies under one of those roots. Every other module uses default splitting; specifically, do not include `@foldkit/ui` menu/dialog or Floating UI just because they are installed.
+  - Test the classifier as part of the Step 2 build test: the `framework` chunk contains only those boot-runtime package roots, excludes the page-only dependencies, page chunks import from `framework-*`, and changing one page source changes exactly two asset filenames (entry and that page).
   - PWA: `VitePWA` with exactly the PWA-2/PWA-3 options; when `pwa:false`, an alias from `virtual:pwa-register` to `register-stub.js`.
   - The plugin array includes `foldkit()` from `@foldkit/vite-plugin`.
 - [ ] **Step 5: Run** again. Expected: PASS.
@@ -922,10 +923,10 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - Produces: `measureSize(input: { distDir: string; pagesDir: string }): Promise<SizeReport>`, where `SizeReport = { shell: number; firstVisit: { bytes: number; requests: number }; pages: Record<string, number>; stylesCss?: number }`; `compareSize(report, baseline): { failures: string[] }`; CLI `pnpm gate:size --app apps/gallery`.
 
 - [ ] **Step 1: Write the failing tests** (GATE-S1, S2, S3):
-  - `compareSize` fails when `shell > 122880` with the message `GATE-S1: shell <n> B exceeds 122,880 B; do not raise the budget without user decision` (spec GATE-S1).
-  - It fails when first-visit `> 163840`.
+  - `compareSize` fails when `shell > 122880` with the message `GATE-S1: shell <n> B exceeds 122,880 B; do not raise the budget without user decision` (spec GATE-S1). `shell` counts only the entry and `framework` JavaScript chunks; CSS does not count toward GATE-S1.
+  - It fails when first-visit `> 163840`; this GATE-S2 measurement includes CSS among the transferred resources.
   - It fails when any tracked artifact grows by more than 2% over baseline and the baseline `reason` is empty; it passes when the same PR's baseline entry has a non-empty reason.
-  - On `tools/fixtures/mini-app`: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`. `firstVisit` counts every server request from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms.
+  - On `tools/fixtures/mini-app`: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`, excluding CSS. `firstVisit` counts every server request from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms.
 - [ ] **Step 2: Run** `node --test tools/gates/size.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement** with Playwright Chromium and the C1 server with `brotli:true`.
 - [ ] **Step 4: Run** again. Expected: PASS.
