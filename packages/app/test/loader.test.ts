@@ -1,4 +1,4 @@
-import { Effect, Layer, Stream } from 'effect'
+import { Deferred, Effect, Layer, Stream } from 'effect'
 import { describe, expect, it, vi } from 'vitest'
 import { PageLoader, PageLoadError, ensure } from '../src/loader.js'
 import { alphaPage } from './fixtures/pages/alpha.js'
@@ -59,6 +59,45 @@ describe('page loader', () => {
     expect(load).toHaveBeenCalledTimes(2)
   })
 
+  it('interrupts the loader and emits nothing when isNeeded becomes false', async () => {
+    const subscription = binding.subscriptions['wseffect:load:alpha']
+    const started = Deferred.makeUnsafe<void>()
+    const interrupted = Deferred.makeUnsafe<void>()
+    const layer = Layer.succeed(PageLoader, {
+      load: () => Effect.onInterrupt(
+        Effect.andThen(Deferred.succeed(started, undefined), Effect.never),
+        () => Deferred.succeed(interrupted, undefined),
+      ),
+    })
+    const dependencies = Stream.concat(
+      Stream.make({ isNeeded: true }),
+      Stream.fromEffect(Deferred.await(started)).pipe(Stream.as({ isNeeded: false })),
+    )
+    const messages = await Effect.runPromise(Stream.runCollect(dependencies.pipe(
+      Stream.switchMap((deps) => subscription.dependenciesToStream(deps, () => deps)),
+    )).pipe(Effect.provide(layer)))
+    expect(Array.from(messages)).toEqual([])
+    expect(Deferred.isDoneUnsafe(interrupted)).toBe(true)
+  })
+
+  it('emits FailedPageModule with the classifier result after a loader failure', async () => {
+    const subscription = binding.subscriptions['wseffect:load:alpha']
+    const layer = Layer.succeed(PageLoader, {
+      load: () => Effect.fail(new PageLoadError({ key: 'alpha', cause: new Error('chunk failed') })),
+    })
+    vi.stubGlobal('navigator', { onLine: false })
+    const messages = await Effect.runPromise(Stream.runCollect(subscription.dependenciesToStream(
+      { isNeeded: true },
+      () => ({ isNeeded: true }),
+    )).pipe(Effect.provide(layer)))
+    vi.unstubAllGlobals()
+    expect(Array.from(messages)).toContainEqual(expect.objectContaining({
+      _tag: 'FailedPageModule',
+      key: 'alpha',
+      cause: 'Offline',
+      reason: 'chunk failed',
+    }))
+  })
   it('emits LoadedPageModule while a page slot needs loading', async () => {
     const subscription = binding.subscriptions['wseffect:load:alpha']
     const messages = await Effect.runPromise(Stream.runCollect(subscription.dependenciesToStream(
