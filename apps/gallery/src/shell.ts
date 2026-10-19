@@ -6,7 +6,7 @@ import type { HtmlBuilder } from 'foldkit/html'
 import type { Url } from 'foldkit/url'
 import type { UrlRequest } from 'foldkit/navigation'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
-import { initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
+import { BUILD_ID, initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
@@ -129,6 +129,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => ({
     h.header([], [
       h.h1([], ['WS Effect Gallery']),
       h.output([h.Id('date-shell')], [model.date]),
+      h.output([h.Id('build-id')], [BUILD_ID]),
       h.submodel({
         slotId: 'date-picker',
         model: model.datePicker,
