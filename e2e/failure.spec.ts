@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
+test.use({ serviceWorkers: 'block' })
 
 const chunk = (key: string): RegExp => new RegExp(`/assets/${key}-[^/]+\\.js(?:\\?.*)?$`, 'i')
 
