@@ -3,10 +3,16 @@ import { extname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import { readFileSync, statSync } from 'node:fs'
 
+export interface ServerResponseStat {
+  readonly path: string
+  readonly bytes: number
+}
+
 export interface ServerStats {
   readonly requests: number
   readonly bytes: number
   readonly byPath: string[]
+  readonly responses: ReadonlyArray<ServerResponseStat>
 }
 
 export interface ServerHandle {
@@ -89,6 +95,7 @@ export async function startServer(options: ServerOptions): Promise<ServerHandle>
   let requests = 0
   let bytes = 0
   const byPath: string[] = []
+  const responses: ServerResponseStat[] = []
 
   function send(
     request: IncomingMessage,
@@ -103,7 +110,12 @@ export async function startServer(options: ServerOptions): Promise<ServerHandle>
     if (policy !== undefined) headers['Cache-Control'] = policy
     headers['Content-Length'] = String(body.length)
     response.writeHead(status, headers)
-    response.once('finish', () => { bytes += request.method === 'HEAD' ? 0 : body.length })
+    const responseBytes = request.method === 'HEAD' ? 0 : body.length
+    const path = responsePath(request) ?? request.url ?? '/'
+    response.once('finish', () => {
+      bytes += responseBytes
+      responses.push({ path, bytes: responseBytes })
+    })
     if (request.method === 'HEAD') response.end()
     else response.end(body)
   }
@@ -194,11 +206,12 @@ export async function startServer(options: ServerOptions): Promise<ServerHandle>
       }
     },
     stats(reset = false) {
-      const snapshot = { requests, bytes, byPath: [...byPath] }
+      const snapshot = { requests, bytes, byPath: [...byPath], responses: [...responses] }
       if (reset) {
         requests = 0
         bytes = 0
         byPath.length = 0
+        responses.length = 0
       }
       return snapshot
     },

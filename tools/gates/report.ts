@@ -6,6 +6,7 @@ import { chromium, type Browser } from '@playwright/test'
 import { preview } from 'vite'
 import { runHarnessSelfTest, runScenario, SCENARIOS } from './perf.ts'
 import type { PerfScenario } from './scenarios.ts'
+import { primaryPages } from '../../apps/gallery/src/primaryPages.ts'
 import { measureSize, type SizeReport } from './size.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
@@ -61,7 +62,8 @@ export function renderSummary(report: ComparisonReport): string {
   const rows = [
     `| shell (Brotli-q11) | ${formatBytes(report.wseffect.size.shell)} | ${formatBytes(report.radix2solid.size.shell)} |`,
     `| shell raw (entry + framework/vendor) | ${formatBytes(report.wseffect.size.shellRaw)} | ${formatBytes(report.radix2solid.size.shellRaw)} |`,
-    `| first-visit (Brotli-q11) | ${formatBytes(report.wseffect.size.firstVisit.bytes)} | ${formatBytes(report.radix2solid.size.firstVisit.bytes)} |`,
+    `| first-visit (GATE-S2, Brotli-q11) | ${formatBytes(report.wseffect.size.firstVisit.bytes)} | ${formatBytes(report.radix2solid.size.firstVisit.bytes)} |`,
+    `| speculative prefetch (GATE-S4, Brotli-q11) | ${formatBytes(report.wseffect.size.speculativePrefetch.bytes)} | ${formatBytes(report.radix2solid.size.speculativePrefetch.bytes)} |`,
   ]
   for (const scenario of SCENARIOS) {
     const id = scenario.id
@@ -85,9 +87,9 @@ export function renderSummary(report: ComparisonReport): string {
   ].join('\n')
 }
 
-async function applicationReport(appDir: string, browser: Browser): Promise<ApplicationReport> {
+async function applicationReport(appDir: string, browser: Browser, primaryPageKeys: ReadonlyArray<string>): Promise<ApplicationReport> {
   execFileSync('pnpm', ['--dir', appDir, 'build'], { cwd: ROOT, stdio: 'inherit' })
-  const size = await measureSize({ distDir: join(appDir, 'dist'), pagesDir: join(appDir, 'src/pages') })
+  const size = await measureSize({ distDir: join(appDir, 'dist'), pagesDir: join(appDir, 'src/pages'), primaryPageKeys })
   const server = await preview({
     root: appDir,
     logLevel: 'error',
@@ -117,8 +119,8 @@ async function run(): Promise<void> {
     const report: ComparisonReport = {
       generatedAt: new Date().toISOString(),
       methodology: 'Six matched data-perf hooks; 10 sessions per app; 4× CPU throttle verified by an in-page fixed loop; Event Timing captured by PerformanceObserver after paint and observer flush; scripting is the trace-event interval union from trusted click/keydown dispatch to the Event Timing next-paint boundary or following Paint/Commit. Shell reports the same index entry + framework/vendor pair as raw bytes and Brotli-q11 bytes.',
-      wseffect: await applicationReport(WSEFFECT_APP, browser),
-      radix2solid: await applicationReport(RADIX2SOLID_APP, browser),
+      wseffect: await applicationReport(WSEFFECT_APP, browser, primaryPages),
+      radix2solid: await applicationReport(RADIX2SOLID_APP, browser, []),
       differences: DIFFERENCES,
     }
     const jsonPath = join(ROOT, '.artifacts/radix2solid-report.json')

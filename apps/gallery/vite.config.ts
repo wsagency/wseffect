@@ -1,3 +1,4 @@
+import { primaryPages } from './src/primaryPages.js'
 import { defineConfig } from 'vite'
 import { wseffect } from '@wsagency/wseffect-app/vite'
 
@@ -17,7 +18,7 @@ export const manifest = {
 export default defineConfig({
   build: { manifest: true },
   plugins: [wseffect({
-    primaryPages: ['layout', 'typography', 'buttons', 'dialog'],
+    primaryPages,
     pwa: { manifest },
   })],
 })
