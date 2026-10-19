@@ -1,6 +1,6 @@
 # wseffect
 
-wseffect is an independent, unofficial project. It is not affiliated with or endorsed by Foldkit, WorkOS, Radix, or WS Agency. The MIT license does not grant rights to any names, logos, or trademarks.
+wseffect is an independent, unofficial project. It is not endorsed by Foldkit, WorkOS, Radix, or WS Agency. The MIT license grants no trademark rights in any names, logos, or other marks.
 
 This repository contains:
 

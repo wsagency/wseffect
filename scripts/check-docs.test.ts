@@ -23,7 +23,7 @@ test('root license contains project and retained upstream MIT notices in order',
     assert.ok(at > previous, `missing or out-of-order MIT notice: ${notice.split('\n')[2]}`)
     previous = at
   }
-  assert.match(license, /wseffect adapts and reuses upstream work under its original licenses[\s\S]*?not affiliated with or endorsed by Foldkit, WorkOS or Radix/)
+  assert.match(license.replace(/\s+/g, ' '), /wseffect adapts and reuses upstream work under its original licenses[\s\S]*?not affiliated with or endorsed by Foldkit, WorkOS or Radix/)
   assert.equal(license.match(/^----$/gm)?.length, 4)
 })
 
@@ -34,7 +34,7 @@ test('README states project independence, package scope, and WS Agency attributi
   assert.match(readme, /## Created for WS Agency/)
   assert.match(readme, /<picture>[\s\S]*https:\/\/ws\.agency\/brand\/ws-vertical-white\.svg[\s\S]*https:\/\/ws\.agency\/brand\/ws-vertical-color\.svg[\s\S]*width="160"[\s\S]*<\/picture>/)
   assert.ok(readme.includes('wseffect was created by [Kristijan Lukačin](https://github.com/klukacin) (@klukacin) for [WS Agency](https://ws.agency), the firm behind this project. We love open source, enterprise development and AI. Have a project in mind? [Let’s build it together](https://ws.agency/contact).'))
-  assert.match(readme, /brand.{0,30}exclusion|names, logos or trademarks/i)
+  assert.ok(readme.includes('The WS Agency name and logos are excluded from this project’s MIT license'))
   assert.match(readme, /https:\/\/design\.ws\.agency\/docs\/usage-and-licenses\.md/)
 })
 
