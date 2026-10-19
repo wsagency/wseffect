@@ -1,7 +1,7 @@
-import { Option } from 'effect'
+import { Effect, Option, Stream } from 'effect'
 import { Scene, Submodel } from 'foldkit'
 import { role, selector, text } from 'foldkit/scene'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { alphaPage } from './fixtures/pages/alpha.js'
 import { makeKitFixture } from './fixtures/kit.js'
 import { prefetchOnIntent, prefetchOnVisible } from '../src/view/prefetch.js'
@@ -115,6 +115,80 @@ describe('prefetch intent attributes', () => {
       Scene.Mount.resolve(action, binding.messages.requestedPrefetch('alpha')),
       Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
       Scene.Command.resolve(binding.commands.LoadPageForPrefetch({ key: 'alpha' }), KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+  })
+  it('waits for browser idle after visibility before requesting prefetch', async () => {
+    const { binding } = makeKitFixture()
+    const attribute = prefetchOnVisible<FixturePages, FixtureMessage>(binding, 'alpha')
+    if (attribute._tag !== 'OnMount') throw new Error('Expected a mount attribute')
+
+    let makeVisible: (() => void) | undefined
+    const observerReady = Promise.withResolvers<void>()
+    class TestIntersectionObserver {
+      constructor(callback: (entries: Array<{ readonly isIntersecting: boolean }>) => void) {
+        makeVisible = () => callback([{ isIntersecting: true }])
+        observerReady.resolve()
+      }
+      observe() {}
+      disconnect() {}
+    }
+    let idleCallback: (() => void) | undefined
+    vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
+    vi.stubGlobal('requestIdleCallback', (callback: () => void) => {
+      idleCallback = callback
+      return 1
+    })
+    vi.stubGlobal('cancelIdleCallback', vi.fn())
+
+    try {
+      const result = Effect.runPromise(Stream.runHead(attribute.action.f(document.createElement('div'), Stream.empty)))
+      await observerReady.promise
+      makeVisible!()
+      expect(idleCallback).toBeDefined()
+      let completed = false
+      void result.then(() => { completed = true })
+      await Promise.resolve()
+      expect(completed).toBe(false)
+      idleCallback!()
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha')))
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+  it('uses a timer fallback when requestIdleCallback is unavailable', async () => {
+    const { binding } = makeKitFixture()
+    const attribute = prefetchOnVisible<FixturePages, FixtureMessage>(binding, 'alpha')
+    if (attribute._tag !== 'OnMount') throw new Error('Expected a mount attribute')
+
+    let makeVisible: (() => void) | undefined
+    const observerReady = Promise.withResolvers<void>()
+    class TestIntersectionObserver {
+      constructor(callback: (entries: Array<{ readonly isIntersecting: boolean }>) => void) {
+        makeVisible = () => callback([{ isIntersecting: true }])
+        observerReady.resolve()
+      }
+      observe() {}
+      disconnect() {}
+    }
+    vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
+    vi.stubGlobal('requestIdleCallback', undefined)
+
+    try {
+      const result = Effect.runPromise(Stream.runHead(attribute.action.f(document.createElement('div'), Stream.empty)))
+      await observerReady.promise
+      vi.useFakeTimers()
+      const timersBeforeVisibility = vi.getTimerCount()
+      makeVisible!()
+      expect(vi.getTimerCount()).toBe(timersBeforeVisibility + 1)
+      let completed = false
+      void result.then(() => { completed = true })
+      await Promise.resolve()
+      expect(completed).toBe(false)
+      await vi.runAllTimersAsync()
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha')))
+    } finally {
+      vi.unstubAllGlobals()
+      vi.useRealTimers()
+    }
   })
   it('keeps visible mounts associated with their binding', () => {
     const first = makeKitFixture()

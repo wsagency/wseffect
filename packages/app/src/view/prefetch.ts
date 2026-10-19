@@ -16,6 +16,20 @@ export function prefetchOnIntent<Pages extends Record<string, AnyPage>, KitMessa
   ]
 }
 
+type IdleCallbackHost = {
+  readonly requestIdleCallback?: (callback: () => void) => number
+  readonly cancelIdleCallback?: (handle: number) => void
+}
+
+function scheduleAfterIdle(callback: () => void): () => void {
+  const host = globalThis as IdleCallbackHost
+  if (host.requestIdleCallback !== undefined) {
+    const handle = host.requestIdleCallback(callback)
+    return () => host.cancelIdleCallback?.(handle)
+  }
+  const handle = setTimeout(callback, 0)
+  return () => clearTimeout(handle)
+}
 const visiblePrefetchMounts = new WeakMap<object, Mount.MountDefinition>()
 
 function getVisiblePrefetchMount<Pages extends Record<string, AnyPage>, KitMessage extends object>(
@@ -30,18 +44,30 @@ function getVisiblePrefetchMount<Pages extends Record<string, AnyPage>, KitMessa
     execute: ({ element, key: pageKey }) => typeof IntersectionObserver === 'undefined'
       ? Stream.empty
       : Stream.callback<KitMessage>((queue) => Effect.gen(function*() {
+        let cancelIdle: (() => void) | undefined
+        let active = true
+        let hasIntersected = false
         yield* Effect.acquireRelease(
           Effect.sync(() => {
             const observer = new IntersectionObserver((entries) => {
-              if (entries.some((entry) => entry.isIntersecting)) {
+              if (!hasIntersected && entries.some((entry) => entry.isIntersecting)) {
+                hasIntersected = true
                 observer.disconnect()
-                Queue.offerUnsafe(queue, binding.messages.requestedPrefetch(pageKey))
+                cancelIdle = scheduleAfterIdle(() => {
+                  cancelIdle = undefined
+                  if (active) Queue.offerUnsafe(queue, binding.messages.requestedPrefetch(pageKey))
+                })
               }
             })
             observer.observe(element)
             return observer
           }),
-          (observer) => Effect.sync(() => observer.disconnect()),
+          (observer) => Effect.sync(() => {
+            active = false
+            observer.disconnect()
+            cancelIdle?.()
+            cancelIdle = undefined
+          }),
         )
         return yield* Effect.never
       })),

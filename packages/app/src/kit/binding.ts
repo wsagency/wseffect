@@ -1,5 +1,5 @@
 import { BUILD_ID } from '../buildId.js'
-import { Effect, Option, Schema } from 'effect'
+import { Effect, Option, Schema, Semaphore } from 'effect'
 import { Command, Submodel, Subscription } from 'foldkit'
 import type { Update } from 'foldkit'
 import type { AnyPage, MessageOf, OutMessageOf, ServicesOf } from '../contract.js'
@@ -66,6 +66,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
   const keySchema = pages.keys.length > 0
     ? Schema.Literals(pages.keys as readonly [Key, ...Key[]])
     : Schema.String
+  const prefetchSemaphore = Semaphore.makeUnsafe(2)
   const failedPage = (key: string, cause: string, reason: string) =>
     messageConstructor<KitMessage>(union, 'FailedPageModule', { key, cause, reason })
   const completedPrefetch = (key: string, isLoaded: boolean) =>
@@ -86,7 +87,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
     args: { key: keySchema },
     messages: [messageDefinition<KitMessage>(union, 'CompletedPrefetch')],
     execute: ({ key }) => Effect.catch(
-      Effect.as(ensure(pages, key), completedPrefetch(key, true)),
+      Effect.as(prefetchSemaphore.withPermits(1)(ensure(pages, key)), completedPrefetch(key, true)),
       () => Effect.succeed(completedPrefetch(key, false)),
     ),
   })
