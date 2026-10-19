@@ -25,9 +25,16 @@ describe('themes distribution', () => {
     expect(packageJson.exports['.']).toBeDefined()
     for (const name of componentNames) expect(packageJson.exports[`./components/${name}`], name).toBeDefined()
     for (const subpath of cssSubpaths) expect(packageJson.exports[subpath], subpath).toBeDefined()
+    const layerEntry = packageJson.exports['./*.layer.css']
+    expect(layerEntry).toBeDefined()
+    for (const subpath of cssSubpaths) {
+      expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, subpath).toBeDefined()
+    }
     const colors = await readdir(resolve(packageRoot, 'src/styles/tokens/colors'))
     for (const color of colors.filter(name => name.endsWith('.css'))) {
-      expect(packageJson.exports[`./tokens/colors/${color}`], color).toBeDefined()
+      const subpath = `./tokens/colors/${color}`
+      expect(packageJson.exports[subpath], color).toBeDefined()
+      expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, `${color} layer`).toBeDefined()
     }
   })
 
