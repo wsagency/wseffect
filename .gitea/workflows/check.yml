@@ -23,6 +23,21 @@ jobs:
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm check
 
+  e2e:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm e2e
+
   size:
     runs-on: ubuntu-24.04
     needs: check
@@ -39,7 +54,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm gate:size --app tools/fixtures/mini-app
+      - run: pnpm gate:size --app apps/gallery
 
   perf:
     runs-on: [self-hosted, perf]
@@ -62,7 +77,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm gate:perf --app tools/fixtures/mini-app
+      - run: pnpm gate:perf --app apps/gallery
   bench-radix2solid:
     runs-on: [self-hosted, perf]
     needs: check

@@ -333,10 +333,11 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 
 ### 7.9 Chunking
 
-- **APP-23 Stable `framework` chunk.** The `wseffect()` Vite plugin sets `build.rolldownOptions.output.codeSplitting.groups` to one group named `framework`. It matches only modules resolved under these boot-runtime package roots: `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`. Resolve each root from the app and match its real path; every other module uses Rolldown's default splitting. In particular, page-only dependencies such as `@foldkit/ui` menu/dialog and Floating UI stay out of the eager framework chunk.
-  - **Effect:** pages import shared code from `framework-*` instead of from the entry, so changing one page does not rename every chunk.
-  - **Test:** build the gallery twice, with only one page source changed, and assert exactly two asset filenames change: the entry and that page. Assert that the `framework` chunk includes the boot-runtime packages above and excludes page-only dependencies, including `@foldkit/ui` menu/dialog and Floating UI.
-  - **Evidence:** default chunking renamed 24 of 25 chunks, the `framework` group 2 of 25. Lane D measurement S1 fell from 117,469 B to 98,306 B after restricting the framework group. This narrows the eager group to avoid loading page-only dependencies at boot.
+- **APP-23 Stable `framework` and `app-shared` chunks.** The `framework` group contains only modules resolved under the boot-runtime package roots `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`. The `app-shared` group contains only application modules statically reachable from both the entry and at least one page. All other modules use Rolldown's default splitting.
+  - Resolve package roots from the app and match their real paths; page-only dependencies such as `@foldkit/ui` menu/dialog and Floating UI stay out of the eager framework and app-shared groups.
+  - **Effect:** pages import shared code from `framework-*` or `app-shared-*` instead of from the entry, so changing one page does not rename every chunk.
+  - **Test:** build the gallery twice, with only one page source changed, and assert exactly two asset filenames change: the entry and that page. Assert that the framework chunk includes the boot-runtime packages above and excludes page-only dependencies, including `@foldkit/ui` menu/dialog and Floating UI. Assert that the static/modulepreload closure of `index.html` contains no page-only dependencies.
+  - **Evidence:** default chunking renamed 24 of 25 chunks, the `framework` group 2 of 25. Lane D measurement S1 fell from 117,469 B to 98,306 B after restricting the framework group. This narrows the eager groups to avoid loading page-only dependencies at boot.
 
 ## 8. wseffect-app: PWA and versioning
 

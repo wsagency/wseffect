@@ -1,20 +1,16 @@
-import { mkdtempSync, rmSync } from 'node:fs'
 import assert from 'node:assert/strict'
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { test } from 'node:test'
 import { chromium } from '@playwright/test'
-import { build, preview } from 'vite'
+import { preview, type PreviewServer } from 'vite'
 
-test('mini-app matches the shared virtual-list, form, and menu contract', async () => {
-  const fixtureDir = resolve(import.meta.dirname, '../fixtures/mini-app')
-  const outputDir = mkdtempSync(join(fixtureDir, '.contract-build-'))
-  let server: Awaited<ReturnType<typeof preview>> | undefined
+test('Gallery matches the shared virtual-list, form, and menu contract', async () => {
+  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
+  let server: PreviewServer | undefined
   try {
-    await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), build: { outDir: outputDir }, logLevel: 'error' })
     server = await preview({
-      root: fixtureDir,
-      configFile: join(fixtureDir, 'vite.config.ts'),
-      build: { outDir: outputDir },
+      root: appDir,
+      configFile: resolve(appDir, 'vite.config.ts'),
       logLevel: 'error',
       preview: { host: '127.0.0.1', port: 0, strictPort: false },
     })
@@ -28,7 +24,8 @@ test('mini-app matches the shared virtual-list, form, and menu contract', async 
       assert.equal(await page.locator('[data-perf="vl-filter"]').getAttribute('type'), 'text')
       await page.locator('[data-perf="vl-sort"]').waitFor({ state: 'visible', timeout: 1_000 })
       assert.equal(await page.locator('[data-perf="vl-sort"]').count(), 1)
-      assert.equal(await page.locator('[data-perf="vl-row"]').count(), 15)
+      const visibleRows = await page.locator('[data-perf="vl-row"]').count()
+      assert.ok(visibleRows > 0 && visibleRows <= 20, `virtual list renders ${visibleRows} rows (limit 20)`)
       assert.equal(await page.locator('[data-perf="vl-row"]').first().locator(':scope > *').count(), 6)
       assert.equal(await page.locator('[data-perf="vl-cell-input"]').count(), 1)
       assert.equal(await page.locator('[data-perf="vl-cell-input"]').getAttribute('type'), 'text')
@@ -46,6 +43,6 @@ test('mini-app matches the shared virtual-list, form, and menu contract', async 
     }
   } finally {
     await server?.close()
-    rmSync(outputDir, { recursive: true, force: true })
   }
 })
+

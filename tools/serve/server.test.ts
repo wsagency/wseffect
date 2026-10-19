@@ -155,6 +155,10 @@ test('counts encoded brotli response bytes and returns brotli bodies', async () 
       assert.equal(stats.requests, 2)
       assert.equal(stats.bytes, shell.body.length + asset.body.length)
       assert.deepEqual(stats.byPath, ['/', '/assets/app.js'])
+      assert.deepEqual(stats.responses, [
+        { path: '/', bytes: shell.body.length },
+        { path: '/assets/app.js', bytes: asset.body.length },
+      ])
     } finally {
       removeBuilds([dir])
     }

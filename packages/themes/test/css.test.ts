@@ -58,4 +58,11 @@ describe('Themes CSS distribution', () => {
     expect(license).toContain('Copyright (c) 2021 Radix')
     expect(license).toContain('Copyright (c) 2026 Radix2Solid contributors')
   })
+
+  it('ships CSS module type declarations for exported stylesheets', async () => {
+    const source = await readFile(resolve(packageRoot, 'src/css.d.ts'), 'utf8')
+    const output = await readFile(resolve(packageRoot, 'dist/css.d.ts'), 'utf8')
+    expect(output).toBe(source)
+  })
+
 })

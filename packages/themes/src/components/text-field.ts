@@ -31,7 +31,10 @@ export const Props = Schema.Struct({
   invalid: Schema.optional(Schema.Boolean),
   color: Schema.optional(Schema.Literals(accentColors)),
 })
-export type ViewProps<Message> = typeof Props.Type & Readonly<{ onInput?: (value: string) => Message }>
+export type ViewProps<Message> = typeof Props.Type & Readonly<{
+  onInput?: (value: string) => Message
+  inputAttributes?: ReadonlyArray<Attribute<Message>>
+}>
 
 export const view = <Message>(
   props: ViewProps<Message>,
@@ -59,7 +62,7 @@ export const view = <Message>(
       if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
       return h.div(attributes, [
         h.label([...label], [props.label]),
-        h.input([...input, h.Class('rt-reset rt-TextFieldInput')]),
+        h.input([...input, ...(props.inputAttributes ?? []), h.Class('rt-reset rt-TextFieldInput')]),
         ...(children.length > 0 ? [h.p([...description], children)] : []),
       ])
     },

@@ -34,9 +34,40 @@ async function buildFixture(
     cpSync(fixtureDirectory, directory, { recursive: true })
     writeFileSync(join(directory, 'src/pages/package.json'), JSON.stringify({ sideEffects: false }))
     if (alphaSource !== undefined) writeFileSync(join(directory, 'src/pages/alpha.ts'), alphaSource)
+    writeFileSync(
+      join(directory, 'src/main.ts'),
+      `${readFileSync(join(directory, 'src/main.ts'), 'utf8')}\nimport './entry.css'\nimport { Props } from '@wsagency/wseffect-themes/components/box'\ndocument.documentElement.dataset.theme = String(Props)\n`,
+    )
+    mkdirSync(join(directory, 'public'), { recursive: true })
+    mkdirSync(join(directory, 'public/assets'), { recursive: true })
+    writeFileSync(join(directory, 'public/extra.html'), '<!doctype html>')
+    writeFileSync(join(directory, 'public/extra.css'), '.extra {}')
+    writeFileSync(join(directory, 'public/assets/workbox-helper.js'), 'export {}')
+    writeFileSync(
+      join(directory, 'src/pages/alpha.ts'),
+      `${readFileSync(join(directory, 'src/pages/alpha.ts'), 'utf8')}\nimport { Props } from '@wsagency/wseffect-themes/components/box'\nexport const sharedTheme = Props\nimport './alpha.css'\n`,
+    )
+    writeFileSync(
+      join(directory, 'src/pages/theme.ts'),
+      `${readFileSync(join(directory, 'src/pages/beta.ts'), 'utf8')}\nimport { Props } from '@wsagency/wseffect-themes/components/box'\nexport const sharedTheme = Props\nimport './theme.css'\n`,
+    )
+    writeFileSync(join(directory, 'src/entry.css'), 'html { --document-style: document; } body { --entry-style: entry; }')
+    writeFileSync(join(directory, 'src/pages/alpha.css'), '.alpha { --primary-page-style: primary; }')
+    writeFileSync(join(directory, 'src/pages/theme.css'), '.theme { --secondary-page-style: theme-palette; }')
+    mkdirSync(join(directory, 'public/icons'), { recursive: true })
+    writeFileSync(join(directory, 'public/icons/icon-extra.png'), '')
+    writeFileSync(join(directory, 'public/icons/icon-192.png'), '')
+    writeFileSync(join(directory, 'public/icons/icon-512.png'), '')
     mkdirSync(join(directory, 'node_modules/@wsagency'), { recursive: true })
+    symlinkSync(
+      resolve(testDirectory, '../../themes'),
+      join(directory, 'node_modules/@wsagency/wseffect-themes'),
+      'dir',
+    )
+    mkdirSync(join(directory, 'node_modules/@foldkit'), { recursive: true })
     symlinkSync(resolve(testDirectory, '../node_modules/foldkit'), join(directory, 'node_modules/foldkit'), 'dir')
     symlinkSync(resolve(testDirectory, '..'), join(directory, 'node_modules/@wsagency/wseffect-app'), 'dir')
+    symlinkSync(resolve(testDirectory, '../node_modules/@foldkit/ui'), join(directory, 'node_modules/@foldkit/ui'), 'dir')
     await build({
       configFile: false,
       root: directory,
@@ -47,13 +78,66 @@ async function buildFixture(
           { find: '@wsagency/wseffect-app', replacement: appEntry },
         ],
       },
-      build: { outDir: join(directory, 'dist'), emptyOutDir: true },
+      build: { outDir: join(directory, 'dist'), emptyOutDir: true, sourcemap: true, manifest: true },
     })
     return { directory, output: join(directory, 'dist') }
   } catch (error) {
     rmSync(directory, { recursive: true, force: true })
     throw error
   }
+}
+
+type BuildManifestEntry = {
+  readonly file: string
+  readonly name?: string
+  readonly isDynamicEntry?: boolean
+  readonly imports?: ReadonlyArray<string>
+  readonly css?: ReadonlyArray<string>
+}
+
+type BuildManifest = Record<string, BuildManifestEntry>
+
+function precacheUrls(output: string): string[] {
+  const sw = readFileSync(join(output, 'sw.js'), 'utf8')
+  const match = sw.match(/precacheAndRoute\((\[[\s\S]*?\])(?:\s*,[^)]*)?\s*\)/)
+  if (match === null) throw new Error('Could not find precacheAndRoute manifest in sw.js')
+  const entries = JSON.parse(match[1]!) as Array<{ url: string }>
+  return entries.map(({ url }) => url).sort()
+}
+
+function expectedPrecacheUrls(
+  output: string,
+  appManifest: typeof manifest,
+  primaryPages: ReadonlyArray<string>,
+): string[] {
+  const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+  const expected = new Set([
+    'index.html',
+    'manifest.webmanifest',
+    ...appManifest.icons.map(({ src }) => src.replace(/^\/+/, '')),
+  ])
+  const addEntry = (key: string, visited = new Set<string>()) => {
+    if (visited.has(key)) return
+    visited.add(key)
+    const entry = buildManifest[key]
+    if (entry === undefined) throw new Error(`Vite manifest is missing ${key}`)
+    expected.add(entry.file)
+    for (const css of entry.css ?? []) expected.add(css)
+    for (const imported of entry.imports ?? []) addEntry(imported, visited)
+  }
+
+  addEntry('index.html')
+  for (const page of primaryPages) {
+    const pageEntry = Object.entries(buildManifest).find(([key, entry]) =>
+      entry.isDynamicEntry === true && (entry.name === page || key.endsWith(`/pages/${page}.ts`)),
+    )
+    if (pageEntry === undefined) throw new Error(`Vite manifest is missing primary page ${page}`)
+    addEntry(pageEntry[0])
+  }
+  for (const [key, entry] of Object.entries(buildManifest)) {
+    if (entry.name === 'workbox-window' || /(?:^|\/)workbox-window-[^/]+\.js$/.test(entry.file)) addEntry(key)
+  }
+  return [...expected].sort()
 }
 
 function outputFiles(output: string): string[] {
@@ -70,7 +154,7 @@ describe('wseffect Vite plugin', () => {
     expect(validateManifest({ ...manifest, start_url: '/app' })).toContain('manifest.start_url must be /')
   })
 
-  it('builds lazy page chunks in the framework group and configures the service worker precache', async () => {
+  it('precaches exactly the app manifest and allowed Vite build outputs', async () => {
     const { directory, output } = await buildFixture({ manifest })
     try {
       const files = outputFiles(output)
@@ -92,11 +176,22 @@ describe('wseffect Vite plugin', () => {
       }
 
       const sw = readFileSync(join(output, 'sw.js'), 'utf8')
-      expect(sw).toContain('index.html')
-      for (const file of [index!, framework!, alpha!]) expect(sw).toContain(file)
-      expect(sw).not.toContain(beta!)
+      const assets = readdirSync(join(output, 'assets'))
+      const actual = precacheUrls(output)
+      expect(actual).toEqual(expectedPrecacheUrls(output, manifest, ['alpha']))
+      expect(actual).toContain(`assets/${assets.find((file) => file.startsWith('index-') && file.endsWith('.css'))!}`)
+      expect(actual).toContain(`assets/${assets.find((file) => file.startsWith('alpha-') && file.endsWith('.css'))!}`)
+      expect(actual).not.toContain('extra.html')
+      expect(actual).not.toContain('extra.css')
+      expect(actual).not.toContain('icons/icon-extra.png')
+      expect(actual).not.toContain('assets/workbox-helper.js')
+      expect(actual.some((file) => /^(?:assets\/)?workbox-(?!window-).*\.js$/.test(file))).toBe(false)
+      expect(actual.some((file) => /^(?:beta|theme)-.*\.css$/.test(file))).toBe(false)
+      expect(actual.some((file) => /^(?:beta|theme)-.*\.js$/.test(file))).toBe(false)
+      expect(sw).toContain(String.raw`/\/assets\/.*\.(?:js|css)$/`)
       expect(sw).toContain('CacheFirst')
       expect(sw).toContain('wseffect-pages')
+      expect(sw).toMatch(/statuses:\s*\[200\]/)
       expect(sw).toMatch(/maxEntries:\s*200/)
       expect(sw).toMatch(/maxAgeSeconds:\s*2592000/)
       expect(sw).toMatch(/clientsClaim|clients\.claim/)
@@ -104,19 +199,69 @@ describe('wseffect Vite plugin', () => {
       rmSync(directory, { recursive: true, force: true })
     }
   })
+  it('keeps only boot packages in framework and lazy-loads page-only menu code', async () => {
+    const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\nimport * as Dialog from '@foldkit/ui/dialog'\nimport * as Tabs from '@foldkit/ui/tabs'\n\nexport const page = { Menu, Dialog, Tabs }\n")
+    try {
+      const files = outputFiles(output)
+      const framework = files.find((file) => file.startsWith('framework-'))!
+      const index = files.find((file) => file.startsWith('index-'))!
+      const alpha = files.find((file) => file.startsWith('alpha-'))!
+      const sources = (file: string) =>
+        (JSON.parse(readFileSync(join(output, 'assets', `${file}.map`), 'utf8')) as { sources: string[] }).sources
+      const bootPackages = ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']
+      const bootModule = (source: string) => source.includes('/packages/app/src/') || bootPackages.some((name) =>
+        source.includes(`/node_modules/${name}/`) || source.includes(`/node_modules/.pnpm/${name.replace('/', '+')}@`),
+      )
+      expect(sources(framework).every(bootModule)).toBe(true)
+      expect(sources(framework).some((source) => source.includes('@foldkit/ui/menu'))).toBe(false)
+      expect(sources(alpha).some((source) => source.includes('/dist/menu/'))).toBe(true)
+      const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+      const staticKeys = new Set<string>()
+      const pending = ['index.html']
+      while (pending.length > 0) {
+        const key = pending.pop()!
+        if (staticKeys.has(key)) continue
+        staticKeys.add(key)
+        pending.push(...(buildManifest[key]?.imports ?? []))
+      }
+      const staticSources = [...staticKeys].flatMap((key) => {
+        const file = buildManifest[key]?.file
+        if (file === undefined || !file.endsWith('.js')) return []
+        return sources(file.split('/').at(-1)!)
+      })
+      expect(staticSources.some((source) => /@foldkit\/ui\/(?:dialog|menu|tabs)|@floating-ui/.test(source))).toBe(false)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
 
-  it('changes only the entry and changed page chunk filenames when a page changes', async () => {
+  it('keeps app-shared stable while the entry and changed page chunk are renamed', async () => {
     const first = await buildFixture(false)
     try {
-      const second = await buildFixture(false, "import { BUILD_ID } from '@wsagency/wseffect-app/buildId'\n\nexport const page = { name: 'alpha-updated', buildId: BUILD_ID }\n")
+      const second = await buildFixture(false, "import { sharedContract } from '../sharedContract'\nimport { BUILD_ID } from '@wsagency/wseffect-app/buildId'\n\nexport const page = { name: 'alpha-updated', buildId: BUILD_ID, contract: sharedContract }\n")
       try {
         const firstFiles = new Set(outputFiles(first.output))
         const secondFiles = new Set(outputFiles(second.output))
         const changed = [...firstFiles].filter((file) => !secondFiles.has(file))
-        expect(changed).toHaveLength(2)
+        const added = [...secondFiles].filter((file) => !firstFiles.has(file))
         expect(changed.map((file) => file.split('-')[0]).sort()).toEqual(['alpha', 'index'])
-        expect([...secondFiles].filter((file) => !firstFiles.has(file)).map((file) => file.split('-')[0]).sort())
-          .toEqual(['alpha', 'index'])
+        expect(added.map((file) => file.split('-')[0]).sort()).toEqual(['alpha', 'index'])
+
+        const appShared = [...firstFiles].find((file) => file.startsWith('app-shared-'))
+        const framework = [...firstFiles].find((file) => file.startsWith('framework-'))
+        const beta = [...firstFiles].find((file) => file.startsWith('beta-'))
+        const theme = [...firstFiles].find((file) => file.startsWith('theme-'))
+        expect(appShared).toBeDefined()
+        expect(framework).toBeDefined()
+        expect(beta).toBeDefined()
+        expect(theme).toBeDefined()
+        for (const file of [appShared!, framework!, beta!, theme!]) {
+          expect(secondFiles.has(file)).toBe(true)
+          expect(readFileSync(join(first.output, 'assets', file))).toEqual(readFileSync(join(second.output, 'assets', file)))
+        }
+        const sharedMap = JSON.parse(readFileSync(join(first.output, 'assets', `${appShared}.map`), 'utf8')) as { sources: string[] }
+        expect(sharedMap.sources.some((source) => source.endsWith('/src/sharedContract.ts'))).toBe(true)
+        expect(sharedMap.sources.some((source) => source.endsWith('/packages/themes/dist/components/box.js'))).toBe(true)
       } finally {
         rmSync(second.directory, { recursive: true, force: true })
       }

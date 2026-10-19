@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { foldkit } from '@foldkit/vite-plugin'
@@ -61,9 +61,60 @@ function pagesPlugin(pagesDir: string, primaryPages: ReadonlyArray<string>): Plu
   }
 }
 
+type ViteManifestEntry = {
+  readonly file: string
+  readonly name?: string
+  readonly isDynamicEntry?: boolean
+  readonly imports?: ReadonlyArray<string>
+  readonly css?: ReadonlyArray<string>
+}
+
+function allowedPrecacheFiles(outDir: string, primaryPages: ReadonlyArray<string>): Set<string> {
+  const manifest = JSON.parse(readFileSync(resolve(outDir, '.vite/manifest.json'), 'utf8')) as Record<string, ViteManifestEntry>
+  const allowed = new Set<string>(['index.html', 'manifest.webmanifest'])
+  const addEntry = (key: string, visited = new Set<string>()): void => {
+    if (visited.has(key)) return
+    visited.add(key)
+    const entry = manifest[key]
+    if (entry === undefined) throw new Error(`Vite manifest is missing ${key}`)
+    allowed.add(entry.file)
+    for (const css of entry.css ?? []) allowed.add(css)
+    for (const imported of entry.imports ?? []) addEntry(imported, visited)
+  }
+  addEntry('index.html')
+  for (const page of primaryPages) {
+    const pageEntry = Object.entries(manifest).find(([key, entry]) =>
+      entry.isDynamicEntry === true && (entry.name === page || key.endsWith(`/pages/${page}.ts`)),
+    )
+    if (pageEntry === undefined) throw new Error(`Vite manifest is missing primary page ${page}`)
+    addEntry(pageEntry[0])
+  }
+  const workbox = Object.entries(manifest).find(([, entry]) =>
+    entry.name === 'workbox-window' || /(?:^|\/)workbox-window-[^/]+\.js$/.test(entry.file),
+  )
+  if (workbox !== undefined) addEntry(workbox[0])
+  const webManifest = JSON.parse(readFileSync(resolve(outDir, 'manifest.webmanifest'), 'utf8')) as {
+    readonly icons?: ReadonlyArray<{ readonly src: string }>
+  }
+  for (const icon of webManifest.icons ?? []) allowed.add(icon.src.replace(/^\/+/, ''))
+  return allowed
+}
+
 export function wseffect(options: WseffectOptions): Array<Plugin> {
   const pagesDir = options.pagesDir ?? 'src/pages'
-  const plugins: Array<Plugin> = [...foldkit(), pagesPlugin(pagesDir, options.primaryPages), buildIdPlugin(options.pwa !== false), frameworkChunking()]
+  let pwaOutDir = resolve(process.cwd(), 'dist')
+  const plugins: Array<Plugin> = [
+    ...foldkit(),
+    pagesPlugin(pagesDir, options.primaryPages),
+    buildIdPlugin(options.pwa !== false),
+    frameworkChunking(pagesDir),
+    {
+      name: 'wseffect:pwa-manifest-output',
+      configResolved(config) {
+        pwaOutDir = resolve(config.root, config.build.outDir)
+      },
+    },
+  ]
   if (options.pwa === false) {
     plugins.push({
       name: 'wseffect:pwa-disabled',
@@ -85,13 +136,14 @@ export function wseffect(options: WseffectOptions): Array<Plugin> {
         clientsClaim: true,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/assets\//],
-        globPatterns: [
-          '**/*.html', '**/*.css', '**/*.ico', '**/*.png', '**/*.svg', '**/*.webmanifest',
-          'assets/index-*.js', 'assets/framework-*.js', 'assets/workbox-*.js',
-          ...options.primaryPages.map((key) => `assets/${key}-*.js`),
-        ],
+        globPatterns: ['index.html', 'assets/**/*.{js,css}'],
+        manifestTransforms: [async (entries) => {
+          const allowed = allowedPrecacheFiles(pwaOutDir, options.primaryPages)
+          const selected = entries.filter(({ url }) => allowed.has(url.replace(/^\/+/, '').replaceAll('\\', '/')))
+          return { manifest: [...new Map(selected.map((entry) => [entry.url, entry])).values()], warnings: [] }
+        }],
         runtimeCaching: [{
-          urlPattern: /\/assets\/.*\.js$/,
+          urlPattern: /\/assets\/.*\.(?:js|css)$/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'wseffect-pages',

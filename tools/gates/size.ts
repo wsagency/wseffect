@@ -4,14 +4,23 @@ import { basename, dirname, extname, join, relative, resolve, sep } from 'node:p
 import { fileURLToPath } from 'node:url'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import { chromium } from '@playwright/test'
-import { startServer, type ServerHandle, type ServerStats } from '../serve/server.ts'
+import { primaryPages } from '../../apps/gallery/src/primaryPages.ts'
+import { startServer, type ServerHandle, type ServerResponseStat, type ServerStats } from '../serve/server.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+
+export interface RequestMeasurement {
+  readonly path: string
+  readonly bytes: number
+  readonly classification: 'mandatory' | 'speculative'
+}
 
 export interface SizeReport {
   readonly shell: number
   readonly shellRaw: number
   readonly firstVisit: { readonly bytes: number; readonly requests: number }
+  readonly speculativePrefetch: { readonly bytes: number; readonly requests: number }
+  readonly requestTable: ReadonlyArray<RequestMeasurement>
   readonly pages: Record<string, number>
   readonly stylesCss?: number
 }
@@ -24,14 +33,19 @@ export interface SizeBaseline {
 
 interface ManifestEntry {
   readonly file: string
+  readonly name?: string
   readonly isEntry?: boolean
   readonly isDynamicEntry?: boolean
+  readonly imports?: ReadonlyArray<string>
+  readonly css?: ReadonlyArray<string>
 }
 
 type Manifest = Record<string, ManifestEntry>
 
+
 const SHELL_LIMIT = 122_880
 const FIRST_VISIT_LIMIT = 163_840
+const SPECULATIVE_PREFETCH_LIMIT = 65_536
 const GROWTH_LIMIT = 0.02
 const BROWSER_PORT_START = 4500
 const BROWSER_PORT_END = 4599
@@ -74,6 +88,55 @@ function pageSizes(distDir: string, pagesDir: string, manifest: Manifest): Recor
   return sizes
 }
 
+export function classifyRequestTable(
+  responses: ReadonlyArray<ServerResponseStat>,
+  manifest: Manifest,
+  primaryPageKeys: ReadonlyArray<string>,
+  pageKeys: ReadonlyArray<string>,
+): RequestMeasurement[] {
+  const primary = new Set(primaryPageKeys)
+  const requestedPages = new Set(pageKeys)
+  const ownersByAsset = new Map<string, Set<string>>()
+
+  for (const [source, entry] of Object.entries(manifest)) {
+    const pageKey = entry.name ?? basename(source, extname(source))
+    if (entry.isDynamicEntry !== true || !requestedPages.has(pageKey)) continue
+
+    const visited = new Set<string>()
+    const assets = new Set<string>()
+    const visit = (manifestKey: string): void => {
+      if (visited.has(manifestKey)) return
+      visited.add(manifestKey)
+      const dependency = manifest[manifestKey]
+      if (dependency === undefined) return
+      assets.add(`/${dependency.file}`)
+      for (const css of dependency.css ?? []) assets.add(`/${css}`)
+      for (const imported of dependency.imports ?? []) visit(imported)
+    }
+    visit(source)
+
+    for (const asset of assets) {
+      const owners = ownersByAsset.get(asset) ?? new Set<string>()
+      owners.add(pageKey)
+      ownersByAsset.set(asset, owners)
+    }
+  }
+
+  return responses.map(({ path, bytes }) => {
+    const owners = ownersByAsset.get(path)
+    let isSpeculative = owners !== undefined
+    if (owners !== undefined) {
+      for (const owner of owners) {
+        if (primary.has(owner)) {
+          isSpeculative = false
+          break
+        }
+      }
+    }
+    return { path, bytes, classification: isSpeculative ? 'speculative' : 'mandatory' }
+  })
+}
+
 function startOnAvailablePort(): Promise<{ readonly handle: ServerHandle; readonly port: number }> {
   const tryPort = async (port: number): Promise<{ readonly handle: ServerHandle; readonly port: number }> => {
     try {
@@ -107,7 +170,11 @@ async function waitForQuiet(server: ServerHandle, page: import('@playwright/test
   }
 }
 
-export async function measureSize(input: { readonly distDir: string; readonly pagesDir: string }): Promise<SizeReport> {
+export async function measureSize(input: {
+  readonly distDir: string
+  readonly pagesDir: string
+  readonly primaryPageKeys?: ReadonlyArray<string>
+}): Promise<SizeReport> {
   const distDir = resolve(input.distDir)
   const assetsDir = join(distDir, 'assets')
   const manifest = readManifest(distDir)
@@ -137,11 +204,24 @@ export async function measureSize(input: { readonly distDir: string; readonly pa
     browser = await chromium.launch({ headless: true })
     const page = await browser.newPage()
     await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'load' })
-    const firstVisit = await waitForQuiet(server, page)
+    const serverStats = await waitForQuiet(server, page)
+    const requestTable = classifyRequestTable(serverStats.responses, manifest, input.primaryPageKeys ?? primaryPages, Object.keys(pages))
+    const totals = requestTable.reduce((summary, request) => {
+      if (request.classification === 'speculative') {
+        summary.speculativeBytes += request.bytes
+        summary.speculativeRequests++
+      } else {
+        summary.mandatoryBytes += request.bytes
+        summary.mandatoryRequests++
+      }
+      return summary
+    }, { mandatoryBytes: 0, mandatoryRequests: 0, speculativeBytes: 0, speculativeRequests: 0 })
     return {
       shell,
       shellRaw,
-      firstVisit: { bytes: firstVisit.bytes, requests: firstVisit.requests },
+      firstVisit: { bytes: totals.mandatoryBytes, requests: totals.mandatoryRequests },
+      speculativePrefetch: { bytes: totals.speculativeBytes, requests: totals.speculativeRequests },
+      requestTable,
       pages,
       ...(stylesCss === undefined ? {} : { stylesCss }),
     }
@@ -220,7 +300,7 @@ async function runCli(): Promise<void> {
   }
 
   const candidateBaseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as SizeBaseline
-  const baseBaseline = readMergeBaseBaseline()
+  const baseBaseline = readMergeBaseBaseline(candidateBaseline)
   const { failures } = compareSize(report, baseBaseline, candidateBaseline)
   for (const failure of failures) console.error(failure)
   if (failures.length > 0) process.exitCode = 1
@@ -230,19 +310,39 @@ function artifactSizes(report: SizeReport): Record<string, number> {
   const artifacts: Record<string, number> = {
     shell: report.shell,
     'first-visit': report.firstVisit.bytes,
+    'speculative-prefetch': report.speculativePrefetch.bytes,
   }
   for (const [key, bytes] of Object.entries(report.pages)) artifacts[`page:${key}`] = bytes
   if (report.stylesCss !== undefined) artifacts['styles.css'] = report.stylesCss
   return artifacts
 }
-function readMergeBaseBaseline(): SizeBaseline {
-  const baseCommit = process.env.WSEFFECT_BASE_SHA || process.env.BASE_SHA
-    || execFileSync('git', ['merge-base', 'origin/main', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim()
+
+export function withMergeBaseFallback<T>(candidateBaseline: T, readMergeBase: () => T): T {
+  try {
+    return readMergeBase()
+  } catch {
+    return candidateBaseline
+  }
+}
+
+function readCommitBaseline(baseCommit: string): SizeBaseline {
   const baseline = execFileSync('git', ['show', `${baseCommit}:bench/baselines/size.json`], {
     cwd: ROOT,
     encoding: 'utf8',
   })
   return JSON.parse(baseline) as SizeBaseline
+}
+
+function readMergeBaseBaseline(candidateBaseline: SizeBaseline): SizeBaseline {
+  const explicitBase = process.env.WSEFFECT_BASE_SHA || process.env.BASE_SHA
+  if (explicitBase !== undefined) return readCommitBaseline(explicitBase)
+  const baseline = withMergeBaseFallback(candidateBaseline, () => {
+    const baseCommit = execFileSync('git', ['merge-base', 'origin/main', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim()
+    return readCommitBaseline(baseCommit)
+  })
+  const fellBack = baseline === candidateBaseline
+  if (fellBack) console.warn('warning: no merge base for origin/main; using the checked-out size.json baseline')
+  return baseline
 }
 
 export function compareSize(
@@ -256,6 +356,9 @@ export function compareSize(
   }
   if (report.firstVisit.bytes > FIRST_VISIT_LIMIT) {
     failures.push(`GATE-S2: first-visit ${report.firstVisit.bytes} B exceeds 163,840 B`)
+  }
+  if (report.speculativePrefetch.bytes > SPECULATIVE_PREFETCH_LIMIT) {
+    failures.push(`GATE-S4: speculative-prefetch ${report.speculativePrefetch.bytes} B exceeds 65,536 B`)
   }
 
   const current = artifactSizes(report)

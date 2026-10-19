@@ -33,6 +33,9 @@ importers:
       autoprefixer:
         specifier: 10.4.27
         version: 10.4.27(postcss@8.5.9)
+      axe-core:
+        specifier: 4.11.0
+        version: 4.11.0
       effect:
         specifier: 4.0.5
         version: 4.0.5
@@ -75,6 +78,46 @@ importers:
       workbox-window:
         specifier: 7.4.1
         version: 7.4.1
+
+  apps/gallery:
+    dependencies:
+      '@effect/platform-browser':
+        specifier: 4.0.5
+        version: 4.0.5(effect@4.0.5)
+      '@foldkit/ui':
+        specifier: 0.168.0
+        version: 0.168.0(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))
+      '@wsagency/wseffect-app':
+        specifier: workspace:*
+        version: link:../../packages/app
+      '@wsagency/wseffect-themes':
+        specifier: workspace:*
+        version: link:../../packages/themes
+      effect:
+        specifier: 4.0.5
+        version: 4.0.5
+      foldkit:
+        specifier: 0.168.0
+        version: 0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5)
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.64.1
+        version: 1.64.1
+      '@types/node':
+        specifier: 24.19.1
+        version: 24.19.1
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+      vite:
+        specifier: 8.3.4
+        version: 8.3.4(@types/node@24.19.1)(terser@5.51.2)
+      vite-plugin-pwa:
+        specifier: 2.0.0
+        version: 2.0.0(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))(workbox-build@7.4.1(@types/babel__core@7.20.5))(workbox-window@7.4.1)
+      vitest:
+        specifier: 5.0.2
+        version: 5.0.2(@types/node@24.19.1)(@vitest/coverage-v8@5.0.2)(happy-dom@20.14.5)(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))
 
   bench/radix2solid:
     dependencies:
@@ -143,28 +186,6 @@ importers:
       foldkit:
         specifier: 0.168.0
         version: 0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5)
-
-  tools/fixtures/mini-app:
-    dependencies:
-      '@effect/platform-browser':
-        specifier: 4.0.5
-        version: 4.0.5(effect@4.0.5)
-      effect:
-        specifier: 4.0.5
-        version: 4.0.5
-      foldkit:
-        specifier: 0.168.0
-        version: 0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5)
-    devDependencies:
-      '@foldkit/vite-plugin':
-        specifier: 0.27.1
-        version: 0.27.1(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))(redis@6.3.0)(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))
-      typescript:
-        specifier: 7.0.2
-        version: 7.0.2
-      vite:
-        specifier: 8.3.4
-        version: 8.3.4(@types/node@24.19.1)(terser@5.51.2)
 
 packages:
 
@@ -1602,6 +1623,10 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
+
+  axe-core@4.11.0:
+    resolution: {integrity: sha512-ilYanEU8vxxBexpJd8cWM4ElSQq4QctCLKih0TSfjIfCQTeyH/6zVrmIJfLPrKTKJRbiG+cfnZbQIjAlJmF1jQ==}
+    engines: {node: '>=4'}
 
   babel-plugin-polyfill-corejs2@0.4.17:
     resolution: {integrity: sha512-aTyf30K/rqAsNwN76zYrdtx8obu0E4KoUME29B1xj+B3WxgvWkp943vYQ+z8Mv3lw9xHXMHpvSPOBxzAkIa94w==}
@@ -4192,6 +4217,8 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.1.0
+
+  axe-core@4.11.0: {}
 
   babel-plugin-polyfill-corejs2@0.4.17(@babel/core@7.29.7):
     dependencies:

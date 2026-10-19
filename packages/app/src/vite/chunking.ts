@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, parse, resolve, sep } from 'node:path'
 import type { Plugin } from 'vite'
 
@@ -16,68 +16,95 @@ function packageRootFrom(entry: string, expectedName: string): string | undefine
   return undefined
 }
 
-export function frameworkChunking(): Plugin {
+export function frameworkChunking(pagesDir: string): Plugin {
+  const appShared = new Set<string>()
+  let appRoot = ''
+  let pagesRoot = ''
+  let packageRoots: Array<string> = []
+  const modulePath = (id: string): string => {
+    const cleanId = id.split('?')[0]!
+    try {
+      return realpathSync(cleanId)
+    } catch {
+      // Virtual and generated modules are not filesystem modules.
+      return cleanId
+    }
+  }
+  const isInside = (modulePath: string, directory: string): boolean =>
+    modulePath === directory || modulePath.startsWith(`${directory}${sep}`)
+  const isFrameworkPath = (resolvedId: string): boolean =>
+    packageRoots.some((packageRoot) => isInside(resolvedId, packageRoot))
+  const isFrameworkModule = (id: string): boolean => isFrameworkPath(modulePath(id))
+  const isAppSharedModule = (id: string): boolean => {
+    const resolvedId = modulePath(id)
+    return existsSync(resolvedId) && !isInside(resolvedId, pagesRoot) && !isFrameworkPath(resolvedId)
+  }
   return {
     name: 'wseffect:framework-chunk',
     config(config) {
       const root = resolve(config.root ?? process.cwd())
       const require = createRequire(join(root, 'package.json'))
-      const scopeDirectories: Array<string> = []
-      let directory = root
-      while (true) {
-        const scopeDirectory = join(directory, 'node_modules', '@wsagency')
-        if (existsSync(scopeDirectory)) scopeDirectories.push(scopeDirectory)
-        const parent = dirname(directory)
-        if (parent === directory) break
-        directory = parent
-      }
-      const packageRoots: Array<string> = []
-      for (const scopeDirectory of scopeDirectories) {
-        for (const entry of readdirSync(scopeDirectory, { withFileTypes: true })) {
-          const name = entry.name
-          if (!name.startsWith('wseffect-')) continue
-          const packageName = `@wsagency/${name}`
-          try {
-            let resolvedPackage: string
-            try {
-              resolvedPackage = require.resolve(packageName)
-            } catch {
-              resolvedPackage = join(scopeDirectory, name)
-            }
-            const resolvedEntry = realpathSync(resolvedPackage)
-            const packageRoot = packageRootFrom(resolvedEntry, packageName)
-            if (packageRoot !== undefined) packageRoots.push(realpathSync(packageRoot))
-          } catch {
-            // Ignore broken or non-resolvable workspace links.
-          }
-        }
-      }
-      const isFrameworkModule = (id: string): boolean => {
-        if (id.includes(`${sep}node_modules${sep}`)) return true
-        const cleanId = id.split('?')[0]!
-        let resolvedId = cleanId
+      packageRoots = []
+      for (const packageName of ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']) {
         try {
-          resolvedId = realpathSync(cleanId)
+          const resolvedEntry = realpathSync(require.resolve(packageName))
+          const packageRoot = packageRootFrom(resolvedEntry, packageName)
+          if (packageRoot !== undefined) packageRoots.push(realpathSync(packageRoot))
         } catch {
-          // Virtual and generated modules are not filesystem package modules.
+          // Some framework packages are optional to an app build.
         }
-        return packageRoots.some((packageRoot) =>
-          resolvedId === packageRoot || resolvedId.startsWith(`${packageRoot}${sep}`),
-        )
       }
+      appRoot = realpathSync(root)
+      const pageDirectory = resolve(root, pagesDir)
+      pagesRoot = existsSync(pageDirectory) ? realpathSync(pageDirectory) : pageDirectory
       return {
         build: {
           rolldownOptions: {
             output: {
               codeSplitting: {
-                groups: [{
-                  name: 'framework',
-                  test: isFrameworkModule,
-                }],
+                groups: [
+                  {
+                    name: 'framework',
+                    test: isFrameworkModule,
+                  },
+                  {
+                    name: 'app-shared',
+                    test: (id) => appShared.has(id),
+                  },
+                ],
               },
             },
           },
         },
+      }
+    },
+    buildEnd() {
+      appShared.clear()
+      const moduleIds = [...this.getModuleIds()]
+      const pageRoots: Array<string> = []
+      const entryRoots: Array<string> = []
+      for (const id of moduleIds) {
+        const isPage = isInside(modulePath(id), pagesRoot)
+        if (isPage) pageRoots.push(id)
+        else if (this.getModuleInfo(id)?.isEntry === true) entryRoots.push(id)
+      }
+      const reachableFrom = (roots: ReadonlyArray<string>, stopAtPages = false): Set<string> => {
+        const reachable = new Set<string>()
+        const pending = [...roots]
+        while (pending.length > 0) {
+          const id = pending.pop()!
+          const resolvedId = modulePath(id)
+          if (reachable.has(id) || (stopAtPages && isInside(resolvedId, pagesRoot))) continue
+          reachable.add(id)
+          const info = this.getModuleInfo(id)
+          if (info !== null) pending.push(...info.importedIds)
+        }
+        return reachable
+      }
+      const pageReachable = reachableFrom(pageRoots)
+      const entryReachable = reachableFrom(entryRoots, true)
+      for (const id of pageReachable) {
+        if (entryReachable.has(id) && isAppSharedModule(id)) appShared.add(id)
       }
     },
   }

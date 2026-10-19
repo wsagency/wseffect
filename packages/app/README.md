@@ -8,7 +8,7 @@ Install `@wsagency/wseffect-app`, Foldkit `0.168.0`, Effect `4.0.5`, Vite `8`, a
 
 Create `src/pages/package.json` with `{"sideEffects":false}`. Each page is a lazy module named with a key matching `^[a-z][A-Za-z0-9]*$`. Run `wseffect-codegen .` to generate `src/pages.gen.ts`; use `wseffect-codegen --check .` in CI to reject stale generated output.
 
-Configure Vite with `wseffect({ primaryPages, pwa })`. `primaryPages` lists page keys that must be precached for offline use. Set `pwa: false` to disable service-worker installation while retaining the version poll and online application behavior. When PWA is enabled, provide a manifest with `name`, `short_name`, `start_url: '/'`, `display: 'standalone'`, theme and background colors, and PNG icons at 192×192 and 512×512.
+Configure Vite with `wseffect({ primaryPages, pwa })`. `primaryPages` lists page keys that must be precached for offline use. Set `pwa: false` to disable service-worker installation while retaining the version poll and online application behavior. When PWA is enabled, provide a manifest with `name`, `short_name`, `start_url: '/'`, `display: 'standalone'`, theme and background colors, and PNG icons at 192×192 and 512×512. The build isolates app-source modules shared by the entry and lazy pages in `app-shared-*` assets; generated shared assets are precached with the entry.
 
 `makeApp` merges the application resources with the app's ServiceWorker layer, page subscriptions, and version polling. Supply the app's page binding and mapping between the kit's state/messages and the enclosing application. The default version poll interval is five minutes; `versionPollMs` overrides it.
 
@@ -34,7 +34,7 @@ Remove this override and its `allowedVersions` entries when the Foldkit upgrade 
 
 ## Server contract
 
-Serve one immutable deployment directory at a time and retain the three newest deployment asset trees while old tabs may still request lazy page chunks.
+Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.
 
 | Request path | Required behavior |
 |---|---|
@@ -43,10 +43,14 @@ Serve one immutable deployment directory at a time and retain the three newest d
 | `index.html`, `sw.js`, `version.json`, `manifest.webmanifest` | Use `Cache-Control: no-cache`. |
 | Missing asset path | Return 404; never return the SPA document for a missing asset. |
 | Unknown extensionless route | Fall back to the current `index.html`. |
-| Deployment retention | Retain the three newest deployment asset trees so already-open tabs can load their old lazy chunks. |
+| Deployment retention | Retain the current deployment and the previous 3 deployment asset trees so already-open tabs can load their old lazy chunks. |
 
 The Vite plugin emits `version.json` containing the same build ID compiled into the application. The service worker uses prompt-based updates; the version poll also detects a newer build in an already-open tab.
 
 ## Limits of updates
 
 Retaining old assets and prompting before a reload do not make incompatible backend APIs or stored data compatible with an old or new client. Deployments must manage backend and persisted-data skew separately. Applying an update reloads the document and loses in-memory application state; persist state explicitly if it must survive a reload.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).
