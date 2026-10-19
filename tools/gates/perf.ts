@@ -189,6 +189,24 @@ const SCRIPT_TRACE_EVENTS = new Set([
   'ScriptFirstStatement',
   'V8.Execute',
 ])
+
+const HARNESS_FLUSH_START_MARK = 'wseffect-harness:flush-start'
+
+function traceHarnessFlushStart(events: readonly TraceEvent[]): number | undefined {
+  return events.find((event) => event.name === HARNESS_FLUSH_START_MARK && typeof event.ts === 'number')?.ts
+}
+
+function traceMeasurementBoundary(
+  events: readonly TraceEvent[],
+  presentations: readonly TraceEvent[],
+  inputStart: number,
+  eventTimingEnd: number | undefined,
+): number | undefined {
+  const presentationBoundary = tracePresentationBoundary(events, presentations, inputStart, eventTimingEnd)
+  if (presentationBoundary === undefined) return undefined
+  const flushStart = traceHarnessFlushStart(events)
+  return flushStart === undefined ? presentationBoundary : Math.min(presentationBoundary, flushStart)
+}
 function tracePresentationBoundary(
   events: readonly TraceEvent[],
   presentations: readonly TraceEvent[],
@@ -241,7 +259,7 @@ export function traceScriptingDuration(
     const eventTimingEnd = eventTimingDurationMs === undefined
       ? undefined
       : inputStart + eventTimingDurationMs * 1_000
-    const windowEnd = tracePresentationBoundary(events, presentations, inputStart, eventTimingEnd)
+    const windowEnd = traceMeasurementBoundary(events, presentations, inputStart, eventTimingEnd)
     if (windowEnd === undefined) throw new Error(`trace did not contain a Paint or Commit after ${inputEventType}`)
 
     const intervals = events
@@ -286,13 +304,15 @@ export function traceAnimationFrameCount(
     .filter((event) => (event.name === 'Paint' || event.name === 'Commit') && typeof event.ts === 'number')
     .sort((left, right) => left.ts! - right.ts!)
   const eventTimingEnd = eventTimingDurationMs === undefined ? undefined : input.ts + eventTimingDurationMs * 1_000
-  const windowEnd = tracePresentationBoundary(events, presentations, input.ts, eventTimingEnd)
+  const windowEnd = traceMeasurementBoundary(events, presentations, input.ts, eventTimingEnd)
   if (windowEnd === undefined) return 0
+  const flushStart = traceHarnessFlushStart(events)
   return events.filter((event) => event.name === 'FireAnimationFrame'
     && event.ph === 'X'
     && typeof event.ts === 'number'
     && event.ts >= input.ts!
-    && event.ts < windowEnd).length
+    && event.ts < windowEnd
+    && (flushStart === undefined || (typeof event.dur === 'number' && event.ts + event.dur <= flushStart))).length
 }
 
 async function installEventTimingObserver(page: Page): Promise<void> {
@@ -324,7 +344,12 @@ async function installEventTimingObserver(page: Page): Promise<void> {
 
 async function waitForPaintAndObserverFlush(page: Page): Promise<void> {
   await page.evaluate(() => new Promise<void>((resolveFlush) => {
-    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolveFlush, 0)))
+    const flushObserver = () => setTimeout(resolveFlush, 0)
+    const markFlushStart = () => {
+      performance.mark('wseffect-harness:flush-start')
+      requestAnimationFrame(flushObserver)
+    }
+    requestAnimationFrame(markFlushStart)
   }))
 }
 
@@ -350,18 +375,19 @@ async function traceInteraction(
   const events: TraceEvent[] = []
   const onData = ({ value }: { readonly value: TraceEvent[] }) => events.push(...value)
   client.on('Tracing.dataCollected', onData)
-  await client.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline' })
+  await client.send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline,blink.user_timing' })
   let entries: EventEntry[] = []
   try {
     await scenario.act(page)
     await new Promise<void>((resolveWait) => setTimeout(resolveWait, 50))
+    entries = await eventEntries(page)
   } finally {
     const complete = new Promise<void>((resolveComplete) => client.once('Tracing.tracingComplete', () => resolveComplete()))
     await client.send('Tracing.end')
     await complete
     client.off('Tracing.dataCollected', onData)
   }
-  entries = await eventEntries(page)
+  if (traceHarnessFlushStart(events) === undefined) throw new Error('trace did not include harness flush boundary marker')
   const duration = entries.length === 0 ? undefined : interactionDuration(entries)
   return {
     entries,

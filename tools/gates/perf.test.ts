@@ -219,6 +219,22 @@ test('trace animation-frame counts include rAF callbacks before the Event Timing
   ], 'click', 40), 2)
 })
 
+test('trace metrics exclude harness flush work after the marked boundary', async () => {
+  const { traceScriptingDuration } = await import('./perf.ts')
+  const events = [
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
+    { name: 'FunctionCall', ph: 'X', ts: 105_000, dur: 5_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 112_000, dur: 10_000 },
+    { name: 'Paint', ph: 'X', ts: 124_000, dur: 2_000 },
+    { name: 'wseffect-harness:flush-start', ph: 'I', ts: 130_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 129_900, dur: 200 },
+    { name: 'FunctionCall', ph: 'X', ts: 130_002, dur: 4_000 },
+    { name: 'Paint', ph: 'X', ts: 150_000, dur: 2_000 },
+  ]
+  assert.equal(traceScriptingDuration(events, 'click', 50), 20.1)
+  assert.equal(traceAnimationFrameCount(events, 'click', 50), 1)
+})
+
 test('GATE-P1 includes rAF work after an in-flight Paint and ends at the Event Timing Paint', async () => {
   const { traceScriptingDuration } = await import('./perf.ts')
   const events = [
