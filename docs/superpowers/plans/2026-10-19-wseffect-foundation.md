@@ -144,7 +144,7 @@ interface KitBinding<Pages, KitMessage> {
   readonly bannerView: Submodel.View<KitState<Pages>, KitMessage, void>
 }
 type KitPageViewInputs<Pages> = Readonly<{ key: keyof Pages & string; inputs: InputsOf<Pages[keyof Pages]> }>
-prefetchOnIntent<KitMessage>(binding: KitBinding<any, KitMessage>, key: string): ReadonlyArray<Attribute<KitMessage>>   // OnMouseEnter + OnFocus
+prefetchOnIntent<KitMessage>(binding: KitBinding<any, KitMessage>, key: string, h: HtmlBuilder<KitMessage>): ReadonlyArray<Attribute<KitMessage>>   // h.OnMouseEnter + h.OnFocus; foldkit@0.168.0 exposes attribute constructors only on the builder
 prefetchOnVisible<KitMessage>(binding: KitBinding<any, KitMessage>, key: string): Attribute<KitMessage>                // h.OnMount(...)
 
 // '.' — services and app
@@ -640,7 +640,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `computeBuildId` runs in the plugin's `config` hook.
   - `define` covers both constants.
   - `generateBundle` emits `version.json` via `this.emitFile`.
-  - Chunking: `build.rolldownOptions.output.codeSplitting.groups = [{ name: 'framework', test: /node_modules|[\\/]packages[\\/](app|themes)[\\/]|@wsagency[\\/]wseffect-/ }]`.
+  - Chunking: `build.rolldownOptions.output.codeSplitting.groups = [{ name: 'framework', test: isFrameworkModule }]`. In the plugin's `config` hook, find every installed `@wsagency/wseffect-*` package from the app root: walk `node_modules/@wsagency` up the directory chain, resolve each package with `createRequire(<root>/package.json)`, and take the `realpath` of its package root. `isFrameworkModule(id)` is true when `id` contains `/node_modules/`, or when the realpath of `id` (query stripped) equals or lies under one of those package roots. Do not match consumer source paths by pattern (such as `packages/app/`), because linked workspace packages resolve outside `node_modules`.
+  - Test the classifier as part of the Step 2 build test: page chunks import from `framework-*`, and changing one page source changes exactly two asset filenames (entry and that page).
   - PWA: `VitePWA` with exactly the PWA-2/PWA-3 options; when `pwa:false`, an alias from `virtual:pwa-register` to `register-stub.js`.
   - The plugin array includes `foldkit()` from `@foldkit/vite-plugin`.
 - [ ] **Step 5: Run** again. Expected: PASS.
