@@ -4,6 +4,8 @@ import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
 import { accentColors, grayColors } from '../props/color.props.js'
 import { grayMatch } from '../props/grayMatch.js'
 import { radii } from '../props/radius.props.js'
+import { defaults, themeClassName } from './themeAttributes.js'
+export { defaults } from './themeAttributes.js'
 
 const appearances = ['inherit', 'light', 'dark'] as const
 const scalings = ['90%', '95%', '100%', '105%', '110%'] as const
@@ -21,15 +23,6 @@ export const Settings = Schema.Struct({
 
 export type Settings = typeof Settings.Type
 
-export const defaults: Settings = {
-  accentColor: 'indigo',
-  grayColor: 'auto',
-  radius: 'medium',
-  scaling: '100%',
-  appearance: 'inherit',
-  panelBackground: 'translucent',
-  hasBackground: true,
-}
 
 export type ViewProps = Readonly<{
   settings: Partial<Settings>
@@ -37,18 +30,13 @@ export type ViewProps = Readonly<{
   id?: string
 }>
 
-const themeClassNames = Object.freeze({
-  inherit: 'radix-themes',
-  light: 'radix-themes light',
-  dark: 'radix-themes dark',
-})
 
 export const view = <Message>(
   { settings, isRoot, id }: ViewProps,
   children: ReadonlyArray<Html | string>,
   h: HtmlBuilder<Message>,
 ): Html => {
-  const attributes: Attribute<Message>[] = [h.Class(themeClassNames[settings.appearance ?? 'inherit'])]
+  const attributes: Attribute<Message>[] = [h.Class(themeClassName(settings.appearance))]
   if (id !== undefined) attributes.push(h.Id(id))
 
   if (isRoot) {

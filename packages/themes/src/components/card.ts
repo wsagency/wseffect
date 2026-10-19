@@ -31,5 +31,5 @@ export const view = <Message>(
 ): Html => {
   const size = responsiveClasses(sizeProp, props.size ?? '1')
   const margin = marginClasses(props)
-  return brandViewResult(styledElement(props.as ?? 'div', ['rt-Card', ...size.classes, variantClasses[props.variant ?? 'surface'], ...margin.classes], { ...size.style, ...margin.style }, children, h), 'wseffect/Card')
+  return brandViewResult(styledElement(props.as ?? 'div', ['rt-reset', 'rt-BaseCard', 'rt-Card', ...size.classes, variantClasses[props.variant ?? 'surface'], ...margin.classes], { ...size.style, ...margin.style }, children, h), 'wseffect/Card')
 }

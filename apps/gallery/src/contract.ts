@@ -13,6 +13,16 @@ export type PageInputs = Readonly<{
   panelBackground: Theme.Settings['panelBackground']
 }>
 
+export const themeSettingsFrom = (inputs: PageInputs): Theme.Settings => ({
+  accentColor: inputs.accentColor,
+  grayColor: inputs.grayColor,
+  radius: inputs.radius,
+  scaling: inputs.scaling,
+  appearance: inputs.appearance,
+  panelBackground: inputs.panelBackground,
+  hasBackground: true,
+})
+
 export const PageOutMessage = defineMessageUnion({
   RequestedShiftDay: { days: Schema.Number },
   ChangedThemeSetting: {

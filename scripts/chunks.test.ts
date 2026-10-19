@@ -16,7 +16,7 @@ test('fixed build IDs rename only the entry and changed page, leaving app-shared
   try {
     const source = (await readFile(tabsPath)).toString()
     fixture.build({ outDir: first, buildId: 'd3a1234' })
-    const changedSource = source.replace("'Overview content'", "'Overview content changed'")
+    const changedSource = source.replace("'Overview panel.'", "'Overview panel changed.'")
     assert.notEqual(changedSource, source)
     await writeFile(tabsPath, changedSource)
     fixture.build({ outDir: second, buildId: 'd3a1234' })

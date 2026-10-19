@@ -64,7 +64,7 @@ describe('layout and typography views', () => {
     Scene.scene(
       { update, view: cardView },
       Scene.given({ tick: 0 }),
-      Scene.expect(Scene.selector('.rt-Card')).toHaveAttr('class', 'rt-Card rt-r-size-1 rt-variant-surface'),
+      Scene.expect(Scene.selector('.rt-Card')).toHaveAttr('class', 'rt-reset rt-BaseCard rt-Card rt-r-size-1 rt-variant-surface'),
     )
   })
 
