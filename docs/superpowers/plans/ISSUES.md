@@ -129,3 +129,8 @@
 
 - **Issue:** Lane D measured 197,334 B on the first visit, including 45,621 B of viewport prefetch and 16,900 B of non-primary theme CSS wrongly precached. Counting all received bytes together obscures mandatory startup transfer and allows eager prefetch to compete with the first render.
 - **Amendment:** GATE-S2 counts mandatory first-visit traffic, classifies speculative non-primary/non-current-route page assets through the Vite build manifest, and reports those bytes separately under GATE-S4 (≤65,536 B). APP-13 defers viewport imports until first-render idle (`requestIdleCallback`, with `setTimeout` fallback) and caps concurrent prefetches at 2. PWA-3 precaches only HTML, manifest/icons, entry/framework, primary-page chunks and their CSS; non-primary page CSS is runtime-cached only. The plan adds tests for idle scheduling/concurrency, manifest-based byte classification, and exact precache/runtime-cache membership.
+## APP-23: Keep page-only dependencies out of the framework chunk
+
+- **Issue:** The original framework group classified every module under `node_modules` as framework code. This eagerly included page-only `@foldkit/ui` components and their Floating UI dependencies, defeating page lazy loading.
+- **Amendment:** The `framework` group contains only resolved package roots for `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app`, and `workbox-window`. All other dependencies use default splitting. An integrator amends APP-23 accordingly.
+- **Evidence:** Gallery build attribution identified `@foldkit/ui/menu` (20 KB), `@foldkit/ui/dialog` (9 KB), and Floating UI (13.5 KB) inside the framework chunk.

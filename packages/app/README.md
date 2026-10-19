@@ -34,7 +34,7 @@ Remove this override and its `allowedVersions` entries when the Foldkit upgrade 
 
 ## Server contract
 
-Serve one immutable deployment directory at a time and retain the three newest deployment asset trees while old tabs may still request lazy page chunks.
+Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.
 
 | Request path | Required behavior |
 |---|---|
@@ -43,7 +43,7 @@ Serve one immutable deployment directory at a time and retain the three newest d
 | `index.html`, `sw.js`, `version.json`, `manifest.webmanifest` | Use `Cache-Control: no-cache`. |
 | Missing asset path | Return 404; never return the SPA document for a missing asset. |
 | Unknown extensionless route | Fall back to the current `index.html`. |
-| Deployment retention | Retain the three newest deployment asset trees so already-open tabs can load their old lazy chunks. |
+| Deployment retention | Retain the current deployment and the previous 3 deployment asset trees so already-open tabs can load their old lazy chunks. |
 
 The Vite plugin emits `version.json` containing the same build ID compiled into the application. The service worker uses prompt-based updates; the version poll also detects a newer build in an already-open tab.
 

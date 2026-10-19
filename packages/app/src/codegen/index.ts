@@ -58,8 +58,8 @@ export function generatePages(appRoot: string, options: GeneratePagesOptions): {
     throw new Error('rejects page key whose tag collides with a reserved kit tag')
   }
 
-  const pageTypes = pages.map(({ key, path }) => `import type { page as ${key[0]!.toUpperCase()}${key.slice(1)}Page } from '${path}'`).join('\n')
-  const pageTypeMap = pages.map(({ key }) => `  readonly ${key}: ${key[0]!.toUpperCase()}${key.slice(1)}Page`).join('\n')
+  const pageTypes = ''
+  const pageTypeMap = pages.map(({ key, path }) => `  readonly ${key}: typeof import('${path}').page`).join('\n')
   const loaders = pages.map(({ key, path }) => `  ${key}: () => import('${path}').then(module => module.page),`).join('\n')
   const pageSchema = `[${pages.map(({ key }) => `'${key}'`).join(', ')}]`
   const tagMap = pages.map(({ key }) => `  ${key}: '${pageTag(key)}',`).join('\n')

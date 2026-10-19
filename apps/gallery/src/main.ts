@@ -1,0 +1,29 @@
+import '@wsagency/wseffect-themes/tokens/base.css'
+import '@wsagency/wseffect-themes/tokens/colors/indigo.css'
+import '@wsagency/wseffect-themes/tokens/colors/slate.css'
+import '@wsagency/wseffect-themes/tokens/colors/gray.css'
+import '@wsagency/wseffect-themes/components.css'
+import '@wsagency/wseffect-themes/utilities.css'
+import { makeApp } from '@wsagency/wseffect-app'
+import type { KitBinding } from '@wsagency/wseffect-app'
+import { run } from 'foldkit/runtime'
+import type { Pages } from './pages.gen.js'
+import { kit } from './pages.gen.js'
+import { Message, Model, init, onUrlChange, onUrlRequest, update, view } from './shell.js'
+import type { KitMessageType } from './shell.js'
+
+const application = makeApp<Model, Message, Pages, KitMessageType>({
+  Model,
+  init,
+  update,
+  view,
+  container: document.getElementById('app')!,
+  routing: { onUrlRequest, onUrlChange },
+  kit: {
+    binding: kit as KitBinding<Pages, KitMessageType>,
+    read: (model) => model.kit,
+    toParentMessage: (message) => Message.GotKitMessage({ message }),
+  },
+})
+
+run(application)

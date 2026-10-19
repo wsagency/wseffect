@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
@@ -25,6 +25,15 @@ const fixtureDirectory = join(testDirectory, 'fixtures/app-pages')
 const appBuildId = resolve(testDirectory, '../src/buildId.ts')
 const appEntry = resolve(testDirectory, '../src/index.ts')
 
+function packageRoot(entry: string, name: string): string {
+  let directory = dirname(entry)
+  while (directory !== dirname(directory)) {
+    const packageFile = join(directory, 'package.json')
+    if (existsSync(packageFile) && JSON.parse(readFileSync(packageFile, 'utf8')).name === name) return directory
+    directory = dirname(directory)
+  }
+  throw new Error(`Cannot find package root for ${name}`)
+}
 async function buildFixture(
   pwa: false | { manifest: typeof manifest },
   alphaSource?: string,
@@ -35,8 +44,10 @@ async function buildFixture(
     writeFileSync(join(directory, 'src/pages/package.json'), JSON.stringify({ sideEffects: false }))
     if (alphaSource !== undefined) writeFileSync(join(directory, 'src/pages/alpha.ts'), alphaSource)
     mkdirSync(join(directory, 'node_modules/@wsagency'), { recursive: true })
+    mkdirSync(join(directory, 'node_modules/@foldkit'), { recursive: true })
     symlinkSync(resolve(testDirectory, '../node_modules/foldkit'), join(directory, 'node_modules/foldkit'), 'dir')
     symlinkSync(resolve(testDirectory, '..'), join(directory, 'node_modules/@wsagency/wseffect-app'), 'dir')
+    symlinkSync(resolve(testDirectory, '../node_modules/@foldkit/ui'), join(directory, 'node_modules/@foldkit/ui'), 'dir')
     await build({
       configFile: false,
       root: directory,
@@ -47,7 +58,7 @@ async function buildFixture(
           { find: '@wsagency/wseffect-app', replacement: appEntry },
         ],
       },
-      build: { outDir: join(directory, 'dist'), emptyOutDir: true },
+      build: { outDir: join(directory, 'dist'), emptyOutDir: true, sourcemap: true },
     })
     return { directory, output: join(directory, 'dist') }
   } catch (error) {
@@ -100,6 +111,27 @@ describe('wseffect Vite plugin', () => {
       expect(sw).toMatch(/maxEntries:\s*200/)
       expect(sw).toMatch(/maxAgeSeconds:\s*2592000/)
       expect(sw).toMatch(/clientsClaim|clients\.claim/)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+  it('keeps only boot packages in framework and lazy-loads page-only menu code', async () => {
+    const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\n\nexport const page = { Menu }\n")
+    try {
+      const files = outputFiles(output)
+      const framework = files.find((file) => file.startsWith('framework-'))!
+      const index = files.find((file) => file.startsWith('index-'))!
+      const alpha = files.find((file) => file.startsWith('alpha-'))!
+      const sources = (file: string) =>
+        (JSON.parse(readFileSync(join(output, 'assets', `${file}.map`), 'utf8')) as { sources: string[] }).sources
+      const bootPackages = ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']
+      const bootModule = (source: string) => source.includes('/packages/app/src/') || bootPackages.some((name) =>
+        source.includes(`/node_modules/${name}/`) || source.includes(`/node_modules/.pnpm/${name.replace('/', '+')}@`),
+      )
+      expect(sources(framework).every(bootModule)).toBe(true)
+      expect(sources(framework).some((source) => source.includes('@foldkit/ui/menu'))).toBe(false)
+      expect(sources(alpha).some((source) => source.includes('/dist/menu/'))).toBe(true)
+      expect(sources(index).some((source) => source.includes('/dist/menu/'))).toBe(false)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }

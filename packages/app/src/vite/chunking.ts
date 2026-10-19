@@ -22,38 +22,17 @@ export function frameworkChunking(): Plugin {
     config(config) {
       const root = resolve(config.root ?? process.cwd())
       const require = createRequire(join(root, 'package.json'))
-      const scopeDirectories: Array<string> = []
-      let directory = root
-      while (true) {
-        const scopeDirectory = join(directory, 'node_modules', '@wsagency')
-        if (existsSync(scopeDirectory)) scopeDirectories.push(scopeDirectory)
-        const parent = dirname(directory)
-        if (parent === directory) break
-        directory = parent
-      }
       const packageRoots: Array<string> = []
-      for (const scopeDirectory of scopeDirectories) {
-        for (const entry of readdirSync(scopeDirectory, { withFileTypes: true })) {
-          const name = entry.name
-          if (!name.startsWith('wseffect-')) continue
-          const packageName = `@wsagency/${name}`
-          try {
-            let resolvedPackage: string
-            try {
-              resolvedPackage = require.resolve(packageName)
-            } catch {
-              resolvedPackage = join(scopeDirectory, name)
-            }
-            const resolvedEntry = realpathSync(resolvedPackage)
-            const packageRoot = packageRootFrom(resolvedEntry, packageName)
-            if (packageRoot !== undefined) packageRoots.push(realpathSync(packageRoot))
-          } catch {
-            // Ignore broken or non-resolvable workspace links.
-          }
+      for (const packageName of ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']) {
+        try {
+          const resolvedEntry = realpathSync(require.resolve(packageName))
+          const packageRoot = packageRootFrom(resolvedEntry, packageName)
+          if (packageRoot !== undefined) packageRoots.push(realpathSync(packageRoot))
+        } catch {
+          // Some framework packages are optional to an app build.
         }
       }
       const isFrameworkModule = (id: string): boolean => {
-        if (id.includes(`${sep}node_modules${sep}`)) return true
         const cleanId = id.split('?')[0]!
         let resolvedId = cleanId
         try {
