@@ -94,6 +94,13 @@
 - **Resolution:** Add `tools/tsconfig.json` covering tools TypeScript, including gates, server, tests, Vite config and fixture source; run it from the root `typecheck` script with ES2024, Bundler resolution, and Vite client types.
 - **Smallest compliant fix:** Wire `tsc -p tools/tsconfig.json` into `pnpm typecheck` and fix diagnostics surfaced by that project.
 
+## 2026-10-19 — Mini-app perf fixture DOM did not match Solid bench
+
+- **Issue:** The initial mini-app lacked `vl-sort`, used a three-cell table row instead of the bench's six-child row, and filtered only by name rather than name/account/region.
+- **Evidence:** C4 `SCENARIOS` requires `vl-sort`; `bench/radix2solid/src/fixtures/BenchFixtures.tsx` lines 31–45 has six row children and filters name/account/region; the mini-app initially had only three `<td>` cells. The first contract test failed with zero `data-perf="vl-row"` elements.
+- **Resolution:** Align the mini-app to 10,000 records with matching id/name/account/region/amount fields, six row children, 15 visible rows, text input types, sort/filter hooks, and 200 menu triggers; add an integration contract test.
+- **Smallest compliant fix:** Match selectors, visible counts, text field type and row/cell structure while preserving the Foldkit/Vite implementation.
+
 ## A2-M6: Framework chunk detection must follow resolved package roots
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.

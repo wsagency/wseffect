@@ -31,7 +31,7 @@ Workspace: `/home/klukacin/projects/wseffect-wt/lane-c`; branch `lane-c`; start 
 - Ruling: Add `--attribute` to C3 and honor `SOURCEMAP=on` in the fixture because D1 invokes that command; print per-source Brotli-q11 `sourcesContent` weights as explicitly indicative, not an additive decomposition of minified output — cost if wrong: the weights may not represent exact generated-code contribution.
 - Ruling: Use Vite preview for perf runs because spec GATE-P1 explicitly requires it; retain C1 `startServer` for byte-accounted size measurement — cost if wrong: preview delivery behavior may differ from the C1 test server, but it matches the performance spec.
 - Ruling: Add C4 `--self-test` for ten ABAB pairs of identical builds, reporting per-scenario/metric empirical p95 absolute paired deltas and signed observed ranges as diagnostic-only noise bands — cost if wrong: ten pairs yield a coarse rather than stable estimate.
-- Ruling: Add the missing `vl-sort` hook to the mini-app before establishing the C4 baseline because C4 and the Solid bench share selectors — cost if wrong: one unused hook is added to the interim fixture.
+- Ruling: Align the mini-app's virtual rows and controls to the Solid bench contract: six row children, 15 visible rows, text inputs, shared hooks/filter fields, and 200 menus; keep native Foldkit markup and report its residual component difference — cost if wrong: the interim fixture may still differ from Gallery behavior.
 - Ruling: Point C5 CI commands to the mini-app until Lane D provides Gallery, then switch the jobs to Gallery and remove the fixture — cost if wrong: interim report values may not represent the eventual Gallery.
 
 ## Task status

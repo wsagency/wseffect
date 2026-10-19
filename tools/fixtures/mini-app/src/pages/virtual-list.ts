@@ -1,14 +1,17 @@
 import type { PageView } from '../main'
 
 const rows = Array.from({ length: 10_000 }, (_, index) => ({
-  index,
+  id: index + 1,
   name: `Record ${String(index + 1).padStart(5, '0')}`,
+  account: `Account ${index % 117}`,
+  region: ['North', 'South', 'East', 'West'][index % 4]!,
+  amount: ((index * 379) % 100_000) / 100,
 }))
 const VISIBLE_ROWS = 15
 
 export const view: PageView = (model, h, messages) => {
-  const filter = model.filter.toLowerCase()
-  const filtered = rows.filter((row) => row.name.toLowerCase().includes(filter))
+  const filter = model.filter.trim().toLowerCase()
+  const filtered = rows.filter((row) => `${row.name} ${row.account} ${row.region}`.toLowerCase().includes(filter))
   if (model.descending) filtered.reverse()
   const visible = filtered.slice(0, VISIBLE_ROWS)
 
@@ -33,27 +36,35 @@ export const view: PageView = (model, h, messages) => {
           h.button([h.Attribute('data-perf', 'vl-sort'), h.OnClick(messages.ClickedSort())], [model.descending ? 'Sort ascending' : 'Sort descending']),
           h.span([h.Attribute('aria-live', 'polite')], [`${filtered.length} records`]),
         ]),
-        h.table([h.Class('virtual-table')], [
-          h.thead([], [h.tr([], [
-            h.th([], ['Record']),
-            h.th([], ['Value']),
-            h.th([], ['Selection']),
-          ])]),
-          h.tbody([], visible.map((row, visibleIndex) => h.tr([h.Key(String(row.index)), h.Class('virtual-row')], [
-            h.td([], [row.name]),
-            h.td([], [h.input([
+        h.div([h.Class('virtual-scroll'), h.Attribute('data-testid', 'table-viewport')], [
+          h.div([
+            h.Class('virtual-spacer'),
+            h.Attribute('style', `height: ${filtered.length * 32}px`),
+          ], visible.map((row, visibleIndex) => h.div([
+            h.Key(String(row.id)),
+            h.Class('virtual-row'),
+            h.Attribute('data-perf', 'vl-row'),
+            h.Attribute('data-row-id', String(row.id)),
+            h.Attribute('style', `transform: translateY(${visibleIndex * 32}px)`),
+          ], [
+            h.span([h.Class('virtual-cell')], [String(row.id)]),
+            h.input([
+              h.Class('virtual-cell'),
               h.Attribute('type', 'text'),
-              h.Attribute('aria-label', `Value for ${row.name}`),
+              h.Attribute('aria-label', `Record ${row.id}`),
               h.Attribute('value', visibleIndex === 0 ? model.cellValue : row.name),
               ...(visibleIndex === 0 ? [h.Attribute('data-perf', 'vl-cell-input')] : []),
               h.OnInput((value) => messages.ChangedCell({ value })),
-            ])]),
-            h.td([], [h.button([
+            ]),
+            h.span([h.Class('virtual-cell')], [row.account]),
+            h.span([h.Class('virtual-cell')], [row.region]),
+            h.span([h.Class('virtual-cell')], [row.amount.toFixed(2)]),
+            h.button([
               h.Attribute('type', 'button'),
-              h.Attribute('aria-pressed', String(model.selected === row.index)),
+              h.Attribute('aria-pressed', String(model.selected === row.id)),
               ...(visibleIndex === 0 ? [h.Attribute('data-perf', 'vl-select')] : []),
-              h.OnClick(messages.ClickedSelect({ index: row.index })),
-            ], [model.selected === row.index ? 'Selected' : 'Select'])]),
+              h.OnClick(messages.ClickedSelect({ index: row.id })),
+            ], [model.selected === row.id ? 'Selected' : 'Select']),
           ]))),
         ]),
       ]),
