@@ -165,3 +165,9 @@
 - **Evidence:** The Gallery manifest shows primary entries import shared `heading`, `text`, `button`, `dialog`, `selectors`, `keyboard`, and `update` chunks. The offline e2e failed on a Dialog dynamic import until these shared assets were pre-cached.
 - **Resolution:** Include those shared chunks in Workbox's precache patterns while continuing to exclude non-primary page entry chunks and their CSS.
 
+
+## APP-23 amendment: app-shared eligibility
+
+- **Issue:** The first APP-23 amendment constrained the framework chunk but left app-shared eligibility too broad: a page-only dependency could enter a shared chunk through the module graph.
+- **Amendment:** `app-shared` may contain only application modules statically reachable from both the entry and at least one page. The framework group remains limited to resolved roots for Foldkit, Effect, `@effect/platform-browser`, `@wsagency/wseffect-app`, and `workbox-window`; all other modules use Rolldown default splitting.
+- **Guard:** Verify the static/modulepreload closure of `index.html` excludes page-only `@foldkit/ui/dialog`, menu, tabs, and Floating UI dependencies.
