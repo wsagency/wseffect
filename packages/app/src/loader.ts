@@ -57,7 +57,13 @@ export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof 
       yield* Deferred.succeed(deferred, page)
       return page as Pages[Key]
     })
-    return Effect.matchEffect(load, {
+    const loadWithCleanup = Effect.onInterrupt(load, () => Effect.andThen(
+      Deferred.interrupt(deferred),
+      Effect.sync(() => {
+        if (loads.get(key) === deferred) loads.delete(key)
+      }),
+    ))
+    return Effect.matchEffect(loadWithCleanup, {
       onSuccess: Effect.succeed,
       onFailure: (error) => Effect.andThen(
         Deferred.fail(deferred, error),
