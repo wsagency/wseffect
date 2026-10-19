@@ -30,7 +30,8 @@ describe('layout and typography views', () => {
       { update, view: boxView },
       Scene.given({ tick: 0 }),
       Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('class', 'rt-Box rt-r-w rt-r-h rt-r-p-3 md:rt-r-mx-2'),
-      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('style', '--width: 200px; --height: 50px;'),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveStyle('--width', '200px'),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveStyle('--height', '50px'),
     )
   })
   it('maps responsive Flex direction and gap classes', () => {
@@ -46,7 +47,7 @@ describe('layout and typography views', () => {
       { update, view: gridView },
       Scene.given({ tick: 0 }),
       Scene.expect(Scene.selector('.rt-Grid')).toHaveAttr('class', 'rt-Grid rt-r-gtc rt-r-ac-space-between rt-r-ji-center'),
-      Scene.expect(Scene.selector('.rt-Grid')).toHaveAttr('style', '--grid-template-columns: repeat(12, minmax(0, 1fr));'),
+      Scene.expect(Scene.selector('.rt-Grid')).toHaveStyle('--grid-template-columns', 'repeat(12, minmax(0, 1fr))'),
     )
   })
 

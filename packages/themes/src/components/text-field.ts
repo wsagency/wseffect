@@ -43,7 +43,7 @@ export const view = <Message>(
     ? scalarTextFieldClasses[`${size}:${variant}`]
     : ['rt-TextFieldRoot', ...responsiveClasses(sizeProp, size).classes, variantClasses[variant]].join(' ')
   const sizeStyle = typeof size === 'string' ? {} : responsiveClasses(sizeProp, size).style
-  return brandViewResult(InputUi.view({
+  return InputUi.view({
     id: props.id,
     value: props.value,
     onInput: props.onInput,
@@ -57,10 +57,10 @@ export const view = <Message>(
       if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
       if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
       return h.div(attributes, [
-        h.label([...label, h.Class('rt-TextFieldLabel')], [props.label]),
+        brandViewResult(h.label([...label, h.Class('rt-TextFieldLabel')], [props.label]), 'wseffect/TextFieldLabel'),
         h.input([...input, h.Class('rt-reset rt-TextFieldInput')]),
         ...(children.length > 0 ? [h.p([...description, h.Class('rt-TextFieldDescription')], children)] : []),
       ])
     },
-  }, h), 'wseffect/TextField')
+  }, h)
 }

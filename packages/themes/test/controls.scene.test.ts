@@ -70,7 +70,7 @@ describe('themed controls', () => {
       Scene.given({ value: '', clicks: 0, ticks: 0 }),
       Scene.expect(Scene.role('button', { name: 'Saving' })).toHaveAttr('aria-disabled', 'true'),
       Scene.expect(Scene.selector('.rt-loading .rt-ButtonContent')).toExist(),
-      Scene.expect(Scene.selector('.rt-ButtonContent')).toHaveAttr('style', 'display: contents'),
+      Scene.expect(Scene.selector('.rt-ButtonContent')).toHaveStyle('display', 'contents'),
       Scene.click(Scene.role('button', { name: 'Saving' })),
       Scene.expect(Scene.text('Clicks: 0')).toExist(),
       Scene.expect(Scene.selector('.rt-Spinner')).toExist(),
