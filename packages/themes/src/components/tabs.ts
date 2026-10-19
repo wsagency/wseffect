@@ -6,7 +6,8 @@ import * as UiTabs from '@foldkit/ui/tabs'
 import type { ViewInputs as TabsViewInputs } from '@foldkit/ui/tabs'
 
 export type ThemedViewInputs<Value extends string> = Omit<TabsViewInputs<Value>, 'toView'> & Readonly<{
-  tabToContent: (value: Value) => Html
+  tabToLabel: (value: Value) => Html
+  tabToPanel: (value: Value) => ReadonlyArray<Html | string>
 }>
 
 export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{
@@ -48,8 +49,8 @@ export const create = <Value extends string>(): Bundle<Value> => {
               h.DataAttribute('state', tab.isActive ? 'active' : 'inactive'),
             ]),
           ], [
-            h.span([...childAttributes([h.Class('rt-BaseTabListTriggerInner rt-TabsTriggerInner')])], [inputs.tabToContent(tab.value)]),
-            h.span([...childAttributes([h.Class('rt-BaseTabListTriggerInnerHidden rt-TabsTriggerInnerHidden')])], [inputs.tabToContent(tab.value)]),
+            h.span([...childAttributes([h.Class('rt-BaseTabListTriggerInner rt-TabsTriggerInner')])], [inputs.tabToLabel(tab.value)]),
+            h.span([...childAttributes([h.Class('rt-BaseTabListTriggerInnerHidden rt-TabsTriggerInnerHidden')])], [inputs.tabToLabel(tab.value)]),
           ])
         })),
         ...render.tabs
@@ -61,7 +62,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
               h.DataAttribute('state', tab.isActive ? 'active' : 'inactive'),
               ...(!tab.isActive ? [h.Hidden(true)] : []),
             ]),
-          ], [inputs.tabToContent(tab.value)])),
+          ], inputs.tabToPanel(tab.value))),
       ]),
     }, h), 'wseffect/Tabs'),
   )

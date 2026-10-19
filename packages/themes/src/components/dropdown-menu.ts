@@ -5,7 +5,7 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as UiMenu from '@foldkit/ui/menu'
 import type { ViewInputs as MenuViewInputs } from '@foldkit/ui/menu'
 
-const triggerClassName = 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid'
+const triggerClassName = 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button'
 const itemClassName = 'rt-reset rt-BaseMenuItem rt-DropdownMenuItem'
 const panelClassName = 'rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent rt-r-size-2 rt-variant-solid'
 const viewportClassName = 'rt-BaseMenuViewport rt-DropdownMenuViewport'

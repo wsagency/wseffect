@@ -35,6 +35,8 @@ describe('themed Dialog', () => {
       Scene.expect(Scene.selector('.rt-BaseDialogContent')).toHaveAttr('data-state', 'open'),
       Scene.expect(Scene.text('Confirm action')).toExist(),
       Scene.expect(Scene.role('button', { name: 'Close' })).toExist(),
+      Scene.expect(Scene.role('button', { name: 'Close' })).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-soft rt-Button'),
+      Scene.expect(Scene.selector('.rt-Flex.rt-r-jc-end')).toExist(),
     )
   })
 })

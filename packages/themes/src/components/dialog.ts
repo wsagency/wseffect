@@ -37,7 +37,9 @@ export const embed = <Message>(h: HtmlBuilder<Message>, config: EmbedConfig<Mess
               h.div([h.Class('rt-BaseDialogScroll rt-DialogScroll')], [
                 h.div([h.Class('rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center')], [
                   h.div([...render.panel, h.Class(contentClasses[size]), h.DataAttribute('state', 'open')], [
-                    h.button([...render.closeButton], ['Close']),
+                    h.div([h.Class('rt-Flex rt-r-jc-end')], [
+                      h.button([...render.closeButton, h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-soft rt-Button')], ['Close']),
+                    ]),
                     h.h2([...render.title, ...render.initialFocus, h.Class('rt-Heading rt-r-size-5 rt-r-mb-3')], [config.title]),
                     ...(config.description === undefined ? [] : [h.p([...render.description, h.Class('rt-Text rt-r-size-3')], [config.description])]),
                     ...config.content(h),

@@ -40,7 +40,7 @@ describe('themes distribution', () => {
 
   it('ships selectors for the upstream structural classes used by stateful views', async () => {
     const contracts = {
-      dialog: ['rt-BaseDialogOverlay', 'rt-BaseDialogScroll', 'rt-BaseDialogScrollPadding', 'rt-BaseDialogContent'],
+      dialog: ['rt-BaseDialogOverlay', 'rt-BaseDialogScroll', 'rt-BaseDialogScrollPadding', 'rt-BaseDialogContent', 'rt-Button', 'rt-Flex'],
       'dropdown-menu': ['rt-BaseMenuContent', 'rt-BaseMenuViewport', 'rt-BaseMenuItem'],
       tabs: ['rt-BaseTabList', 'rt-BaseTabListTrigger', 'rt-BaseTabListTriggerInner', 'rt-BaseTabListTriggerInnerHidden', 'rt-TabsContent'],
       button: ['rt-Spinner', 'rt-SpinnerLeaf'],
@@ -52,6 +52,11 @@ describe('themes distribution', () => {
     }
     const menuCss = await readFile(resolve(packageRoot, 'dist/styles/css/dropdown-menu.css'), 'utf8')
     expect(menuCss).toContain('.rt-BaseMenuItem[data-active]')
+    expect(menuCss).toContain('.rt-Button:where(.rt-r-size-2)')
+    const menuAdapter = await readFile(resolve(packageRoot, 'src/css-components/_adapters/menu.css'), 'utf8')
+    expect(menuAdapter).toContain('.rt-BaseMenuItem:where([data-active])')
+    expect(menuAdapter).not.toContain('data-disabled')
+    expect(menuAdapter).not.toContain("data-state='open'")
   })
   it('has selectors for emitted styling classes and limits semantic aliases to pinned upstream markup', async () => {
     const sourceFiles = await readdir(resolve(packageRoot, 'src/components'))
@@ -67,20 +72,8 @@ describe('themes distribution', () => {
       'rt-DropdownMenuContent', 'rt-DropdownMenuItem', 'rt-DropdownMenuViewport',
       'rt-TabsList', 'rt-TabsRoot', 'rt-TabsTrigger', 'rt-TabsTriggerInner', 'rt-TabsTriggerInnerHidden',
     ] as const
-    const radix2solidMarkup = `
-      class="rt-BaseDialogContent rt-DialogContent"
-      class="rt-BaseDialogOverlay rt-DialogOverlay"
-      class="rt-BaseDialogScroll rt-DialogScroll"
-      class="rt-BaseDialogScrollPadding rt-DialogScrollPadding"
-      class="rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent"
-      class="rt-BaseMenuViewport rt-DropdownMenuViewport"
-      class="rt-BaseMenuItem rt-DropdownMenuItem"
-      class="rt-TabsRoot"
-      class="rt-BaseTabList rt-TabsList"
-      class="rt-reset rt-BaseTabListTrigger rt-TabsTrigger"
-      class="rt-BaseTabListTriggerInner rt-TabsTriggerInner"
-      class="rt-BaseTabListTriggerInnerHidden rt-TabsTriggerInnerHidden"
-    `
+    const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
+    expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
     const upstreamClasses = new Set([...radix2solidMarkup.matchAll(/\b(rt-[A-Za-z0-9_-]+)\b/g)].map(([, className]) => className))
     for (const alias of semanticAliases) {
       expect(upstreamClasses.has(alias), `upstream semantic alias ${alias}`).toBe(true)

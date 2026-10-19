@@ -26,8 +26,8 @@ const order = [...index.matchAll(/^@import '\.\/([\w-]+)\.css';/gm)]
   .map(match => match[1]).filter(name => !common.includes(name) && name !== 'shared');
 const dependencies = {
   button: ['spinner'],
-  'dropdown-menu': ['scroll-area'],
-  dialog: ['heading', 'text']
+  'dropdown-menu': ['scroll-area', 'button'],
+  dialog: ['heading', 'text', 'button', 'flex']
 };
 targets.push(
   ['src/css-components/index.css', 'css/common.css', common.map(name => `@import './${name}.css';`).join('\n')],
@@ -42,6 +42,9 @@ for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 
   };
   include(name);
   const names = order.filter(component => included.has(component));
+  for (const component of included) {
+    if (component !== name && !order.includes(component)) names.push(component);
+  }
   if (!order.includes(name)) names.unshift(name);
   const source = names.map(component => `@import './${component}.css';`).join('\n');
   targets.push(['src/css-components/index.css', `css/${name}.css`, source]);

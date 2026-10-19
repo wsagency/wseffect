@@ -25,3 +25,9 @@
 
 - **Evidence:** `css.test.ts` reads generated `dist/styles/**` files; a clean `pnpm check` fails with ENOENT when the package build only runs TypeScript compilation.
 - **Proposed fix:** include `scripts/build-css.js` in the package build so checks and fresh installs produce the same distributable assets.
+
+## B3: Amend frozen Tabs label/panel contract
+
+- **Issue:** The original themed Tabs input contract accepted one `tabToContent` callback and reused its result for both the trigger label and panel body. The frozen contract did not provide independent label and panel content.
+- **Amendment:** Replace `tabToContent` with `tabToLabel: (value) => Html` and `tabToPanel: (value) => ReadonlyArray<Html | string>`. The trigger renders only the label callback; the active tabpanel renders the panel callback.
+- **Evidence:** `packages/themes/test/tabs.scene.test.ts` asserts label-only and panel-only text separately and confirms the panel changes when selection changes.

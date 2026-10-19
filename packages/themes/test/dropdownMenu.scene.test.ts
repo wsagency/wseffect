@@ -63,7 +63,7 @@ describe('themed DropdownMenu view', () => {
       Scene.given({ menu: Menu.init({ id: 'actions' }) }),
       Scene.expect(Scene.role('button', { name: 'Actions' })).toHaveAttr('aria-haspopup', 'menu'),
       Scene.expect(Scene.role('button', { name: 'Actions' })).toHaveAttr('aria-expanded', 'false'),
-      Scene.expect(Scene.role('button', { name: 'Actions' })).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid'),
+      Scene.expect(Scene.role('button', { name: 'Actions' })).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button'),
     )
   })
 

@@ -21,7 +21,8 @@ const view = (model: Model, h: HtmlBuilder<Message>) => TabsBundle.embed(h, {
     tabs: ['overview', 'settings'],
     selectedValue: model.selected,
     ariaLabel: 'Settings sections',
-    tabToContent: value => h.span([], [value]),
+    tabToLabel: value => h.span([], [value === 'overview' ? 'Overview tab label' : 'Settings tab label']),
+    tabToPanel: value => [h.p([], [value === 'overview' ? 'Overview panel content' : 'Settings panel content'])],
   },
 })
 
@@ -37,11 +38,15 @@ describe('themed Tabs view', () => {
       Scene.expect(Scene.selector('#settings-tab-0')).toHaveAttr('data-state', 'active'),
       Scene.expect(Scene.selector('.rt-BaseTabListTriggerInner.rt-TabsTriggerInner')).toExist(),
       Scene.expect(Scene.selector('.rt-BaseTabListTriggerInnerHidden.rt-TabsTriggerInnerHidden')).toExist(),
+      Scene.expect(Scene.text('Overview tab label')).toExist(),
+      Scene.expect(Scene.text('Overview panel content')).toExist(),
       Scene.expect(Scene.role('tabpanel')).toExist(),
       Scene.expect(Scene.selector('#settings-tab-0')).toHaveAttr('tabIndex', '0'),
       Scene.click(Scene.selector('#settings-tab-1')),
       Scene.expect(Scene.selector('#settings-tab-1')).toHaveAttr('data-state', 'active'),
       Scene.expect(Scene.selector('#settings-tab-0')).toHaveAttr('data-state', 'inactive'),
+      Scene.expect(Scene.text('Settings tab label')).toExist(),
+      Scene.expect(Scene.text('Settings panel content')).toExist(),
     )
   })
 })

@@ -7,3 +7,4 @@
 - Publish the generated foundation stylesheets and token files.
 - Export every generated `*.layer.css` stylesheet sibling.
 - Align stateful component markup and loading spinner sizing with the pinned Radix Themes CSS.
+- Separate Tabs label and panel rendering; apply Button styling to DropdownMenu triggers and Dialog close controls.

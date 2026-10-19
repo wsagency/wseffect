@@ -1,5 +1,4 @@
-.rt-BaseMenuItem:where([data-disabled], [data-active]),
-.rt-BaseMenuSubTrigger:where([data-state='open']) {
+.rt-BaseMenuItem:where([data-active]) {
   & :where(.rt-BaseMenuShortcut) {
     color: inherit;
   }
