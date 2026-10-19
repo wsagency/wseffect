@@ -6,6 +6,8 @@ import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import { chromium } from '@playwright/test'
 import { startServer, type ServerHandle, type ServerStats } from '../serve/server.ts'
 
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+
 export interface SizeReport {
   readonly shell: number
   readonly shellRaw: number

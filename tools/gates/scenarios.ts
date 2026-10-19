@@ -36,6 +36,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     id: 'vl-sort',
     route: '/virtual-list',
     inputEventType: 'click',
+    prepare: async () => {},
     warmup: async (page) => page.locator('[data-perf="vl-sort"]').click(),
     reset: async (page) => page.locator('[data-perf="vl-sort"]').click(),
     act: async (page) => page.locator('[data-perf="vl-sort"]').click(),
@@ -45,6 +46,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     id: 'vl-select',
     route: '/virtual-list',
     inputEventType: 'click',
+    prepare: async () => {},
     warmup: async (page) => page.locator('[data-perf="vl-select"]').click(),
     reset: async (page) => {
       await page.reload({ waitUntil: 'networkidle' })
@@ -66,6 +68,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     id: 'menus-tick',
     route: '/menus',
     inputEventType: 'click',
+    prepare: async () => {},
     warmup: async (page) => page.locator('[data-perf="menus-tick"]').click(),
     reset: async (page) => {
       await page.reload({ waitUntil: 'networkidle' })
