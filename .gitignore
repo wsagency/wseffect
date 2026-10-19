@@ -6,3 +6,4 @@ test-results
 playwright-report
 *.tgz
 !bench/radix2solid/packs/*.tgz
+*.tsbuildinfo
