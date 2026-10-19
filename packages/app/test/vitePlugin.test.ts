@@ -34,14 +34,23 @@ async function buildFixture(
     cpSync(fixtureDirectory, directory, { recursive: true })
     writeFileSync(join(directory, 'src/pages/package.json'), JSON.stringify({ sideEffects: false }))
     if (alphaSource !== undefined) writeFileSync(join(directory, 'src/pages/alpha.ts'), alphaSource)
-    writeFileSync(join(directory, 'src/main.ts'), `${readFileSync(join(directory, 'src/main.ts'), 'utf8')}\nimport './entry.css'\n`)
+    writeFileSync(
+      join(directory, 'src/main.ts'),
+      `${readFileSync(join(directory, 'src/main.ts'), 'utf8')}\nimport './entry.css'\nimport { Props } from '@wsagency/wseffect-themes/components/box'\ndocument.documentElement.dataset.theme = String(Props)\n`,
+    )
     mkdirSync(join(directory, 'public'), { recursive: true })
     mkdirSync(join(directory, 'public/assets'), { recursive: true })
     writeFileSync(join(directory, 'public/extra.html'), '<!doctype html>')
     writeFileSync(join(directory, 'public/extra.css'), '.extra {}')
     writeFileSync(join(directory, 'public/assets/workbox-helper.js'), 'export {}')
-    writeFileSync(join(directory, 'src/pages/alpha.ts'), `${readFileSync(join(directory, 'src/pages/alpha.ts'), 'utf8')}\nimport './alpha.css'\n`)
-    writeFileSync(join(directory, 'src/pages/theme.ts'), `${readFileSync(join(directory, 'src/pages/beta.ts'), 'utf8')}\nimport './theme.css'\n`)
+    writeFileSync(
+      join(directory, 'src/pages/alpha.ts'),
+      `${readFileSync(join(directory, 'src/pages/alpha.ts'), 'utf8')}\nimport { Props } from '@wsagency/wseffect-themes/components/box'\nexport const sharedTheme = Props\nimport './alpha.css'\n`,
+    )
+    writeFileSync(
+      join(directory, 'src/pages/theme.ts'),
+      `${readFileSync(join(directory, 'src/pages/beta.ts'), 'utf8')}\nimport { Props } from '@wsagency/wseffect-themes/components/box'\nexport const sharedTheme = Props\nimport './theme.css'\n`,
+    )
     writeFileSync(join(directory, 'src/entry.css'), 'html { --document-style: document; } body { --entry-style: entry; }')
     writeFileSync(join(directory, 'src/pages/alpha.css'), '.alpha { --primary-page-style: primary; }')
     writeFileSync(join(directory, 'src/pages/theme.css'), '.theme { --secondary-page-style: theme-palette; }')
@@ -50,6 +59,11 @@ async function buildFixture(
     writeFileSync(join(directory, 'public/icons/icon-192.png'), '')
     writeFileSync(join(directory, 'public/icons/icon-512.png'), '')
     mkdirSync(join(directory, 'node_modules/@wsagency'), { recursive: true })
+    symlinkSync(
+      resolve(testDirectory, '../../themes'),
+      join(directory, 'node_modules/@wsagency/wseffect-themes'),
+      'dir',
+    )
     mkdirSync(join(directory, 'node_modules/@foldkit'), { recursive: true })
     symlinkSync(resolve(testDirectory, '../node_modules/foldkit'), join(directory, 'node_modules/foldkit'), 'dir')
     symlinkSync(resolve(testDirectory, '..'), join(directory, 'node_modules/@wsagency/wseffect-app'), 'dir')
@@ -207,18 +221,33 @@ describe('wseffect Vite plugin', () => {
     }
   })
 
-  it('changes only the entry and changed page chunk filenames when a page changes', async () => {
+  it('keeps app-shared stable while the entry and changed page chunk are renamed', async () => {
     const first = await buildFixture(false)
     try {
-      const second = await buildFixture(false, "import { BUILD_ID } from '@wsagency/wseffect-app/buildId'\n\nexport const page = { name: 'alpha-updated', buildId: BUILD_ID }\n")
+      const second = await buildFixture(false, "import { sharedContract } from '../sharedContract'\nimport { BUILD_ID } from '@wsagency/wseffect-app/buildId'\n\nexport const page = { name: 'alpha-updated', buildId: BUILD_ID, contract: sharedContract }\n")
       try {
         const firstFiles = new Set(outputFiles(first.output))
         const secondFiles = new Set(outputFiles(second.output))
         const changed = [...firstFiles].filter((file) => !secondFiles.has(file))
-        expect(changed).toHaveLength(2)
+        const added = [...secondFiles].filter((file) => !firstFiles.has(file))
         expect(changed.map((file) => file.split('-')[0]).sort()).toEqual(['alpha', 'index'])
-        expect([...secondFiles].filter((file) => !firstFiles.has(file)).map((file) => file.split('-')[0]).sort())
-          .toEqual(['alpha', 'index'])
+        expect(added.map((file) => file.split('-')[0]).sort()).toEqual(['alpha', 'index'])
+
+        const appShared = [...firstFiles].find((file) => file.startsWith('app-shared-'))
+        const framework = [...firstFiles].find((file) => file.startsWith('framework-'))
+        const beta = [...firstFiles].find((file) => file.startsWith('beta-'))
+        const theme = [...firstFiles].find((file) => file.startsWith('theme-'))
+        expect(appShared).toBeDefined()
+        expect(framework).toBeDefined()
+        expect(beta).toBeDefined()
+        expect(theme).toBeDefined()
+        for (const file of [appShared!, framework!, beta!, theme!]) {
+          expect(secondFiles.has(file)).toBe(true)
+          expect(readFileSync(join(first.output, 'assets', file))).toEqual(readFileSync(join(second.output, 'assets', file)))
+        }
+        const sharedMap = JSON.parse(readFileSync(join(first.output, 'assets', `${appShared}.map`), 'utf8')) as { sources: string[] }
+        expect(sharedMap.sources.some((source) => source.endsWith('/src/sharedContract.ts'))).toBe(true)
+        expect(sharedMap.sources.some((source) => source.endsWith('/packages/themes/dist/components/box.js'))).toBe(true)
       } finally {
         rmSync(second.directory, { recursive: true, force: true })
       }

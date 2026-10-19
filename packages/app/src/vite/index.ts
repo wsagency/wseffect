@@ -63,7 +63,7 @@ function pagesPlugin(pagesDir: string, primaryPages: ReadonlyArray<string>): Plu
 
 export function wseffect(options: WseffectOptions): Array<Plugin> {
   const pagesDir = options.pagesDir ?? 'src/pages'
-  const plugins: Array<Plugin> = [...foldkit(), pagesPlugin(pagesDir, options.primaryPages), buildIdPlugin(options.pwa !== false), frameworkChunking()]
+  const plugins: Array<Plugin> = [...foldkit(), pagesPlugin(pagesDir, options.primaryPages), buildIdPlugin(options.pwa !== false), frameworkChunking(pagesDir)]
   if (options.pwa === false) {
     plugins.push({
       name: 'wseffect:pwa-disabled',
@@ -87,7 +87,9 @@ export function wseffect(options: WseffectOptions): Array<Plugin> {
         navigateFallbackDenylist: [/^\/assets\//],
         globPatterns: [
           'index.html',
-          'assets/index-*.css', 'assets/framework-*.css', 'assets/index-*.js', 'assets/framework-*.js',
+          'assets/index-*.css', 'assets/framework-*.css', 'assets/app-shared-*.css', 'assets/index-*.js', 'assets/framework-*.js', 'assets/app-shared-*.js',
+          'assets/heading-*.js', 'assets/text-*.js', 'assets/button-*.js', 'assets/dialog-*.js',
+          'assets/selectors-*.js', 'assets/keyboard-*.js', 'assets/update-*.js',
           'assets/workbox-window-*.js',
           ...options.primaryPages.flatMap((key) => [`assets/${key}-*.js`, `assets/${key}-*.css`]),
         ],

@@ -10,7 +10,7 @@ async function assetNames(directory: string): Promise<ReadonlyArray<string>> {
   return (await readdir(resolve(directory, 'assets'))).sort()
 }
 
-test('fixed build IDs preserve every asset name except the changed page chunk', async ({}, testInfo) => {
+test('fixed build IDs rename only the entry and changed page, leaving app-shared and other pages stable', async ({}, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'build fixture mutates an isolated gallery copy; run once')
   const fixture = await createGalleryBuildFixture()
   const tabsPath = resolve(fixture.pagesDir, 'tabs.ts')
@@ -28,10 +28,29 @@ test('fixed build IDs preserve every asset name except the changed page chunk', 
     const after = new Set(await assetNames(second))
     const removed = [...before].filter((name) => !after.has(name))
     const added = [...after].filter((name) => !before.has(name))
-    expect(removed).toHaveLength(1)
-    expect(added).toHaveLength(1)
-    expect(removed[0]).toMatch(/^tabs-[^/]+\.js$/)
-    expect(added[0]).toMatch(/^tabs-[^/]+\.js$/)
+    expect(removed).toHaveLength(2)
+    expect(added).toHaveLength(2)
+    expect(removed.map((name) => name.split('-')[0]).sort()).toEqual(['index', 'tabs'])
+    expect(added.map((name) => name.split('-')[0]).sort()).toEqual(['index', 'tabs'])
+
+    const oldEntry = removed.find((name) => /^index-[^/]+\.js$/.test(name))
+    const newEntry = added.find((name) => /^index-[^/]+\.js$/.test(name))
+    const oldTabs = removed.find((name) => /^tabs-[^/]+\.js$/.test(name))
+    const newTabs = added.find((name) => /^tabs-[^/]+\.js$/.test(name))
+    const appShared = [...before].find((name) => name.startsWith('app-shared-'))
+    expect(oldEntry).toBeDefined()
+    expect(newEntry).toBeDefined()
+    expect(oldTabs).toBeDefined()
+    expect(newTabs).toBeDefined()
+    expect(newEntry).not.toBe(oldEntry)
+    expect(appShared).toBeDefined()
+    expect(after.has(appShared!)).toBe(true)
+    expect(await readFile(resolve(first, 'assets', appShared!))).toEqual(await readFile(resolve(second, 'assets', appShared!)))
+    const secondEntry = await readFile(resolve(second, 'assets', newEntry!), 'utf8')
+    expect(secondEntry).toContain(newTabs!)
+    expect(secondEntry).not.toContain(oldTabs!)
+    expect([...before].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-')))
+      .toEqual([...after].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-')))
 
     const started = await startStaticServer(second)
     server = started.server

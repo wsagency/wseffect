@@ -8,7 +8,7 @@ Install `@wsagency/wseffect-app`, Foldkit `0.168.0`, Effect `4.0.5`, Vite `8`, a
 
 Create `src/pages/package.json` with `{"sideEffects":false}`. Each page is a lazy module named with a key matching `^[a-z][A-Za-z0-9]*$`. Run `wseffect-codegen .` to generate `src/pages.gen.ts`; use `wseffect-codegen --check .` in CI to reject stale generated output.
 
-Configure Vite with `wseffect({ primaryPages, pwa })`. `primaryPages` lists page keys that must be precached for offline use. Set `pwa: false` to disable service-worker installation while retaining the version poll and online application behavior. When PWA is enabled, provide a manifest with `name`, `short_name`, `start_url: '/'`, `display: 'standalone'`, theme and background colors, and PNG icons at 192×192 and 512×512.
+Configure Vite with `wseffect({ primaryPages, pwa })`. `primaryPages` lists page keys that must be precached for offline use. Set `pwa: false` to disable service-worker installation while retaining the version poll and online application behavior. When PWA is enabled, provide a manifest with `name`, `short_name`, `start_url: '/'`, `display: 'standalone'`, theme and background colors, and PNG icons at 192×192 and 512×512. The build isolates app-source modules shared by the entry and lazy pages in `app-shared-*` assets; generated shared assets are precached with the entry.
 
 `makeApp` merges the application resources with the app's ServiceWorker layer, page subscriptions, and version polling. Supply the app's page binding and mapping between the kit's state/messages and the enclosing application. The default version poll interval is five minutes; `versionPollMs` overrides it.
 
