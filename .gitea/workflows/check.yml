@@ -1,0 +1,59 @@
+name: check
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm check
+
+  effect-latest:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - id: changed
+        if: gitea.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ gitea.event.pull_request.base.sha }}
+        run: |
+          git fetch origin "$BASE_SHA"
+          if git diff --name-only FETCH_HEAD...HEAD | grep -Eq '(^|/)package\.json$|^pnpm-lock\.yaml$'; then
+            echo 'required=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'required=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Required Effect compatibility check
+        if: gitea.event_name == 'schedule' || (gitea.event_name == 'pull_request' && steps.changed.outputs.required == 'true')
+        run: |
+          node scripts/resolve-effect-latest.ts
+          cp .artifacts/pnpm-workspace.effect-latest.yaml pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium
+      - name: Best-effort Effect compatibility check
+        if: gitea.event_name == 'push' || (gitea.event_name == 'pull_request' && steps.changed.outputs.required != 'true')
+        continue-on-error: true
+        run: |
+          node scripts/resolve-effect-latest.ts
+          cp .artifacts/pnpm-workspace.effect-latest.yaml pnpm-workspace.yaml
+          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium
