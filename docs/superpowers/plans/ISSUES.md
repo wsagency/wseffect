@@ -124,3 +124,8 @@
 
 - **Issue:** APP-23's earlier "all `node_modules`" rule included page-only `@foldkit/ui` menu/dialog and Floating UI in the eager framework chunk. Lane D measured S1 at 117,469 B before narrowing the group and 98,306 B afterward.
 - **Amendment:** APP-23 now groups only the resolved package roots for `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app` and `workbox-window`; all other modules use default splitting. Its build test must assert the framework excludes page-only dependencies, including `@foldkit/ui` menu/dialog and Floating UI. GATE-S1 counts the entry and framework JavaScript only; CSS counts in GATE-S2's first-visit transfer. The plan's A8 and C3 test requirements reflect this.
+
+## 2026-10-19 — GATE-S2/S4 prefetch accounting, APP-13 idle scheduling, and PWA-3 cache scope
+
+- **Issue:** Lane D measured 197,334 B on the first visit, including 45,621 B of viewport prefetch and 16,900 B of non-primary theme CSS wrongly precached. Counting all received bytes together obscures mandatory startup transfer and allows eager prefetch to compete with the first render.
+- **Amendment:** GATE-S2 counts mandatory first-visit traffic, classifies speculative non-primary/non-current-route page assets through the Vite build manifest, and reports those bytes separately under GATE-S4 (≤65,536 B). APP-13 defers viewport imports until first-render idle (`requestIdleCallback`, with `setTimeout` fallback) and caps concurrent prefetches at 2. PWA-3 precaches only HTML, manifest/icons, entry/framework, primary-page chunks and their CSS; non-primary page CSS is runtime-cached only. The plan adds tests for idle scheduling/concurrency, manifest-based byte classification, and exact precache/runtime-cache membership.

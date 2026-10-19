@@ -266,11 +266,12 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 - **APP-12 Route-to-page mapping.** The app supplies `pagesForRoute(route): ReadonlyArray<PageKey>`. One route may require several pages; mounting two lazy pages at once is proven [F:743].
 - **APP-13 Prefetch.** The package exports two prefetch helpers:
   - `prefetchOnIntent(key)`: attributes `OnMouseEnter` and `OnFocus` that dispatch the prefetch request.
-  - `prefetchOnVisible(key)`: a Mount over `IntersectionObserver` that disconnects after the first intersection.
+  - `prefetchOnVisible(key)`: a Mount over `IntersectionObserver` that disconnects after the first intersection; it defers the import until the first render is idle, using `requestIdleCallback` with a `setTimeout` fallback, and limits concurrent prefetches to 2.
 
   Rules:
   - The prefetch Command only loads the module (`Idle` → `Available`) and never runs page `init`.
   - A failed prefetch leaves the slot `Idle`.
+  - Viewport-prefetch starts only after first render is idle and never has more than 2 concurrent imports, so it does not compete with first render (PRI-2).
   - Evidence: exactly one fetch overall, and a failed prefetch does not affect the later navigation [F:739].
 - **APP-14 No loading frame after prefetch.** A prefetched page is committed in the navigation update itself: no loading placeholder is added to the DOM.
   - Evidence at 4× CPU: prefetched navigation 16.5–19.7 ms versus 37.7–40.8 ms cold [F:739, F:776-781].
@@ -344,9 +345,9 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
   - `strategies: 'generateSW'`, `registerType: 'prompt'`, `injectRegister: false`, `clientsClaim: true`;
   - `navigateFallback: 'index.html'`, with `navigateFallbackDenylist: [/^\/assets\//]`.
 - **PWA-3 Caching strategy (c), hybrid.**
-  - **Precache:** `index.html`, the web manifest and its icons, the entry chunk, the `framework` chunk (which contains `workbox-window` under APP-23 chunking [F:889]), any separately emitted `workbox-window` chunk, and the chunks of the app-declared `primaryPages` (a `PageKey` list in the plugin config).
-  - **Runtime cache:** `CacheFirst` for `/assets/*.js`, cache name `wseffect-pages`, `ExpirationPlugin` with `maxEntries: 200` and `maxAgeSeconds: 2592000` (30 days), `cacheableResponse.statuses: [200]`.
-  - **Evidence, stable chunking and 20 realistic pages** [F:899-906; App. A.4]:
+  - **Precache exactly:** `index.html`, the web manifest and its icons, the entry chunk, the `framework` chunk, the chunks of the app-declared `primaryPages` (a `PageKey` list in the plugin config), CSS imported by the entry/framework, and CSS belonging to those primary pages. Do not precache non-primary page CSS; it is runtime-cached only.
+  - **Runtime cache:** `CacheFirst` for `/assets/*.js` and non-primary page CSS, cache name `wseffect-pages`, `ExpirationPlugin` with `maxEntries: 200` and `maxAgeSeconds: 2592000` (30 days), `cacheableResponse.statuses: [200]`.
+  - **Test:** assert the precache contains exactly the required documents, manifest/icons, entry, framework, primary page chunks, entry/framework CSS and primary-page CSS; it excludes non-primary page chunks/CSS. Assert non-primary page CSS enters `wseffect-pages` only after it is requested.
 
     | Strategy | First visit (brotli / requests) | Never-visited primary pages offline |
     |---|---|---|
@@ -485,11 +486,14 @@ These rules come from the performance research repercussions [P:144-155].
   - Reference: the research shell measured 94,557 B (6,097 B entry + 88,460 B `framework`) **without Themes JavaScript** [F:889; App. A.4]. The foundation shell has not been measured.
   - The first implementation-plan task that builds the gallery records the real foundation shell size in `bench/baselines/size.json`.
   - If that size exceeds 122,880 B, the gate is not raised silently: the PR reports the measured size with a source-map attribution and an explanation, and the user decides whether the budget changes or the code does. Until that decision, the `size` job stays failing.
-- **GATE-S2 First-visit transfer.** Server-counted brotli bytes from navigating to `/` until the service worker controls the page and the server has seen no request for 1 s total ≤ 163,840 B (160 KiB).
+- **GATE-S2 Mandatory first-visit transfer.** During the same measurement window—navigating to `/` until the service worker controls the page and the server has seen no request for 1 s—server-counted brotli bytes for the mandatory first visit are ≤ 163,840 B (160 KiB). Mandatory traffic includes the document, shell (entry + framework + CSS), service-worker registration and install/precache requests (HTML, manifest and icons, entry, framework, primary pages and their CSS), and `version.json`. Using the Vite build manifest, classify requests for chunks or CSS belonging only to non-primary pages that are not required by the current route as speculative viewport prefetch; exclude those bytes from GATE-S2 and report them separately under GATE-S4.
   - Reference: 117,945 B in 12 requests with 4 primary pages [F:906; App. A.4].
+- **GATE-S4 Speculative-prefetch transfer.** During the GATE-S2 measurement window, brotli bytes for assets classified as speculative viewport prefetch by the Vite build manifest total ≤ 65,536 B (64 KiB). Report this separately from the mandatory GATE-S2 total.
+  - **Evidence:** the lane-D measurement was 197,334 B total, including 45,621 B of viewport prefetch and 16,900 B of non-primary theme CSS incorrectly precached.
 - **GATE-S3 Growth.** These tracked artifacts are compared with `bench/baselines/size.json`:
   - the GATE-S1 total;
-  - the GATE-S2 total;
+  - the GATE-S2 mandatory first-visit total;
+  - the GATE-S4 speculative-prefetch total;
   - each gallery page chunk;
   - `styles.css`.
 
@@ -596,7 +600,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 
 - **BENCH-1 The comparison app.** `bench/radix2solid/` is a Solid 2 app with the gallery's foundation scope: the same components and lazy routes. It consumes radix2solid only from packed tarballs of commit `383676172abb84b4a1d2e54a087d290437ee8848` (public `main`, rc.3), under the TH-1 pin rule.
   - The commit is recorded in `bench/radix2solid/library-source.json` as `{ repository, commit }`, the shape radix2solid-web uses (radix2solid-web pins `e1ecdf69bc24ec24035d7b1977c3931430294cc4`) [R:69].
-- **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2-equivalent sizes and the GATE-P1 scenarios, measured the same way. It is reporting only and never gates.
+- **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2/S4-equivalent sizes and the GATE-P1 scenarios, measured the same way. It is reporting only and never gates.
   - **Research context, matched DOM.** The earlier "Solid filters about 11× faster" figure [P:131-142] compared pages whose Foldkit side had 3.4× more layout objects (24,025 vs 7,011) [P:179], and is not used. The S9 comparison used the same table on both sides: 1,000 rows, 10,000 cells, 1,001 inputs, 1,007 buttons (`domCounts` of S9 groups `branch 1000/*/keyed/*` and `solid 1000/*/Solid/*`). Event Timing / scripting medians in ms:
 
     | CPU | Action | Foldkit keyed | Solid 2 |
@@ -619,7 +623,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
   | Job | Status | Content |
   |---|---|---|
   | `check` | Required | Build, typecheck, lint (APP-22), TEST-1 to TEST-9 |
-  | `size` | Required; runs after `check` passes | GATE-S1 to GATE-S3 |
+  | `size` | Required; runs after `check` passes | GATE-S1 to GATE-S4 |
   | `perf` | Required; runs after `check` passes, on the `perf` runner (GATE-P5) | GATE-P1 to GATE-P5 |
   | `effect-latest` | Required for PRs that change any dependency version; informational otherwise; also nightly | Resolves `effect` and `@effect/platform-browser` to the newest 4.x published at least 24 h earlier, then runs typecheck, Story and Scene tests and Chromium e2e. A failing run on `main` must be resolved before any further dependency-changing PR merges, either by a fix or by lowering the upper bound of the published `effect` peer range below the failing version |
   | `bench-radix2solid` | Informational; on the `perf` runner (GATE-P5) | BENCH-2 |

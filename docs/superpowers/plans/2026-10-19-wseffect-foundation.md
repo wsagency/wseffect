@@ -145,7 +145,7 @@ interface KitBinding<Pages, KitMessage> {
 }
 type KitPageViewInputs<Pages> = Readonly<{ key: keyof Pages & string; inputs: InputsOf<Pages[keyof Pages]> }>
 prefetchOnIntent<KitMessage>(binding: KitBinding<any, KitMessage>, key: string, h: HtmlBuilder<KitMessage>): ReadonlyArray<Attribute<KitMessage>>   // h.OnMouseEnter + h.OnFocus; foldkit@0.168.0 exposes attribute constructors only on the builder
-prefetchOnVisible<KitMessage>(binding: KitBinding<any, KitMessage>, key: string): Attribute<KitMessage>                // h.OnMount(...)
+prefetchOnVisible<KitMessage>(binding: KitBinding<any, KitMessage>, key: string): Attribute<KitMessage>                // h.OnMount(...); schedules after first-render idle (requestIdleCallback or setTimeout) and caps concurrent prefetches at 2
 
 // '.' — services and app
 class PageLoadError extends Data.TaggedError('PageLoadError')<{ key: string; cause: unknown }>
@@ -257,8 +257,8 @@ Tabs.create<Value extends string>(): { Model, Message, OutMessage, init, update,
 { "unit": "B", "compression": "brotli-q11",
   "entries": { "<artifact-id>": { "bytes": 0, "reason": "string" } } }
 ```
-Artifact ids: `shell` (entry + framework JavaScript chunks), `first-visit`, `page:<key>`, `styles.css`.
-- **`bench/baselines/size.json`** (owned by C3): `shell` is GATE-S1's brotli-q11 total for the entry and framework JavaScript chunks only; CSS is counted in `first-visit` under GATE-S2.
+Artifact ids: `shell` (entry + framework JavaScript chunks), `first-visit` (GATE-S2 mandatory bytes), `speculative-prefetch` (GATE-S4 bytes), `page:<key>`, `styles.css`.
+- **`bench/baselines/size.json`** (owned by C3): `shell` is GATE-S1's brotli-q11 total for the entry and framework JavaScript chunks only; CSS is counted in GATE-S2's first-visit transfer.
 
 **`bench/baselines/perf.json`** (owned by C4):
 ```json
@@ -517,11 +517,12 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `Ready` renders the page view with `inputs`.
   - Reuse (GATE-P4 view-execution counter): the page view, wrapped in a counting spy, is not re-run when the shell re-renders with an identical slot model and input primitives, and runs exactly once more when one input primitive changes.
   - `prefetchOnIntent` attributes dispatch `RequestedPrefetch` on `mouseenter` and on `focus`.
+  - `prefetchOnVisible` does not start an import before the first render becomes idle; verify `requestIdleCallback` scheduling and the `setTimeout` fallback when unavailable. With more than 2 visible pages, at most 2 prefetch imports are in flight, and the next begins only after one finishes.
   - Banner: hidden when `isUpdateAvailable` is false; `#wseffect-update` with button `#wseffect-update-reload` dispatching `ClickedApplyUpdate` when true.
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-app test view`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
   - `viewPage` wraps each page view in a per-key `createLazy` whose args are `[slot.model, ...Object.values(inputs) in sorted-key order, h]`.
-  - `prefetchOnVisible` is a `Mount.defineStream` over `IntersectionObserver` that disconnects after the first intersection.
+  - `prefetchOnVisible` is a `Mount.defineStream` over `IntersectionObserver` that disconnects after the first intersection, waits for first-render idle before requesting the page module, and uses a shared concurrency cap of 2 across bindings.
 - [ ] **Step 4: Run** again. Expected: PASS.
 - [ ] **Step 5: Commit** `feat(app): kit page view, prefetch helpers and update banner`.
 
@@ -920,13 +921,14 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 **Interfaces:**
 - Consumes: C1 `startServer`.
-- Produces: `measureSize(input: { distDir: string; pagesDir: string }): Promise<SizeReport>`, where `SizeReport = { shell: number; firstVisit: { bytes: number; requests: number }; pages: Record<string, number>; stylesCss?: number }`; `compareSize(report, baseline): { failures: string[] }`; CLI `pnpm gate:size --app apps/gallery`.
+- Produces: `measureSize(input: { distDir: string; pagesDir: string }): Promise<SizeReport>`, where `SizeReport = { shell: number; firstVisit: { bytes: number; requests: number }; speculativePrefetch: { bytes: number; requests: number }; pages: Record<string, number>; stylesCss?: number }`; it classifies requested assets using Vite's build manifest and each page's JS/CSS imports. `compareSize(report, baseline): { failures: string[] }`; CLI `pnpm gate:size --app apps/gallery`.
 
-- [ ] **Step 1: Write the failing tests** (GATE-S1, S2, S3):
+- [ ] **Step 1: Write the failing tests** (GATE-S1, S2, S3, S4):
   - `compareSize` fails when `shell > 122880` with the message `GATE-S1: shell <n> B exceeds 122,880 B; do not raise the budget without user decision` (spec GATE-S1). `shell` counts only the entry and `framework` JavaScript chunks; CSS does not count toward GATE-S1.
-  - It fails when first-visit `> 163840`; this GATE-S2 measurement includes CSS among the transferred resources.
+  - It fails when mandatory `firstVisit.bytes > 163840` and when `speculativePrefetch.bytes > 65536`; first-visit includes the document, JS shell, CSS, SW registration/precache assets, version.json and current-route assets.
+  - A Vite-manifest classifier test assigns only non-primary page assets not needed by the current route to speculative prefetch; this includes both JS chunks and CSS. These requests/bytes are excluded from GATE-S2 and reported separately in `speculativePrefetch`. All other first-visit requests remain mandatory.
   - It fails when any tracked artifact grows by more than 2% over baseline and the baseline `reason` is empty; it passes when the same PR's baseline entry has a non-empty reason.
-  - On `tools/fixtures/mini-app`: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`, excluding CSS. `firstVisit` counts every server request from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms.
+  - On `tools/fixtures/mini-app`: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`, excluding CSS. The same request window runs from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms; mandatory and speculative bytes/requests are reported separately.
 - [ ] **Step 2: Run** `node --test tools/gates/size.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement** with Playwright Chromium and the C1 server with `brotli:true`.
 - [ ] **Step 4: Run** again. Expected: PASS.
@@ -976,7 +978,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - Consumes: C2–C4.
 - Produces: `report.json` artifact `{ wseffect: { size, perf }, radix2solid: { size, perf } }` and a Markdown job summary table.
 
-- [ ] **Step 1: Write the failing test** (BENCH-2): `renderSummary(report)` produces one Markdown table with rows `shell`, `first-visit`, and each scenario's Event/script medians, columns `wseffect | radix2solid`, and the header line `Reporting only; not a gate.`
+- [ ] **Step 1: Write the failing test** (BENCH-2): `renderSummary(report)` produces one Markdown table with rows `shell`, mandatory `first-visit`, speculative `prefetch`, and each scenario's Event/script medians, columns `wseffect | radix2solid`, and the header line `Reporting only; not a gate.`
 - [ ] **Step 2: Run** `node --test tools/gates/report.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
   - The `bench-radix2solid` job runs `prepare-library.ts --verify`, builds the bench and gallery, and runs `measureSize` and all `SCENARIOS` (10 sessions each, same method) on both.
@@ -1016,8 +1018,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - Generate `pages.gen.ts` with `pnpm --filter @wsagency/wseffect-gallery exec wseffect-codegen .` and commit it.
   - Root `check` adds `wseffect-codegen --check apps/gallery`.
 - [ ] **Step 4: Run** `pnpm --filter @wsagency/wseffect-gallery test && pnpm --filter @wsagency/wseffect-gallery build`. Expected: PASS; the build emits one chunk per page plus `framework-*`.
-- [ ] **Step 5: Record sizes** (GATE-S1). Run `pnpm gate:size --app apps/gallery --write-baseline --reason "initial foundation measurement"`.
-  - Expected: `bench/baselines/size.json` written with `shell`, `first-visit`, `page:*`, `styles.css`.
+- [ ] **Step 5: Record sizes** (GATE-S1..S4). Run `pnpm gate:size --app apps/gallery --write-baseline --reason "initial foundation measurement"`.
+  - Expected: `bench/baselines/size.json` written with `shell`, mandatory `first-visit`, separate `speculative-prefetch`, `page:*`, and `styles.css`. The GATE-S2 `first-visit` excludes only manifest-identified speculative requests for non-primary page assets not required by `/`; every other request, including document, shell CSS, SW registration/precache assets and `version.json`, is mandatory.
   - **If `shell` > 122,880 B:** do NOT change the budget. Commit the baseline with the measured value; the `size` job then fails. Open the PR with a source-map attribution (`SOURCEMAP=on` build plus `tools/gates/size.ts --attribute`) and stop for the user's decision.
 - [ ] **Step 6: Remove the mini-app from the size path.** Switch the `size` job to `pnpm gate:size --app apps/gallery`, and point `report.ts`'s wseffect size measurement at `apps/gallery`. `tools/fixtures/mini-app` stays only for perf until D2.
 - [ ] **Step 7: Commit** `feat(gallery): shell, foundation pages and initial size baseline`.
@@ -1085,8 +1087,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 - [ ] **Step 1: Write the specs** (TEST-4 PWA, deploy-skew and service-worker-cache rows, PWA-3, PWA-4, PWA-6, PWA-9, TEST-9):
   - **`pwa`:**
-    - precache contains `index.html`, entry, `framework-*` and the 4 primary pages, but not `tabs-*`;
-    - after visiting `/tabs` in the first session, `tabs-*` is in cache `wseffect-pages`;
+    - precache contains exactly `index.html`, the web manifest and icons, entry, `framework-*`, JS chunks of the 4 primary pages, CSS imported by entry/framework, and CSS for those primary pages; it excludes every non-primary page chunk and CSS, including `tabs-*` and theme CSS;
+    - after visiting `/tabs` in the first session, `tabs-*` JS and its CSS are in cache `wseffect-pages`; non-primary CSS is absent from precache and enters that runtime cache only after request;
     - offline: reload `/`, `/tabs` (visited), `/layout` (primary, never visited) and the deep link `/dialog` all render; `/cards` (never visited, not primary) shows `#failed-cards[data-cause=Offline]`.
   - **Update flow:**
     - deploy v2 → `#wseffect-update` appears after `registration.update()`;
@@ -1192,7 +1194,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 | APP-10 | A3 |
 | APP-11 | A3; D3 |
 | APP-12 | A2 (`EnteredRoute`); D1 (routes table) |
-| APP-13 | A2, A4; D3 |
+| APP-13 | A2, A4 (idle deferral and concurrency tests); D3 |
 | APP-14 | A2; D3 |
 | APP-15 | A2 |
 | APP-16 | A2, A4; D4 |
@@ -1232,7 +1234,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 | PERF-4 | D2 |
 | PERF-5 | B2, B4, B5 |
 | PERF-6 | A4 |
-| GATE-S1, GATE-S2, GATE-S3 | C3; D1 (initial record) |
+| GATE-S1, GATE-S2, GATE-S3, GATE-S4 | C3; D1 (initial record) |
 | GATE-P1, GATE-P2, GATE-P3 | C4; D2 (baseline, noise floors) |
 | GATE-P4 | A4, B3–B7, D2 |
 | GATE-P5 | C4, C5; D2 (runner-measured floors) |
@@ -1249,7 +1251,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 | BENCH-2 | C5 |
 | BENCH-3 | C2 |
 | CI-1 | 0.2 |
-| CI-2 | 0.2 (`check`, `effect-latest`); C5 (`size`, `perf`, `bench-radix2solid`) |
+| CI-2 | 0.2 (`check`, `effect-latest`); C5 (`size` GATE-S1..S4, `perf`, `bench-radix2solid`) |
 | CI-3 | 0.1 |
 | CI-4 | 0.1; C2 (`minimumReleaseAgeExclude` entries) |
 | CI-5 | Global Constraints; D6 |
