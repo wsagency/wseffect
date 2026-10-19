@@ -46,7 +46,7 @@ export const view = <Message>(
   const classes = scalarSize === undefined
     ? ['rt-reset', 'rt-BaseButton', ...responsiveClasses(sizeProp, size).classes, variantClasses[variant], 'rt-Button', ...(highContrast ? ['rt-high-contrast'] : []), ...(props.loading ? ['rt-loading'] : [])].join(' ')
     : scalarButtonClasses[`${scalarSize}:${variant}:${highContrast}:${props.loading === true}`]
-  const sizeForSpinner = scalarSize ?? size.initial ?? size.md ?? '2'
+  const sizeForSpinner = typeof size === 'string' ? size : size.initial ?? size.md ?? '2'
   return brandViewResult(ButtonUi.view({
     onClick: props.onClick,
     isDisabled: props.disabled ?? props.loading,
