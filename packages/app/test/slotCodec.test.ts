@@ -1,5 +1,6 @@
 import { Option, Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
+import { Submodel } from 'foldkit'
 import { alphaPage } from './fixtures/pages/alpha.js'
 import { betaPage } from './fixtures/pages/beta.js'
 import { makePages } from '../src/registry.js'
@@ -71,6 +72,24 @@ describe('slotsSchema', () => {
     expect(decodeAlpha({ _tag: 'Ready', model })).toEqual({ _tag: 'Dehydrated', encoded: model })
   })
 
+  it('encodes an invalid refined Ready model as Idle without throwing', () => {
+    const Model = Schema.Struct({ value: Schema.Number.check(Schema.isGreaterThan(0)) })
+    const Message = Schema.Struct({ _tag: Schema.String })
+    const refinedPage = {
+      Model,
+      Message,
+      init: () => ({ model: { value: 1 } }),
+      update: (model: typeof Model.Type) => ({ model }),
+      view: Submodel.defineView<any, any, any>((model, h) =>
+        h.div([], [String(model.value)]),
+      ),
+    }
+    const pages = makePages({ refined: async () => refinedPage })
+    pages.registry.register('refined', refinedPage)
+    const codec = Schema.toCodecJson(slotsSchema(pages))
+    const encoded = Schema.encodeSync(codec)({ refined: { _tag: 'Ready', model: { value: -1 } } })
+    expect(encoded).toEqual({ refined: { _tag: 'Idle' } })
+  })
   it('decodes arbitrary JSON values to Idle without throwing', () => {
     const corrupt: Schema.Json[] = [null, 42, [], { _tag: 'Bogus' }, { _tag: 'Failed' }]
     for (const value of corrupt) expect(decodeAlpha(value)).toEqual({ _tag: 'Idle' })

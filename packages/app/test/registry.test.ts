@@ -1,6 +1,6 @@
-import { Schema } from 'effect'
+import { Option, Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
-import { alphaPage } from './fixtures/pages/alpha.js'
+import { alphaPage, Message as AlphaMessage } from './fixtures/pages/alpha.js'
 import { betaPage } from './fixtures/pages/beta.js'
 import { makePages, messageSchema } from '../src/registry.js'
 
@@ -27,6 +27,15 @@ describe('makePages', () => {
     expect(Schema.is(schema)(validMessage)).toBe(true)
   })
 
+  it('round-trips registered page messages through JSON and rejects unregistered decoding', () => {
+    const pages = makePages(loaders)
+    const codec = Schema.toCodecJson(messageSchema(pages, 'alpha'))
+    const message = AlphaMessage.AlphaPing()
+    expect(Option.isNone(Schema.decodeUnknownOption(codec)(message))).toBe(true)
+    pages.registry.register('alpha', alphaPage)
+    const encoded = Schema.encodeSync(codec)(message)
+    expect(Schema.decodeUnknownOption(codec)(encoded)).toEqual(Option.some(message))
+  })
   it('rejects a different page message for the requested key', () => {
     const pages = makePages(loaders)
     pages.registry.register('alpha', alphaPage)

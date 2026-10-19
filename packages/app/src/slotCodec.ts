@@ -60,7 +60,13 @@ function slotSchema<Pages extends Record<string, AnyPage>, Key extends keyof Pag
       case 'Failed': return { _tag: 'Failed', cause: slot.cause, reason: slot.reason }
       case 'Ready': return Option.match(pages.registry.get(key), {
         onNone: () => ({ _tag: 'Idle' }),
-        onSome: (page) => ({ _tag: 'Ready', model: Schema.encodeSync(jsonCodecOf(page.Model))(slot.model) }),
+        onSome: (page) => Option.match(
+          Schema.encodeUnknownOption(jsonCodecOf(page.Model))(slot.model),
+          {
+            onNone: () => ({ _tag: 'Idle' }),
+            onSome: (model) => ({ _tag: 'Ready', model }),
+          },
+        ),
       })
       case 'Idle': return { _tag: 'Idle' }
       case 'Loading': return { _tag: 'Loading' }
