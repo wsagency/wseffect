@@ -96,8 +96,8 @@ export interface RegressionResult extends RegressionInput {
   readonly regressed: boolean
 }
 
-export async function applyCpuThrottle(client: CdpClient): Promise<void> {
-  await client.send('Emulation.setCPUThrottlingRate', { rate: 4 })
+export async function applyCpuThrottle(client: CdpClient, rate = 4): Promise<void> {
+  await client.send('Emulation.setCPUThrottlingRate', { rate })
 }
 
 export function interactionDuration(entries: readonly EventEntry[]): number {
@@ -401,6 +401,7 @@ export async function runScenario(
   scenario: PerfScenario,
   sessions = SESSIONS,
   sharedBrowser?: Browser,
+  cpuThrottleRate = 4,
 ): Promise<{ eventMs: number[]; eventEntryCounts: number[][]; scriptMs: number[]; animationFrameCounts: number[] }> {
   const ownsBrowser = sharedBrowser === undefined
   const browser = sharedBrowser ?? await chromium.launch()
@@ -414,7 +415,7 @@ export async function runScenario(
       const page = await context.newPage()
       const client = await context.newCDPSession(page)
       try {
-        await applyCpuThrottle(client)
+        await applyCpuThrottle(client, cpuThrottleRate)
         await page.goto(new URL(scenario.route, baseUrl).href, { waitUntil: 'networkidle' })
         await page.locator(`[data-perf="${HOOK_BY_SCENARIO[scenario.id]}"]`).waitFor({ state: 'visible' })
         await scenario.prepare(page)
