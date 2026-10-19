@@ -7,7 +7,7 @@
   "engines": { "node": ">=24 <25" },
   "scripts": {
     "build": "pnpm --recursive --if-present build",
-    "typecheck": "pnpm --recursive --if-present typecheck",
+    "typecheck": "pnpm --recursive --if-present typecheck && pnpm exec tsc -p tools/tsconfig.json",
     "lint": "pnpm --filter @wsagency/wseffect-app build:lint && oxlint",
     "test": "pnpm --recursive --if-present test && node --test scripts/*.test.ts && node scripts/check-update-coverage.ts",
     "check:repo": "node scripts/check-repo.ts",

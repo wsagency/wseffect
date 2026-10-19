@@ -99,7 +99,7 @@ export async function startServer(options: ServerOptions): Promise<ServerHandle>
     policy: string | undefined,
     extraHeaders: Record<string, string> = {},
   ): void {
-    const headers = { ...extraHeaders, 'Content-Type': type }
+    const headers: Record<string, string> = { ...extraHeaders, 'Content-Type': type }
     if (policy !== undefined) headers['Cache-Control'] = policy
     headers['Content-Length'] = String(body.length)
     response.writeHead(status, headers)
@@ -145,7 +145,7 @@ export async function startServer(options: ServerOptions): Promise<ServerHandle>
 
     const content = readFileSync(filePath)
     const compressed = options.brotli && acceptsBrotli(request.headers['accept-encoding'])
-    let body = content
+    let body: Buffer = content
     if (compressed) {
       body = brotliCache.get(filePath) ?? brotliCompressSync(content, {
         params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 11 },

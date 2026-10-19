@@ -87,6 +87,13 @@
 - **Resolution:** Point the size, perf, and report jobs at `tools/fixtures/mini-app` until Lane D lands, then switch them to Gallery and delete the temporary fixture.
 - **Smallest compliant fix:** Use the mini-app in the new gate job arguments.
 
+## 2026-10-19 — Root typecheck excludes tools source
+
+- **Issue:** `pnpm typecheck` previously covered workspace packages but not `tools/gates` or `tools/serve`, leaving C1/C3/C4 code outside the repository typecheck.
+- **Evidence:** Root `package.json` previously invoked only `pnpm --recursive --if-present typecheck`; root `tsconfig.json` references only `packages/app` and `packages/themes`.
+- **Resolution:** Add `tools/tsconfig.json` covering tools TypeScript, including gates, server, tests, Vite config and fixture source; run it from the root `typecheck` script with ES2024, Bundler resolution, and Vite client types.
+- **Smallest compliant fix:** Wire `tsc -p tools/tsconfig.json` into `pnpm typecheck` and fix diagnostics surfaced by that project.
+
 ## A2-M6: Framework chunk detection must follow resolved package roots
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.

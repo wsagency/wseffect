@@ -13,7 +13,7 @@ test('mini-app exposes the shared virtual-list sort hook', async () => {
     logLevel: 'error',
     preview: { host: '127.0.0.1', port: 0, strictPort: false },
   })
-  const baseUrl = server.resolvedUrls.local?.[0]
+  const baseUrl = server.resolvedUrls?.local?.[0]
   assert.ok(baseUrl, 'Vite preview exposes a local URL')
   try {
     const browser = await chromium.launch()
