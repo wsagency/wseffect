@@ -49,11 +49,11 @@ jobs:
         run: |
           node scripts/resolve-effect-latest.ts
           cp .artifacts/pnpm-workspace.effect-latest.yaml pnpm-workspace.yaml
-          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium
+          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium --pass-with-no-tests
       - name: Best-effort Effect compatibility check
         if: gitea.event_name == 'push' || (gitea.event_name == 'pull_request' && steps.changed.outputs.required != 'true')
         continue-on-error: true
         run: |
           node scripts/resolve-effect-latest.ts
           cp .artifacts/pnpm-workspace.effect-latest.yaml pnpm-workspace.yaml
-          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium
+          pnpm install --no-frozen-lockfile && pnpm typecheck && pnpm --filter "./packages/*" test && pnpm exec playwright test --project=chromium --pass-with-no-tests

@@ -50,6 +50,76 @@ test('checkManifest rejects patched dependencies', () => {
   assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /patchedDependencies/)
 })
 
+test('checkManifest requires the exact Foldkit peer version for each package', () => {
+  const fixture = manifest()
+  fixture.peerDependencies['@foldkit/vite-plugin'] = '0.168.0'
+  assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /peerDependencies\.@foldkit\/vite-plugin/)
+})
+
+test('checkWorkspace rejects additional overrides', () => {
+  const workspace = `overrides:
+  effect: 4.0.5
+  '@effect/platform-browser': 4.0.5
+  solid-js: 1.9.9
+peerDependencyRules:
+  allowedVersions:
+    foldkit>effect: 4.0.5
+    foldkit>@effect/platform-browser: 4.0.5
+    '@foldkit/ui>effect': 4.0.5
+    '@foldkit/vite-plugin>effect': 4.0.5
+`
+  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+})
+
+test('checkWorkspace rejects patchedDependencies', () => {
+  const workspace = `patchedDependencies:
+  foldkit: patches/foldkit.patch
+overrides:
+  effect: 4.0.5
+  '@effect/platform-browser': 4.0.5
+peerDependencyRules:
+  allowedVersions:
+    foldkit>effect: 4.0.5
+    foldkit>@effect/platform-browser: 4.0.5
+    '@foldkit/ui>effect': 4.0.5
+    '@foldkit/vite-plugin>effect': 4.0.5
+`
+  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+})
+
+test('checkWorkspace rejects packageExtensions', () => {
+  const workspace = `packageExtensions:
+  foldkit:
+    peerDependencies:
+      effect: ^4.0.5
+overrides:
+  effect: 4.0.5
+  '@effect/platform-browser': 4.0.5
+peerDependencyRules:
+  allowedVersions:
+    foldkit>effect: 4.0.5
+    foldkit>@effect/platform-browser: 4.0.5
+    '@foldkit/ui>effect': 4.0.5
+    '@foldkit/vite-plugin>effect': 4.0.5
+`
+  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+})
+
+test('checkWorkspace rejects extra allowed peer versions', () => {
+  const workspace = `overrides:
+  effect: 4.0.5
+  '@effect/platform-browser': 4.0.5
+peerDependencyRules:
+  allowedVersions:
+    foldkit>effect: 4.0.5
+    foldkit>@effect/platform-browser: 4.0.5
+    '@foldkit/ui>effect': 4.0.5
+    '@foldkit/vite-plugin>effect': 4.0.5
+    'solid-js@*': 1.9.9
+`
+  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+})
+
 test('checkWorkspace requires the exact UP-8 consumer block', () => {
   const workspace = `overrides:\n  effect: 4.0.5\n  '@effect/platform-browser': 4.0.5\npeerDependencyRules:\n  allowedVersions:\n    foldkit>effect: 4.0.5\n    foldkit>@effect/platform-browser: 4.0.5\n    '@foldkit/ui>effect': 4.0.5\n    '@foldkit/vite-plugin>effect': 4.0.5\n`
   assert.deepEqual(checkWorkspace(workspace), [])

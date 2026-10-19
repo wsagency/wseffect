@@ -13,7 +13,13 @@ export function findUpdateModules(files: string[]): string[] {
   const updates: string[] = []
   for (const path of files) {
     const source = readFileSync(path, 'utf8')
-    if (/\bexport\s+(?:const|function)\s+update\b/.test(source) || /\bexport\s*\{[^}]*\bupdate\b[^}]*\}/s.test(source)) {
+    if (
+      /\bexport\s+(?:const|function)\s+update\b/.test(source)
+      || /\bexport\s*\{[^}]*\bupdate\b[^}]*\}/s.test(source)
+      || /\bexport\s+(?:const|function)\s+make\w*Update\b/.test(source)
+      || /\bexport\s+(?:const|function)\s+bindKit\b/.test(source)
+      || /\bUpdate\.(?:Return|ReturnWithOutMessage)\b/.test(source)
+    ) {
       updates.push(path)
     }
   }
@@ -22,10 +28,14 @@ export function findUpdateModules(files: string[]): string[] {
 
 export function uncoveredFunctions(coverage: CoverageMap, modules: string[]): string[] {
   const results: string[] = []
-  const moduleSet = new Set(modules.map((path) => resolve(path)))
-  for (const [path, fileCoverage] of Object.entries(coverage)) {
-    if (!moduleSet.has(resolve(path))) continue
-    const displayPath = relative(process.cwd(), path)
+  const coverageByPath = new Map(Object.entries(coverage).map(([path, fileCoverage]) => [resolve(path), fileCoverage]))
+  for (const modulePath of modules) {
+    const fileCoverage = coverageByPath.get(resolve(modulePath))
+    const displayPath = relative(process.cwd(), modulePath)
+    if (!fileCoverage) {
+      results.push(`${displayPath}:missing coverage`)
+      continue
+    }
     for (const [id, count] of Object.entries(fileCoverage.f)) {
       if (count === 0) results.push(`${displayPath}:${fileCoverage.fnMap[id]?.name ?? `function ${id}`}`)
     }
@@ -33,7 +43,7 @@ export function uncoveredFunctions(coverage: CoverageMap, modules: string[]): st
   return results
 }
 
-async function findCoverageFiles(directory: string): Promise<string[]> {
+export async function findCoverageFiles(directory: string): Promise<string[]> {
   const matches: string[] = []
   let entries
   try {
@@ -43,6 +53,7 @@ async function findCoverageFiles(directory: string): Promise<string[]> {
     throw error
   }
   for (const entry of entries) {
+    if (entry.isDirectory() && (entry.name === 'node_modules' || entry.name === '.git')) continue
     const path = `${directory}/${entry.name}`
     if (entry.isDirectory()) matches.push(...await findCoverageFiles(path))
     else if (entry.name === 'coverage-final.json') matches.push(path)
@@ -50,27 +61,37 @@ async function findCoverageFiles(directory: string): Promise<string[]> {
   return matches
 }
 
+async function findSourceFiles(directory: string): Promise<string[]> {
+  const matches: string[] = []
+  let entries
+  try {
+    entries = await readdir(directory, { withFileTypes: true })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return matches
+    throw error
+  }
+  for (const entry of entries) {
+    if (entry.isDirectory() && (entry.name === 'node_modules' || entry.name === '.git')) continue
+    const path = `${directory}/${entry.name}`
+    if (entry.isDirectory()) matches.push(...await findSourceFiles(path))
+    else if (entry.name.endsWith('.ts')) matches.push(path)
+  }
+  return matches
+}
+
 async function main(): Promise<void> {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const coverageFiles = await findCoverageFiles(root)
-  const errors: string[] = []
+  const sourceFiles = (await findSourceFiles(resolve(root, 'packages'))).filter((path) => path.includes('/src/'))
+  const updateModules = findUpdateModules(sourceFiles)
+  const coverage: CoverageMap = {}
   for (const coveragePath of coverageFiles) {
-    const coverage = JSON.parse(await readFile(coveragePath, 'utf8')) as CoverageMap
-    const modules = findUpdateModules(Object.keys(coverage).filter((path) => path.endsWith('.ts') && fileExists(path)))
-    errors.push(...uncoveredFunctions(coverage, modules))
+    Object.assign(coverage, JSON.parse(await readFile(coveragePath, 'utf8')) as CoverageMap)
   }
+  const errors = uncoveredFunctions(coverage, updateModules)
   if (errors.length > 0) {
     console.error(`uncovered update functions:\n${errors.join('\n')}`)
     process.exitCode = 1
-  }
-}
-
-function fileExists(path: string): boolean {
-  try {
-    readFileSync(path)
-    return true
-  } catch {
-    return false
   }
 }
 

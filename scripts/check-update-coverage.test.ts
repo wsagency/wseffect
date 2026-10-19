@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
-import { findUpdateModules, uncoveredFunctions } from './check-update-coverage.ts'
+import { findCoverageFiles, findUpdateModules, uncoveredFunctions } from './check-update-coverage.ts'
 
 test('findUpdateModules selects exported update declarations only', (context) => {
   const directory = mkdtempSync(join(tmpdir(), 'wseffect-update-'))
@@ -23,6 +23,34 @@ test('findUpdateModules detects function and re-export declarations', (context) 
   writeFileSync(functionPath, 'export function update() {}')
   writeFileSync(reexportPath, 'const update = () => {}; export { update }')
   assert.deepEqual(findUpdateModules([functionPath, reexportPath]).map((path) => basename(path)), ['a.ts', 'b.ts'])
+})
+
+test('findUpdateModules includes exported kit update and binding factories', (context) => {
+  const directory = mkdtempSync(join(tmpdir(), 'wseffect-update-'))
+  context.after(() => rmSync(directory, { recursive: true, force: true }))
+  const updatePath = join(directory, 'update.ts')
+  const bindingPath = join(directory, 'binding.ts')
+  writeFileSync(updatePath, 'export function makeKitUpdate(): Update.Return { return update }')
+  writeFileSync(bindingPath, 'export const bindKit = () => {}')
+  assert.deepEqual(findUpdateModules([updatePath, bindingPath]), [updatePath, bindingPath])
+})
+
+test('uncoveredFunctions reports update modules missing from coverage', () => {
+  const updatePath = `${process.cwd()}/packages/app/src/kit/update.ts`
+  assert.deepEqual(uncoveredFunctions({}, [updatePath]), [
+    'packages/app/src/kit/update.ts:missing coverage',
+  ])
+})
+
+test('findCoverageFiles skips dependency and git directories', async (context) => {
+  const directory = mkdtempSync(join(tmpdir(), 'wseffect-coverage-'))
+  context.after(() => rmSync(directory, { recursive: true, force: true }))
+  for (const name of ['coverage', 'node_modules', '.git']) {
+    const nested = join(directory, name)
+    mkdirSync(nested, { recursive: true })
+    writeFileSync(join(nested, 'coverage-final.json'), '{}')
+  }
+  assert.deepEqual((await findCoverageFiles(directory)).map((path) => basename(path)), ['coverage-final.json'])
 })
 test('uncoveredFunctions reports uncovered function names in update modules', () => {
   const updatePath = `${process.cwd()}/packages/app/src/kit/update.ts`

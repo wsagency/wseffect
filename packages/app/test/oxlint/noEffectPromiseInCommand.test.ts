@@ -12,4 +12,9 @@ describe('no-effect-promise-in-command', () => {
     expect(diagnostics[0]?.file).toMatch(/bad\.ts$/)
     expect(diagnostics[0]?.ruleId).toBe('wseffect/no-effect-promise-in-command')
   })
+
+  it('does not report Effect.promise in non-Command modules', () => {
+    const diagnostics = runOxlint(resolve(fixtures, 'plain.ts'), 'wseffect/no-effect-promise-in-command')
+    expect(diagnostics).toHaveLength(0)
+  })
 })

@@ -24,10 +24,24 @@ export function replaceEffectOverrides(workspaceText: string, version: string): 
   if (!match || !/^  effect: 4\.0\.5\n  '@effect\/platform-browser': 4\.0\.5\n/m.test(match[2])) {
     throw new Error('pnpm-workspace.yaml does not contain the expected UP-2 overrides')
   }
+  const allowedVersions = [
+    '    foldkit>effect: 4.0.5',
+    '    foldkit>@effect/platform-browser: 4.0.5',
+    "    '@foldkit/ui>effect': 4.0.5",
+    "    '@foldkit/vite-plugin>effect': 4.0.5",
+  ]
+  const peerRules = /^peerDependencyRules:\n([\s\S]*)/m.exec(workspaceText)
+  if (!peerRules || allowedVersions.some((line) => !peerRules[1].includes(`${line}\n`))) {
+    throw new Error('pnpm-workspace.yaml does not contain the expected UP-2 allowedVersions')
+  }
   const overrides = match[2]
     .replace('  effect: 4.0.5', `  effect: ${version}`)
     .replace("  '@effect/platform-browser': 4.0.5", `  '@effect/platform-browser': ${version}`)
-  return workspaceText.replace(match[0], `${match[1]}${overrides}`)
+  const updatedWorkspace = workspaceText.replace(match[0], `${match[1]}${overrides}`)
+  return allowedVersions.reduce(
+    (text, line) => text.replace(line, line.replace('4.0.5', version)),
+    updatedWorkspace,
+  )
 }
 
 async function main(): Promise<void> {

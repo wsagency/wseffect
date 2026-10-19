@@ -19,7 +19,6 @@ type Manifest = {
   pnpm?: { patchedDependencies?: Record<string, string> }
 }
 
-const up8 = `overrides:\n  effect: 4.0.5\n  '@effect/platform-browser': 4.0.5\npeerDependencyRules:\n  allowedVersions:\n    foldkit>effect: 4.0.5\n    foldkit>@effect/platform-browser: 4.0.5\n    '@foldkit/ui>effect': 4.0.5\n    '@foldkit/vite-plugin>effect': 4.0.5`
 const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md'])
 
 export function checkManifest(manifest: Manifest, path: string): string[] {
@@ -60,9 +59,15 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
   } else if (manifest.sideEffects !== false) {
     fail('JS package sideEffects must be false')
   }
-  for (const name of ['foldkit', '@foldkit/ui', '@foldkit/vite-plugin']) {
-    const version = manifest.peerDependencies?.[name]
-    if (version && !['0.168.0', '0.27.1'].includes(version)) fail(`peerDependencies.${name} must be pinned exactly`)
+  const expectedPeers: Record<string, string> = {
+    foldkit: '0.168.0',
+    '@foldkit/ui': '0.168.0',
+    '@foldkit/vite-plugin': '0.27.1',
+  }
+  for (const [name, version] of Object.entries(expectedPeers)) {
+    if (manifest.peerDependencies?.[name] && manifest.peerDependencies[name] !== version) {
+      fail(`peerDependencies.${name} must be pinned exactly to ${version}`)
+    }
   }
   for (const name of ['effect', '@effect/platform-browser']) {
     if (manifest.peerDependencies?.[name] !== '^4.0.5') fail(`peerDependencies.${name} must be ^4.0.5`)
@@ -72,7 +77,36 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
 
 export function checkWorkspace(yamlText: string): string[] {
   const canonical = yamlText.replaceAll('\r\n', '\n')
-  return canonical.includes(up8) ? [] : ['pnpm-workspace.yaml: UP-8 Effect resolution block differs from the required snippet']
+  const lines = canonical.split('\n')
+  const topLevelKeys = new Map<string, number[]>()
+  for (const [index, line] of lines.entries()) {
+    const match = /^([A-Za-z][\w-]*):(?:\s|$)/.exec(line)
+    if (match) topLevelKeys.set(match[1], [...(topLevelKeys.get(match[1]) ?? []), index])
+  }
+  const sectionLines = (name: string): string[] => {
+    const start = topLevelKeys.get(name)?.[0]
+    if (start === undefined) return []
+    let end = lines.length
+    for (const indices of topLevelKeys.values()) {
+      const next = indices.find((index) => index > start)
+      if (next !== undefined && next < end) end = next
+    }
+    return lines.slice(start + 1, end).filter((line) => line.trim() && !line.trimStart().startsWith('#'))
+  }
+  const expectedOverrides = ["  effect: 4.0.5", "  '@effect/platform-browser': 4.0.5"]
+  const expectedPeerRules = [
+    '  allowedVersions:',
+    '    foldkit>effect: 4.0.5',
+    '    foldkit>@effect/platform-browser: 4.0.5',
+    "    '@foldkit/ui>effect': 4.0.5",
+    "    '@foldkit/vite-plugin>effect': 4.0.5",
+  ]
+  const invalid = ['patchedDependencies', 'packageExtensions'].some((key) => topLevelKeys.has(key))
+    || topLevelKeys.get('overrides')?.length !== 1
+    || topLevelKeys.get('peerDependencyRules')?.length !== 1
+    || JSON.stringify(sectionLines('overrides')) !== JSON.stringify(expectedOverrides)
+    || JSON.stringify(sectionLines('peerDependencyRules')) !== JSON.stringify(expectedPeerRules)
+  return invalid ? ['pnpm-workspace.yaml: UP-8 Effect resolution block differs from the required snippet'] : []
 }
 
 export function checkEffectCopies(lockfileText: string): string[] {
