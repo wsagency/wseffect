@@ -204,21 +204,18 @@ function tracePresentationBoundary(
     return boundary ?? eventTimingEnd
   }
 
-  const firstPresentation = presentations.find((event) => event.ts! > inputStart)
-  if (firstPresentation?.ts === undefined) return undefined
-  let lastAnimationFrameEnd: number | undefined
-  for (const event of events) {
-    if (event.name === 'FireAnimationFrame'
-      && event.ph === 'X'
-      && typeof event.ts === 'number'
-      && typeof event.dur === 'number'
-      && event.ts >= firstPresentation.ts) {
-      lastAnimationFrameEnd = Math.max(lastAnimationFrameEnd ?? 0, event.ts + event.dur)
-    }
-  }
-  return lastAnimationFrameEnd === undefined
-    ? firstPresentation.ts
-    : presentations.find((event) => event.ts! >= lastAnimationFrameEnd)?.ts
+  const firstPresentationIndex = presentations.findIndex((event) => event.ts! > inputStart)
+  if (firstPresentationIndex === -1) return undefined
+  const firstPresentation = presentations[firstPresentationIndex]!
+  const secondPresentation = presentations[firstPresentationIndex + 1]
+  if (secondPresentation?.ts === undefined) return firstPresentation.ts
+  const hasAnimationFrame = events.some((event) => event.name === 'FireAnimationFrame'
+    && event.ph === 'X'
+    && typeof event.ts === 'number'
+    && typeof event.dur === 'number'
+    && event.ts >= firstPresentation.ts!
+    && event.ts < secondPresentation.ts!)
+  return hasAnimationFrame ? secondPresentation.ts : firstPresentation.ts
 }
 
 
