@@ -35,6 +35,17 @@ The current runtime's `wrapViewInputsForOuterBoundary` calls `assertNoNestedFunc
 
 In the Gallery's 10,000-row VirtualList, a 4× CPU-throttled source-mapped CDP CPU profile captured 10 samples for each interaction. `foldkit/dist/html/submodel.js:63` (`walkForFunctions`) had median sampled self-time **3.83 ms** for filter (range **0.47–6.21 ms**) and **7.03 ms** for sort (range **1.74–15.01 ms**). The enclosing anonymous function at `submodel.js:80` had medians **4.36 ms** and **10.87 ms**, respectively. The app renders only viewport rows; prior precise-coverage counts were 14 row-renderer calls for filter and 28 for sort, not 10,000. These profiler sample times are attribution data, not Event Timing measurements; host-side interaction wall time was 67–85 ms in the filter samples, and raw V8 sample-delta totals should not be compared directly with wall time under emulated CPU throttling.
 
+### Scratch prototype measurement (not submitted upstream)
+
+Built Foldkit `0.168.0` in `/tmp/foldkit-upstream-prototype` with the deep validation guarded by `import.meta.env.DEV` (dev builds still validate; the production Gallery bundle omits the validator). A was the `perf/virtual-list` Gallery build using the published package; B was the same app build with only the scratch Foldkit alias. The temporary Vite alias added no Foldkit patch to this repository. On Node `v24.21.0` / Chromium `156.0.8078.4`, five A/B/A/B blocks (10 samples per build) and ten adjacent A/A pairs per build at 4× produced:
+
+| Interaction | Gallery Event Timing / trace scripting (ms) | Scratch prototype Event Timing / trace scripting (ms) | A/A p95 absolute delta: Gallery / prototype (Event / script, ms) |
+|---|---:|---:|---:|
+| Filter | 40 / 32.05 | 48 / 38.04 | 16 / 9.31; 8 / 9.51 |
+| Sort | 48 / 37.70 | 48 / 37.53 | 16 / 10.02; 16 / 13.58 |
+
+The deltas are within the measured A/A bands; this run does **not** demonstrate an end-user timing win from the dev-only guard. Event Timing medians are below 50 ms for both interactions, but the 8 ms Event Timing granularity and overlapping noise bands do not support claiming a regression or improvement. This is a local prototype to inform the upstream draft only.
+
 The relevant distributed code is in `foldkit@0.168.0/dist/html/submodel.js:48-87,88-120`: `wrapViewInputsForOuterBoundary` always invokes `assertNoNestedFunctions`, which recurses through arrays and plain objects.
 
 ## Local mitigation and desired upstream change
