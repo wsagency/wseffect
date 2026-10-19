@@ -50,3 +50,7 @@ The Vite plugin emits `version.json` containing the same build ID compiled into 
 ## Limits of updates
 
 Retaining old assets and prompting before a reload do not make incompatible backend APIs or stored data compatible with an old or new client. Deployments must manage backend and persisted-data skew separately. Applying an update reloads the document and loses in-memory application state; persist state explicitly if it must survive a reload.
+
+## License
+
+MIT. See [LICENSE](./LICENSE).

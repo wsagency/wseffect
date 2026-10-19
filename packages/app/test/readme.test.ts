@@ -33,4 +33,8 @@ peerDependencyRules:
     expect(readme).toContain('Remove this override and its `allowedVersions` entries when the Foldkit upgrade')
     expect(readme).toContain('Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.')
   })
+  it('ends with a License paragraph', async () => {
+    const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')
+    expect(readme.trimEnd().endsWith('## License\n\nMIT. See [LICENSE](./LICENSE).')).toBe(true)
+  })
 })
