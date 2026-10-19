@@ -1,5 +1,5 @@
 {
-  "ignorePatterns": ["packages/app/test/oxlint/fixtures/no-effect-promise/bad.ts"],
+  "ignorePatterns": ["packages/app/test/oxlint/fixtures/**"],
   "jsPlugins": [
     {
       "name": "wseffect",
@@ -7,6 +7,8 @@
     }
   ],
   "rules": {
-    "wseffect/no-effect-promise-in-command": "error"
+    "wseffect/no-effect-promise-in-command": "error",
+    "wseffect/no-top-level-side-effects-in-pages": "error",
+    "wseffect/no-page-inputs-in-model": "error"
   }
 }
