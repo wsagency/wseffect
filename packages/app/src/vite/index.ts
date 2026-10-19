@@ -92,7 +92,7 @@ export function wseffect(options: WseffectOptions): Array<Plugin> {
           ...options.primaryPages.flatMap((key) => [`assets/${key}-*.js`, `assets/${key}-*.css`]),
         ],
         runtimeCaching: [{
-          urlPattern: /\/assets\/.*\.js$/,
+          urlPattern: /\/assets\/.*\.(?:js|css)$/,
           handler: 'CacheFirst',
           options: {
             cacheName: 'wseffect-pages',
