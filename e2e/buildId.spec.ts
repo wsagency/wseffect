@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test'
+import type { BrowserContext } from '@playwright/test'
 import { readFile, readdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import type { GalleryBuildFixture } from './helpers/build.ts'
 import { createGalleryBuildFixture } from './helpers/build.ts'
+import type { ServerHandle } from '../tools/serve/server.ts'
+import { startStaticServer } from './helpers/server.ts'
 
 function build(fixture: GalleryBuildFixture, directory: string, buildId?: string): void {
   fixture.build({ outDir: directory, ...(buildId === undefined ? {} : { buildId }) })
@@ -19,9 +22,11 @@ async function changeOneByte(path: string): Promise<Buffer> {
   return original
 }
 
-test('build IDs track gallery and workspace source inputs and match the entry JavaScript', async ({}, testInfo) => {
+test('build IDs track source inputs, match the framework chunk, and render at runtime', async ({ browser }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium', 'build fixture is isolated; run once')
   const fixture = await createGalleryBuildFixture()
+  let context: BrowserContext | undefined
+  let server: ServerHandle | undefined
   try {
     const copiedGalleryPage = resolve(fixture.pagesDir, 'cards.ts')
     const copiedThemeCard = resolve(fixture.packagesDir, 'themes/src/components/card.ts')
@@ -29,8 +34,19 @@ test('build IDs track gallery and workspace source inputs and match the entry Ja
     const first = resolve(output, 'unchanged-first')
     const second = resolve(output, 'unchanged-second')
     build(fixture, first)
-    build(fixture, second)
     const initialId = await buildId(first)
+    const assets = await readdir(resolve(first, 'assets'))
+    const framework = assets.find((name) => name.startsWith('framework-') && name.endsWith('.js'))
+    if (framework === undefined) throw new Error('framework JavaScript was not emitted')
+    expect(await readFile(resolve(first, 'assets', framework), 'utf8')).toContain(initialId)
+    const started = await startStaticServer(first)
+    server = started.server
+    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}` })
+    const page = await context.newPage()
+    await page.goto('/')
+    await expect(page.locator('#build-id')).toHaveText(initialId)
+
+    build(fixture, second)
     expect(await buildId(second)).toBe(initialId)
 
     const originalGalleryPage = await changeOneByte(copiedGalleryPage)
@@ -51,12 +67,9 @@ test('build IDs track gallery and workspace source inputs and match the entry Ja
 
     expect(() => build(fixture, resolve(output, 'invalid-override'), 'XYZ')).toThrow()
 
-    const versionId = await buildId(first)
-    const assets = await readdir(resolve(first, 'assets'))
-    const entry = assets.find((name) => name.startsWith('index-') && name.endsWith('.js'))
-    if (entry === undefined) throw new Error('entry JavaScript was not emitted')
-    expect(await readFile(resolve(first, 'assets', entry), 'utf8')).toContain(versionId)
   } finally {
+    await context?.close()
+    await server?.close()
     await fixture.cleanup()
   }
 })

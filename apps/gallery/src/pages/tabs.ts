@@ -1,3 +1,4 @@
+import '@wsagency/wseffect-themes/css/tabs.css'
 import { Option, Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
@@ -5,6 +6,7 @@ import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import * as Tabs from '@wsagency/wseffect-themes/components/tabs'
 import { galleryPageContract, type PageInputs, PageOutMessage } from '../contract.js'
 declare const __GALLERY_REVISION__: string
+const galleryRevision = typeof __GALLERY_REVISION__ === 'undefined' ? 'r1' : __GALLERY_REVISION__
 
 const TabSet = Tabs.create<'Overview' | 'Settings'>()
 export const Model = Schema.Struct({ tabs: TabSet.Model, selected: Schema.Literals(['Overview', 'Settings']) })
@@ -42,7 +44,7 @@ export const page = galleryPageContract.definePage({
         tabToPanel: value => value === 'Overview'
           ? [
             h.p([], ['Overview content']),
-            h.p([], [`Gallery revision ${__GALLERY_REVISION__}`]),
+            h.p([], [`Gallery revision ${galleryRevision}`]),
           ]
           : [h.p([], ['Settings content'])],
       },

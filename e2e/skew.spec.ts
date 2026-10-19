@@ -8,7 +8,7 @@ import type { ServerHandle } from '../tools/serve/server.ts'
 import { startStaticServer } from './helpers/server.ts'
 
 const repository = resolve(import.meta.dirname, '..')
-const gallery = resolve(repository, 'apps/gallery')
+const gallery = process.env.GALLERY_PACKED === '1' ? repository : resolve(repository, 'apps/gallery')
 
 function build(directory: string, buildId: string, revision?: string): void {
   const env = { ...process.env, WSEFFECT_BUILD_ID: buildId }
@@ -32,7 +32,7 @@ test('deleted old assets classify skew as NewVersion and reload into the deploye
     build(v2, 'bbbbbbb2', 'r2')
     const started = await startStaticServer(v1)
     server = started.server
-    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block' })
+    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block', viewport: { width: 320, height: 100 } })
     const page = await context.newPage()
 
     await page.goto('/')
@@ -62,7 +62,7 @@ test('default asset retention keeps the old lazy page and its shell state usable
     build(v2, 'bbbbbbb2', 'r2')
     const started = await startStaticServer(v1)
     server = started.server
-    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block' })
+    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block', viewport: { width: 320, height: 100 } })
     const page = await context.newPage()
 
     await page.goto('/')
@@ -90,7 +90,7 @@ test('visible-tab version polling detects a deployment without changing the defa
     build(v2, 'bbbbbbb2', 'r2')
     const started = await startStaticServer(v1)
     server = started.server
-    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block' })
+    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, serviceWorkers: 'block', viewport: { width: 320, height: 100 } })
     const page = await context.newPage()
     await page.goto('/')
     await expect(page.locator('#build-id')).toHaveText('aaaaaaa1')
@@ -99,6 +99,7 @@ test('visible-tab version polling detects a deployment without changing the defa
     const secondPage = await context.newPage()
     await secondPage.goto('/')
     await page.bringToFront()
+    await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
     await expect(page.locator('#wseffect-update')).toBeVisible()
   } finally {
     await context?.close()

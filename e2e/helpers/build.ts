@@ -1,7 +1,23 @@
-import { cp, mkdir, mkdtemp, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import { join, relative, resolve, sep } from 'node:path'
+
+export async function createScratchDir(prefix: string): Promise<string> {
+  const scratchBase = resolve(process.env.WSEFFECT_SCRATCH_DIR ?? tmpdir())
+  await mkdir(scratchBase, { recursive: true })
+  return mkdtemp(join(scratchBase, prefix))
+}
+
+export async function galleryPageAssets(keys: ReadonlyArray<string>): Promise<Record<string, string>> {
+  const galleryRoot = process.env.GALLERY_PACKED === '1' ? process.cwd() : resolve(process.cwd(), 'apps/gallery')
+  const manifest = JSON.parse(await readFile(resolve(galleryRoot, 'dist/.vite/manifest.json'), 'utf8')) as Record<string, { file?: string }>
+  return Object.fromEntries(keys.map((key) => {
+    const file = manifest[`src/pages/${key}.ts`]?.file
+    if (file === undefined) throw new Error(`missing build manifest page entry: ${key}`)
+    return [key, `/${file}`]
+  }))
+}
 
 export interface GalleryBuildOptions {
   readonly outDir: string
@@ -18,11 +34,6 @@ export interface GalleryBuildFixture {
   cleanup(): Promise<void>
 }
 
-export async function createScratchDir(prefix: string): Promise<string> {
-  const scratchBase = resolve(process.env.WSEFFECT_SCRATCH_DIR ?? tmpdir())
-  await mkdir(scratchBase, { recursive: true })
-  return mkdtemp(join(scratchBase, prefix))
-}
 
 export async function createGalleryBuildFixture(): Promise<GalleryBuildFixture> {
   const workspaceDir = resolve(import.meta.dirname, '../..')
@@ -54,6 +65,7 @@ export async function createGalleryBuildFixture(): Promise<GalleryBuildFixture> 
     await cp(resolve(workspaceDir, 'package.json'), resolve(rootDir, 'package.json'))
     await cp(resolve(workspaceDir, 'pnpm-lock.yaml'), resolve(rootDir, 'pnpm-lock.yaml'))
     await cp(resolve(workspaceDir, 'pnpm-workspace.yaml'), resolve(rootDir, 'pnpm-workspace.yaml'))
+    await cp(resolve(workspaceDir, 'tsconfig.base.json'), resolve(rootDir, 'tsconfig.base.json'))
     await symlink(resolve(workspaceDir, 'node_modules'), resolve(rootDir, 'node_modules'), 'dir')
 
     const galleryNodeModules = resolve(galleryDir, 'node_modules')
@@ -84,27 +96,46 @@ export async function createGalleryBuildFixture(): Promise<GalleryBuildFixture> 
     throw error
   }
 
+  let packagesBuilt = false
   return {
     rootDir,
     galleryDir,
     pagesDir: resolve(galleryDir, 'src/pages'),
     packagesDir,
     build({ outDir, buildId, env = {} }) {
-      for (const name of ['app', 'themes']) {
-        execFileSync('pnpm', ['--dir', resolve(packagesDir, name), 'run', 'build'], {
-          cwd: rootDir,
-          stdio: 'pipe',
-          env: { ...process.env, ...env, ...(buildId === undefined ? {} : { WSEFFECT_BUILD_ID: buildId }) },
-        })
-      }
       const buildEnv = { ...process.env, ...env }
       if (buildId === undefined) delete buildEnv.WSEFFECT_BUILD_ID
       else buildEnv.WSEFFECT_BUILD_ID = buildId
-      execFileSync('pnpm', [
-        '--dir', galleryDir,
-        'exec', 'vite', 'build', '--outDir', resolve(outDir), '--emptyOutDir',
+
+      if (!packagesBuilt) {
+        for (const name of ['app', 'themes']) {
+          const packageDir = resolve(packagesDir, name)
+          const compiler = resolve(workspaceDir, 'node_modules/typescript/bin/tsc')
+          execFileSync(process.execPath, [compiler, '-p', 'tsconfig.build.json'], {
+            cwd: packageDir,
+            stdio: 'pipe',
+            env: buildEnv,
+          })
+          execFileSync(process.execPath, [resolve(packageDir, 'scripts/brand-dist.mjs')], {
+            cwd: packageDir,
+            stdio: 'pipe',
+            env: buildEnv,
+          })
+          if (name === 'themes') {
+            execFileSync(process.execPath, [resolve(packageDir, 'scripts/build-css.js')], {
+              cwd: packageDir,
+              stdio: 'pipe',
+              env: buildEnv,
+            })
+          }
+        }
+        packagesBuilt = true
+      }
+      const vite = resolve(workspaceDir, 'node_modules/vite/bin/vite.js')
+      execFileSync(process.execPath, [
+        vite, 'build', '--outDir', resolve(outDir), '--emptyOutDir',
       ], {
-        cwd: rootDir,
+        cwd: galleryDir,
         stdio: 'pipe',
         env: buildEnv,
       })

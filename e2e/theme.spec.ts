@@ -29,6 +29,7 @@ test('changing accent while a dialog is open keeps it open and focused', async (
   const before = await rootTheme.evaluate(attributes)
   await startChildListRecorder(page, '[role="dialog"]')
   const accentSelect = page.locator('#theme-dialog-accent')
+  await accentSelect.focus()
   await accentSelect.selectOption('crimson')
   await expect(rootTheme).toHaveAttribute('data-accent-color', 'crimson')
   await expect(dialog).toBeVisible()

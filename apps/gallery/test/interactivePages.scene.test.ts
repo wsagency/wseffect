@@ -57,23 +57,29 @@ describe('gallery interactive pages', () => {
     Scene.scene({ update: tabsPage.update, view: (model, h) => tabsPage.view(model, inputs, h) }, Scene.given(initial.model),
       Scene.expect(Scene.selector('#gallery-tabs-tab-0')).toHaveAttr('role', 'tab'),
       Scene.expect(Scene.selector('#gallery-tabs-tab-0')).toHaveAttr('aria-selected', 'true'),
+      Scene.expect(Scene.text('Gallery revision r1')).toExist(),
       Scene.click(Scene.selector('#gallery-tabs-tab-1')),
       Scene.Command.resolve(UiTabs.FocusTab, UiTabs.Message.CompletedFocusTab()),
       Scene.expect(Scene.selector('#gallery-tabs-tab-1')).toHaveAttr('aria-selected', 'true'),
       Scene.expect(Scene.role('tabpanel')).toExist())
   })
 
-  it('emits each theme setting change and renders the corresponding Theme attributes', () => {
-    const update = (model: PageInputs, message: typeof themePage.Message.Type) => {
-      const result = themePage.update(themePage.init().model, message)
+  it('emits each theme setting change, renders its attributes, and opens the theme dialog', () => {
+    const initial = themePage.init()
+    const update = (model: { page: typeof initial.model; inputs: PageInputs }, message: typeof themePage.Message.Type) => {
+      const result = themePage.update(model.page, message)
       const out = result.outMessage
-      return {
-        model: out?._tag === 'ChangedThemeSetting'
-          ? { ...model, [out.setting]: out.value } as PageInputs
-          : model,
+      const nextModel = {
+        page: result.model,
+        inputs: out?._tag === 'ChangedThemeSetting'
+          ? { ...model.inputs, [out.setting]: out.value } as PageInputs
+          : model.inputs,
       }
+      return { ...result, model: nextModel }
     }
-    Scene.scene({ update, view: (model, h) => themePage.view({}, model, h) }, Scene.given(inputs),
+    Scene.scene(
+      { update, view: (model, h) => themePage.view(model.page, model.inputs, h) },
+      Scene.given({ page: initial.model, inputs }),
       Scene.expect(Scene.role('heading', { name: 'Theme settings' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Accent color' })),
       Scene.expect(Scene.selector('#theme-preview')).toHaveAttr('data-accent-color', 'crimson'),
@@ -86,8 +92,12 @@ describe('gallery interactive pages', () => {
       Scene.click(Scene.role('button', { name: 'Appearance' })),
       Scene.expect(Scene.selector('#theme-preview')).toHaveAttr('class', 'radix-themes dark'),
       Scene.click(Scene.role('button', { name: 'Panel background' })),
-      Scene.expect(Scene.selector('#theme-preview')).toHaveAttr('data-panel-background', 'solid'))
-    const initial = themePage.init()
+      Scene.expect(Scene.selector('#theme-preview')).toHaveAttr('data-panel-background', 'solid'),
+      Scene.click(Scene.role('button', { name: 'Open theme settings' })),
+      Scene.Command.resolve(UiDialog.ShowDialog, UiDialog.Message.SucceededShowDialog()),
+      Scene.Mount.resolve(UiDialog.AcquireResources, UiDialog.Message.SucceededAcquireResources()),
+      Scene.expect(Scene.role('dialog', { name: 'Theme settings' })).toExist(),
+    )
     expect(themePage.update(initial.model, { _tag: 'ChangeAccent' } as typeof themePage.Message.Type).outMessage).toEqual(
       PageOutMessage.ChangedThemeSetting({ setting: 'accentColor', value: 'crimson' }),
     )

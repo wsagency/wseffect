@@ -1,16 +1,17 @@
-import { Option, Schema } from 'effect'
+import { Effect, Option, Schema } from 'effect'
 import { Command } from 'foldkit'
 import * as Mount from 'foldkit/mount'
+import * as Navigation from 'foldkit/navigation'
 import { defineTaggedUnion } from 'foldkit/schema'
 import type { HtmlBuilder } from 'foldkit/html'
 import type { Url } from 'foldkit/url'
 import type { UrlRequest } from 'foldkit/navigation'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
-import { BUILD_ID, initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
 import { pageKeysByRoute, pageKeysForRoute } from './routes.js'
+import { BUILD_ID, initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { KitMessage, kit, pages } from './pages.gen.js'
 import type { Pages } from './pages.gen.js'
 
@@ -25,12 +26,20 @@ export type Model = typeof Model.Type
 export const Message = defineTaggedUnion({
   ChangedDate: { date: Schema.String },
   ChangedUrl: { path: Schema.String },
+  RequestedUrl: { path: Schema.String },
+  UrlPushed: {},
   PageOutMessage: { message: PageOutMessage },
   GotDatePickerMessage: { message: DatePicker.Message },
   GotKitMessage: { message: KitMessage },
 })
 export type Message = typeof Message.Type
 export type KitMessageType = typeof KitMessage.Type & { readonly _tag: string }
+
+const PushUrl = Command.define('PushUrl', {
+  args: { path: Schema.String },
+  messages: [Message.UrlPushed],
+  execute: ({ path }) => Effect.as(Navigation.pushUrl(path), Message.UrlPushed()),
+})
 
 const shiftDate = (date: string, days: number): string => {
   const timestamp = Date.parse(`${date}T00:00:00.000Z`)
@@ -103,6 +112,8 @@ const applyKitMessage = (model: Model, message: typeof KitMessage.Type) => {
 export const update = (model: Model, message: Message) => Message.match(message, {
   ChangedDate: ({ date }) => ({ model: { ...model, date } }),
   ChangedUrl: ({ path }) => routeUpdate(model, path),
+  RequestedUrl: ({ path }) => ({ model, commands: [PushUrl({ path })] }),
+  UrlPushed: () => ({ model }),
   PageOutMessage: ({ message: outMessage }) => ({ model: applyPageOutMessage(model, outMessage) }),
   GotDatePickerMessage: ({ message: childMessage }) => DatePicker.Message.match(childMessage, {
     ChangedDate: ({ date }) => ({ model: { ...model, date } }),
@@ -175,7 +186,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => ({
 })
 
 export const onUrlRequest = (request: UrlRequest): Message => request._tag === 'Internal'
-  ? Message.ChangedUrl({ path: request.url.pathname })
+  ? Message.RequestedUrl({ path: request.url.pathname })
   : Message.ChangedUrl({ path: typeof location === 'undefined' ? '/' : location.pathname })
 
 export const onUrlChange = (url: Url): Message => Message.ChangedUrl({ path: url.pathname })

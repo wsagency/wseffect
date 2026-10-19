@@ -8,7 +8,7 @@ import type { ServerHandle } from '../tools/serve/server.ts'
 import { startStaticServer } from './helpers/server.ts'
 
 const repository = resolve(import.meta.dirname, '..')
-const gallery = resolve(repository, 'apps/gallery')
+const gallery = process.env.GALLERY_PACKED === '1' ? repository : resolve(repository, 'apps/gallery')
 
 type Build = { readonly directory: string; readonly javascript: ReadonlySet<string> }
 
@@ -70,19 +70,30 @@ test('PWA service-worker precaches primary chunks and serves visited and primary
     expect(precache).toContain('/index.html')
     expect(precache.some((url) => /\/assets\/index-[^/]+\.js$/.test(url))).toBe(true)
     expect(precache.some((url) => /\/assets\/framework-[^/]+\.js$/.test(url))).toBe(true)
+    expect(precache.some((url) => /\/assets\/app-shared-[^/]+\.js$/.test(url))).toBe(true)
     for (const pageKey of ['layout', 'typography', 'buttons', 'dialog']) {
       expect(precache.some((url) => new RegExp(`/assets/${pageKey}-[^/]+\\.js$`).test(url))).toBe(true)
     }
-    expect(precache.some((url) => /\/assets\/tabs-[^/]+\.js$/.test(url))).toBe(false)
+    for (const pageKey of ['tabs', 'theme', 'cards', 'textField', 'dropdownMenu', 'sharedA', 'sharedB', 'virtualList', 'form', 'menus']) {
+      expect(precache.some((url) => new RegExp(`/assets/${pageKey}-[^/]+\\.js$`).test(url))).toBe(false)
+    }
+    expect(precache.some((url) => /\/assets\/(?:tabs|theme|cards)-[^/]+\.css$/.test(url))).toBe(false)
 
     await page.goto('/tabs')
     await expect(page.getByRole('heading', { name: 'Tabs' })).toBeVisible()
     await expect(page.getByText('Gallery revision r1', { exact: true })).toBeVisible()
     await expect.poll(async () => page.evaluate(async () => {
       const cache = await caches.open('wseffect-pages')
-      return (await cache.keys()).some((request) => /\/assets\/tabs-[^/]+\.js$/.test(new URL(request.url).pathname))
+      const urls = (await cache.keys()).map((request) => new URL(request.url).pathname)
+      return urls.some((url) => /\/assets\/tabs-[^/]+\.js$/.test(url)) &&
+        urls.some((url) => /\/assets\/tabs-[^/]+\.css$/.test(url))
     })).toBe(true)
     await page.waitForLoadState('networkidle')
+    const cachedThemeCss = await page.evaluate(async () => {
+      const cache = await caches.open('wseffect-pages')
+      return (await cache.keys()).some((request) => /\/assets\/theme-[^/]+\.css$/.test(new URL(request.url).pathname))
+    })
+    expect(cachedThemeCss).toBe(false)
     expect(scripts.some((name) => /^cards-/.test(name))).toBe(false)
     const cachedCards = await page.evaluate(async () => {
       const cache = await caches.open('wseffect-pages')
@@ -119,7 +130,7 @@ test('PWA service-worker update stays pending until accepted and reloads the new
     const v2 = await build(resolve(scratch, 'v2'), 'bbbbbbb2', 'r2')
     const started = await startStaticServer(v1.directory)
     server = started.server
-    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}` })
+    context = await browser.newContext({ baseURL: `http://127.0.0.1:${started.port}`, viewport: { width: 320, height: 100 } })
     const page = await context.newPage()
     const scripts = requestedJavascript(page, [v1, v2])
 
@@ -144,14 +155,14 @@ test('PWA service-worker update stays pending until accepted and reloads the new
     expect(scripts.length).toBeGreaterThan(0)
     expect(scripts.every((name) => v1.javascript.has(name))).toBe(true)
 
-    const acceptedPhaseStart = scripts.length
     await page.locator('#wseffect-update-reload').click()
     await expect(page.locator('#build-id')).toHaveText('bbbbbbb2')
+    const acceptedPhaseStart = scripts.length
     await page.goto('/tabs')
     await expect(page.getByText('Gallery revision r2', { exact: true })).toBeVisible()
     const acceptedBuildRequests = scripts.slice(acceptedPhaseStart)
     expect(acceptedBuildRequests.length).toBeGreaterThan(0)
-    expect(acceptedBuildRequests.every((name) => v2.javascript.has(name))).toBe(true)
+    expect(acceptedBuildRequests.filter((name) => !v2.javascript.has(name))).toEqual([])
   } finally {
     await context?.close()
     await server?.close()

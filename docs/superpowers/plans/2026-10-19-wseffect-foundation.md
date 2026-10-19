@@ -1002,14 +1002,39 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - Consumes: A1–A10 and B1–B8 exports exactly as in Cross-lane contracts; C3 `measureSize`.
 - Produces:
   - the gallery contract (routes, ids, primary pages);
-  - `contract.ts` exporting `PageInputs = { selectedDate: string }` and `PageOutMessage = defineMessageUnion({ RequestedShiftDay: { days: Schema.Number } })`;
+  - `contract.ts` exporting the approved page contracts:
+    ```ts
+    import { Schema } from 'effect'
+    import { Theme } from '@wsagency/wseffect-themes'
+    import { defineMessageUnion } from 'foldkit/message'
+
+    export type PageInputs = Readonly<{
+      date: string
+      accentColor: Theme.Settings['accentColor']
+      grayColor: Theme.Settings['grayColor']
+      radius: Theme.Settings['radius']
+      scaling: Theme.Settings['scaling']
+      appearance: Theme.Settings['appearance']
+      panelBackground: Theme.Settings['panelBackground']
+    }>
+
+    export const PageOutMessage = defineMessageUnion({
+      RequestedShiftDay: { days: Schema.Number },
+      ChangedThemeSetting: {
+        setting: Schema.Literals(['accentColor', 'grayColor', 'radius', 'scaling', 'appearance', 'panelBackground']),
+        value: Schema.String,
+      },
+    })
+    export type PageOutMessage = typeof PageOutMessage.Type
+    ```
+  - theme-dialog ids `#theme-dialog-open` and `#theme-dialog-accent`;
   - `bench/baselines/size.json` entries.
 
 - [ ] **Step 1: Write the failing tests** (§6.2, APP-17, APP-18, PWA-7, TEST-1, TEST-2):
   - **Shell Story:** `ChangedDate` updates the single `selectedDate`; `RequestedShiftDay{-1}` from `sharedA`'s OutMessage shifts it; `ChangedUrl('/shared')` sends `EnteredRoute{['sharedA','sharedB']}` to the kit.
   - **Scene:** every page renders its components with accessible names.
-  - **sharedA** shows `selectedDate` from inputs in `#date-page-sharedA` and has the `Option<string>` note field.
-  - **Theme page:** controls change accent, gray, radius, scaling and appearance through the shell Model.
+  - **sharedA** shows `date` from inputs in `#date-page-sharedA` and has the `Option<string>` note field.
+  - **Theme page:** receives all theme settings through `PageInputs`; theme controls emit `ChangedThemeSetting` OutMessages for the shell to apply. Theme state is not stored in a page Model. The themed settings dialog has trigger `#theme-dialog-open` and accent control `#theme-dialog-accent`.
   - **Manifest test:** `validateManifest(manifestFromViteConfig)` returns `[]` (PWA-7).
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-gallery test`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
@@ -1037,7 +1062,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - **virtualList:** 10,000 items through `@foldkit/ui` VirtualList; renders ≤ 20 rows; filter and sort operate on the Model; row views are memoized with `createKeyedLazy` keyed by item id, and the cache instance belongs to the page module's lifetime with keys bounded by the 10,000 ids.
   - **form:** 200 TextFields; editing field 0 re-runs exactly 1 field view, and the view-execution count of the other 199 stays unchanged (GATE-P4).
   - **menus:** 200 DropdownMenus; `menus-tick` re-runs 0 menu views.
-  - Every `createLazy` call site passes only primitives and `h` (PERF-2).
+  - Every `createLazy` call site passes primitives, `h`, or stable references from the Model; do not pass objects created during the parent's render (including `viewInputs`, object literals, or spreads). Foldkit immutable updates preserve `===` identity for unchanged submodel Models; the menus tick test verifies 0 menu view reruns.
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-gallery test perfPages`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** again, then `pnpm gate:perf --app apps/gallery --write-baseline --reason "initial foundation baseline"`. Expected: PASS; all six ceilings met; `perf.json` records the current commit.

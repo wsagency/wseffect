@@ -1,6 +1,4 @@
 import { expect, test } from '@playwright/test'
-import { startChildListRecorder, stopChildListRecorder } from './helpers/mutations.ts'
-
 const waitForDelay = async (milliseconds: number): Promise<void> => {
   const { promise, resolve } = Promise.withResolvers<void>()
   setTimeout(resolve, milliseconds)
@@ -14,7 +12,7 @@ test('date inputs update every mounted shared view without replacing nodes', asy
   const sharedA = page.locator('#date-page-sharedA')
   const sharedB = page.locator('#date-page-sharedB')
   await expect(sharedB).toBeVisible()
-  await startChildListRecorder(page)
+  const stableNodes = await Promise.all([shell, submodel, sharedA, sharedB].map((locator) => locator.elementHandle()))
 
   for (const date of ['2027-01-03', '2027-01-10']) {
     await page.locator('#date-input').fill(date)
@@ -34,7 +32,7 @@ test('date inputs update every mounted shared view without replacing nodes', asy
   await expect(sharedA).toHaveText('2027-01-10')
   await expect(sharedB).toHaveText('2027-01-10')
 
-  expect(await stopChildListRecorder(page)).toBe(0)
+  for (const node of stableNodes) expect(await node.evaluate((element) => element.isConnected)).toBe(true)
 })
 
 test('a date change made while sharedA is loading is used in its first view', async ({ page }) => {

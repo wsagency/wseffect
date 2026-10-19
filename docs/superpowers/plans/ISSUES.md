@@ -154,3 +154,14 @@
 - **Smallest compliant fix:** Keep revision variation in the build environment rather than editing Gallery source between builds.
 
 
+## D-B1: Runtime cache omitted non-primary page CSS
+
+- **Issue:** The reviewed service-worker route cached only page JavaScript, so a visited non-primary route could not rely on its stylesheet from `wseffect-pages` while offline.
+- **Resolution:** Match both `.js` and `.css` assets with the existing `wseffect-pages` CacheFirst route. The PWA e2e verifies non-primary CSS is excluded from precache and appears in the runtime cache after visiting the page.
+
+## D4: Primary-page precache needs shared chunk dependencies
+
+- **Issue:** Pre-caching primary page entry chunks alone left transitive component chunks unavailable offline; the Layout route worked, but Dialog failed to import its chunk dependencies.
+- **Evidence:** The Gallery manifest shows primary entries import shared `heading`, `text`, `button`, `dialog`, `selectors`, `keyboard`, and `update` chunks. The offline e2e failed on a Dialog dynamic import until these shared assets were pre-cached.
+- **Resolution:** Include those shared chunks in Workbox's precache patterns while continuing to exclude non-primary page entry chunks and their CSS.
+
