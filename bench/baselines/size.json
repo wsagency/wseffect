@@ -1,0 +1,11 @@
+{
+  "unit": "B",
+  "compression": "brotli-q11",
+  "entries": {
+    "shell": { "bytes": 85947, "reason": "Initial mini-app fixture measurement from .artifacts/radix2solid-report.json." },
+    "first-visit": { "bytes": 86678, "reason": "Initial mini-app fixture measurement from .artifacts/radix2solid-report.json." },
+    "page:form": { "bytes": 348, "reason": "Initial mini-app fixture measurement from .artifacts/radix2solid-report.json." },
+    "page:menus": { "bytes": 396, "reason": "Initial mini-app fixture measurement from .artifacts/radix2solid-report.json." },
+    "styles.css": { "bytes": 406, "reason": "Initial mini-app fixture measurement from .artifacts/radix2solid-report.json." }
+  }
+}

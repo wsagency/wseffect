@@ -1,0 +1,15 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #202124; font: 14px/1.5 system-ui, sans-serif; }
+.page-shell { margin: 0 auto; max-width: 980px; padding: 24px; }
+.page-nav { display: flex; gap: 16px; margin-bottom: 24px; }
+.page-nav a { color: #3157a4; }
+.table-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.virtual-scroll { height: 360px; overflow: auto; border: 1px solid #d7dce2; border-radius: 6px; position: relative; }
+.virtual-spacer { position: relative; width: 100%; min-width: 1000px; }
+.virtual-row { position: absolute; left: 0; right: 0; height: 32px; display: grid; grid-template-columns: 56px minmax(220px, 1fr) minmax(140px, 1fr) 100px 110px 90px; align-items: center; gap: 6px; padding: 0 8px; border-bottom: 1px solid #e9eaed; font-size: 12px; }
+.virtual-cell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.virtual-row input { min-height: 24px; }
+.form-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 8px 12px; }
+.form-grid label { display: grid; gap: 4px; font-size: 11px; }
+.form-grid input { width: 100%; }
+.menu-grid { display: grid; grid-template-columns: repeat(10, minmax(90px, 1fr)); gap: 6px; margin-top: 16px; }

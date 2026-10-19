@@ -5,6 +5,7 @@ on:
   pull_request:
   schedule:
     - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   check:
@@ -21,6 +22,82 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm check
+
+  size:
+    runs-on: ubuntu-24.04
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm gate:size --app tools/fixtures/mini-app
+
+  perf:
+    runs-on: [self-hosted, perf]
+    needs: check
+    concurrency:
+      group: perf
+      cancel-in-progress: false
+    env:
+      WSEFFECT_PERF_CPUS: ${{ vars.WSEFFECT_PERF_CPUS }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm gate:perf --app tools/fixtures/mini-app
+  bench-radix2solid:
+    runs-on: [self-hosted, perf]
+    needs: check
+    concurrency:
+      group: perf
+      cancel-in-progress: false
+    env:
+      WSEFFECT_PERF_CPUS: ${{ vars.WSEFFECT_PERF_CPUS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.21.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: node bench/radix2solid/scripts/prepare-library.ts --verify
+      - name: Generate side-by-side report (CPU pinning when available)
+        run: |
+          if [ -n "$WSEFFECT_PERF_CPUS" ] && command -v taskset >/dev/null 2>&1; then
+            taskset -c "$WSEFFECT_PERF_CPUS" pnpm gate:report
+          else
+            echo "CPU affinity pinning skipped: WSEFFECT_PERF_CPUS or taskset is unavailable"
+            pnpm gate:report
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: radix2solid-comparison
+          path: .artifacts/radix2solid-report.json
+          if-no-files-found: error
+
+
 
   effect-latest:
     runs-on: ubuntu-24.04

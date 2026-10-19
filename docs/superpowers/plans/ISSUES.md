@@ -31,9 +31,91 @@
 - **Issue:** The original themed Tabs input contract accepted one `tabToContent` callback and reused its result for both the trigger label and panel body. The frozen contract did not provide independent label and panel content.
 - **Amendment:** Replace `tabToContent` with `tabToLabel: (value) => Html` and `tabToPanel: (value) => ReadonlyArray<Html | string>`. The trigger renders only the label callback; the active tabpanel renders the panel callback.
 - **Evidence:** `packages/themes/test/tabs.scene.test.ts` asserts label-only and panel-only text separately and confirms the panel changes when selection changes.
+## 2026-10-19 — Root gate scripts omitted from C3/C4 file lists
+
+- **Issue:** C3 and C4 require the commands `pnpm gate:size --app …` and `pnpm gate:perf --app …`, but their Files lists omit the root `package.json` that must expose those scripts.
+- **Evidence:** Foundation plan lines 909–915 and 930–938 specify the two gate CLIs, while the C3/C4 Files lists name only gate modules, baselines, fixtures and tests. Lane 0's root `package.json` scripts (lines 8–15) contain no `gate:size` or `gate:perf`.
+- **Smallest compliant fix:** Add `gate:size` and `gate:perf` root scripts in the corresponding C3/C4 commits, preserving the specified CLI invocations.
+
+## 2026-10-19 — Benchmark service worker missing for GATE-S2 comparison
+
+- **Issue:** BENCH-2 requires GATE-S1/S2-equivalent sizes measured the same way, and GATE-S2 first-visit measurement ends when a service worker controls the page, but C2 does not give the Solid app a service worker.
+- **Evidence:** The spec defines the controller condition in §11 (lines 486–487) and requires GATE-S1/S2-equivalent sizes measured the same way in BENCH-2 (line 576). Plan C2's app files/dependencies (lines 886–904) omit PWA support; the clean baseline app has no `public/` directory or SW registration.
+- **Smallest compliant fix:** Add a minimal `sw.js` that activates and claims clients, and register it in the Solid bench app so the shared size measurement can use the same service-worker-control boundary.
+
+## 2026-10-19 — BENCH-2 report omits differences
+
+- **Issue:** The current user request requires the side-by-side report to record remaining differences, but C5 specifies only size/performance results and a Markdown table.
+- **Evidence:** Plan C5 lines 963–970 defines `report.json` as `{ wseffect: { size, perf }, radix2solid: { size, perf } }` and `renderSummary` as a table; the C2 clean baseline has no service worker, while the gallery's GATE-S2 boundary requires a controlling service worker.
+- **Smallest compliant fix:** Add a `differences` note to the report JSON and Markdown summary, listing verified differences (including the bench's minimal controller-only worker if it remains).
+
+
+## 2026-10-19 — C3 fixture requires unavailable wseffect API
+
+- **Issue:** C3's original fixture requirement uses `wseffect()`, but the plan makes Lane C depend only on Lane 0 and this base has no `wseffect()` export.
+- **Evidence:** Plan lines 86–87 list Lane C's dependency as Lane 0, while lines 909–915 require a C3 mini-app using `wseffect()`. At base `35640c5`, `packages/app/src/index.ts` contains only `export {}`. Spec APP-23 lines 335–337 defines the `framework` code-splitting group that the fixture must mirror.
+- **Resolution:** Per user direction, do not wait for Lane A. Build `tools/fixtures/mini-app` as plain Foldkit + Vite with `foldkit()`, a manual `build.rolldownOptions.output.codeSplitting.groups` `framework` group, three pages including two lazy pages via dynamic import, the gallery `data-perf` hooks, and its PWA. Keep both gates dependent only on build output and those hooks. When Lane D lands, point the gates at the gallery and delete this temporary fixture.
+- **Smallest compliant fix:** Replace the `wseffect()` fixture with that standalone Foldkit/Vite fixture; no gate implementation may depend on wseffect internals.
+
+
+## 2026-10-19 — D1 size attribution option missing from C3 task
+
+- **Issue:** D1 requires a source-map attribution run using `tools/gates/size.ts --attribute`, but the C3 task does not specify that mode or how the build produces source maps.
+- **Evidence:** Spec §11 GATE-S1 lines 484–485 requires attribution when the shell exceeds its budget; plan C3 lines 915–925 defines `size.ts` without `--attribute`, while D1 lines 1006–1008 invokes it.
+- **Resolution:** C3 adds an attribute-only mode over the index/framework source maps and enables fixture maps with `SOURCEMAP=on`. It reports per-source Brotli-q11 weights from `sourcesContent` and labels them as indicative, not an additive decomposition of minified chunk bytes.
+- **Smallest compliant fix:** Add the `--attribute` mode to C3's `size.ts` and honor `SOURCEMAP=on` in the fixture's Vite config so D1 can invoke the specified command.
+
+
+## 2026-10-19 — C4 A/A noise-band control absent from task plan
+
+- **Issue:** The user requires an A/A self-test mode and a reported noise band, but C4 specifies only baseline/candidate ABAB regression measurement.
+- **Evidence:** Plan C4 lines 940–953 omits an A/A mode; spec GATE-P3 lines 522–525 cites the research A/A result but does not require the harness to measure and report one.
+- **Resolution:** Add `--self-test` with ten ABAB pairs over identical builds and report per-scenario, per-metric empirical p95 absolute paired deltas plus the observed signed range. This is diagnostic only and does not gate.
+- **Smallest compliant fix:** Extend C4 with an A/A measurement path and report its noise band.
+
+## 2026-10-19 — C4 server choice is ambiguous against GATE-P1
+
+- **Issue:** The C4 pre-flight notes expect C1 `startServer` reuse, while the performance spec requires the production build to be served by `vite preview`.
+- **Evidence:** Plan C4 lines 947–951 assumes C1 production serving; spec GATE-P1 line 501 explicitly says `vite preview`.
+- **Resolution:** Use `vite preview` for performance measurements so the harness follows the binding GATE-P1 method; retain C1 `startServer` for size accounting.
+- **Smallest compliant fix:** Launch preview servers for the baseline and candidate builds from the shared performance harness.
+
+## 2026-10-19 — C5 jobs target Gallery before Lane D
+
+- **Issue:** The planned C5 jobs target `apps/gallery`, which is not available until Lane D, but the user requires the report/jobs against the mini-app now.
+- **Evidence:** Plan C5 lines 969–971 names `apps/gallery`; Lane D D1/D2 creates the Gallery and its performance pages; the user directed C4/C5 to use the mini-app now.
+- **Resolution:** Point the size, perf, and report jobs at `tools/fixtures/mini-app` until Lane D lands, then switch them to Gallery and delete the temporary fixture.
+- **Smallest compliant fix:** Use the mini-app in the new gate job arguments.
+
+## 2026-10-19 — Root typecheck excludes tools source
+
+- **Issue:** `pnpm typecheck` previously covered workspace packages but not `tools/gates` or `tools/serve`, leaving C1/C3/C4 code outside the repository typecheck.
+- **Evidence:** Root `package.json` previously invoked only `pnpm --recursive --if-present typecheck`; root `tsconfig.json` references only `packages/app` and `packages/themes`.
+- **Resolution:** Add `tools/tsconfig.json` covering tools TypeScript, including gates, server, tests, Vite config and fixture source; run it from the root `typecheck` script with ES2024, Bundler resolution, and Vite client types.
+- **Smallest compliant fix:** Wire `tsc -p tools/tsconfig.json` into `pnpm typecheck` and fix diagnostics surfaced by that project.
+
+## 2026-10-19 — Mini-app perf fixture DOM did not match Solid bench
+
+- **Issue:** The initial mini-app lacked `vl-sort`, used a three-cell table row instead of the bench's six-child row, and filtered only by name rather than name/account/region.
+- **Evidence:** C4 `SCENARIOS` requires `vl-sort`; `bench/radix2solid/src/fixtures/BenchFixtures.tsx` lines 31–45 has six row children and filters name/account/region; the mini-app initially had only three `<td>` cells. The first contract test failed with zero `data-perf="vl-row"` elements.
+- **Resolution:** Align the mini-app to 10,000 records with matching id/name/account/region/amount fields, six row children, 15 visible rows, text input types, sort/filter hooks, and 200 menu triggers; add an integration contract test.
+- **Smallest compliant fix:** Match selectors, visible counts, text field type and row/cell structure while preserving the Foldkit/Vite implementation.
 
 ## A2-M6: Framework chunk detection must follow resolved package roots
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.
 - **Amendment:** Classify modules by `node_modules` paths or by real paths under resolved `@wsagency/wseffect-*` package roots. Test the classifier as a function over resolved package directories.
 
+## 2026-10-19 — GATE-P3 needs a measured perf-runner noise file
+
+- **Issue:** The performance gate cannot use a local or placeholder noise floor; the isolated runner has not yet been measured.
+- **Evidence:** The user directed that `perf-noise.json` remain absent until the scheduled quiet-window measurement and required the gate to fail clearly while it is missing.
+- **Resolution:** `pnpm perf:noise` runs only on the perf runner and writes the file after the harness self-test and A/A measurement; `gate:perf` reports the exact measurement command when the file is absent.
+- **Smallest compliant fix:** Keep the noise baseline uncommitted until the isolated runner writes measured values.
+
+## 2026-10-19 — GATE-S3 must compare the merge-base and candidate size baselines
+
+- **Issue:** The previous size comparison skipped build artifacts missing from the baseline and accepted an explanation without requiring updated bytes.
+- **Evidence:** The pre-change `bench/baselines/size.json` had an empty `entries` object; the comparator iterated only baseline entries and checked `reason` without requiring candidate-baseline changes.
+- **Resolution:** Compare against `origin/main`'s merge-base baseline, require every current artifact in the candidate `size.json`, and require both changed bytes and a reason for explained growth.
+- **Smallest compliant fix:** Seed the mini-app artifacts with observed measurements and reject missing or undersized candidate entries.
