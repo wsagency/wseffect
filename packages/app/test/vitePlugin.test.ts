@@ -34,6 +34,21 @@ async function buildFixture(
     cpSync(fixtureDirectory, directory, { recursive: true })
     writeFileSync(join(directory, 'src/pages/package.json'), JSON.stringify({ sideEffects: false }))
     if (alphaSource !== undefined) writeFileSync(join(directory, 'src/pages/alpha.ts'), alphaSource)
+    writeFileSync(join(directory, 'src/main.ts'), `${readFileSync(join(directory, 'src/main.ts'), 'utf8')}\nimport './entry.css'\n`)
+    mkdirSync(join(directory, 'public'), { recursive: true })
+    mkdirSync(join(directory, 'public/assets'), { recursive: true })
+    writeFileSync(join(directory, 'public/extra.html'), '<!doctype html>')
+    writeFileSync(join(directory, 'public/extra.css'), '.extra {}')
+    writeFileSync(join(directory, 'public/assets/workbox-helper.js'), 'export {}')
+    writeFileSync(join(directory, 'src/pages/alpha.ts'), `${readFileSync(join(directory, 'src/pages/alpha.ts'), 'utf8')}\nimport './alpha.css'\n`)
+    writeFileSync(join(directory, 'src/pages/theme.ts'), `${readFileSync(join(directory, 'src/pages/beta.ts'), 'utf8')}\nimport './theme.css'\n`)
+    writeFileSync(join(directory, 'src/entry.css'), 'html { --document-style: document; } body { --entry-style: entry; }')
+    writeFileSync(join(directory, 'src/pages/alpha.css'), '.alpha { --primary-page-style: primary; }')
+    writeFileSync(join(directory, 'src/pages/theme.css'), '.theme { --secondary-page-style: theme-palette; }')
+    mkdirSync(join(directory, 'public/icons'), { recursive: true })
+    writeFileSync(join(directory, 'public/icons/icon-extra.png'), '')
+    writeFileSync(join(directory, 'public/icons/icon-192.png'), '')
+    writeFileSync(join(directory, 'public/icons/icon-512.png'), '')
     mkdirSync(join(directory, 'node_modules/@wsagency'), { recursive: true })
     mkdirSync(join(directory, 'node_modules/@foldkit'), { recursive: true })
     symlinkSync(resolve(testDirectory, '../node_modules/foldkit'), join(directory, 'node_modules/foldkit'), 'dir')
@@ -49,13 +64,66 @@ async function buildFixture(
           { find: '@wsagency/wseffect-app', replacement: appEntry },
         ],
       },
-      build: { outDir: join(directory, 'dist'), emptyOutDir: true, sourcemap: true },
+      build: { outDir: join(directory, 'dist'), emptyOutDir: true, sourcemap: true, manifest: true },
     })
     return { directory, output: join(directory, 'dist') }
   } catch (error) {
     rmSync(directory, { recursive: true, force: true })
     throw error
   }
+}
+
+type BuildManifestEntry = {
+  readonly file: string
+  readonly name?: string
+  readonly isDynamicEntry?: boolean
+  readonly imports?: ReadonlyArray<string>
+  readonly css?: ReadonlyArray<string>
+}
+
+type BuildManifest = Record<string, BuildManifestEntry>
+
+function precacheUrls(output: string): string[] {
+  const sw = readFileSync(join(output, 'sw.js'), 'utf8')
+  const match = sw.match(/precacheAndRoute\((\[[\s\S]*?\])(?:\s*,[^)]*)?\s*\)/)
+  if (match === null) throw new Error('Could not find precacheAndRoute manifest in sw.js')
+  const entries = JSON.parse(match[1]!) as Array<{ url: string }>
+  return entries.map(({ url }) => url).sort()
+}
+
+function expectedPrecacheUrls(
+  output: string,
+  appManifest: typeof manifest,
+  primaryPages: ReadonlyArray<string>,
+): string[] {
+  const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+  const expected = new Set([
+    'index.html',
+    'manifest.webmanifest',
+    ...appManifest.icons.map(({ src }) => src.replace(/^\/+/, '')),
+  ])
+  const addEntry = (key: string, visited = new Set<string>()) => {
+    if (visited.has(key)) return
+    visited.add(key)
+    const entry = buildManifest[key]
+    if (entry === undefined) throw new Error(`Vite manifest is missing ${key}`)
+    expected.add(entry.file)
+    for (const css of entry.css ?? []) expected.add(css)
+    for (const imported of entry.imports ?? []) addEntry(imported, visited)
+  }
+
+  addEntry('index.html')
+  for (const page of primaryPages) {
+    const pageEntry = Object.entries(buildManifest).find(([key, entry]) =>
+      entry.isDynamicEntry === true && (entry.name === page || key.endsWith(`/pages/${page}.ts`)),
+    )
+    if (pageEntry === undefined) throw new Error(`Vite manifest is missing primary page ${page}`)
+    addEntry(pageEntry[0])
+  }
+  for (const [key, entry] of Object.entries(buildManifest)) {
+    if (entry.name === 'workbox-window' || /(?:^|\/)workbox-window-[^/]+\.js$/.test(entry.file)) addEntry(key)
+  }
+  return [...expected].sort()
 }
 
 function outputFiles(output: string): string[] {
@@ -72,7 +140,7 @@ describe('wseffect Vite plugin', () => {
     expect(validateManifest({ ...manifest, start_url: '/app' })).toContain('manifest.start_url must be /')
   })
 
-  it('builds lazy page chunks in the framework group and configures the service worker precache', async () => {
+  it('precaches exactly the app manifest and allowed Vite build outputs', async () => {
     const { directory, output } = await buildFixture({ manifest })
     try {
       const files = outputFiles(output)
@@ -94,9 +162,18 @@ describe('wseffect Vite plugin', () => {
       }
 
       const sw = readFileSync(join(output, 'sw.js'), 'utf8')
-      expect(sw).toContain('index.html')
-      for (const file of [index!, framework!, alpha!]) expect(sw).toContain(file)
-      expect(sw).not.toContain(beta!)
+      const assets = readdirSync(join(output, 'assets'))
+      const actual = precacheUrls(output)
+      expect(actual).toEqual(expectedPrecacheUrls(output, manifest, ['alpha']))
+      expect(actual).toContain(`assets/${assets.find((file) => file.startsWith('index-') && file.endsWith('.css'))!}`)
+      expect(actual).toContain(`assets/${assets.find((file) => file.startsWith('alpha-') && file.endsWith('.css'))!}`)
+      expect(actual).not.toContain('extra.html')
+      expect(actual).not.toContain('extra.css')
+      expect(actual).not.toContain('icons/icon-extra.png')
+      expect(actual).not.toContain('assets/workbox-helper.js')
+      expect(actual.some((file) => /^(?:assets\/)?workbox-(?!window-).*\.js$/.test(file))).toBe(false)
+      expect(actual.some((file) => /^(?:beta|theme)-.*\.css$/.test(file))).toBe(false)
+      expect(actual.some((file) => /^(?:beta|theme)-.*\.js$/.test(file))).toBe(false)
       expect(sw).toContain('CacheFirst')
       expect(sw).toContain('wseffect-pages')
       expect(sw).toMatch(/maxEntries:\s*200/)

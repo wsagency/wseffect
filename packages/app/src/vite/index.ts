@@ -86,9 +86,10 @@ export function wseffect(options: WseffectOptions): Array<Plugin> {
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/assets\//],
         globPatterns: [
-          '**/*.html', '**/*.css', '**/*.ico', '**/*.png', '**/*.svg', '**/*.webmanifest',
-          'assets/index-*.js', 'assets/framework-*.js', 'assets/workbox-*.js',
-          ...options.primaryPages.map((key) => `assets/${key}-*.js`),
+          'index.html',
+          'assets/index-*.css', 'assets/framework-*.css', 'assets/index-*.js', 'assets/framework-*.js',
+          'assets/workbox-window-*.js',
+          ...options.primaryPages.flatMap((key) => [`assets/${key}-*.js`, `assets/${key}-*.css`]),
         ],
         runtimeCaching: [{
           urlPattern: /\/assets\/.*\.js$/,
