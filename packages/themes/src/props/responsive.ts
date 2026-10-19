@@ -50,12 +50,12 @@ export const responsiveClasses = (
   for (const breakpoint of breakpoints) {
     const current = responsiveValues[breakpoint]
     if (current === undefined) continue
-    const parsed = prop.parseValue?.(current) ?? current
-    const enumClass = prop.breakpointClassNames?.[breakpoint]?.[parsed]
+    const enumClass = prop.breakpointClassNames?.[breakpoint]?.[current]
     if (enumClass !== undefined) {
       classes.push(enumClass)
       continue
     }
+    const parsed = prop.parseValue?.(current) ?? current
     const property = prop.customProperties?.[0]
     if (property === undefined || (prop.values !== undefined && prop.values.includes(current))) continue
     classes.push(prop.breakpointClassNamesBase?.[breakpoint] ?? prop.className)
