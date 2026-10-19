@@ -439,7 +439,7 @@ export async function runHarnessSelfTest(
       document.querySelector('#slow')!.addEventListener('click', (event) => busyWait(50, event))
       document.querySelector('#fast')!.addEventListener('click', (event) => busyWait(5, event))
       document.querySelector('#frame')!.addEventListener('click', () => requestAnimationFrame(() => {
-        const deadline = performance.now() + 5
+        const deadline = performance.now() + 25
         while (performance.now() < deadline) {
           // Intentional frame work to verify the trace window includes rAF callbacks.
         }
