@@ -3,72 +3,76 @@
   "compression": "brotli-q11",
   "entries": {
     "shell": {
-      "bytes": 99125,
-      "reason": "initial foundation measurement"
+      "bytes": 99607,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "first-visit": {
-      "bytes": 173851,
-      "reason": "initial foundation measurement"
+      "bytes": 143641,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+    },
+    "speculative-prefetch": {
+      "bytes": 35050,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:buttons": {
-      "bytes": 321,
-      "reason": "initial foundation measurement"
+      "bytes": 320,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:cards": {
-      "bytes": 556,
-      "reason": "initial foundation measurement"
+      "bytes": 555,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:dialog": {
-      "bytes": 2982,
-      "reason": "initial foundation measurement"
+      "bytes": 2993,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:dropdownMenu": {
-      "bytes": 603,
-      "reason": "initial foundation measurement"
+      "bytes": 599,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:form": {
-      "bytes": 477,
-      "reason": "initial foundation measurement"
+      "bytes": 515,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:layout": {
-      "bytes": 1894,
-      "reason": "initial foundation measurement"
+      "bytes": 1898,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:menus": {
-      "bytes": 742,
-      "reason": "initial foundation measurement"
+      "bytes": 756,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:sharedA": {
       "bytes": 529,
-      "reason": "initial foundation measurement"
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:sharedB": {
-      "bytes": 290,
-      "reason": "initial foundation measurement"
+      "bytes": 315,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:tabs": {
-      "bytes": 2076,
-      "reason": "initial foundation measurement"
+      "bytes": 2082,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:textField": {
-      "bytes": 355,
-      "reason": "initial foundation measurement"
+      "bytes": 350,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:theme": {
       "bytes": 602,
-      "reason": "initial foundation measurement"
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:typography": {
-      "bytes": 309,
-      "reason": "initial foundation measurement"
+      "bytes": 308,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "page:virtualList": {
-      "bytes": 5865,
-      "reason": "initial foundation measurement"
+      "bytes": 6024,
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     },
     "styles.css": {
       "bytes": 39974,
-      "reason": "initial foundation measurement"
+      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
     }
   }
 }
