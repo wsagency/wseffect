@@ -1,0 +1,38 @@
+.rt-BaseMenuItem:where([data-active]) {
+  & :where(.rt-BaseMenuShortcut) {
+    color: inherit;
+  }
+}
+
+.rt-BaseMenuContent:where(.rt-variant-solid) {
+  & :where(.rt-BaseMenuItem[data-active]) {
+    background-color: var(--accent-9);
+    color: var(--accent-contrast);
+
+    & :where(.rt-BaseMenuSubTriggerIcon) {
+      color: var(--accent-contrast);
+    }
+  }
+
+  &:where(.rt-high-contrast) {
+    & :where(.rt-BaseMenuItem[data-active]) {
+      background-color: var(--accent-12);
+      color: var(--accent-1);
+
+      & :where(.rt-BaseMenuSubTriggerIcon) {
+        color: var(--accent-1);
+      }
+
+      &:where([data-accent-color]) {
+        background-color: var(--accent-9);
+        color: var(--accent-contrast);
+      }
+    }
+  }
+}
+
+.rt-BaseMenuContent:where(.rt-variant-soft) {
+  & :where(.rt-BaseMenuItem[data-active]) {
+    background-color: var(--accent-a4);
+  }
+}

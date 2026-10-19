@@ -1,0 +1,74 @@
+.radix-themes:where([data-is-root-theme='true']) {
+  /* Create a new stacking context on the root `Theme` so layered components work out of the box */
+  position: relative;
+  z-index: 0;
+
+  /* Make sure root `Theme` background covers the viewport */
+  min-height: 100vh;
+  @supports (min-height: 100dvh) {
+    min-height: 100dvh;
+  }
+}
+
+/* Shadows and authored backgrounds do not paint control boundaries in forced colors. */
+@media (forced-colors: active) {
+  .rt-BaseCheckboxRoot::before,
+  .rt-BaseRadioRoot::before,
+  .rt-SwitchRoot::before {
+    box-sizing: border-box;
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+
+  .rt-BaseCheckboxIndicator {
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .rt-BaseRadioRoot::after,
+  .rt-SliderRange,
+  .rt-BaseTabListTrigger::before {
+    background: CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .rt-SwitchThumb,
+  .rt-SliderTrack,
+  .rt-SliderThumb::after,
+  .rt-TextFieldRoot,
+  .rt-TextAreaRoot,
+  .rt-SegmentedControlIndicator::before {
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
+    background: Canvas;
+    box-shadow: none;
+  }
+
+  .rt-SliderThumb:where(:focus-visible)::after,
+  .rt-TextFieldRoot:where(:focus-within),
+  .rt-TextAreaRoot:where(:focus-within) {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .rt-BaseCheckboxRoot:where(:disabled, [data-disabled])::before,
+  .rt-BaseRadioRoot:where(:disabled, [data-disabled])::before,
+  .rt-SwitchRoot:where(:disabled, [data-disabled])::before {
+    border-color: GrayText;
+  }
+
+  .rt-BaseCheckboxRoot:where(:disabled, [data-disabled]) .rt-BaseCheckboxIndicator {
+    color: GrayText;
+  }
+
+  .rt-BaseRadioRoot:where(:disabled, [data-disabled])::after,
+  .rt-SliderRange:where([data-disabled]) {
+    background: GrayText;
+  }
+
+  .rt-SwitchThumb:where([data-disabled]),
+  .rt-SliderThumb:where([data-disabled])::after,
+  .rt-SliderTrack:where([data-disabled]) {
+    outline-color: GrayText;
+  }
+}
