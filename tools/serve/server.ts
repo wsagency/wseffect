@@ -20,7 +20,7 @@ export interface ServerOptions {
   readonly brotli: boolean
 }
 
-const DEFAULT_RETENTION = 3
+const DEFAULT_RETENTION = 4
 const NOT_FOUND = Buffer.from('Not Found')
 const BAD_REQUEST = Buffer.from('Bad Request')
 const METHOD_NOT_ALLOWED = Buffer.from('Method Not Allowed')

@@ -111,11 +111,11 @@ test('uses index fallback only for extensionless routes and returns 404 for miss
   })
 })
 
-test('retains the newest three deployments and removes older assets', async () => {
+test('retains the current deployment and previous three deployments', async () => {
   const builds: string[] = []
   await withServer(false, async (port, server) => {
     try {
-      for (let version = 1; version <= 4; version++) {
+      for (let version = 1; version <= 5; version++) {
         const dir = build({
           'index.html': `<main>build-${version}</main>`,
           [`assets/build-${version}.js`]: `asset-${version}`,
@@ -123,9 +123,9 @@ test('retains the newest three deployments and removes older assets', async () =
         builds.push(dir)
         server.deploy(dir)
       }
-      assert.equal((await request(port, '/')).body.toString(), '<main>build-4</main>')
+      assert.equal((await request(port, '/')).body.toString(), '<main>build-5</main>')
       assert.equal((await request(port, '/assets/build-1.js')).status, 404)
-      for (let version = 2; version <= 4; version++) {
+      for (let version = 2; version <= 5; version++) {
         const response = await request(port, `/assets/build-${version}.js`)
         assert.equal(response.status, 200)
         assert.equal(response.body.toString(), `asset-${version}`)
