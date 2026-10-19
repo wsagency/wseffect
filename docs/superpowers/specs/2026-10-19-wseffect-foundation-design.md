@@ -405,7 +405,8 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 
 ### 9.1 CSS and tokens
 
-- **TH-1 CSS sources.** The Radix Themes CSS sources and the PostCSS pipeline are copied from radix2solid commit `db5c0f04596be5bf1838c79efa7357d675736acd`: `packages/themes/src/styles`, `postcss.config.js`, `scripts/build-css.js`, `postcss-breakpoints.js`, `postcss-whitespace.js`. The source commit is recorded in `packages/themes/UPSTREAM.md`.
+- **TH-1 CSS sources.** The Radix Themes CSS sources and the PostCSS pipeline are copied from radix2solid commit `383676172abb84b4a1d2e54a087d290437ee8848` (`main` of `https://github.com/wsagency/radix2solid.git`, release rc.3): `packages/themes/src/styles`, the component `.css` files in `packages/themes/src/components`, `postcss.config.js`, `scripts/build-css.js`, `postcss-breakpoints.js`, `postcss-whitespace.js`. The source commit is recorded in `packages/themes/UPSTREAM.md`.
+  - **Pin rule:** every radix2solid pin used by wseffect (TH-1, BENCH-1) must be fetchable from that public remote (`git fetch origin <sha>` succeeds). Commits that exist only in local worktrees are never pinned.
   - **Plugin chain:** `postcss-import` → `postcss-nesting` → `postcss-breakpoints` → `postcss-custom-media` → `postcss-combine-duplicated-selectors` → `postcss-discard-empty` → `postcss-whitespace` → `autoprefixer` [R:33].
 - **TH-2 CSS outputs.** `styles.css`, `components.css`, `utilities.css`, `tokens.css`, `tokens/base.css`, `tokens/colors/<color>.css`, `layout.css`, `layout/{tokens,components,utilities}.css`, per-component `css/<component>.css`, `css/common.css` and `css/utilities.css`. Each has a `.layer.css` sibling wrapped in `@layer radix` [R:34].
   - Component CSS covers the foundation components plus their CSS dependencies from the radix2solid dependency map.
@@ -570,7 +571,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 
 ### 12.4 Comparison baseline
 
-- **BENCH-1 The comparison app.** `bench/radix2solid/` is a Solid 2 app with the gallery's foundation scope: the same components and lazy routes. It consumes radix2solid only from packed tarballs of commit `db5c0f04596be5bf1838c79efa7357d675736acd`.
+- **BENCH-1 The comparison app.** `bench/radix2solid/` is a Solid 2 app with the gallery's foundation scope: the same components and lazy routes. It consumes radix2solid only from packed tarballs of commit `383676172abb84b4a1d2e54a087d290437ee8848` (public `main`, rc.3), under the TH-1 pin rule.
   - The commit is recorded in `bench/radix2solid/library-source.json` as `{ repository, commit }`, the shape radix2solid-web uses (radix2solid-web pins `e1ecdf69bc24ec24035d7b1977c3931430294cc4`) [R:69].
 - **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2-equivalent sizes and the GATE-P1 scenarios, measured the same way. It is reporting only and never gates.
   - **Research context, matched DOM.** The earlier "Solid filters about 11× faster" figure [P:131-142] compared pages whose Foldkit side had 3.4× more layout objects (24,025 vs 7,011) [P:179], and is not used. The S9 comparison used the same table on both sides: 1,000 rows, 10,000 cells, 1,001 inputs, 1,007 buttons (`domCounts` of S9 groups `branch 1000/*/keyed/*` and `solid 1000/*/Solid/*`). Event Timing / scripting medians in ms:
@@ -583,7 +584,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
     | 4× | Filter | 208 / 65.24 | 292 / 118.62 |
 
   - These Foldkit figures were measured on an earlier #1700 revision that was later discarded [P:218]. The current #1700 revision and `origin/main` were not measured against Solid on the matched DOM. The bench therefore re-measures both frameworks itself and does not reuse these numbers.
-- **BENCH-3 Provenance and import.** The first version of this baseline is being built now at `/tmp/wseffect-research/r2s-baseline` and is **to be imported in sub-project #1**. Its provisional build used source commit `db5c0f04…` with an uncommitted worktree snapshot.
+- **BENCH-3 Provenance and import.** The first version of this baseline is being built now at `/tmp/wseffect-research/r2s-baseline` and is **to be imported in sub-project #1**. Its provisional build used a local, unpublished worktree commit (`db5c0f04…`, not fetchable from the public remote) with an uncommitted snapshot.
   - The imported bench must build from a clean checkout of the pinned commit.
   - Provisional numbers from the snapshot are not reused.
 
@@ -650,7 +651,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 | 10 | Library views lose view identity | The app plugin skips `node_modules` [FK `viewIdentity.ts:197-208`] | Brand at library build time; packed check (REPO-2) |
 | 11 | HTTP cache masks offline gaps | First-session pages are offline only via the HTTP cache without `clientsClaim` [F:926-931] | `clientsClaim: true`; tests check service-worker cache membership (PWA-4) |
 | 12 | Event Timing threshold censors fast interactions | Interactions under 16 ms emit no entry [P:7] | Record missing entries as 16 ms (GATE-P1) |
-| 13 | The radix2solid comparison targets a moving library | The bench pins `db5c0f04…`, which is on radix2solid `origin/main`; the rc.3 work in the next-suite worktree is not merged | The bench compares only against the merged pinned commit (BENCH-1). Moving the pin is a separate PR that edits `library-source.json` and states the reason; it is never bundled with wseffect changes |
+| 13 | The radix2solid comparison targets a moving library | The bench pins `383676172abb…`, the public radix2solid `main` (rc.3); later radix2solid work is unpublished until it is pushed | The bench compares only against a publicly fetchable pinned commit (BENCH-1, TH-1 pin rule). Moving the pin is a separate PR that edits `library-source.json` and states the reason; it is never bundled with wseffect changes |
 
 ## 16. Licensing and attribution
 
@@ -698,7 +699,7 @@ To make approved statements testable, the following were fixed explicitly:
 | Committed codegen output with check mode | APP-5 |
 | Build ID fixed before bundling: `WSEFFECT_BUILD_ID` or an input hash, never output-derived | PWA-8, TEST-9 |
 | Exact lint-rule definitions | APP-22 |
-| radix2solid pin for both CSS and bench | TH-1, BENCH-1 |
+| radix2solid pin `383676172abb84b4a1d2e54a087d290437ee8848` for both CSS and bench; pins must be fetchable from the public remote | TH-1, BENCH-1 |
 | Package version 0.0.0 | REPO-1 |
 | Published Effect peer range `^4.0.5`, backed by floor and latest CI | REPO-1, CI-2 |
 
