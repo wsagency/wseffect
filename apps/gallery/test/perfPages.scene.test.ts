@@ -16,13 +16,19 @@ const inputs = {
 } as const
 
 describe('gallery performance pages', () => {
-  it('virtualizes 10,000 filterable, sortable rows', () => {
+  it('virtualizes 10,000 filterable, sortable rows in either direction', () => {
     const initial = virtualListPage.init()
     expect(initial.model.items).toHaveLength(10_000)
+    expect(initial.model.items[0]).toBe('item-0')
     expect(virtualListPage.update(initial.model, VirtualListMessage.FilterChanged({ value: '9999' })).model.items)
-      .toHaveLength(1)
-    const sorted = virtualListPage.update(initial.model, VirtualListMessage.ToggleSort()).model
-    expect(sorted.items[0]?.id).not.toBe(initial.model.items[0]?.id)
+      .toEqual(['item-9999'])
+    const descending = virtualListPage.update(initial.model, VirtualListMessage.ToggleSort()).model
+    expect(descending.items[0]).toBe('item-9999')
+    const descendingFiltered = virtualListPage.update(descending, VirtualListMessage.FilterChanged({ value: 'item 99' })).model.items
+    expect(descendingFiltered[0]).toBe('item-9999')
+    expect(descendingFiltered.at(-1)).toBe('item-99')
+    const ascending = virtualListPage.update(descending, VirtualListMessage.ToggleSort()).model
+    expect(ascending.items[0]).toBe('item-0')
     Scene.scene(
       { update: virtualListPage.update, view: (model, h) => virtualListPage.view(model, inputs, h) },
       Scene.given(initial.model),
@@ -33,6 +39,16 @@ describe('gallery performance pages', () => {
       Scene.expect(Scene.selector('[data-perf="vl-select"]')).toExist(),
       Scene.expect(Scene.selector('#vl-row-20')).toBeAbsent(),
     )
+  })
+
+  it('keeps normalized search text in sync with edited values', () => {
+    const initial = virtualListPage.init()
+    const changed = virtualListPage.update(initial.model, VirtualListMessage.CellChanged({
+      id: 'item-0',
+      value: 'Changed value',
+    })).model
+    expect(virtualListPage.update(changed, VirtualListMessage.FilterChanged({ value: 'CHANGED' })).model.items)
+      .toEqual(['item-0'])
   })
 
   it('reuses the other 199 field views when field zero changes', () => {
