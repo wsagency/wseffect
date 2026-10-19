@@ -20,7 +20,7 @@ export function loaderSubscriptions<Pages extends Record<string, AnyPage>, Model
         {
           modelToDependencies: (model) => ({ isNeeded: config.isNeeded(model, key) }),
           dependenciesToStream: ({ isNeeded }) => isNeeded
-            ? Stream.fromEffect(Effect.matchEffect(ensure(config.pages, key), {
+            ? Stream.fromEffect(Effect.matchEffect(ensure(config.pages, key, { retryJoinedFailure: true }), {
               onSuccess: () => Effect.succeed(config.onLoaded(key)),
               onFailure: (error) => config.onFailure(key, error),
             }))
@@ -40,6 +40,9 @@ export class PageLoader extends Context.Service<PageLoader, {
   readonly load: (key: string) => Effect.Effect<AnyPage, PageLoadError>
 }>()('wseffect/PageLoader') {}
 
+interface EnsureOptions {
+  readonly retryJoinedFailure?: boolean
+}
 const inFlight = new WeakMap<object, Map<string, Deferred.Deferred<AnyPage, PageLoadError>>>()
 
 function pendingLoads(pages: object): Map<string, Deferred.Deferred<AnyPage, PageLoadError>> {
@@ -65,6 +68,7 @@ function loadFromBundle<Pages extends Record<string, AnyPage>, Key extends keyof
 export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof Pages & string>(
   pages: PagesHandle<Pages>,
   key: Key,
+  options: EnsureOptions = {},
 ): Effect.Effect<Pages[Key], PageLoadError> {
   return Effect.suspend(() => {
     const loaded = pages.registry.get(key)
@@ -72,7 +76,12 @@ export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof 
 
     const loads = pendingLoads(pages)
     const active = loads.get(key)
-    if (active !== undefined) return Deferred.await(active) as Effect.Effect<Pages[Key], PageLoadError>
+    if (active !== undefined) {
+      const waiting = Deferred.await(active) as Effect.Effect<Pages[Key], PageLoadError>
+      return options.retryJoinedFailure === true
+        ? Effect.catch(waiting, () => ensure(pages, key))
+        : waiting
+    }
 
     const deferred = Deferred.makeUnsafe<AnyPage, PageLoadError>()
     loads.set(key, deferred)
@@ -86,7 +95,12 @@ export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof 
       return page
     })
     const sharedLoad = Effect.ensuring(
-      Effect.as(Effect.flatMap(Effect.exit(load), (exit) => Deferred.done(deferred, exit)), undefined),
+      Effect.as(Effect.flatMap(Effect.exit(load), (exit) => Effect.flatMap(
+        Effect.sync(() => {
+          if (loads.get(key) === deferred) loads.delete(key)
+        }),
+        () => Deferred.done(deferred, exit),
+      )), undefined),
       Effect.sync(() => {
         if (loads.get(key) === deferred) loads.delete(key)
       }),

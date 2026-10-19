@@ -63,6 +63,37 @@ describe('page loader', () => {
     expect(await Effect.runPromise(ensure(testPages, 'alpha'))).toBe(alphaPage)
     expect(load).toHaveBeenCalledTimes(2)
   })
+  it('retries navigation once when it joins a failed prefetch', async () => {
+    const testPages = makePages({ alpha: async () => alphaPage })
+    const started = Deferred.makeUnsafe<void>()
+    const fail = Deferred.makeUnsafe<void>()
+    let attempts = 0
+    const layer = Layer.succeed(PageLoader, {
+      load: () => {
+        attempts += 1
+        return attempts === 1
+          ? Effect.gen(function*() {
+            yield* Deferred.succeed(started, undefined)
+            yield* Deferred.await(fail)
+            return yield* Effect.fail(new PageLoadError({ key: 'alpha', cause: new Error('prefetch failed') }))
+          })
+          : Effect.succeed(alphaPage)
+      },
+    })
+    const result = await Effect.runPromise(Effect.gen(function*() {
+      const prefetch = yield* Effect.forkChild(ensure(testPages, 'alpha'))
+      yield* Deferred.await(started)
+      const navigation = yield* Effect.forkChild(ensure(testPages, 'alpha', { retryJoinedFailure: true }))
+      yield* Effect.yieldNow
+      yield* Deferred.succeed(fail, undefined)
+      const page = yield* Fiber.join(navigation)
+      const prefetchExit = yield* Fiber.await(prefetch)
+      return { page, prefetchExit }
+    }).pipe(Effect.provide(layer)))
+    expect(result.page).toBe(alphaPage)
+    expect(Exit.isFailure(result.prefetchExit)).toBe(true)
+    expect(attempts).toBe(2)
+  })
   it('shares an in-flight subscription load across isNeeded true → false → true', async () => {
     const { binding, KitMessage } = makeKitFixture()
     const subscription = binding.subscriptions['wseffect:load:alpha']
