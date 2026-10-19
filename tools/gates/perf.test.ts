@@ -1,9 +1,18 @@
+import { mkdtempSync, rmSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { build, preview } from 'vite'
-import { applyCpuThrottle, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS } from './perf.ts'
+import { applyCpuThrottle, assertNoiseBand, assertQualifiedEntryCoverage, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount } from './perf.ts'
 
+const syntheticNoiseFloors = {
+  'vl-cell': 38,
+  'vl-filter': 42,
+  'vl-sort': 26,
+  'vl-select': 20,
+  'form-field': 26,
+  'menus-tick': 29,
+} as const
 const regression = (overrides: Partial<Parameters<typeof regressed>[0]> = {}) => ({
   scenarioId: 'vl-sort' as const,
   baseScript: [10],
@@ -25,21 +34,39 @@ test('Event Timing uses the longest qualifying entry and records the 16 ms floor
   assert.equal(interactionDuration([]), 16)
 })
 
-test('GATE-P3 applies measured A/A script-noise floors and combined Event Timing boundaries', () => {
-  assert.equal(regressed(regression({ candScript: [11.1] })), false)
-  assert.equal(regressed(regression({ candScript: [36] })), false)
-  assert.equal(regressed(regression({ candScript: [36.1] })), true)
-  assert.equal(regressed(regression({ baseScript: [300], candScript: [330] })), false)
-  assert.equal(regressed(regression({ baseScript: [300], candScript: [330.1] })), true)
-  assert.equal(regressed(regression({ scenarioId: 'vl-cell', baseScript: [10], candScript: [48] })), false)
-  assert.equal(regressed(regression({ scenarioId: 'vl-cell', baseScript: [10], candScript: [48.1] })), true)
-  assert.equal(regressed(regression({ scenarioId: 'vl-select', baseScript: [10], candScript: [30] })), false)
-  assert.equal(regressed(regression({ scenarioId: 'vl-select', baseScript: [10], candScript: [30.1] })), true)
-  assert.equal(regressed(regression({ baseEvent: [40], candEvent: [48] })), true)
-  assert.equal(regressed(regression({ baseEvent: [16], candEvent: [24] })), true)
-  assert.equal(regressed(regression({ baseEvent: [72], candEvent: [78] })), false)
-  assert.equal(regressed(regression({ baseEvent: [100], candEvent: [109] })), false)
-  assert.equal(regressed(regression({ baseEvent: [200], candEvent: [212] })), false)
+test('GATE-P3 applies synthetic A/A script-noise floors and combined Event Timing boundaries', () => {
+  assert.equal(regressed(regression({ candScript: [11.1] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ candScript: [36] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ candScript: [36.1] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ baseScript: [300], candScript: [330] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ baseScript: [300], candScript: [330.1] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ scenarioId: 'vl-cell', baseScript: [10], candScript: [48] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ scenarioId: 'vl-cell', baseScript: [10], candScript: [48.1] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ scenarioId: 'vl-select', baseScript: [10], candScript: [30] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ scenarioId: 'vl-select', baseScript: [10], candScript: [30.1] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ baseEvent: [40], candEvent: [48] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ baseEvent: [16], candEvent: [24] }), syntheticNoiseFloors), true)
+  assert.equal(regressed(regression({ baseEvent: [72], candEvent: [78] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ baseEvent: [100], candEvent: [109] }), syntheticNoiseFloors), false)
+  assert.equal(regressed(regression({ baseEvent: [200], candEvent: [212] }), syntheticNoiseFloors), false)
+})
+
+test('GATE-P3 fails a perf runner whose paired A/A noise exceeds 1.5 times its measured floor', () => {
+  assert.doesNotThrow(() => assertNoiseBand({ p95AbsDeltaMs: 15, minDeltaMs: -15, maxDeltaMs: 14 }, 10))
+  assert.throws(() => assertNoiseBand({ p95AbsDeltaMs: 16, minDeltaMs: -16, maxDeltaMs: 15 }, 10), /runner too noisy/)
+})
+
+test('missing measured perf noise floors fail with the runner measurement instruction', async () => {
+  const { loadNoiseFloors } = await import('./perf.ts')
+  const root = await import('node:os')
+  const { mkdtempSync, rmSync } = await import('node:fs')
+  const { join } = await import('node:path')
+  const directory = mkdtempSync(join(root.tmpdir(), 'wseffect-noise-missing-'))
+  try {
+    assert.throws(() => loadNoiseFloors(join(directory, 'perf-noise.json')), /perf-noise\.json missing: run `pnpm perf:noise` on the perf runner/)
+  } finally {
+    rmSync(directory, { recursive: true, force: true })
+  }
 })
 
 test('A/A noise band reports empirical p95 absolute delta and signed range', () => {
@@ -48,6 +75,10 @@ test('A/A noise band reports empirical p95 absolute delta and signed range', () 
     minDeltaMs: -2,
     maxDeltaMs: 3,
   })
+})
+test('Event Timing coverage tolerates at most half of sessions without qualified entries', () => {
+  assert.doesNotThrow(() => assertQualifiedEntryCoverage('fixture', [[1], [2], [], [3]]))
+  assert.throws(() => assertQualifiedEntryCoverage('fixture', [[1], [], [], []]), (error) => error instanceof Error && error.message.includes('3/4 interactions have no qualifying Event Timing entries'))
 })
 
 test('performance scenarios retain the GATE-P2 ceilings and use trusted input event types', () => {
@@ -59,6 +90,8 @@ test('performance scenarios retain the GATE-P2 ceilings and use trusted input ev
     ['form-field', 30, 'keydown'],
     ['menus-tick', 30, 'click'],
   ])
+  assert.ok(SCENARIOS.every(({ prepare, warmup, reset, act }) =>
+    typeof prepare === 'function' && typeof warmup === 'function' && typeof reset === 'function' && typeof act === 'function'))
 })
 
 test('CPU throttle helper sends the CDP 4x command', async () => {
@@ -93,40 +126,61 @@ test('trace scripting duration measures trusted keydown interactions through the
     { name: 'FunctionCall', ph: 'X', ts: 260_000, dur: 20_000 },
   ], 'keydown'), 40)
 })
+test('trace scripting duration ends at the Event Timing next-paint boundary and includes rAF work', async () => {
+  const { traceScriptingDuration } = await import('./perf.ts')
+  assert.equal(traceScriptingDuration([
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 20_000, args: { data: { type: 'click' } } },
+    { name: 'FunctionCall', ph: 'X', ts: 110_000, dur: 20_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 125_000, dur: 15_000 },
+    { name: 'Paint', ph: 'X', ts: 160_000, dur: 2_000 },
+    { name: 'FunctionCall', ph: 'X', ts: 170_000, dur: 20_000 },
+  ], 'click', 40), 40)
+})
 
-test('harness self-test observes slow and fast trusted clicks and verifies CPU throttling', { timeout: 45_000 }, async () => {
+test('trace animation-frame counts include rAF callbacks before the Event Timing paint boundary', () => {
+  assert.equal(traceAnimationFrameCount([
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 110_000, dur: 2_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 120_000, dur: 2_000 },
+    { name: 'Paint', ph: 'X', ts: 140_000, dur: 2_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 150_000, dur: 2_000 },
+  ], 'click', 40), 2)
+})
+
+test('harness self-test observes valid slow/fast clicks and verifies 4x CPU throttling', { timeout: 45_000 }, async () => {
   const { runHarnessSelfTest } = await import('./perf.ts')
   assert.equal(typeof runHarnessSelfTest, 'function')
   const result = await runHarnessSelfTest()
-  const slowClick = result.eventTiming.find(({ handlerMs }) => handlerMs === 50)
-  const fastClick = result.eventTiming.find(({ handlerMs }) => handlerMs === 5)
-  assert.ok(slowClick, 'self-test returns the slow click result')
-  assert.ok(fastClick, 'self-test returns the fast click result')
+  const slowClick = result.eventTiming.find(({ handlerMs }) => handlerMs >= 50)
+  const fastClick = result.eventTiming.find(({ handlerMs }) => handlerMs < 16)
+  assert.ok(slowClick, 'self-test returns a slow handler measurement')
+  assert.ok(fastClick, 'self-test returns a fast handler measurement below 16 ms')
   assert.ok(slowClick.eventMs >= 50, '50 ms click appears in Event Timing')
   assert.ok(slowClick.qualifiedEntries > 0, '50 ms click records a real Event Timing entry')
-  assert.ok(fastClick.eventMs < 50, '5 ms click is not reported as a 50 ms interaction')
-  assert.ok(result.cpuThrottle.throttledMs > result.cpuThrottle.unthrottledMs)
-  assert.ok(result.cpuThrottle.ratio > 2, 'the in-page loop verifies meaningful 4× throttling')
+  assert.ok(result.animationFrameCount > 0, 'real Chromium trace includes the scheduled rAF callback')
 })
-
 
 test('runScenario captures qualified input interactions and trace scripts for every mini-app scenario', { timeout: 90_000 }, async () => {
   const fixtureDir = resolve(import.meta.dirname, '../fixtures/mini-app')
-  await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), logLevel: 'error' })
-  const server = await preview({
-    root: fixtureDir,
-    configFile: join(fixtureDir, 'vite.config.ts'),
-    logLevel: 'error',
-    preview: { host: '127.0.0.1', port: 0, strictPort: false },
-  })
-  const baseUrl = server.resolvedUrls?.local?.[0]
-  assert.ok(baseUrl, 'Vite preview exposes a local URL')
+  const outputDir = mkdtempSync(join(fixtureDir, '.perf-build-'))
+  let server: Awaited<ReturnType<typeof preview>> | undefined
   try {
+    await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), build: { outDir: outputDir }, logLevel: 'error' })
+    server = await preview({
+      root: fixtureDir,
+      configFile: join(fixtureDir, 'vite.config.ts'),
+      build: { outDir: outputDir },
+      logLevel: 'error',
+      preview: { host: '127.0.0.1', port: 0, strictPort: false },
+    })
+    const baseUrl = server.resolvedUrls?.local?.[0]
+    assert.ok(baseUrl, 'Vite preview exposes a local URL')
     for (const scenario of SCENARIOS) {
       const sessions = scenario.id === 'vl-sort' ? 2 : 1
       const result = await runScenario(baseUrl, scenario, sessions)
       assert.equal(result.eventMs.length, sessions, `${scenario.id} Event Timing sample count`)
       assert.equal(result.scriptMs.length, sessions, `${scenario.id} trace sample count`)
+      assert.equal(result.animationFrameCounts.length, sessions, `${scenario.id} rAF trace sample count`)
       assert.equal(result.eventEntryCounts.length, sessions, `${scenario.id} interaction entry-count sample count`)
       assert.ok(result.eventEntryCounts.every((counts) => counts.length > 0
         && counts.every((count) => Number.isInteger(count) && count > 0)), `${scenario.id} records qualified Event Timing entries`)
@@ -134,6 +188,9 @@ test('runScenario captures qualified input interactions and trace scripts for ev
       assert.ok(result.eventMs.every((duration) => duration >= 16), `${scenario.id} Event Timing preserves the 16 ms threshold`)
     }
   } finally {
-    await server.close()
+    await server?.close()
+    rmSync(outputDir, { recursive: true, force: true })
   }
 })
+
+

@@ -87,17 +87,25 @@ function assertCleanCheckout(sourceDirectory: string): void {
   if (status !== '') throw new Error(`radix2solid checkout is not clean:\n${status}`)
 }
 
-function checkoutPinnedSource(root: string, fresh: boolean): string {
+export function checkoutPinnedSource(
+  root: string,
+  fresh: boolean,
+  pin: { readonly repository: string; readonly commit: string } = { repository: REPOSITORY, commit: COMMIT },
+): string {
   const artifactsDirectory = join(workspaceRoot(root), '.artifacts')
   const sourceDirectory = join(artifactsDirectory, 'radix2solid-src')
   mkdirSync(artifactsDirectory, { recursive: true })
   if (fresh) rmSync(sourceDirectory, { recursive: true, force: true })
   if (!existsSync(join(sourceDirectory, '.git'))) {
     rmSync(sourceDirectory, { recursive: true, force: true })
-    execFileSync('git', ['clone', '--filter=blob:none', REPOSITORY, sourceDirectory], { stdio: 'inherit' })
+    execFileSync('git', ['clone', '--filter=blob:none', pin.repository, sourceDirectory], { stdio: 'inherit' })
   }
-  execFileSync('git', ['fetch', 'origin', COMMIT], { cwd: sourceDirectory, stdio: 'inherit' })
-  execFileSync('git', ['checkout', '--detach', COMMIT], { cwd: sourceDirectory, stdio: 'inherit' })
+  try {
+    execFileSync('git', ['fetch', 'origin', pin.commit], { cwd: sourceDirectory, stdio: 'inherit' })
+  } catch (error) {
+    throw new Error(`pinned revision ${pin.commit} is not fetchable from ${pin.repository}`, { cause: error })
+  }
+  execFileSync('git', ['checkout', '--detach', pin.commit], { cwd: sourceDirectory, stdio: 'inherit' })
   assertCleanCheckout(sourceDirectory)
   return sourceDirectory
 }

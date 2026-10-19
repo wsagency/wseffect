@@ -9,4 +9,4 @@ pnpm --filter radix2solid-bench build
 node bench/radix2solid/scripts/prepare-library.ts --verify
 ```
 
-The app follows the gallery routes and exposes the same `data-perf` hooks for virtual-list, form, and menus scenarios. Development and preview servers use ports 4510 and 4511 (the contract test reserves an available port in 4500–4599).
+The app follows the gallery routes and exposes the same `data-perf` hooks for virtual-list, form, and menus scenarios. Development and preview use an available port by default; set `RADIX2SOLID_DEV_PORT` or `RADIX2SOLID_PREVIEW_PORT` to reserve a specific port.

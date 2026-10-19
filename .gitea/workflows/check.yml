@@ -5,6 +5,7 @@ on:
   pull_request:
   schedule:
     - cron: '0 3 * * *'
+  workflow_dispatch:
 
 jobs:
   check:
@@ -27,6 +28,8 @@ jobs:
     needs: check
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 11.5.0
@@ -39,8 +42,13 @@ jobs:
       - run: pnpm gate:size --app tools/fixtures/mini-app
 
   perf:
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, perf]
     needs: check
+    concurrency:
+      group: wseffect-perf
+      cancel-in-progress: false
+    env:
+      WSEFFECT_PERF_CPUS: ${{ vars.WSEFFECT_PERF_CPUS }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,11 +63,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm gate:perf --app tools/fixtures/mini-app
-
   bench-radix2solid:
-    runs-on: ubuntu-24.04
+    if: gitea.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, perf]
     needs: check
-    continue-on-error: true
+    concurrency:
+      group: wseffect-perf
+      cancel-in-progress: false
+    env:
+      WSEFFECT_PERF_CPUS: ${{ vars.WSEFFECT_PERF_CPUS }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -72,7 +84,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: node bench/radix2solid/scripts/prepare-library.ts --verify
-      - run: pnpm gate:report
+      - name: Generate side-by-side report on pinned CPUs
+        run: |
+          test -n "$WSEFFECT_PERF_CPUS"
+          taskset -c "$WSEFFECT_PERF_CPUS" pnpm gate:report
       - uses: actions/upload-artifact@v4
         with:
           name: radix2solid-comparison

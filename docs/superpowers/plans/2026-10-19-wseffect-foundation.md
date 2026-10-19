@@ -939,8 +939,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 **Interfaces:**
 - Produces:
-  - `SCENARIOS: ReadonlyArray<{ id: 'vl-cell'|'vl-filter'|'vl-sort'|'vl-select'|'form-field'|'menus-tick'; route: string; inputEventType: 'click'|'keydown'; act: (page) => Promise<void>; ceilingMs: 50|30 }>`;
-  - `runScenario(baseUrl, scenario, sessions = 10): Promise<{ eventMs: number[]; eventEntryCounts: number[][]; scriptMs: number[] }>`;
+  - `SCENARIOS: ReadonlyArray<{ id: 'vl-cell'|'vl-filter'|'vl-sort'|'vl-select'|'form-field'|'menus-tick'; route: string; act: (page) => Promise<void>; ceilingMs: 50|30 }>`;
+  - `runScenario(baseUrl, scenario, sessions = 10): Promise<{ eventMs: number[]; scriptMs: number[] }>`;
   - `abab(baselineUrl, candidateUrl, scenario): Promise<RegressionResult>`;
   - CLI `pnpm gate:perf --app apps/gallery`.
 
@@ -975,7 +975,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - Consumes: C2–C4.
 - Produces: `report.json` artifact `{ wseffect: { size, perf }, radix2solid: { size, perf } }` and a Markdown job summary table.
 
-- [ ] **Step 1: Write the failing test** (BENCH-2): `renderSummary(report)` produces one Markdown table with raw and Brotli-q11 `entry + framework/vendor` shell sizes, first-visit size, each scenario's Event Timing and trace-scripting medians, and qualified Event Timing entries per interaction; columns `wseffect | radix2solid`, header `Reporting only; not a gate.`
+- [ ] **Step 1: Write the failing test** (BENCH-2): `renderSummary(report)` produces one Markdown table with rows `shell`, `first-visit`, and each scenario's Event/script medians, columns `wseffect | radix2solid`, and the header line `Reporting only; not a gate.`
 - [ ] **Step 2: Run** `node --test tools/gates/report.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
   - The `bench-radix2solid` job runs `prepare-library.ts --verify`, builds the bench and gallery, and runs `measureSize` and all `SCENARIOS` (10 sessions each, same method) on both.

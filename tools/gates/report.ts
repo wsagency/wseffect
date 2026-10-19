@@ -2,8 +2,8 @@ import { execFileSync } from 'node:child_process'
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { preview } from 'vite'
-import { runScenario, SCENARIOS } from './perf.ts'
+import { chromium, type Browser } from '@playwright/test'
+import { assertQualifiedEntryCoverage, runHarnessSelfTest, runScenario, SCENARIOS } from './perf.ts'
 import type { PerfScenario } from './scenarios.ts'
 import { measureSize, type SizeReport } from './size.ts'
 
@@ -21,6 +21,7 @@ type ScenarioMetrics = {
   readonly eventMs: readonly number[]
   readonly eventEntryCounts: readonly (readonly number[])[]
   readonly scriptMs: readonly number[]
+  readonly animationFrameCounts: readonly number[]
 }
 
 export interface ApplicationReport {
@@ -43,7 +44,7 @@ function median(values: readonly number[]): number {
   return sorted.length % 2 === 0 ? (sorted[middle - 1]! + sorted[middle]!) / 2 : sorted[middle]!
 }
 function medianEntryCount(samples: readonly (readonly number[])[]): number {
-  const counts = samples.flatMap((interactionCounts) => interactionCounts)
+  const counts = samples.flatMap((interactionCounts) => interactionCounts.length === 0 ? [0] : interactionCounts)
   return counts.length === 0 ? 0 : median(counts)
 }
 
@@ -66,6 +67,7 @@ export function renderSummary(report: ComparisonReport): string {
     rows.push(`| ${id} Event Timing median (ms) | ${formatMs(median(report.wseffect.perf[id].eventMs))} | ${formatMs(median(report.radix2solid.perf[id].eventMs))} |`)
     rows.push(`| ${id} trace scripting median (ms) | ${formatMs(median(report.wseffect.perf[id].scriptMs))} | ${formatMs(median(report.radix2solid.perf[id].scriptMs))} |`)
     rows.push(`| ${id} qualified Event Timing entries (median/interaction) | ${formatMs(medianEntryCount(report.wseffect.perf[id].eventEntryCounts))} | ${formatMs(medianEntryCount(report.radix2solid.perf[id].eventEntryCounts))} |`)
+    rows.push(`| ${id} trace rAF callbacks (median/interaction) | ${formatMs(median(report.wseffect.perf[id].animationFrameCounts))} | ${formatMs(median(report.radix2solid.perf[id].animationFrameCounts))} |`)
   }
   const differences = report.differences.map((difference) => `- ${difference}`).join('\n')
   return [
@@ -82,7 +84,7 @@ export function renderSummary(report: ComparisonReport): string {
   ].join('\n')
 }
 
-async function applicationReport(appDir: string): Promise<ApplicationReport> {
+async function applicationReport(appDir: string, browser: Browser): Promise<ApplicationReport> {
   execFileSync('pnpm', ['--dir', appDir, 'build'], { cwd: ROOT, stdio: 'inherit' })
   const size = await measureSize({ distDir: join(appDir, 'dist'), pagesDir: join(appDir, 'src/pages') })
   const server = await preview({
@@ -98,7 +100,9 @@ async function applicationReport(appDir: string): Promise<ApplicationReport> {
   try {
     const perf = {} as Record<ScenarioId, ScenarioMetrics>
     for (const scenario of SCENARIOS) {
-      perf[scenario.id] = await runScenario(baseUrl, scenario)
+      const metrics = await runScenario(baseUrl, scenario, undefined, browser)
+      assertQualifiedEntryCoverage(`${appDir} ${scenario.id}`, metrics.eventEntryCounts)
+      perf[scenario.id] = metrics
     }
     return { size, perf }
   } finally {
@@ -107,21 +111,27 @@ async function applicationReport(appDir: string): Promise<ApplicationReport> {
 }
 
 async function run(): Promise<void> {
-  const report: ComparisonReport = {
-    generatedAt: new Date().toISOString(),
-    methodology: 'Six matched data-perf hooks; 10 sessions per app; 4× CPU throttle verified by an in-page fixed loop; Event Timing captured by PerformanceObserver after paint and observer flush; scripting is the trace-event interval union from trusted click/keydown dispatch to the next Paint/Commit. Shell reports the same index entry + framework/vendor pair as raw bytes and Brotli-q11 bytes.',
-    wseffect: await applicationReport(WSEFFECT_APP),
-    radix2solid: await applicationReport(RADIX2SOLID_APP),
-    differences: DIFFERENCES,
+  await runHarnessSelfTest()
+  const browser = await chromium.launch()
+  try {
+    const report: ComparisonReport = {
+      generatedAt: new Date().toISOString(),
+      methodology: 'Six matched data-perf hooks; 10 sessions per app; 4× CPU throttle verified by an in-page fixed loop; Event Timing captured by PerformanceObserver after paint and observer flush; scripting is the trace-event interval union from trusted click/keydown dispatch to the Event Timing next-paint boundary or following Paint/Commit. Shell reports the same index entry + framework/vendor pair as raw bytes and Brotli-q11 bytes.',
+      wseffect: await applicationReport(WSEFFECT_APP, browser),
+      radix2solid: await applicationReport(RADIX2SOLID_APP, browser),
+      differences: DIFFERENCES,
+    }
+    const jsonPath = join(ROOT, '.artifacts/radix2solid-report.json')
+    mkdirSync(dirname(jsonPath), { recursive: true })
+    writeFileSync(jsonPath, `${JSON.stringify(report, null, 2)}\n`)
+    const summary = renderSummary(report)
+    const summaryPath = process.env.GITHUB_STEP_SUMMARY
+    if (summaryPath === undefined) console.log(summary)
+    else appendFileSync(summaryPath, `${summary}\n`)
+    console.log(`JSON report: ${jsonPath}`)
+  } finally {
+    await browser.close()
   }
-  const jsonPath = join(ROOT, '.artifacts/radix2solid-report.json')
-  mkdirSync(dirname(jsonPath), { recursive: true })
-  writeFileSync(jsonPath, `${JSON.stringify(report, null, 2)}\n`)
-  const summary = renderSummary(report)
-  const summaryPath = process.env.GITHUB_STEP_SUMMARY
-  if (summaryPath === undefined) console.log(summary)
-  else appendFileSync(summaryPath, `${summary}\n`)
-  console.log(`JSON report: ${jsonPath}`)
 }
 
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

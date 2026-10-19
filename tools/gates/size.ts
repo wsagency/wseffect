@@ -210,15 +210,16 @@ async function runCli(): Promise<void> {
   const report = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
   console.log(JSON.stringify(report, null, 2))
 
-  const baselinePath = resolve(process.cwd(), 'bench/baselines/size.json')
+  const baselinePath = join(ROOT, 'bench/baselines/size.json')
   if (writeBaseline) {
     const entries = Object.fromEntries(Object.entries(artifactSizes(report)).map(([id, bytes]) => [id, { bytes, reason }]))
     writeFileSync(baselinePath, `${JSON.stringify({ unit: 'B', compression: 'brotli-q11', entries }, null, 2)}\n`)
     return
   }
 
-  const baseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as SizeBaseline
-  const { failures } = compareSize(report, baseline)
+  const candidateBaseline = JSON.parse(readFileSync(baselinePath, 'utf8')) as SizeBaseline
+  const baseBaseline = readMergeBaseBaseline()
+  const { failures } = compareSize(report, baseBaseline, candidateBaseline)
   for (const failure of failures) console.error(failure)
   if (failures.length > 0) process.exitCode = 1
 }
@@ -232,8 +233,21 @@ function artifactSizes(report: SizeReport): Record<string, number> {
   if (report.stylesCss !== undefined) artifacts['styles.css'] = report.stylesCss
   return artifacts
 }
+function readMergeBaseBaseline(): SizeBaseline {
+  const baseCommit = process.env.WSEFFECT_BASE_SHA || process.env.BASE_SHA
+    || execFileSync('git', ['merge-base', 'origin/main', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim()
+  const baseline = execFileSync('git', ['show', `${baseCommit}:bench/baselines/size.json`], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  })
+  return JSON.parse(baseline) as SizeBaseline
+}
 
-export function compareSize(report: SizeReport, baseline: SizeBaseline): { readonly failures: string[] } {
+export function compareSize(
+  report: SizeReport,
+  baseBaseline: SizeBaseline,
+  candidateBaseline: SizeBaseline,
+): { readonly failures: string[] } {
   const failures: string[] = []
   if (report.shell > SHELL_LIMIT) {
     failures.push(`GATE-S1: shell ${report.shell} B exceeds 122,880 B; do not raise the budget without user decision`)
@@ -243,12 +257,28 @@ export function compareSize(report: SizeReport, baseline: SizeBaseline): { reado
   }
 
   const current = artifactSizes(report)
-  for (const [id, entry] of Object.entries(baseline.entries)) {
-    const bytes = current[id]
-    if (bytes === undefined || entry.bytes <= 0) continue
-    const growth = (bytes - entry.bytes) / entry.bytes
-    if (growth > GROWTH_LIMIT && entry.reason.trim() === '') {
-      failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${entry.bytes} → ${bytes} B); update its baseline reason in this PR`)
+  for (const [id, bytes] of Object.entries(current)) {
+    const candidate = candidateBaseline.entries[id]
+    if (candidate === undefined || candidate.bytes <= 0) {
+      failures.push(`GATE-S3: ${id} is missing from size.json`)
+      continue
+    }
+    const previous = baseBaseline.entries[id]
+    if (previous === undefined || previous.bytes <= 0) {
+      if (candidate.reason.trim() === '') {
+        failures.push(`GATE-S3: ${id} was added without a baseline reason`)
+      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+        failures.push(`GATE-S3: ${id} ${bytes} B exceeds its candidate baseline ${candidate.bytes} B`)
+      }
+      continue
+    }
+    const growth = (bytes - previous.bytes) / previous.bytes
+    if (growth > GROWTH_LIMIT) {
+      if (candidate.bytes === previous.bytes || candidate.reason.trim() === '') {
+        failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); update its bytes and reason in size.json`)
+      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+        failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); candidate baseline ${candidate.bytes} B is too small`)
+      }
     }
   }
   return { failures }

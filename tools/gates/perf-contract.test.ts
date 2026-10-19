@@ -1,3 +1,4 @@
+import { mkdtempSync, rmSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
@@ -6,16 +7,19 @@ import { build, preview } from 'vite'
 
 test('mini-app matches the shared virtual-list, form, and menu contract', async () => {
   const fixtureDir = resolve(import.meta.dirname, '../fixtures/mini-app')
-  await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), logLevel: 'error' })
-  const server = await preview({
-    root: fixtureDir,
-    configFile: join(fixtureDir, 'vite.config.ts'),
-    logLevel: 'error',
-    preview: { host: '127.0.0.1', port: 0, strictPort: false },
-  })
-  const baseUrl = server.resolvedUrls?.local?.[0]
-  assert.ok(baseUrl, 'Vite preview exposes a local URL')
+  const outputDir = mkdtempSync(join(fixtureDir, '.contract-build-'))
+  let server: Awaited<ReturnType<typeof preview>> | undefined
   try {
+    await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), build: { outDir: outputDir }, logLevel: 'error' })
+    server = await preview({
+      root: fixtureDir,
+      configFile: join(fixtureDir, 'vite.config.ts'),
+      build: { outDir: outputDir },
+      logLevel: 'error',
+      preview: { host: '127.0.0.1', port: 0, strictPort: false },
+    })
+    const baseUrl = server.resolvedUrls?.local?.[0]
+    assert.ok(baseUrl, 'Vite preview exposes a local URL')
     const browser = await chromium.launch()
     try {
       const page = await browser.newPage()
@@ -41,6 +45,7 @@ test('mini-app matches the shared virtual-list, form, and menu contract', async 
       await browser.close()
     }
   } finally {
-    await server.close()
+    await server?.close()
+    rmSync(outputDir, { recursive: true, force: true })
   }
 })

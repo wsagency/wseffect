@@ -105,3 +105,17 @@
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.
 - **Amendment:** Classify modules by `node_modules` paths or by real paths under resolved `@wsagency/wseffect-*` package roots. Test the classifier as a function over resolved package directories.
+
+## 2026-10-19 — GATE-P3 needs a measured perf-runner noise file
+
+- **Issue:** The performance gate cannot use a local or placeholder noise floor; the isolated runner has not yet been measured.
+- **Evidence:** The user directed that `perf-noise.json` remain absent until the scheduled quiet-window measurement and required the gate to fail clearly while it is missing.
+- **Resolution:** `pnpm perf:noise` runs only on the perf runner and writes the file after the harness self-test and A/A measurement; `gate:perf` reports the exact measurement command when the file is absent.
+- **Smallest compliant fix:** Keep the noise baseline uncommitted until the isolated runner writes measured values.
+
+## 2026-10-19 — GATE-S3 must compare the merge-base and candidate size baselines
+
+- **Issue:** The previous size comparison skipped build artifacts missing from the baseline and accepted an explanation without requiring updated bytes.
+- **Evidence:** The pre-change `bench/baselines/size.json` had an empty `entries` object; the comparator iterated only baseline entries and checked `reason` without requiring candidate-baseline changes.
+- **Resolution:** Compare against `origin/main`'s merge-base baseline, require every current artifact in the candidate `size.json`, and require both changed bytes and a reason for explained growth.
+- **Smallest compliant fix:** Seed the mini-app artifacts with observed measurements and reject missing or undersized candidate entries.
