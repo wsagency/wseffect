@@ -249,7 +249,7 @@ async function traceInteraction(client: CDPSession, page: Page, scenario: PerfSc
     await scenario.act(page)
     await page.waitForTimeout(100)
   } finally {
-    const complete = new Promise<void>((resolveComplete) => client.once('Tracing.tracingComplete', resolveComplete))
+    const complete = new Promise<void>((resolveComplete) => client.once('Tracing.tracingComplete', () => resolveComplete()))
     await client.send('Tracing.end')
     await complete
     client.off('Tracing.dataCollected', onData)

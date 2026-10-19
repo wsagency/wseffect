@@ -15,6 +15,7 @@ const baseline = (entries: Record<string, { bytes: number; reason: string }> = {
 
 const report = (shell: number, firstVisitBytes = 0, pages: Record<string, number> = {}, stylesCss?: number) => ({
   shell,
+  shellRaw: shell,
   firstVisit: { bytes: firstVisitBytes, requests: 0 },
   pages,
   ...(stylesCss === undefined ? {} : { stylesCss }),
