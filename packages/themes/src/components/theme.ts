@@ -66,11 +66,9 @@ export const view = <Message>(
   } else {
     if (settings.accentColor !== undefined) attributes.push(h.DataAttribute('accent-color', settings.accentColor))
     if (settings.accentColor !== undefined || settings.grayColor !== undefined) {
-      const grayColor = settings.grayColor === undefined
+      const grayColor = settings.grayColor === undefined || settings.grayColor === 'auto'
         ? settings.accentColor === undefined ? undefined : grayMatch[settings.accentColor]
-        : settings.grayColor === 'auto' && settings.accentColor !== undefined
-          ? grayMatch[settings.accentColor]
-          : settings.grayColor
+        : settings.grayColor
       if (grayColor !== undefined) attributes.push(h.DataAttribute('gray-color', grayColor))
     }
     if (settings.radius !== undefined) attributes.push(h.DataAttribute('radius', settings.radius))

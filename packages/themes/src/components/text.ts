@@ -6,6 +6,7 @@ import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
 import { element } from './element.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveClasses } from '../props/responsive.js'
+import { accentColors } from '../props/color.props.js'
 
 const sizes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 const weights = ['light', 'regular', 'medium', 'bold'] as const
@@ -28,7 +29,7 @@ export const Props = Schema.Struct({
   size: Schema.optional(responsiveSchema(sizes)),
   weight: Schema.optional(responsiveSchema(weights)),
   align: Schema.optional(responsiveSchema(alignments)),
-  color: Schema.optional(Schema.String),
+  color: Schema.optional(Schema.Literals(accentColors)),
   ...marginPropSchemas,
 })
 export type ViewProps = typeof Props.Type

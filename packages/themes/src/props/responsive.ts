@@ -48,11 +48,13 @@ export const responsiveProp = <Values extends string>(config: {
   return Object.freeze({ className, values, customProperties, parseValue, classNames, breakpointClassNames, breakpointClassNamesBase, breakpointProperties })
 }
 
+const EMPTY_RESULT = Object.freeze({ classes: Object.freeze([]) as ReadonlyArray<string>, style: Object.freeze({}) as Readonly<Record<string, string>> })
+
 export const responsiveClasses = (
   prop: ResponsivePropDef,
   value: Responsive<string> | undefined,
 ): { classes: ReadonlyArray<string>; style: Readonly<Record<string, string>> } => {
-  if (value === undefined) return { classes: [], style: {} }
+  if (value === undefined) return EMPTY_RESULT
   const classes: string[] = []
   const style: Record<string, string> = {}
   const responsiveValues: Partial<Record<Breakpoint, string>> = typeof value === 'string'

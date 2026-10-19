@@ -4,6 +4,14 @@ import { responsiveClasses } from '../src/props/responsive.js'
 import { paddingPropDefs } from '../src/props/padding.props.js'
 
 describe('responsive prop classes', () => {
+  it('reuses the frozen empty result for undefined values', () => {
+    const first = responsiveClasses(paddingPropDefs.p, undefined)
+    const second = responsiveClasses(paddingPropDefs.p, undefined)
+    expect(second).toBe(first)
+    expect(Object.isFrozen(first)).toBe(true)
+    expect(Object.isFrozen(first.classes)).toBe(true)
+    expect(Object.isFrozen(first.style)).toBe(true)
+  })
   it('maps enum values to their precomputed base class', () => {
     expect(responsiveClasses(paddingPropDefs.p, '4')).toEqual({ classes: ['rt-r-p-4'], style: {} })
   })

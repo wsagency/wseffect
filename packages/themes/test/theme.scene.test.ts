@@ -84,6 +84,14 @@ describe('Theme view', () => {
     )
   })
 
+  it('omits auto gray when there is no nested accent to resolve it against', () => {
+    Scene.scene(
+      { update, view },
+      Scene.given({ settings: { grayColor: 'auto' }, isRoot: false }),
+      Scene.expect(root).not.toHaveAttr('data-gray-color'),
+    )
+  })
+
   it('matches omitted nested gray to the nested accent', () => {
     Scene.scene(
       { update, view },

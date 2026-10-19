@@ -28,7 +28,11 @@ describe('themed Dialog', () => {
       Scene.Mount.resolve(UiDialog.AcquireResources, Dialog.Message.SucceededAcquireResources()),
       Scene.expect(Scene.role('dialog')).toHaveAttr('aria-labelledby', Dialog.titleId(dialog)),
       Scene.expect(Scene.role('dialog')).toHaveStyle('z-index', '2147483600'),
-      Scene.expect(Scene.selector('.rt-DialogContent')).toHaveAttr('class', 'rt-DialogContent rt-r-size-3'),
+      Scene.expect(Scene.selector('.rt-BaseDialogOverlay')).toHaveAttr('class', 'rt-BaseDialogOverlay rt-DialogOverlay'),
+      Scene.expect(Scene.selector('.rt-BaseDialogScroll')).toHaveAttr('class', 'rt-BaseDialogScroll rt-DialogScroll'),
+      Scene.expect(Scene.selector('.rt-BaseDialogScrollPadding')).toHaveAttr('class', 'rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center'),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent')).toHaveAttr('class', 'rt-BaseDialogContent rt-DialogContent rt-r-size-3'),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent')).toHaveAttr('data-state', 'open'),
       Scene.expect(Scene.text('Confirm action')).toExist(),
       Scene.expect(Scene.role('button', { name: 'Close' })).toExist(),
     )

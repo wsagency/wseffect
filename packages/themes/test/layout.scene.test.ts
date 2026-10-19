@@ -21,7 +21,7 @@ const update = (model: Model, message: Message) => Message.match(message, {
 const boxView = (_model: Model, h: HtmlBuilder<Message>) => Box.view({ width: '200px', height: '50px', p: '3', mx: { md: '2' } }, ['box'], h)
 const flexView = (_model: Model, h: HtmlBuilder<Message>) => Flex.view({ direction: { initial: 'column', md: 'row' }, justify: 'between', gap: '3' }, ['flex'], h)
 const gridView = (_model: Model, h: HtmlBuilder<Message>) => Grid.view({ columns: '12', alignContent: 'between', justifyItems: 'center' }, ['grid'], h)
-const headingView = (_model: Model, h: HtmlBuilder<Message>) => Heading.view({ as: 'h2' }, ['Title'], h)
+const headingView = (_model: Model, h: HtmlBuilder<Message>) => Heading.view({ as: 'h2', color: 'crimson' }, ['Title'], h)
 const cardView = (_model: Model, h: HtmlBuilder<Message>) => Card.view({ variant: 'surface' }, ['Card'], h)
 
 describe('layout and typography views', () => {
@@ -56,6 +56,7 @@ describe('layout and typography views', () => {
       { update, view: headingView },
       Scene.given({ tick: 0 }),
       Scene.expect(Scene.role('heading', { level: 2 })).toHaveAttr('class', 'rt-Heading rt-r-size-6'),
+      Scene.expect(Scene.role('heading', { level: 2 })).toHaveAttr('data-accent-color', 'crimson'),
     )
   })
 
@@ -72,8 +73,10 @@ describe('layout and typography views', () => {
     expect(Schema.decodeUnknownSync(Flex.Props)({ direction: { initial: 'column', md: 'row' }, gap: '3' })).toBeDefined()
     expect(Schema.decodeUnknownSync(Grid.Props)({ columns: '3' })).toBeDefined()
     expect(Schema.decodeUnknownSync(Text.Props)({ as: 'p', size: '4' })).toBeDefined()
-    expect(Schema.decodeUnknownSync(Heading.Props)({ as: 'h2', size: '6' })).toBeDefined()
+    expect(Schema.decodeUnknownSync(Heading.Props)({ as: 'h2', size: '6', color: 'crimson' })).toBeDefined()
     expect(Schema.decodeUnknownSync(Card.Props)({ variant: 'surface', size: '2' })).toBeDefined()
+    expect(() => Schema.decodeUnknownSync(Text.Props)({ color: 'not-a-radix-color' })).toThrow()
+    expect(() => Schema.decodeUnknownSync(Heading.Props)({ color: 'not-a-radix-color' })).toThrow()
     expect(() => Schema.decodeUnknownSync(Text.Props)({ size: '99' })).toThrow()
     expect(() => Schema.decodeUnknownSync(Heading.Props)({ size: '99' })).toThrow()
     expect(() => Schema.decodeUnknownSync(Card.Props)({ size: '99' })).toThrow()

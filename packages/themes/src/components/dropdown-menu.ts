@@ -5,8 +5,10 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as UiMenu from '@foldkit/ui/menu'
 import type { ViewInputs as MenuViewInputs } from '@foldkit/ui/menu'
 
-const triggerClassName = 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-DropdownMenuTrigger'
-const panelClassName = 'rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent'
+const triggerClassName = 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid'
+const itemClassName = 'rt-reset rt-BaseMenuItem rt-DropdownMenuItem'
+const panelClassName = 'rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent rt-r-size-2 rt-variant-solid'
+const viewportClassName = 'rt-BaseMenuViewport rt-DropdownMenuViewport'
 
 export type EmbedConfig<Item extends string, ParentMessage> = Readonly<{
   slotId: string
@@ -35,6 +37,11 @@ export const create = <Item extends string>(): Bundle<Item> => {
       ...inputs,
       buttonClassName: [triggerClassName, inputs.buttonClassName].filter(Boolean).join(' '),
       itemsClassName: [panelClassName, inputs.itemsClassName].filter(Boolean).join(' '),
+      itemsScrollClassName: [viewportClassName, inputs.itemsScrollClassName].filter(Boolean).join(' '),
+      itemToConfig: (item, context) => {
+        const config = inputs.itemToConfig(item, context)
+        return { ...config, className: config.className ? `${itemClassName} ${config.className}` : itemClassName }
+      },
     }, h), 'wseffect/DropdownMenu'),
   )
 

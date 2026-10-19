@@ -3,12 +3,13 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import * as UiDialog from '@foldkit/ui/dialog'
 import type { Model as DialogModel, Message as DialogMessage, OutMessage as DialogOutMessage, ViewInputs } from '@foldkit/ui/dialog'
-import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 
 export { Model, Message, OutMessage, init, update, open, close, titleId, descriptionId } from '@foldkit/ui/dialog'
 
 const sizes = ['1', '2', '3', '4'] as const
-const sizeProp = responsiveProp({ className: 'rt-r-size', values: sizes })
+const contentClasses = Object.freeze(Object.fromEntries(
+  sizes.map(size => [size, `rt-BaseDialogContent rt-DialogContent rt-r-size-${size}`]),
+)) as Readonly<Record<(typeof sizes)[number], string>>
 
 export const fold = <ParentModel, ParentMessage, ParentOutMessage, Input = never>(
   config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, DialogModel, Input, DialogMessage, DialogOutMessage, ParentOutMessage>, 'update'>,
@@ -25,20 +26,24 @@ export type EmbedConfig<Message> = Readonly<{
 }>
 
 export const embed = <Message>(h: HtmlBuilder<Message>, config: EmbedConfig<Message>): Html => {
-  const size = responsiveClasses(sizeProp, config.size ?? '3')
-  const contentClasses = ['rt-DialogContent', ...size.classes]
+  const size = config.size ?? '3'
   const viewInputs: ViewInputs = {
     hasDescription: config.description !== undefined,
     toView: render => h.dialog(
-      [...render.dialog, h.Class('rt-Dialog')],
+      [...render.dialog],
       render.isVisible
         ? [
-            h.div([...render.backdrop, h.Class('rt-DialogOverlay')]),
-            h.div([...render.panel, h.Class(contentClasses.join(' ')), ...(Object.keys(size.style).length > 0 ? [h.Style(size.style)] : [])], [
-              h.button([...render.closeButton, h.Class('rt-DialogClose')], ['Close']),
-              h.h2([...render.title, ...render.initialFocus, h.Class('rt-DialogTitle')], [config.title]),
-              ...(config.description === undefined ? [] : [h.p([...render.description, h.Class('rt-DialogDescription')], [config.description])]),
-              ...config.content(h),
+            h.div([...render.backdrop, h.Class('rt-BaseDialogOverlay rt-DialogOverlay'), h.DataAttribute('state', 'open')], [
+              h.div([h.Class('rt-BaseDialogScroll rt-DialogScroll')], [
+                h.div([h.Class('rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center')], [
+                  h.div([...render.panel, h.Class(contentClasses[size]), h.DataAttribute('state', 'open')], [
+                    h.button([...render.closeButton], ['Close']),
+                    h.h2([...render.title, ...render.initialFocus, h.Class('rt-Heading rt-r-size-5 rt-r-mb-3')], [config.title]),
+                    ...(config.description === undefined ? [] : [h.p([...render.description, h.Class('rt-Text rt-r-size-3')], [config.description])]),
+                    ...config.content(h),
+                  ]),
+                ]),
+              ]),
             ]),
           ]
         : [],

@@ -73,7 +73,7 @@ describe('themed controls', () => {
       Scene.expect(Scene.selector('.rt-ButtonContent')).toHaveStyle('display', 'contents'),
       Scene.expect(Scene.role('button', { name: 'Saving' })).not.toHaveHandler('click'),
       Scene.expect(Scene.text('Clicks: 0')).toExist(),
-      Scene.expect(Scene.selector('.rt-Spinner')).toExist(),
+      Scene.expect(Scene.selector('.rt-Spinner')).toHaveAttr('class', 'rt-Spinner rt-r-size-2'),
     )
     Scene.scene(
       { update, view: (model: Model, h: HtmlBuilder<Message>) => h.div([], [
@@ -83,6 +83,18 @@ describe('themed controls', () => {
       Scene.given({ value: '', clicks: 0, ticks: 0 }),
       Scene.expect(Scene.role('button', { name: 'Disabled' })).not.toHaveHandler('click'),
       Scene.expect(Scene.text('Clicks: 0')).toExist(),
+    )
+  })
+  it('maps button sizes to spinner sizes at each breakpoint', () => {
+    Scene.scene(
+      { update, view: (_model: Model, h: HtmlBuilder<Message>) => Button.view({ size: '4', loading: true }, ['Large'], h) },
+      Scene.given({ value: '', clicks: 0, ticks: 0 }),
+      Scene.expect(Scene.selector('.rt-Spinner')).toHaveAttr('class', 'rt-Spinner rt-r-size-3'),
+    )
+    Scene.scene(
+      { update, view: (_model: Model, h: HtmlBuilder<Message>) => Button.view({ size: { initial: '1', md: '4' }, loading: true }, ['Responsive'], h) },
+      Scene.given({ value: '', clicks: 0, ticks: 0 }),
+      Scene.expect(Scene.selector('.rt-Spinner')).toHaveAttr('class', 'rt-Spinner rt-r-size-1 md:rt-r-size-3'),
     )
   })
 
@@ -126,10 +138,12 @@ describe('themed controls', () => {
     expect(renderField).toHaveBeenCalledTimes(2)
   })
 
-  it('validates supported control sizes', () => {
-    expect(Schema.decodeUnknownSync(Button.Props)({ size: '2', variant: 'solid' })).toBeDefined()
-    expect(Schema.decodeUnknownSync(TextField.Props)({ id: 'email', label: 'Email', size: '2', variant: 'surface' })).toBeDefined()
+  it('validates supported control sizes and accent colors', () => {
+    expect(Schema.decodeUnknownSync(Button.Props)({ size: '2', variant: 'solid', color: 'crimson' })).toBeDefined()
+    expect(Schema.decodeUnknownSync(TextField.Props)({ id: 'email', label: 'Email', size: '2', variant: 'surface', color: 'crimson' })).toBeDefined()
     expect(() => Schema.decodeUnknownSync(Button.Props)({ size: '99' })).toThrow()
     expect(() => Schema.decodeUnknownSync(TextField.Props)({ size: '99' })).toThrow()
+    expect(() => Schema.decodeUnknownSync(Button.Props)({ color: 'not-a-radix-color' })).toThrow()
+    expect(() => Schema.decodeUnknownSync(TextField.Props)({ id: 'email', label: 'Email', color: 'not-a-radix-color' })).toThrow()
   })
 })

@@ -1,12 +1,11 @@
 import { brandViewResult } from 'foldkit/brand'
-import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
-import { responsiveProp } from '../props/responsive.js'
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import { styledElement } from './element.js'
+import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
+import { accentColors } from '../props/color.props.js'
+import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
+import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { responsiveSchema } from '../props/componentSchema.js'
-import { responsiveClasses } from '../props/responsive.js'
-
+import { element } from './element.js'
 const sizes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 const weights = ['light', 'regular', 'medium', 'bold'] as const
 const alignments = ['left', 'center', 'right'] as const
@@ -27,7 +26,7 @@ export const Props = Schema.Struct({
   size: Schema.optional(responsiveSchema(sizes)),
   weight: Schema.optional(responsiveSchema(weights)),
   align: Schema.optional(responsiveSchema(alignments)),
-  color: Schema.optional(Schema.String),
+  color: Schema.optional(Schema.Literals(accentColors)),
   ...marginPropSchemas,
 })
 export type ViewProps = typeof Props.Type
@@ -48,5 +47,9 @@ export const view = <Message>(
     ? ['rt-Heading', ...(size?.classes ?? []), ...(weight?.classes ?? []), ...(align?.classes ?? [])]
     : [scalarClass]
   const style = { ...size?.style, ...weight?.style, ...align?.style, ...margin.style }
-  return brandViewResult(styledElement(props.as ?? 'h1', [...classValues, ...margin.classes], style, children, h), 'wseffect/Heading')
+  const attributes: Attribute<Message>[] = []
+  if (classValues.length > 0 || margin.classes.length > 0) attributes.push(h.Class([...classValues, ...margin.classes].join(' ')))
+  if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
+  if (Object.keys(style).length > 0) attributes.push(h.Style(style))
+  return brandViewResult(element(props.as ?? 'h1', attributes, children, h), 'wseffect/Heading')
 }

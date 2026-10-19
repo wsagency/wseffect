@@ -6,3 +6,4 @@
 - Add Dialog, DropdownMenu, and Tabs Foldkit submodel helpers.
 - Publish the generated foundation stylesheets and token files.
 - Export every generated `*.layer.css` stylesheet sibling.
+- Align stateful component markup and loading spinner sizing with the pinned Radix Themes CSS.

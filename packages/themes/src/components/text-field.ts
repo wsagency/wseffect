@@ -1,5 +1,6 @@
 import { brandViewResult } from 'foldkit/brand'
 import { radii } from '../props/radius.props.js'
+import { accentColors } from '../props/color.props.js'
 import { Schema } from 'effect'
 import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
 import * as InputUi from '@foldkit/ui/input'
@@ -28,7 +29,7 @@ export const Props = Schema.Struct({
   disabled: Schema.optional(Schema.Boolean),
   readOnly: Schema.optional(Schema.Boolean),
   invalid: Schema.optional(Schema.Boolean),
-  color: Schema.optional(Schema.String),
+  color: Schema.optional(Schema.Literals(accentColors)),
 })
 export type ViewProps<Message> = typeof Props.Type & Readonly<{ onInput?: (value: string) => Message }>
 
@@ -43,7 +44,7 @@ export const view = <Message>(
     ? scalarTextFieldClasses[`${size}:${variant}`]
     : ['rt-TextFieldRoot', ...responsiveClasses(sizeProp, size).classes, variantClasses[variant]].join(' ')
   const sizeStyle = typeof size === 'string' ? {} : responsiveClasses(sizeProp, size).style
-  return InputUi.view({
+  return brandViewResult(InputUi.view({
     id: props.id,
     value: props.value,
     onInput: props.onInput,
@@ -57,10 +58,10 @@ export const view = <Message>(
       if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
       if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
       return h.div(attributes, [
-        brandViewResult(h.label([...label, h.Class('rt-TextFieldLabel')], [props.label]), 'wseffect/TextFieldLabel'),
+        h.label([...label], [props.label]),
         h.input([...input, h.Class('rt-reset rt-TextFieldInput')]),
-        ...(children.length > 0 ? [h.p([...description, h.Class('rt-TextFieldDescription')], children)] : []),
+        ...(children.length > 0 ? [h.p([...description], children)] : []),
       ])
     },
-  }, h)
+  }, h), 'wseffect/TextField')
 }
