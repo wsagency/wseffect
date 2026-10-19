@@ -91,12 +91,12 @@ export default function App() {
       <header class="topbar">
         <h1><a href="/" id="link-home" onClick={event => { event.preventDefault(); window.history.pushState(null, '', '/'); setRoute('home') }}>Radix2Solid benchmark</a></h1>
         <Text id="date-shell">{sharedDate()}</Text>
-        <label>Date <input id="date-input" type="date" aria-label="Shared date" value={sharedDate()} onInput={event => setSharedDate(event.currentTarget.value)} /></label>
+        <label>Date <input id="date-input" data-perf="shared-date" type="date" aria-label="Shared date" value={sharedDate()} onInput={event => setSharedDate(event.currentTarget.value)} /></label>
         <div class="date-submodel"><Text id="date-submodel">{sharedDate()}</Text><Button id="date-submodel-next" type="button" variant="outline" onClick={() => setSharedDate(value => shiftDate(value, 1))}>Next day</Button></div>
         <Text id="build-id">radix2solid</Text>
       </header>
       <nav class="route-nav" aria-label="Gallery routes">
-        <For each={links}>{link => <a id={`link-${link.id}`} href={link.href} aria-current={route() === link.route ? 'page' : undefined} onClick={event => navigate(event, link)}>{link.label}</a>}</For>
+        <For each={links}>{link => <a id={`link-${link.id}`} href={link.href} data-perf={link.route === 'menus' ? 'nav-cold' : link.route === 'dialog' ? 'nav-prefetch' : undefined} aria-current={route() === link.route ? 'page' : undefined} onClick={event => navigate(event, link)}>{link.label}</a>}</For>
       </nav>
       <Show when={route() === 'home'} fallback={
         <Loading on={route()} fallback={<section class="panel" data-testid="route-loading"><h2>Loading page</h2></section>}>

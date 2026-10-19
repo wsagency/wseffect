@@ -112,11 +112,15 @@ export const page = galleryPageContract.definePage({
         ]),
       ],
     }),
-    Button.view({ onClick: Message.ChangeAccent() }, ['Accent color'], h),
+    h.div([h.DataAttribute('perf', 'theme-accent'), h.Style({ display: 'contents' })], [
+      Button.view({ onClick: Message.ChangeAccent() }, ['Accent color'], h),
+    ]),
     Button.view({ onClick: Message.ChangeGray() }, ['Gray color'], h),
     Button.view({ onClick: Message.ChangeRadius() }, ['Radius'], h),
     Button.view({ onClick: Message.ChangeScaling() }, ['Scaling'], h),
-    Button.view({ onClick: Message.ChangeAppearance() }, ['Appearance'], h),
+    h.div([h.DataAttribute('perf', 'theme-appearance'), h.Style({ display: 'contents' })], [
+      Button.view({ onClick: Message.ChangeAppearance() }, ['Appearance'], h),
+    ]),
     Button.view({ onClick: Message.ChangePanelBackground() }, ['Panel background'], h),
   ])),
 })

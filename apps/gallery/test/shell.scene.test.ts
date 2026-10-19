@@ -17,10 +17,13 @@ const prefetchCommandResolvers = pages.keys.map((key) => [
 ] as const)
 
 describe('gallery shell', () => {
-  it('renders the running build ID in #build-id', () => {
+  it('renders the build ID and performance hooks in the shell', () => {
     Scene.scene({ update, view }, Scene.given(createInitialModel()),
       Scene.Mount.resolveAll(...prefetchMountResolvers),
       Scene.Command.resolveAll(...prefetchCommandResolvers),
+      Scene.expect(Scene.selector('[data-perf="shared-date"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="nav-cold"]')).toHaveAttr('href', '/menus'),
+      Scene.expect(Scene.selector('[data-perf="nav-prefetch"]')).toHaveAttr('href', '/dialog'),
       Scene.expect(Scene.selector('#build-id')).toHaveText(BUILD_ID))
   })
 })

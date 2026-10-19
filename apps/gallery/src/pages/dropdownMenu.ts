@@ -32,16 +32,18 @@ export const page = galleryPageContract.definePage({
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Dropdown menu'], h),
-    Menu.embed(h, {
-      slotId: 'gallery-actions',
-      model: model.menu,
-      toParentMessage: message => Message.MenuEvent({ message }),
-      viewInputs: {
-        items: ['Edit', 'Delete'],
-        itemToConfig: item => ({ content: h.span([], [item]) }),
-        buttonContent: h.span([], ['Actions']),
-      },
-    }),
+    h.div([h.DataAttribute('perf', 'dropdown-open'), h.Style({ display: 'contents' })], [
+      Menu.embed(h, {
+        slotId: 'gallery-actions',
+        model: model.menu,
+        toParentMessage: message => Message.MenuEvent({ message }),
+        viewInputs: {
+          items: ['Edit', 'Delete'],
+          itemToConfig: item => ({ content: h.span([], [item]) }),
+          buttonContent: h.span([], ['Actions']),
+        },
+      }),
+    ]),
     h.p([h.Id('dropdown-selection')], [Option.match(model.selected, {
       onNone: () => 'No action selected',
       onSome: item => `Selected: ${item}`,

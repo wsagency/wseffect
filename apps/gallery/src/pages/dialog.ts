@@ -33,7 +33,9 @@ export const page = galleryPageContract.definePage({
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Dialog'], h),
     Text.view({ as: 'p' }, ['Open the dialog to view its accessible title and content.'], h),
-    Button.view({ onClick: Message.OpenDialog() }, ['Open dialog'], h),
+    h.div([h.DataAttribute('perf', 'dialog-open'), h.Style({ display: 'contents' })], [
+      Button.view({ onClick: Message.OpenDialog() }, ['Open dialog'], h),
+    ]),
     Dialog.embed(h, {
       slotId: 'gallery-dialog',
       model: model.dialog,

@@ -25,6 +25,7 @@ describe('gallery interactive pages', () => {
   it('opens and closes the accessible dialog demo', () => {
     const initial = dialogPage.init()
     Scene.scene({ update: dialogPage.update, view: (model, h) => dialogPage.view(model, inputs, h) }, Scene.given(initial.model),
+      Scene.expect(Scene.selector('[data-perf="dialog-open"]')).toExist(),
       Scene.expect(Scene.role('heading', { name: 'Dialog' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Open dialog' })),
       Scene.Command.resolve(UiDialog.ShowDialog, UiDialog.Message.SucceededShowDialog()),
@@ -40,6 +41,7 @@ describe('gallery interactive pages', () => {
   it('selects an item from the accessible dropdown menu', () => {
     const initial = dropdownMenuPage.init()
     Scene.scene({ update: dropdownMenuPage.update, view: (model, h) => dropdownMenuPage.view(model, inputs, h) }, Scene.given(initial.model),
+      Scene.expect(Scene.selector('[data-perf="dropdown-open"]')).toExist(),
       Scene.expect(Scene.role('heading', { name: 'Dropdown menu' })).toExist(),
       Scene.keydown(Scene.role('button', { name: 'Actions' }), 'ArrowDown'),
       Scene.Mount.resolve(UiMenu.AnchorMenu, UiMenu.Message.CompletedAnchorMenu()),
@@ -80,6 +82,8 @@ describe('gallery interactive pages', () => {
     Scene.scene(
       { update, view: (model, h) => themePage.view(model.page, model.inputs, h) },
       Scene.given({ page: initial.model, inputs }),
+      Scene.expect(Scene.selector('[data-perf="theme-accent"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="theme-appearance"]')).toExist(),
       Scene.expect(Scene.role('heading', { name: 'Theme settings' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Accent color' })),
       Scene.expect(Scene.selector('#theme-preview')).toHaveAttr('data-accent-color', 'crimson'),

@@ -62,7 +62,7 @@ async function stopServer(child: ChildProcess): Promise<void> {
   }
 }
 
-test('renders the shared performance hooks on their gallery routes', { timeout: 45_000 }, async () => {
+test('renders the shared and comparison performance hooks on their routes', { timeout: 45_000 }, async () => {
   const port = await availablePort()
   const url = `http://127.0.0.1:${port}`
   let spawnError: Error | undefined
@@ -81,6 +81,12 @@ test('renders the shared performance hooks on their gallery routes', { timeout: 
     page.setDefaultNavigationTimeout(10_000)
 
     await page.goto(`${url}/virtual-list`)
+    for (const hook of ['nav-cold', 'nav-prefetch', 'shared-date']) {
+      await page.locator(`[data-perf="${hook}"]`).waitFor()
+    }
+    assert.equal(await page.locator('[data-perf="nav-cold"]').getAttribute('href'), '/menus')
+    assert.equal(await page.locator('[data-perf="nav-prefetch"]').getAttribute('href'), '/dialog')
+    assert.equal(await page.locator('[data-perf="shared-date"]').count(), 1)
     for (const hook of ['vl-filter', 'vl-sort', 'vl-cell-input', 'vl-select']) {
       await page.locator(`[data-perf="${hook}"]`).waitFor()
     }
@@ -96,6 +102,17 @@ test('renders the shared performance hooks on their gallery routes', { timeout: 
     await page.goto(`${url}/menus`)
     await page.locator('[data-perf="menus-tick"]').waitFor()
     assert.equal(await page.locator('[data-menu-index]').count(), 200)
+
+    await page.goto(`${url}/theme`)
+    for (const hook of ['theme-appearance', 'theme-accent']) {
+      await page.locator(`[data-perf="${hook}"]`).waitFor()
+    }
+
+    await page.goto(`${url}/dialog`)
+    await page.locator('[data-perf="dialog-open"]').waitFor()
+
+    await page.goto(`${url}/dropdown-menu`)
+    await page.locator('[data-perf="dropdown-open"]').waitFor()
   } finally {
     await browser?.close()
     await stopServer(server)
