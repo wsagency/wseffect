@@ -200,7 +200,7 @@ describe('wseffect Vite plugin', () => {
     }
   })
   it('keeps only boot packages in framework and lazy-loads page-only menu code', async () => {
-    const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\n\nexport const page = { Menu }\n")
+    const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\nimport * as Dialog from '@foldkit/ui/dialog'\nimport * as Tabs from '@foldkit/ui/tabs'\n\nexport const page = { Menu, Dialog, Tabs }\n")
     try {
       const files = outputFiles(output)
       const framework = files.find((file) => file.startsWith('framework-'))!
@@ -215,7 +215,21 @@ describe('wseffect Vite plugin', () => {
       expect(sources(framework).every(bootModule)).toBe(true)
       expect(sources(framework).some((source) => source.includes('@foldkit/ui/menu'))).toBe(false)
       expect(sources(alpha).some((source) => source.includes('/dist/menu/'))).toBe(true)
-      expect(sources(index).some((source) => source.includes('/dist/menu/'))).toBe(false)
+      const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+      const staticKeys = new Set<string>()
+      const pending = ['index.html']
+      while (pending.length > 0) {
+        const key = pending.pop()!
+        if (staticKeys.has(key)) continue
+        staticKeys.add(key)
+        pending.push(...(buildManifest[key]?.imports ?? []))
+      }
+      const staticSources = [...staticKeys].flatMap((key) => {
+        const file = buildManifest[key]?.file
+        if (file === undefined || !file.endsWith('.js')) return []
+        return sources(file.split('/').at(-1)!)
+      })
+      expect(staticSources.some((source) => /@foldkit\/ui\/(?:dialog|menu|tabs)|@floating-ui/.test(source))).toBe(false)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }

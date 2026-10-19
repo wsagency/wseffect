@@ -88,12 +88,13 @@ export function frameworkChunking(pagesDir: string): Plugin {
         if (isPage) pageRoots.push(id)
         else if (this.getModuleInfo(id)?.isEntry === true) entryRoots.push(id)
       }
-      const reachableFrom = (roots: ReadonlyArray<string>): Set<string> => {
+      const reachableFrom = (roots: ReadonlyArray<string>, stopAtPages = false): Set<string> => {
         const reachable = new Set<string>()
         const pending = [...roots]
         while (pending.length > 0) {
           const id = pending.pop()!
-          if (reachable.has(id)) continue
+          const resolvedId = modulePath(id)
+          if (reachable.has(id) || (stopAtPages && isInside(resolvedId, pagesRoot))) continue
           reachable.add(id)
           const info = this.getModuleInfo(id)
           if (info !== null) pending.push(...info.importedIds)
@@ -101,7 +102,7 @@ export function frameworkChunking(pagesDir: string): Plugin {
         return reachable
       }
       const pageReachable = reachableFrom(pageRoots)
-      const entryReachable = reachableFrom(entryRoots)
+      const entryReachable = reachableFrom(entryRoots, true)
       for (const id of pageReachable) {
         if (entryReachable.has(id) && isAppSharedModule(id)) appShared.add(id)
       }
