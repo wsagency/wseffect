@@ -283,7 +283,7 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
   |---|---|---|
   | 1 | `navigator.onLine === false` | `Offline` |
   | 2 | `fetch('/version.json', { cache: 'no-store' })` rejects | `Offline` |
-  | 3 | The response is 2xx, its body decodes to `{ buildId: string }`, and that `buildId` differs from the running build | `NewVersion` |
+  | 3 | The response is 2xx, its body decodes to `{ buildId: string }`, and that `buildId` differs from the running build's `__WSEFFECT_BUILD_ID__` (PWA-8) | `NewVersion` |
   | 4 | Otherwise, including non-2xx responses, undecodable bodies and an equal `buildId` | `LoadError` |
 
 - **APP-16 Failure actions.**
@@ -368,15 +368,21 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 - **PWA-7 Web manifest.** Fields: `name`, `short_name`, `start_url: '/'`, `display: 'standalone'`, `theme_color`, `background_color`, and PNG icons at 192×192 and 512×512.
   - The icon sizes are Chromium's installability requirement, not a research measurement.
   - A unit test validates the gallery manifest.
-- **PWA-8 Build ID.** The build ID is the lowercase hex SHA-256 of the sorted, newline-joined list of emitted `assets/*` filenames.
-  - It is compiled into the app and written to `dist/version.json` as `{ "buildId": "<hex>" }`.
+- **PWA-8 Build ID.** The build ID is fixed before bundling and never derived from output filenames or output content.
+  - **Source of the value, first match wins:**
+    1. **Environment.** If the `WSEFFECT_BUILD_ID` environment variable is set, its value is used verbatim. It must match `^[0-9a-f]{7,64}$`; any other value fails the build with an error naming the variable. CI sets it to the commit SHA.
+    2. **Input hash.** Otherwise the `wseffect()` Vite plugin computes it in its `config` hook, before any module is transformed. The ID is the lowercase hex SHA-256 over the list of `(relative path, file bytes)` pairs, sorted by relative path, for: the app's `src/**`, `index.html`, `public/**`, the app `package.json`, the workspace lockfile, the resolved Vite config file, and, for every dependency of the app (direct or transitive) whose lockfile resolution is a `workspace:`, `link:` or `file:` directory, every git-tracked file under that package's directory except `dist/**`, `node_modules/**` and test files (`*.test.*`, `*.spec.*`, `test/**`, `tests/**`).
+  - **Encoding of the hash input:** for each pair in order, the UTF-8 bytes of the POSIX relative path (relative to the workspace root), a `0x00` byte, the file length as a decimal ASCII string, a `0x00` byte, then the file bytes.
+  - **Dependencies:** registry dependency versions enter the ID through the workspace lockfile; installed `node_modules` contents are not hashed. Workspace-linked packages change without a lockfile change, so their tracked source files are hashed directly (rule 2).
+  - **Injection:** the plugin injects the value as the `define` constant `__WSEFFECT_BUILD_ID__` (a JSON string literal) and writes it unchanged to `dist/version.json` as `{ "buildId": "<id>" }` in its `generateBundle` hook.
+  - **Why this order:** an ID derived from emitted filenames would be circular, because embedding it changes the JS, hence the hashed filenames, hence the ID.
 - **PWA-9 Version poll.** The version-poll Subscription fetches `/version.json` with `cache: 'no-store'`:
   - every `versionPollMs` (default 300,000 ms, a chosen default, not a measurement) while `document.visibilityState === 'visible'` and `navigator.onLine`;
   - immediately on `visibilitychange` to visible;
   - immediately on the `online` event.
 
   Handling:
-  - A different `buildId` emits `NewVersionAvailable` and shows the PWA-6 banner. With a service-worker registration present, it also calls `registration.update()`.
+  - A `buildId` different from the running build's `__WSEFFECT_BUILD_ID__` (PWA-8) emits `NewVersionAvailable` and shows the PWA-6 banner. With a service-worker registration present, it also calls `registration.update()`.
   - Network or parse failures emit nothing and change nothing.
   - **Why it exists:** without a service worker, an open tab never learns that a new version exists [F:956].
 - **PWA-10 Server contract.** The wseffect-app README documents this contract and the e2e test server implements it:
@@ -551,6 +557,12 @@ These rules come from the performance research repercussions [P:144-155].
 
   `tests/consumer/coverage-manifest.json` enumerates every public subpath, export and CSS file with the IDs of the checks that cover it. The gate fails on any public item missing from the manifest, or any manifest entry without a passing check.
 - **TEST-8 Repository checks.** Codegen check mode (APP-5), the single-Effect check (UP-3) and the gallery manifest test (PWA-7).
+- **TEST-9 Build ID.** Tests of PWA-8 against gallery production builds:
+  - two builds from an unchanged tree, without `WSEFFECT_BUILD_ID`, produce the same ID;
+  - changing one byte of one `src/**` file produces a different ID;
+  - changing one byte of one file in `packages/themes/src` produces a different gallery ID;
+  - with `WSEFFECT_BUILD_ID` set to a valid value, that exact value is used; an invalid value fails the build;
+  - the ID compiled into the built JavaScript equals the `buildId` in `dist/version.json`.
 
 ### 12.3 Test environment
 
@@ -582,7 +594,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 
   | Job | Status | Content |
   |---|---|---|
-  | `check` | Required | Build, typecheck, lint (APP-22), TEST-1 to TEST-8 |
+  | `check` | Required | Build, typecheck, lint (APP-22), TEST-1 to TEST-9 |
   | `size` | Required; runs after `check` passes | GATE-S1 to GATE-S3 |
   | `perf` | Required; runs after `check` passes | GATE-P1 to GATE-P4 |
   | `effect-latest` | Required for PRs that change any dependency version; informational otherwise; also nightly | Resolves `effect` and `@effect/platform-browser` to the newest 4.x published at least 24 h earlier, then runs typecheck, Story and Scene tests and Chromium e2e. A failing run on `main` must be resolved before any further dependency-changing PR merges, either by a fix or by lowering the upper bound of the published `effect` peer range below the failing version |
@@ -684,6 +696,7 @@ To make approved statements testable, the following were fixed explicitly:
 | Retention of the previous 3 deployments (chosen value) | PWA-10 |
 | Runtime cache expiration of 200 entries / 30 days | PWA-3 |
 | Committed codegen output with check mode | APP-5 |
+| Build ID fixed before bundling: `WSEFFECT_BUILD_ID` or an input hash, never output-derived | PWA-8, TEST-9 |
 | Exact lint-rule definitions | APP-22 |
 | radix2solid pin for both CSS and bench | TH-1, BENCH-1 |
 | Package version 0.0.0 | REPO-1 |
