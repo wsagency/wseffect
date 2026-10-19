@@ -1,2 +1,4 @@
 registerPage('x', page)
-const timer = setTimeout(() => {}, 1)
+const plainTimer = setTimeout(() => {}, 1)
+export const timer = setTimeout(() => {}, 1)
+export default registerPage('x')

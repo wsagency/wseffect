@@ -1,9 +1,9 @@
 import { BUILD_ID } from '../buildId.js'
-import { Effect, Option, Schema, Stream } from 'effect'
+import { Effect, Option, Schema } from 'effect'
 import { Command, Submodel, Subscription } from 'foldkit'
 import type { Update } from 'foldkit'
 import type { AnyPage, MessageOf, OutMessageOf, ServicesOf } from '../contract.js'
-import { ensure, PageLoadError } from '../loader.js'
+import { ensure, loaderSubscriptions, PageLoadError } from '../loader.js'
 import type { PagesHandle } from '../registry.js'
 import { classifyFailure } from './classify.js'
 import type { KitState } from './state.js'
@@ -106,7 +106,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
           },
           catch: (cause) => new ServiceWorkerUpdateError({ cause }),
         })
-        return
+        return false
       }
       const hasRegistration = yield* service.value.hasRegistration
       if (!hasRegistration) {
@@ -116,13 +116,16 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
           },
           catch: (cause) => new ServiceWorkerUpdateError({ cause }),
         })
-        return
+        return false
       }
       yield* service.value.checkForUpdate
       yield* service.value.applyUpdate
+      return true
     }), {
       onFailure: (error) => failedApply(String(error.cause)),
-      onSuccess: completedApply,
+      onSuccess: (controllerChanged) => controllerChanged
+        ? completedApply()
+        : failedApply('No service worker controller change'),
     }),
   })
   const commands = { LoadPageForPrefetch, ClassifyPageFailure, ReloadDocument }
@@ -145,28 +148,15 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
   }
   const view = viewPage({ pages, toParentMessage, messages })
   const updateBanner = bannerView(messages.clickedApplyUpdate)
-  const subscriptions = Subscription.make<KitState<Pages>, KitMessage>()((entry) =>
-    Object.fromEntries(pages.keys.map((key) => [
-      `wseffect:load:${key}`,
-      entry(
-        { isNeeded: Schema.Boolean },
-        {
-          modelToDependencies: (state) => {
-            const slot = state.slots[key]
-            return {
-              isNeeded: state.activeKeys.includes(key) && (slot._tag === 'Loading' || slot._tag === 'Dehydrated'),
-            }
-          },
-          dependenciesToStream: ({ isNeeded }) => isNeeded
-            ? Stream.fromEffect(Effect.matchEffect(ensure(pages, key), {
-              onSuccess: () => Effect.succeed(messageConstructor<KitMessage>(union, 'LoadedPageModule', { key })),
-              onFailure: (error) => classifyLoadFailure(key, loadFailureReason(error)),
-            }))
-            : Stream.empty,
-        },
-      ),
-    ])) as Record<string, Subscription.Subscription<KitState<Pages>, KitMessage, { readonly isNeeded: boolean }>>,
-  )
+  const subscriptions = loaderSubscriptions<Pages, KitState<Pages>, KitMessage>({
+    pages,
+    isNeeded: (state, key) => {
+      const slot = state.slots[key]
+      return state.activeKeys.includes(key) && (slot._tag === 'Loading' || slot._tag === 'Dehydrated')
+    },
+    onLoaded: (key) => messageConstructor<KitMessage>(union, 'LoadedPageModule', { key }),
+    onFailure: (key, error) => classifyLoadFailure(key, loadFailureReason(error)),
+  })
   const update = makeKitUpdate({
     pages,
     KitMessage: union as unknown as KitMessageMatcher<KitMessage>,

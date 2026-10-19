@@ -21,4 +21,21 @@ describe('package distribution contract', () => {
     expect(JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')).scripts.build)
       .toContain('node scripts/brand-dist.mjs')
   })
+  it('publishes the standalone page and app helpers from the package root', async () => {
+    const app = await import('../dist/index.js')
+    for (const name of [
+      'slotsSchema',
+      'messageSchema',
+      'loaderSubscriptions',
+      'activate',
+      'foldPage',
+      'viewPage',
+      'prefetchOnIntent',
+      'prefetchOnVisible',
+      'makeApp',
+      'ServiceWorker',
+    ]) {
+      expect(app).toHaveProperty(name)
+    }
+  })
 })

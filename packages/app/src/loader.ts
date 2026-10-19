@@ -1,6 +1,35 @@
-import { Context, Data, Deferred, Effect, Option } from 'effect'
+import { Context, Data, Deferred, Effect, Option, Schema, Stream } from 'effect'
+import { Subscription } from 'foldkit'
 import type { AnyPage } from './contract.js'
 import type { PagesHandle } from './registry.js'
+export interface LoaderSubscriptionsConfig<Pages extends Record<string, AnyPage>, Model, Message> {
+  readonly pages: PagesHandle<Pages>
+  readonly isNeeded: (model: Model, key: keyof Pages & string) => boolean
+  readonly onLoaded: (key: keyof Pages & string) => Message
+  readonly onFailure: (key: keyof Pages & string, error: PageLoadError) => Effect.Effect<Message>
+}
+
+export function loaderSubscriptions<Pages extends Record<string, AnyPage>, Model, Message>(
+  config: LoaderSubscriptionsConfig<Pages, Model, Message>,
+): Readonly<Record<string, Subscription.Subscription<Model, Message, { readonly isNeeded: boolean }>>> {
+  return Subscription.make<Model, Message>()((entry) =>
+    Object.fromEntries(config.pages.keys.map((key) => [
+      `wseffect:load:${key}`,
+      entry(
+        { isNeeded: Schema.Boolean },
+        {
+          modelToDependencies: (model) => ({ isNeeded: config.isNeeded(model, key) }),
+          dependenciesToStream: ({ isNeeded }) => isNeeded
+            ? Stream.fromEffect(Effect.matchEffect(ensure(config.pages, key), {
+              onSuccess: () => Effect.succeed(config.onLoaded(key)),
+              onFailure: (error) => config.onFailure(key, error),
+            }))
+            : Stream.empty,
+        },
+      ),
+    ])),
+  )
+}
 
 export class PageLoadError extends Data.TaggedError('PageLoadError')<{
   readonly key: string
@@ -56,20 +85,12 @@ export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof 
       pages.registry.register(key, page as Pages[Key])
       return page
     })
-    const sharedLoad = Effect.matchEffect(load, {
-      onSuccess: (page) => Effect.andThen(
-        Deferred.succeed(deferred, page),
-        Effect.sync(() => {
-          if (loads.get(key) === deferred) loads.delete(key)
-        }),
-      ),
-      onFailure: (error) => Effect.andThen(
-        Deferred.fail(deferred, error),
-        Effect.sync(() => {
-          if (loads.get(key) === deferred) loads.delete(key)
-        }),
-      ),
-    })
+    const sharedLoad = Effect.ensuring(
+      Effect.as(Effect.flatMap(Effect.exit(load), (exit) => Deferred.done(deferred, exit)), undefined),
+      Effect.sync(() => {
+        if (loads.get(key) === deferred) loads.delete(key)
+      }),
+    )
     return Effect.andThen(
       Effect.forkDetach(sharedLoad),
       Deferred.await(deferred) as Effect.Effect<Pages[Key], PageLoadError>,

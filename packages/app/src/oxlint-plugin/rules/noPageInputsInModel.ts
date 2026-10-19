@@ -89,7 +89,7 @@ function firstInputReference(root: AstNode, names: ReadonlySet<string>, inputObj
   return undefined
 }
 
-function inspectView(view: AstNode, report: (node: AstNode) => void): void {
+function inspectView(view: AstNode, messageNames: ReadonlySet<string>, report: (node: AstNode) => void): void {
   const reported = new Set<AstNode>()
   const params = view.params
   if (!Array.isArray(params) || !isNode(params[1])) return
@@ -97,6 +97,7 @@ function inspectView(view: AstNode, report: (node: AstNode) => void): void {
   const names = new Set<string>()
   collectPatternNames(inputParam, names)
   const inputObject = inputParam.type === 'Identifier' && typeof inputParam.name === 'string' ? inputParam.name : undefined
+  const builder = isNode(params[2]) && params[2].type === 'Identifier' && typeof params[2].name === 'string' ? params[2].name : undefined
   const reportOnce = (node: AstNode) => {
     if (reported.has(node)) return
     reported.add(node)
@@ -106,10 +107,11 @@ function inspectView(view: AstNode, report: (node: AstNode) => void): void {
   const visit = (node: AstNode): void => {
     if (node.type === 'CallExpression' && isNode(node.callee)) {
       const path = calleePath(node.callee)
-      if (path?.startsWith('Message.')) {
+      const messageName = path?.split('.')[0]
+      if (messageName !== undefined && messageNames.has(messageName)) {
         const found = firstInputReference(node, names, inputObject)
         if (found) reportOnce(found)
-      } else if (path?.startsWith('h.On')) {
+      } else if (builder !== undefined && path?.startsWith(`${builder}.On`)) {
         const args = node.arguments
         if (Array.isArray(args)) {
           for (const arg of args) {
@@ -138,11 +140,27 @@ export const noPageInputsInModel: Rule = {
     return {
       Program(program) {
         if (!context.filename.replaceAll('\\', '/').includes('/src/pages/')) return
+        const messageNames = new Set<string>()
+        const views = new Map<string, AstNode>()
+        const collectBindings = (node: AstNode): void => {
+          if (node.type === 'VariableDeclarator' && isNode(node.id) && node.id.type === 'Identifier' && typeof node.id.name === 'string' && isNode(node.init)) {
+            if (node.init.type === 'CallExpression' && isNode(node.init.callee) && calleePath(node.init.callee) === 'defineMessageUnion') {
+              messageNames.add(node.id.name)
+            }
+            if (node.init.type === 'ArrowFunctionExpression' || node.init.type === 'FunctionExpression') views.set(node.id.name, node.init)
+          }
+          for (const child of children(node)) collectBindings(child)
+        }
+        collectBindings(program)
+
         const findViews = (node: AstNode): void => {
           if (node.type === 'CallExpression' && isNode(node.callee) && calleePath(node.callee) === 'Submodel.defineView') {
             const args = node.arguments
-            if (Array.isArray(args) && isNode(args[0]) && (args[0].type === 'ArrowFunctionExpression' || args[0].type === 'FunctionExpression')) {
-              inspectView(args[0], (reference) => context.report({ node: reference, message }))
+            if (Array.isArray(args) && isNode(args[0])) {
+              const view = args[0].type === 'Identifier' && typeof args[0].name === 'string' ? views.get(args[0].name) : args[0]
+              if (view && (view.type === 'ArrowFunctionExpression' || view.type === 'FunctionExpression')) {
+                inspectView(view, messageNames, (reference) => context.report({ node: reference, message }))
+              }
             }
           }
           for (const child of children(node)) findViews(child)
@@ -152,3 +170,4 @@ export const noPageInputsInModel: Rule = {
     }
   },
 }
+

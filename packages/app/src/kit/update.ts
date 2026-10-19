@@ -5,6 +5,50 @@ import type { AnyPage, MessageOf, ModelOf, OutMessageOf, ServicesOf } from '../c
 import type { PagesHandle } from '../registry.js'
 import type { KitState } from './state.js'
 import type { PageSlot, PageSlots } from '../slots.js'
+export function foldPage<
+  Pages extends Record<string, AnyPage>,
+  Key extends keyof Pages & string,
+  KitMessage extends object,
+>(
+  config: Readonly<{
+    pages: PagesHandle<Pages>
+    key: Key
+    toParentMessage: (message: MessageOf<Pages[Key]>) => KitMessage
+  }>,
+): (
+  state: KitState<Pages>,
+  message: MessageOf<Pages[Key]>,
+) => Update.ReturnWithOutMessage<
+  KitState<Pages>,
+  KitMessage,
+  OutMessageOf<Pages[Key]>,
+  ServicesOf<Pages[Key]>
+> {
+  return (state, message) => {
+    const page = Option.getOrUndefined(config.pages.registry.get(config.key))
+    if (page === undefined) return { model: state }
+    const slot = state.slots[config.key] as PageSlot<ModelOf<Pages[Key]>>
+    if (slot._tag !== 'Ready') return { model: state }
+    const result = page.update(slot.model, message) as Update.ReturnWithOutMessage<
+      ModelOf<Pages[Key]>,
+      MessageOf<Pages[Key]>,
+      OutMessageOf<Pages[Key]>,
+      ServicesOf<Pages[Key]>
+    >
+    return {
+      model: {
+        ...state,
+        slots: {
+          ...state.slots,
+          [config.key]: { _tag: 'Ready', model: result.model },
+        } as PageSlots<Pages>,
+      },
+      commands: result.commands?.map((command) => Command.mapMessage(command, config.toParentMessage)) ?? [],
+      outMessage: result.outMessage,
+    }
+  }
+}
+
 
 const modelJsonCodecs = new WeakMap<object, Schema.Codec<unknown, Schema.Json>>()
 
@@ -75,27 +119,14 @@ export function makeKitUpdate<Pages extends Record<string, AnyPage>, KitMessage 
   return (state, message) => {
     const pageHandlers: Record<string, (payload: unknown) => unknown> = {}
     for (const [tag, key] of tagToKey) {
+      const fold = foldPage({
+        pages: config.pages,
+        key,
+        toParentMessage: config.toParentMessage[key],
+      })
       pageHandlers[tag] = (payload) => {
         if (payload === null || typeof payload !== 'object' || !('message' in payload)) return { model: state }
-        const page = Option.getOrUndefined(config.pages.registry.get(key))
-        if (page === undefined) return { model: state }
-        const slot = state.slots[key] as PageSlot<ModelOf<Pages[typeof key]>>
-        if (slot._tag !== 'Ready') return { model: state }
-        const result = page.update(slot.model, payload.message as MessageOf<Pages[typeof key]>)
-        const nextState: KitState<Pages> = {
-          ...state,
-          slots: { ...state.slots, [key]: { _tag: 'Ready', model: result.model } } as PageSlots<Pages>,
-        }
-        return {
-          model: nextState,
-          commands: result.commands?.map((command) =>
-            Command.mapMessage(
-              command as unknown as Command.Command<MessageOf<Pages[typeof key]>>,
-              config.toParentMessage[key],
-            ) as unknown as Command.Command<KitMessage>
-          ) ?? [],
-          outMessage: result.outMessage,
-        }
+        return fold(state, payload.message as MessageOf<Pages[typeof key]>)
       }
     }
     const fields: Record<string, (payload: unknown) => unknown> = {

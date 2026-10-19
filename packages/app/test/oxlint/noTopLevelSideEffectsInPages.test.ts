@@ -7,10 +7,10 @@ const fixtures = resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures/page
 const rule = 'wseffect/no-top-level-side-effects-in-pages'
 
 describe('no-top-level-side-effects-in-pages', () => {
-  it('reports top-level calls and timer initializers in pages', () => {
+  it('reports top-level calls and timer initializers in pages, including exported declarations', () => {
     const diagnostics = runOxlint(fixtures, rule)
-    expect(diagnostics).toHaveLength(2)
-    expect(diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([rule, rule])
+    expect(diagnostics).toHaveLength(4)
+    expect(diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([rule, rule, rule, rule])
   })
 
   it('allows the default initializer calls', () => {

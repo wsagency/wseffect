@@ -9,8 +9,8 @@ const rule = 'wseffect/no-page-inputs-in-model'
 describe('no-page-inputs-in-model', () => {
   it('reports PageInputs copied into Messages from event handlers', () => {
     const diagnostics = runOxlint(resolve(fixtures, 'src/pages/bad.ts'), rule)
-    expect(diagnostics).toHaveLength(2)
-    expect(diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([rule, rule])
+    expect(diagnostics).toHaveLength(4)
+    expect(diagnostics.map((diagnostic) => diagnostic.ruleId)).toEqual([rule, rule, rule, rule])
   })
 
   it('allows rendering PageInputs as text', () => {

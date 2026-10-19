@@ -1,7 +1,7 @@
 const model = Schema.Struct({ value: Schema.String })
 const Message = defineMessageUnion({ Saved: { value: Schema.String } })
 const Tagged = defineTaggedUnion({ Saved: {} })
-const page = definePage({ Model: model, Message })
+export const page = definePage({ Model: model, Message })
 const view = Submodel.defineView((model, inputs, h) => h.div([], []))
 const lazy = createLazy(() => page)
 const keyed = createKeyedLazy(() => page)

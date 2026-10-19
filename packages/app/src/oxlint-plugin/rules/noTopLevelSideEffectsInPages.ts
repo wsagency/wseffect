@@ -86,12 +86,24 @@ export const noTopLevelSideEffectsInPages: Rule = {
             context.report({ node: statement, message })
             continue
           }
-          if (statement.type !== 'VariableDeclaration') continue
-          const declarations = statement.declarations
-          if (!Array.isArray(declarations)) continue
-          for (const declaration of declarations) {
-            if (!isNode(declaration) || !isNode(declaration.init)) continue
-            walk(declaration.init, (node) => {
+          const declaration = statement.type === 'ExportNamedDeclaration' && isNode(statement.declaration)
+            ? statement.declaration
+            : statement.type === 'ExportDefaultDeclaration' && isNode(statement.declaration)
+              ? statement.declaration
+              : statement
+          if (declaration.type === 'VariableDeclaration') {
+            const declarations = declaration.declarations
+            if (!Array.isArray(declarations)) continue
+            for (const item of declarations) {
+              if (!isNode(item) || !isNode(item.init)) continue
+              walk(item.init, (node) => {
+                if (node.type !== 'CallExpression') return
+                const callee = node.callee
+                if (!isNode(callee) || !isAllowed(memberPath(callee), allow)) context.report({ node, message })
+              })
+            }
+          } else if (statement.type === 'ExportDefaultDeclaration' && declaration.type !== 'FunctionDeclaration' && declaration.type !== 'ClassDeclaration') {
+            walk(declaration, (node) => {
               if (node.type !== 'CallExpression') return
               const callee = node.callee
               if (!isNode(callee) || !isAllowed(memberPath(callee), allow)) context.report({ node, message })

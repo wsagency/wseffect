@@ -53,14 +53,53 @@ export function makeServiceWorkerLayer(register: typeof registerSW): Layer.Layer
     )
     const checkForUpdate = Effect.suspend(() => {
       const current = registration
-      if (current === undefined) return Effect.succeed(undefined)
-      return Effect.as(Effect.tryPromise({
-        try: () => current.update(),
+      if (current === undefined) return Effect.void
+      return Effect.tryPromise({
+        try: async () => {
+          await current.update()
+          const installing = current.installing
+          if (installing !== null) {
+            await new Promise<void>((resolve, reject) => {
+              const stateChanged = () => {
+                if (installing.state === 'installed' || installing.state === 'activated') {
+                  installing.removeEventListener('statechange', stateChanged)
+                  resolve()
+                } else if (installing.state === 'redundant') {
+                  installing.removeEventListener('statechange', stateChanged)
+                  reject(new Error('Service worker installation became redundant'))
+                }
+              }
+              installing.addEventListener('statechange', stateChanged)
+              stateChanged()
+            })
+          }
+        },
         catch: (cause) => new ServiceWorkerUpdateError({ cause }),
-      }), undefined)
+      })
     })
     const applyUpdate = Effect.tryPromise({
-      try: () => updateSW(true),
+      try: async () => {
+        const container = typeof navigator === 'undefined' ? undefined : navigator.serviceWorker
+        if (container === undefined) throw new Error('Service worker controller is unavailable')
+        const previousController = container.controller
+        let cleanup = () => {}
+        const controllerChanged = new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Timed out waiting for service worker controller change')), 10_000)
+          const changed = () => {
+            if (container.controller !== previousController) resolve()
+          }
+          container.addEventListener('controllerchange', changed)
+          cleanup = () => {
+            clearTimeout(timeout)
+            container.removeEventListener('controllerchange', changed)
+          }
+        })
+        try {
+          await Promise.all([updateSW(true), controllerChanged])
+        } finally {
+          cleanup()
+        }
+      },
       catch: (cause) => new ServiceWorkerUpdateError({ cause }),
     })
     return {

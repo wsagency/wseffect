@@ -10,8 +10,8 @@ export interface ComputeBuildIdInput {
 }
 
 const overridePattern = /^[0-9a-f]{7,64}$/
-const testPathPattern = /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)|\.(?:test|spec)\.[cm]?[jt]sx?$/
-const sourcePathPattern = /\.(?:[cm]?[jt]sx?|json|css)$/
+const testPathPattern = /(?:^|\/)(?:test|tests|__tests__)(?:\/|$)|\.(?:test|spec)\.[^/]+$/
+const viteConfigPattern = /^vite\.config\.(?:[cm]?[jt]s)$/
 
 function importerLinks(lockfile: string): ReadonlyMap<string, ReadonlyArray<string>> {
   const links = new Map<string, Array<string>>()
@@ -41,9 +41,19 @@ export function computeBuildId({ appRoot, workspaceRoot, env }: ComputeBuildIdIn
   const root = resolve(workspaceRoot)
   const app = resolve(root, appRoot)
   const appImporter = relative(root, app).split(sep).join('/') || '.'
-  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean)
+  let tracked: Array<string>
+  try {
+    tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean)
+  } catch {
+    throw new Error('Unable to compute build ID without git; set WSEFFECT_BUILD_ID instead')
+  }
   const lockfilePath = join(root, 'pnpm-lock.yaml')
-  const lockfile = readFileSync(lockfilePath, 'utf8')
+  let lockfile: string
+  try {
+    lockfile = readFileSync(lockfilePath, 'utf8')
+  } catch {
+    throw new Error('Unable to compute build ID without pnpm-lock.yaml; set WSEFFECT_BUILD_ID instead')
+  }
   const links = importerLinks(lockfile)
   const includedDirectories = new Set([app])
   const pending = [appImporter]
@@ -65,18 +75,28 @@ export function computeBuildId({ appRoot, workspaceRoot, env }: ComputeBuildIdIn
     }
   }
 
-  const files = tracked.filter((path) => {
-    if (path === 'pnpm-lock.yaml') return false
-    if (testPathPattern.test(path) || path.includes('/dist/') || path.startsWith('dist/')) return false
-    if (!sourcePathPattern.test(path)) return false
+  const files = new Set<string>()
+  for (const path of tracked) {
     const absolute = resolve(root, path)
+    const inApp = relative(app, absolute)
+    if (inApp !== '..' && !inApp.startsWith(`..${sep}`) && !isAbsolute(inApp)) {
+      if (inApp.startsWith(`src${sep}`) || inApp === 'index.html' || inApp === 'package.json' ||
+        inApp.startsWith(`public${sep}`) || viteConfigPattern.test(inApp)) {
+        files.add(path)
+      }
+      continue
+    }
     for (const directory of includedDirectories) {
       const relativePath = relative(directory, absolute)
-      if (relativePath.startsWith('..') || isAbsolute(relativePath)) continue
-      if (directory === app || relativePath === 'package.json' || relativePath.startsWith(`src${sep}`)) return true
+      if (relativePath === '..' || relativePath.startsWith(`..${sep}`) || isAbsolute(relativePath)) continue
+      if (testPathPattern.test(path) || /(?:^|\/)(?:dist|node_modules)(?:\/|$)/.test(path)) continue
+      files.add(path)
+      break
     }
-    return false
-  }).sort()
+  }
+  files.add('pnpm-lock.yaml')
+
+  const sortedFiles = Array.from(files).sort()
 
   const hash = createHash('sha256')
   const hashFile = (path: string, bytes: Buffer) => {
@@ -86,7 +106,6 @@ export function computeBuildId({ appRoot, workspaceRoot, env }: ComputeBuildIdIn
     hash.update('\0')
     hash.update(bytes)
   }
-  for (const path of files) hashFile(path, readFileSync(join(root, path)))
-  hashFile('pnpm-lock.yaml', readFileSync(lockfilePath))
+  for (const path of sortedFiles) hashFile(path, readFileSync(join(root, path)))
   return hash.digest('hex')
 }

@@ -1,4 +1,4 @@
-import { Deferred, Effect, Fiber, Layer, Option, Stream } from 'effect'
+import { Deferred, Effect, Exit, Fiber, Layer, Option, Stream } from 'effect'
 import { describe, expect, it, vi } from 'vitest'
 import { PageLoader, PageLoadError, ensure } from '../src/loader.js'
 import { alphaPage } from './fixtures/pages/alpha.js'
@@ -63,6 +63,63 @@ describe('page loader', () => {
     expect(await Effect.runPromise(ensure(testPages, 'alpha'))).toBe(alphaPage)
     expect(load).toHaveBeenCalledTimes(2)
   })
+  it('shares an in-flight subscription load across isNeeded true → false → true', async () => {
+    const { binding, KitMessage } = makeKitFixture()
+    const subscription = binding.subscriptions['wseffect:load:alpha']
+    const started = Deferred.makeUnsafe<void>()
+    const release = Deferred.makeUnsafe<void>()
+    const load = vi.fn()
+    const layer = Layer.succeed(PageLoader, {
+      load: () => Effect.gen(function*() {
+        load()
+        yield* Deferred.succeed(started, undefined)
+        yield* Deferred.await(release)
+        return alphaPage
+      }),
+    })
+    const messages = await Effect.runPromise(Effect.gen(function*() {
+      let current = { isNeeded: true }
+      const first = yield* Effect.forkChild(Stream.runCollect(subscription.dependenciesToStream(
+        { isNeeded: true },
+        () => current,
+      )))
+      yield* Deferred.await(started)
+      current = { isNeeded: false }
+      yield* Fiber.interrupt(first)
+      const inactive = yield* Stream.runCollect(subscription.dependenciesToStream(
+        current,
+        () => current,
+      ))
+      expect(inactive).toHaveLength(0)
+      current = { isNeeded: true }
+      const resumed = yield* Effect.forkChild(Stream.runCollect(subscription.dependenciesToStream(
+        current,
+        () => current,
+      )))
+      yield* Effect.yieldNow
+      yield* Deferred.succeed(release, undefined)
+      return yield* Fiber.join(resumed)
+    }).pipe(Effect.provide(layer)))
+
+    expect([...messages]).toEqual([KitMessage.LoadedPageModule({ key: 'alpha' })])
+    expect(load).toHaveBeenCalledTimes(1)
+  })
+
+  it('completes shared waiters and evicts a loader defect for retry', async () => {
+    const testPages = makePages({ alpha: async () => alphaPage })
+    let attempts = 0
+    const layer = Layer.succeed(PageLoader, {
+      load: () => {
+        attempts += 1
+        return attempts === 1 ? Effect.die(new Error('loader died')) : Effect.succeed(alphaPage)
+      },
+    })
+    const first = await Effect.runPromiseExit(ensure(testPages, 'alpha').pipe(Effect.provide(layer)))
+    expect(Exit.isFailure(first)).toBe(true)
+    expect(await Effect.runPromise(ensure(testPages, 'alpha').pipe(Effect.provide(layer)))).toBe(alphaPage)
+    expect(attempts).toBe(2)
+  })
+
 
   it('resumes an A→B→A page load after interrupting the first requesting fiber', async () => {
     const pages = makePages({ alpha: async () => alphaPage })
@@ -202,7 +259,7 @@ describe('page loader', () => {
     vi.stubGlobal('location', { reload })
     try {
       const message = await runCommand(binding.commands.ReloadDocument({}).effect)
-      expect(message).toEqual(KitMessage.CompletedApplyUpdate({}))
+      expect(message).toEqual(KitMessage.FailedApplyUpdate({ reason: 'No service worker controller change' }))
       expect(reload).toHaveBeenCalledTimes(1)
     } finally {
       vi.unstubAllGlobals()
@@ -230,7 +287,7 @@ describe('page loader', () => {
     })
     try {
       const message = await runCommand(binding.commands.ReloadDocument({}).effect.pipe(Effect.provide(layer)))
-      expect(message).toEqual(KitMessage.CompletedApplyUpdate({}))
+      expect(message).toEqual(KitMessage.FailedApplyUpdate({ reason: 'No service worker controller change' }))
       expect(reload).toHaveBeenCalledTimes(1)
     } finally {
       vi.unstubAllGlobals()
@@ -253,15 +310,19 @@ describe('page loader', () => {
     }
   })
 
-  it('maps service worker update errors to FailedApplyUpdate', async () => {
+  it('maps a controller timeout to FailedApplyUpdate', async () => {
     const { binding, KitMessage } = makeKitFixture()
     const layer = Layer.succeed(ServiceWorker, {
       events: Stream.empty,
       hasRegistration: Effect.succeed(true),
       checkForUpdate: Effect.void,
-      applyUpdate: Effect.fail(new ServiceWorkerUpdateError({ cause: new Error('activation failed') })),
+      applyUpdate: Effect.fail(new ServiceWorkerUpdateError({
+        cause: new Error('Timed out waiting for service worker controller change'),
+      })),
     })
     const message = await runCommand(binding.commands.ReloadDocument({}).effect.pipe(Effect.provide(layer)))
-    expect(message).toEqual(KitMessage.FailedApplyUpdate({ reason: 'Error: activation failed' }))
+    expect(message).toEqual(KitMessage.FailedApplyUpdate({
+      reason: 'Error: Timed out waiting for service worker controller change',
+    }))
   })
 })
