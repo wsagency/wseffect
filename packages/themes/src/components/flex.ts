@@ -1,3 +1,6 @@
+import { brandViewResult } from 'foldkit/brand'
+import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
+import { paddingClasses, paddingPropSchemas } from '../props/padding.props.js'
 import { responsiveProp } from '../props/responsive.js'
 import { Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
@@ -12,7 +15,7 @@ const justifyValues = ['start', 'center', 'end', 'between'] as const
 const wrapValues = ['nowrap', 'wrap', 'wrap-reverse'] as const
 const directionProp = responsiveProp({ className: 'rt-r-fd', values: directionValues })
 const alignProp = responsiveProp({ className: 'rt-r-ai', values: alignValues })
-const justifyProp = responsiveProp({ className: 'rt-r-jc', values: justifyValues })
+const justifyProp = responsiveProp({ className: 'rt-r-jc', values: justifyValues, classNames: { between: 'rt-r-jc-space-between' } })
 const wrapProp = responsiveProp({ className: 'rt-r-fw', values: wrapValues })
 
 export const Props = Schema.Struct({
@@ -24,6 +27,8 @@ export const Props = Schema.Struct({
   gap: Schema.optional(responsiveSchema(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], true)),
   gapX: Schema.optional(responsiveSchema(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], true)),
   gapY: Schema.optional(responsiveSchema(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], true)),
+  ...paddingPropSchemas,
+  ...marginPropSchemas,
 })
 export type ViewProps = typeof Props.Type
 
@@ -39,7 +44,9 @@ export const view = <Message>(
   const gap = responsiveClasses(gapPropDefs.gap, props.gap)
   const gapX = responsiveClasses(gapPropDefs.gapX, props.gapX)
   const gapY = responsiveClasses(gapPropDefs.gapY, props.gapY)
-  return styledElement(props.as ?? 'div', ['rt-Flex', ...direction.classes, ...align.classes, ...justify.classes, ...wrap.classes, ...gap.classes, ...gapX.classes, ...gapY.classes], {
-    ...direction.style, ...align.style, ...justify.style, ...wrap.style, ...gap.style, ...gapX.style, ...gapY.style,
-  }, children, h)
+  const padding = paddingClasses(props)
+  const margin = marginClasses(props)
+  return brandViewResult(styledElement(props.as ?? 'div', ['rt-Flex', ...direction.classes, ...align.classes, ...justify.classes, ...wrap.classes, ...gap.classes, ...gapX.classes, ...gapY.classes, ...padding.classes, ...margin.classes], {
+    ...direction.style, ...align.style, ...justify.style, ...wrap.style, ...gap.style, ...gapX.style, ...gapY.style, ...padding.style, ...margin.style,
+  }, children, h), 'wseffect/Flex')
 }

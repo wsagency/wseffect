@@ -1,3 +1,4 @@
+import { brandViewResult } from 'foldkit/brand'
 import { Schema } from 'effect'
 import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
 import { accentColors, grayColors } from '../props/color.props.js'
@@ -64,11 +65,13 @@ export const view = <Message>(
     )
   } else {
     if (settings.accentColor !== undefined) attributes.push(h.DataAttribute('accent-color', settings.accentColor))
-    if (settings.grayColor !== undefined) {
-      const grayColor = settings.grayColor === 'auto' && settings.accentColor !== undefined
-        ? grayMatch[settings.accentColor]
-        : settings.grayColor
-      attributes.push(h.DataAttribute('gray-color', grayColor))
+    if (settings.accentColor !== undefined || settings.grayColor !== undefined) {
+      const grayColor = settings.grayColor === undefined
+        ? settings.accentColor === undefined ? undefined : grayMatch[settings.accentColor]
+        : settings.grayColor === 'auto' && settings.accentColor !== undefined
+          ? grayMatch[settings.accentColor]
+          : settings.grayColor
+      if (grayColor !== undefined) attributes.push(h.DataAttribute('gray-color', grayColor))
     }
     if (settings.radius !== undefined) attributes.push(h.DataAttribute('radius', settings.radius))
     if (settings.scaling !== undefined) attributes.push(h.DataAttribute('scaling', settings.scaling))
@@ -76,5 +79,5 @@ export const view = <Message>(
     if (settings.panelBackground !== undefined) attributes.push(h.DataAttribute('panel-background', settings.panelBackground))
   }
 
-  return h.div(attributes, children)
+  return brandViewResult(h.div(attributes, children), 'wseffect/Theme')
 }

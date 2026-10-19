@@ -1,3 +1,5 @@
+import { brandViewResult } from 'foldkit/brand'
+import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
 import { responsiveProp } from '../props/responsive.js'
 import { Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
@@ -18,6 +20,7 @@ export const Props = Schema.Struct({
   as: Schema.optional(Schema.Literals(['div', 'span'])),
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
+  ...marginPropSchemas,
 })
 export type ViewProps = typeof Props.Type
 
@@ -26,6 +29,7 @@ export const view = <Message>(
   children: ReadonlyArray<Html | string>,
   h: HtmlBuilder<Message>,
 ): Html => {
-  const size = responsiveClasses(sizeProp, props.size)
-  return styledElement(props.as ?? 'div', ['rt-Card', ...size.classes, variantClasses[props.variant ?? 'surface']], size.style, children, h)
+  const size = responsiveClasses(sizeProp, props.size ?? '1')
+  const margin = marginClasses(props)
+  return brandViewResult(styledElement(props.as ?? 'div', ['rt-Card', ...size.classes, variantClasses[props.variant ?? 'surface'], ...margin.classes], { ...size.style, ...margin.style }, children, h), 'wseffect/Card')
 }

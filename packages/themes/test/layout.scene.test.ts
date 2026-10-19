@@ -11,21 +11,32 @@ import * as Grid from '../src/components/grid.js'
 import * as Heading from '../src/components/heading.js'
 import * as Text from '../src/components/text.js'
 
-const Message = defineMessageUnion({ Tick: {} })
+const Message = defineMessageUnion({ Tick: {}, ChangeDisplay: {} })
 type Message = typeof Message.Type
-type Model = Readonly<{ tick: number }>
-const update = (model: Model, _message: Message) => ({ model: { tick: model.tick + 1 } })
-const flexView = (_model: Model, h: HtmlBuilder<Message>) => Flex.view({ direction: { initial: 'column', md: 'row' }, gap: '3' }, ['flex'], h)
-const gridView = (_model: Model, h: HtmlBuilder<Message>) => Grid.view({ columns: '3' }, ['grid'], h)
-const headingView = (_model: Model, h: HtmlBuilder<Message>) => Heading.view({ as: 'h2', size: '6' }, ['Title'], h)
-const cardView = (_model: Model, h: HtmlBuilder<Message>) => Card.view({ variant: 'surface' }, ['Card'], h)
+type Model = Readonly<{ tick: number; boxDisplay?: 'block' | 'flex' }>
+const update = (model: Model, message: Message) => Message.match(message, {
+  Tick: () => ({ model: { ...model, tick: model.tick + 1 } }),
+  ChangeDisplay: () => ({ model: { ...model, boxDisplay: 'flex' as const } }),
+})
+const boxView = (_model: Model, h: HtmlBuilder<Message>) => Box.view({ width: '200px', height: '50px', p: '3', mx: { md: '2' } }, ['box'], h)
+const flexView = (_model: Model, h: HtmlBuilder<Message>) => Flex.view({ direction: { initial: 'column', md: 'row' }, justify: 'between', gap: '3' }, ['flex'], h)
+const gridView = (_model: Model, h: HtmlBuilder<Message>) => Grid.view({ columns: '12', alignContent: 'between', justifyItems: 'center' }, ['grid'], h)
+const headingView = (_model: Model, h: HtmlBuilder<Message>) => Heading.view({ as: 'h2' }, ['Title'], h)
 
 describe('layout and typography views', () => {
+  it('maps Box sizing and spacing props to upstream utilities', () => {
+    Scene.scene(
+      { update, view: boxView },
+      Scene.given({ tick: 0 }),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('class', 'rt-Box rt-r-w rt-r-h rt-r-p-3 md:rt-r-mx-2'),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('style', '--width: 200px; --height: 50px;'),
+    )
+  })
   it('maps responsive Flex direction and gap classes', () => {
     Scene.scene(
       { update, view: flexView },
       Scene.given({ tick: 0 }),
-      Scene.expect(Scene.selector('.rt-Flex')).toHaveAttr('class', 'rt-Flex rt-r-fd-column md:rt-r-fd-row rt-r-gap-3'),
+      Scene.expect(Scene.selector('.rt-Flex')).toHaveAttr('class', 'rt-Flex rt-r-fd-column md:rt-r-fd-row rt-r-jc-space-between rt-r-gap-3'),
     )
   })
 
@@ -33,7 +44,8 @@ describe('layout and typography views', () => {
     Scene.scene(
       { update, view: gridView },
       Scene.given({ tick: 0 }),
-      Scene.expect(Scene.selector('.rt-r-gtc-3')).toExist(),
+      Scene.expect(Scene.selector('.rt-Grid')).toHaveAttr('class', 'rt-Grid rt-r-gtc rt-r-ac-space-between rt-r-ji-center'),
+      Scene.expect(Scene.selector('.rt-Grid')).toHaveAttr('style', '--grid-template-columns: repeat(12, minmax(0, 1fr));'),
     )
   })
 
@@ -49,7 +61,7 @@ describe('layout and typography views', () => {
     Scene.scene(
       { update, view: cardView },
       Scene.given({ tick: 0 }),
-      Scene.expect(Scene.selector('.rt-Card')).toHaveAttr('class', 'rt-Card rt-variant-surface'),
+      Scene.expect(Scene.selector('.rt-Card')).toHaveAttr('class', 'rt-Card rt-r-size-1 rt-variant-surface'),
     )
   })
 
@@ -65,26 +77,38 @@ describe('layout and typography views', () => {
     expect(() => Schema.decodeUnknownSync(Card.Props)({ size: '99' })).toThrow()
   })
 
-  it('allows callers to memoize all six stateless component views', () => {
+  it('memoizes six component views by primitive props', () => {
     const lazy = createLazy()
-    const componentView = vi.fn((_tick: number, builder: HtmlBuilder<Message>) => builder.div([], [
-      Box.view({ display: 'block' }, ['box'], builder),
-      Flex.view({ direction: 'row' }, ['flex'], builder),
-      Grid.view({ columns: '2' }, ['grid'], builder),
-      Text.view({ as: 'p', size: '2' }, ['text'], builder),
-      Heading.view({ as: 'h3', size: '3' }, ['heading'], builder),
-      Card.view({ variant: 'surface' }, ['card'], builder),
+    const componentView = vi.fn((
+      boxDisplay: 'block' | 'flex',
+      direction: 'row',
+      columns: '2',
+      textSize: '2',
+      headingSize: '3',
+      cardSize: '1',
+      builder: HtmlBuilder<Message>,
+    ) => builder.div([], [
+      Box.view({ display: boxDisplay }, ['box'], builder),
+      Flex.view({ direction }, ['flex'], builder),
+      Grid.view({ columns }, ['grid'], builder),
+      Text.view({ as: 'p', size: textSize }, ['text'], builder),
+      Heading.view({ as: 'h3', size: headingSize }, ['heading'], builder),
+      Card.view({ size: cardSize }, ['card'], builder),
     ]))
-    const memoized = (_model: Model, h: HtmlBuilder<Message>) => h.div([], [
-      lazy(componentView, [0, h]),
+    const memoized = (model: Model, h: HtmlBuilder<Message>) => h.div([], [
+      lazy(componentView, [model.boxDisplay ?? 'block', 'row', '2', '2', '3', '1', h]),
       h.button([h.OnClick(Message.Tick())], ['update']),
+      h.button([h.OnClick(Message.ChangeDisplay())], ['change display']),
     ])
     Scene.scene(
       { update, view: memoized },
       Scene.given({ tick: 0 }),
-      Scene.click(Scene.role('button')),
-      Scene.expect(Scene.selector('.rt-Card')).toExist(),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('class', 'rt-Box rt-r-display-block'),
+      Scene.click(Scene.role('button', { name: 'update' })),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('class', 'rt-Box rt-r-display-block'),
+      Scene.click(Scene.role('button', { name: 'change display' })),
+      Scene.expect(Scene.selector('.rt-Box')).toHaveAttr('class', 'rt-Box rt-r-display-flex'),
     )
-    expect(componentView).toHaveBeenCalledTimes(1)
+    expect(componentView).toHaveBeenCalledTimes(2)
   })
 })

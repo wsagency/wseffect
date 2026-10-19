@@ -1,3 +1,4 @@
+import { brandViewResult } from 'foldkit/brand'
 import { childAttributes, type Html, type HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
@@ -27,7 +28,7 @@ export type Bundle<Value extends string> = Readonly<{
 export const create = <Value extends string>(): Bundle<Value> => {
   const tabs = UiTabs.create<Value>()
   const view = defineView<UiTabs.Model, UiTabs.Message, TabsViewInputs<Value>>((model, inputs, h) =>
-    tabs.view(model, {
+    brandViewResult(tabs.view(model, {
       ...inputs,
       toView: render => inputs.toView({
         ...render,
@@ -38,7 +39,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
           panel: [...tab.panel, ...childAttributes([h.Class('rt-TabsContent')])],
         })),
       }),
-    }, h),
+    }, h), 'wseffect/Tabs'),
   )
 
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(

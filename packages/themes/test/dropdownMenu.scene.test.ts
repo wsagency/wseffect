@@ -1,14 +1,14 @@
 import * as Option from 'effect/Option'
 import { Schema } from 'effect'
 import * as UiMenu from '@foldkit/ui/menu'
+import { createKeyedLazy, type HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
-import type { HtmlBuilder } from 'foldkit/html'
 import * as Scene from 'foldkit/scene'
-import { describe, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import * as DropdownMenu from '../src/components/dropdown-menu.js'
 
 const Menu = DropdownMenu.create<'edit' | 'delete'>()
-const ParentMessage = defineMessageUnion({ GotMenu: { message: Menu.Message } })
+const ParentMessage = defineMessageUnion({ GotMenu: { message: Menu.Message }, Tick: {} })
 const ParentOutMessage = defineMessageUnion({ Selected: { value: Schema.String, index: Schema.Number } })
 type ParentModel = Readonly<{ menu: typeof Menu.Model.Type }>
 type ParentMessage = typeof ParentMessage.Type
@@ -21,6 +21,7 @@ const foldMenu = Menu.fold<ParentModel, ParentMessage, ParentOutMessage>({
 })
 const update = (model: ParentModel, message: ParentMessage) => ParentMessage.match(message, {
   GotMenu: ({ message: childMessage }) => foldMenu(model, childMessage),
+  Tick: () => ({ model }),
 })
 const view = (model: ParentModel, h: HtmlBuilder<ParentMessage>) => Menu.embed(h, {
   slotId: 'actions',
@@ -32,6 +33,28 @@ const view = (model: ParentModel, h: HtmlBuilder<ParentMessage>) => Menu.embed(h
     buttonContent: h.span([], ['Actions']),
   },
 })
+
+type PerformanceModel = Readonly<{ menus: ReadonlyArray<Readonly<{ id: string; model: typeof Menu.Model.Type }>>; tick: number }>
+const performanceMenus = Array.from({ length: 200 }, (_, index) => {
+  const id = `closed-${index}`
+  return { id, model: Menu.init({ id }) }
+})
+const renderMenu = vi.fn((model: typeof Menu.Model.Type, slotId: string, h: HtmlBuilder<ParentMessage>) => Menu.embed(h, {
+  slotId,
+  model,
+  toParentMessage: message => ParentMessage.GotMenu({ message }),
+  viewInputs: {
+    items: ['edit', 'delete'],
+    itemToConfig: item => ({ content: h.span([], [item]) }),
+    buttonContent: h.span([], ['Actions']),
+  },
+}))
+const keyedMenu = createKeyedLazy()
+const performanceUpdate = (model: PerformanceModel, _message: ParentMessage) => ({ model: { ...model, tick: model.tick + 1 } })
+const performanceView = (model: PerformanceModel, h: HtmlBuilder<ParentMessage>) => h.div([], [
+  ...model.menus.map(menu => keyedMenu(menu.id, renderMenu, [menu.model, menu.id, h])),
+  h.button([h.OnClick(ParentMessage.Tick())], ['unrelated update']),
+])
 
 describe('themed DropdownMenu view', () => {
   it('renders an accessible themed trigger', () => {
@@ -57,5 +80,16 @@ describe('themed DropdownMenu view', () => {
       Scene.expect(Scene.role('menu')).toHaveAttr('aria-activedescendant', 'actions-item-0'),
       Scene.expect(Scene.role('menuitem', { name: 'edit' })).toExist(),
     )
+  })
+
+  it('reuses 200 closed menu views on an unrelated parent update', () => {
+    renderMenu.mockClear()
+    Scene.scene(
+      { update: performanceUpdate, view: performanceView },
+      Scene.given({ menus: performanceMenus, tick: 0 }),
+      Scene.click(Scene.role('button', { name: 'unrelated update' })),
+      Scene.expect(Scene.role('button', { name: 'unrelated update' })).toExist(),
+    )
+    expect(renderMenu).toHaveBeenCalledTimes(200)
   })
 })

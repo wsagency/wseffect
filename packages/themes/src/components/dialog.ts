@@ -1,3 +1,4 @@
+import { brandViewResult } from 'foldkit/brand'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import * as UiDialog from '@foldkit/ui/dialog'
@@ -43,11 +44,11 @@ export const embed = <Message>(h: HtmlBuilder<Message>, config: EmbedConfig<Mess
         : [],
     ),
   }
-  return h.submodel({
+  return brandViewResult(h.submodel({
     slotId: config.slotId,
     model: config.model,
     view: UiDialog.view,
     viewInputs,
     toParentMessage: config.toParentMessage,
-  })
+  }), 'wseffect/Dialog')
 }

@@ -27,6 +27,7 @@ const view = (model: Model, h: HtmlBuilder<Message>) => h.div([], [
 const root = Scene.selector('.radix-themes')
 
 describe('Theme view', () => {
+  // DOM mutation counts are asserted by the planned D3 e2e/theme.spec.ts coverage.
   it('reuses a memoized descendant when the root settings change', () => {
     childViewCalls = 0
     Scene.scene(
@@ -79,6 +80,14 @@ describe('Theme view', () => {
       { update, view },
       Scene.given({ settings: { accentColor: 'crimson', grayColor: 'auto' }, isRoot: false }),
       Scene.expect(root).toHaveAttr('data-accent-color', 'crimson'),
+      Scene.expect(root).toHaveAttr('data-gray-color', 'mauve'),
+    )
+  })
+
+  it('matches omitted nested gray to the nested accent', () => {
+    Scene.scene(
+      { update, view },
+      Scene.given({ settings: { accentColor: 'crimson' }, isRoot: false }),
       Scene.expect(root).toHaveAttr('data-gray-color', 'mauve'),
     )
   })

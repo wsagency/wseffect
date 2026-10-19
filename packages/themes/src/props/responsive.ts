@@ -19,11 +19,23 @@ export const responsiveProp = <Values extends string>(config: {
   readonly values?: ReadonlyArray<Values>
   readonly customProperties?: ReadonlyArray<`--${string}`>
   readonly parseValue?: (value: string) => string | undefined
+  readonly classNames?: Readonly<Record<string, string>>
 }): ResponsivePropDef => {
-  const { className, values, customProperties, parseValue } = config
-  const classNames = values === undefined ? undefined : classTable(`${className}-`, values)
+  const { className, values, customProperties, parseValue, classNames: overrides } = config
+  const generatedClassNames = values === undefined ? undefined : classTable(`${className}-`, values)
+  const classNames = generatedClassNames === undefined || overrides === undefined
+    ? generatedClassNames
+    : Object.freeze({ ...generatedClassNames, ...overrides })
   const breakpointClassNames = values === undefined ? undefined : Object.freeze(Object.fromEntries(
-    breakpoints.map(breakpoint => [breakpoint, classTable(`${breakpoint === 'initial' ? '' : `${breakpoint}:`}${className}-`, values)]),
+    breakpoints.map(breakpoint => {
+      const prefix = `${breakpoint === 'initial' ? '' : `${breakpoint}:`}${className}-`
+      const generated = classTable(prefix, values)
+      const mapped = overrides === undefined ? generated : Object.freeze({
+        ...generated,
+        ...Object.fromEntries(Object.entries(overrides).map(([value, name]) => [value, name.replace(`${className}-`, prefix)])),
+      })
+      return [breakpoint, mapped]
+    }),
   )) as Readonly<Record<Breakpoint, Readonly<Record<string, string>>>>
   const breakpointClassNamesBase = Object.freeze(Object.fromEntries(
     breakpoints.map(breakpoint => [breakpoint, `${breakpoint === 'initial' ? '' : `${breakpoint}:`}${className}`]),
@@ -56,11 +68,13 @@ export const responsiveClasses = (
       continue
     }
     const parsed = prop.parseValue?.(current) ?? current
-    const property = prop.customProperties?.[0]
-    if (property === undefined || (prop.values !== undefined && prop.values.includes(current))) continue
+    const properties = prop.customProperties
+    if (properties === undefined || (prop.values !== undefined && prop.values.includes(current))) continue
     classes.push(prop.breakpointClassNamesBase?.[breakpoint] ?? prop.className)
-    const styleProperty = prop.breakpointProperties?.[property]?.[breakpoint] ?? property
-    style[styleProperty] = parsed
+    for (const property of properties) {
+      const styleProperty = prop.breakpointProperties?.[property]?.[breakpoint] ?? property
+      style[styleProperty] = parsed
+    }
   }
   return { classes, style }
 }

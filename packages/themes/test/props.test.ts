@@ -29,6 +29,20 @@ describe('responsive prop classes', () => {
     })
   })
 
+  it('maps px arbitrary values to both CSS properties', () => {
+    expect(responsiveClasses(paddingPropDefs.px, '13px')).toEqual({
+      classes: ['rt-r-px'],
+      style: { '--pl': '13px', '--pr': '13px' },
+    })
+  })
+
+  it('maps responsive px arbitrary values to both breakpoint custom properties', () => {
+    expect(responsiveClasses(paddingPropDefs.px, { md: '13px' })).toEqual({
+      classes: ['md:rt-r-px'],
+      style: { '--pl-md': '13px', '--pr-md': '13px' },
+    })
+  })
+
   it('freezes precomputed class maps', () => {
     const variants = classTable('rt-variant-', ['solid', 'soft'] as const)
     expect(variants).toEqual({ solid: 'rt-variant-solid', soft: 'rt-variant-soft' })

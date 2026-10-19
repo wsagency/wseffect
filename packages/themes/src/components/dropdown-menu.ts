@@ -1,3 +1,4 @@
+import { brandViewResult } from 'foldkit/brand'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
 import type { Html, HtmlBuilder } from 'foldkit/html'
@@ -30,11 +31,11 @@ export type Bundle<Item extends string> = Readonly<{
 export const create = <Item extends string>(): Bundle<Item> => {
   const menu = UiMenu.create<Item>()
   const view = defineView<UiMenu.Model, UiMenu.Message, MenuViewInputs<Item>>((model, inputs, h) =>
-    menu.view(model, {
+    brandViewResult(menu.view(model, {
       ...inputs,
       buttonClassName: [triggerClassName, inputs.buttonClassName].filter(Boolean).join(' '),
       itemsClassName: [panelClassName, inputs.itemsClassName].filter(Boolean).join(' '),
-    }, h),
+    }, h), 'wseffect/DropdownMenu'),
   )
 
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(
