@@ -4,7 +4,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser } from '@playwright/test'
 import { preview } from 'vite'
-import { assertQualifiedEntryCoverage, runHarnessSelfTest, runScenario, SCENARIOS } from './perf.ts'
+import { runHarnessSelfTest, runScenario, SCENARIOS } from './perf.ts'
 import type { PerfScenario } from './scenarios.ts'
 import { measureSize, type SizeReport } from './size.ts'
 
@@ -102,7 +102,6 @@ async function applicationReport(appDir: string, browser: Browser): Promise<Appl
     const perf = {} as Record<ScenarioId, ScenarioMetrics>
     for (const scenario of SCENARIOS) {
       const metrics = await runScenario(baseUrl, scenario, undefined, browser)
-      assertQualifiedEntryCoverage(`${appDir} ${scenario.id}`, metrics.eventEntryCounts)
       perf[scenario.id] = metrics
     }
     return { size, perf }

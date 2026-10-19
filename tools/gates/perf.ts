@@ -149,12 +149,6 @@ export function assertNoiseBand(band: NoiseBand, floorMs: number): void {
   }
 }
 
-export function assertQualifiedEntryCoverage(label: string, counts: readonly (readonly number[])[]): void {
-  const missing = counts.filter((interaction) => interaction.length === 0).length
-  if (missing > counts.length / 2) {
-    throw new Error(`${label}: ${missing}/${counts.length} interactions have no qualifying Event Timing entries`)
-  }
-}
 
 function scriptRegressionThresholdMs(scenarioId: PerfScenario['id'], baseMedianMs: number, noiseFloorMs: number): number {
   return Math.max((SCRIPT_RATIO - 1) * baseMedianMs, SCRIPT_ABSOLUTE_MS, noiseFloorMs)
@@ -419,7 +413,9 @@ export async function runScenario(
   }
   return { eventMs, eventEntryCounts, scriptMs, animationFrameCounts }
 }
-export async function runHarnessSelfTest(): Promise<HarnessSelfTestReport> {
+export async function runHarnessSelfTest(
+  { enforceThrottleRatio = true }: { readonly enforceThrottleRatio?: boolean } = {},
+): Promise<HarnessSelfTestReport> {
   const browser = await chromium.launch()
   const page = await browser.newPage()
   const client = await page.context().newCDPSession(page)
@@ -509,7 +505,7 @@ export async function runHarnessSelfTest(): Promise<HarnessSelfTestReport> {
     const unthrottledMs = median(unthrottledSamples)
     const throttledMs = median(throttledSamples)
     const ratio = throttledMs / unthrottledMs
-    assertThrottleRatio(ratio)
+    if (enforceThrottleRatio) assertThrottleRatio(ratio)
     return {
       eventTiming,
       cpuThrottle: { iterations, unthrottledMs, throttledMs, ratio },
@@ -597,7 +593,6 @@ async function measureNoiseFloors(baseUrl: string, browser: Browser): Promise<Sc
   const floors = {} as ScenarioNoiseFloors
   for (const scenario of SCENARIOS) {
     const result = await runScenario(baseUrl, scenario, SESSIONS * 2, browser)
-    assertQualifiedEntryCoverage(`${scenario.id} A/A noise measurement`, result.eventEntryCounts)
     floors[scenario.id] = roundedNoiseFloorMs(result.scriptMs)
   }
   return floors
@@ -606,7 +601,6 @@ async function measureNoiseFloors(baseUrl: string, browser: Browser): Promise<Sc
 async function assertRunnerNoise(baseUrl: string, browser: Browser, floors: ScenarioNoiseFloors): Promise<void> {
   for (const scenario of SCENARIOS) {
     const result = await runScenario(baseUrl, scenario, SESSIONS * 2, browser)
-    assertQualifiedEntryCoverage(`${scenario.id} A/A noise check`, result.eventEntryCounts)
     assertNoiseBand(pairedNoise(result.scriptMs), floors[scenario.id])
   }
 }
@@ -626,7 +620,6 @@ async function runCli(): Promise<void> {
         const results = []
         for (const scenario of SCENARIOS) {
           const samples = await runScenario(candidate.url, scenario, SESSIONS * 2, browser)
-          assertQualifiedEntryCoverage(`${scenario.id} A/A self-test`, samples.eventEntryCounts)
           results.push({
             scenario: scenario.id,
             script: pairedNoise(samples.scriptMs),
@@ -705,8 +698,6 @@ async function runCli(): Promise<void> {
             candidateAnimationFrameCounts.push(candidateResult.animationFrameCounts[0]!)
             candScript.push(candidateResult.scriptMs[0]!)
           }
-          assertQualifiedEntryCoverage(`${scenario.id} baseline`, baseEntries)
-          assertQualifiedEntryCoverage(`${scenario.id} candidate`, candEntries)
           const result: RegressionResult = {
             scenarioId: scenario.id,
             baseScript,

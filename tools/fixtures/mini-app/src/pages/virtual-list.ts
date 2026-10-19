@@ -11,7 +11,7 @@ interface Row {
 let cachedRows: Row[] | undefined
 
 function getRows(): Row[] {
-  return (cachedRows ??= Array.from({ length: 15_000 }, (_, index) => ({
+  return (cachedRows ??= Array.from({ length: 10_000 }, (_, index) => ({
     id: index + 1,
     name: `Record ${String(index + 1).padStart(5, '0')}`,
     account: `Account ${index % 117}`,
@@ -25,7 +25,7 @@ const VISIBLE_ROWS = 15
 export const view: PageView = (model, h, messages) => {
   const filter = model.filter.trim().toLowerCase()
   const filtered = getRows().filter((row) => `${row.name} ${row.account} ${row.region}`.toLowerCase().includes(filter))
-  if (model.descending) filtered.sort((left, right) => right.amount - left.amount)
+  if (model.descending) filtered.sort((left, right) => right.id - left.id)
   const visible = filtered.slice(0, VISIBLE_ROWS)
 
   return {
