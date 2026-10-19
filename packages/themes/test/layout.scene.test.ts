@@ -22,6 +22,7 @@ const boxView = (_model: Model, h: HtmlBuilder<Message>) => Box.view({ width: '2
 const flexView = (_model: Model, h: HtmlBuilder<Message>) => Flex.view({ direction: { initial: 'column', md: 'row' }, justify: 'between', gap: '3' }, ['flex'], h)
 const gridView = (_model: Model, h: HtmlBuilder<Message>) => Grid.view({ columns: '12', alignContent: 'between', justifyItems: 'center' }, ['grid'], h)
 const headingView = (_model: Model, h: HtmlBuilder<Message>) => Heading.view({ as: 'h2' }, ['Title'], h)
+const cardView = (_model: Model, h: HtmlBuilder<Message>) => Card.view({ variant: 'surface' }, ['Card'], h)
 
 describe('layout and typography views', () => {
   it('maps Box sizing and spacing props to upstream utilities', () => {
