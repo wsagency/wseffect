@@ -137,6 +137,31 @@ async function packageFiles(root: string): Promise<string[]> {
   return found
 }
 
+export async function checkGalleryEffectSourceMaps(root: string): Promise<string[]> {
+  const assets = join(root, 'apps/gallery/dist/assets')
+  let files: string[]
+  try {
+    files = (await readdir(assets)).filter((name) => name.endsWith('.js.map'))
+  } catch {
+    return ['apps/gallery/dist/assets: production source maps are missing']
+  }
+  const packageDirectories = new Set<string>()
+  for (const file of files) {
+    const mapPath = join(assets, file)
+    const map = JSON.parse(await readFile(mapPath, 'utf8')) as { readonly sources?: ReadonlyArray<string> }
+    for (const source of map.sources ?? []) {
+      const absolute = resolve(dirname(mapPath), source)
+      const marker = '/node_modules/effect/'
+      const normalized = absolute.replaceAll('\\', '/')
+      const index = normalized.lastIndexOf(marker)
+      if (index >= 0) packageDirectories.add(normalized.slice(0, index + marker.length - 1))
+    }
+  }
+  return packageDirectories.size === 1
+    ? []
+    : [`gallery source maps reference ${packageDirectories.size} Effect package directories: ${[...packageDirectories].join(', ')}`]
+}
+
 async function main(): Promise<void> {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const errors: string[] = []
@@ -152,6 +177,7 @@ async function main(): Promise<void> {
   }
   errors.push(...checkWorkspace(await readFile(join(root, 'pnpm-workspace.yaml'), 'utf8')))
   errors.push(...checkEffectCopies(await readFile(join(root, 'pnpm-lock.yaml'), 'utf8')))
+  errors.push(...await checkGalleryEffectSourceMaps(root))
   if (errors.length) {
     console.error(errors.join('\n'))
     process.exitCode = 1

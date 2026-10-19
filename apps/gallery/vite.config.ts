@@ -17,7 +17,7 @@ export const manifest = {
 
 export default defineConfig({
   define: { __GALLERY_REVISION__: JSON.stringify(process.env.GALLERY_REVISION ?? 'r1') },
-  build: { manifest: true },
+  build: { manifest: true, sourcemap: true },
   plugins: [wseffect({
     primaryPages,
     pwa: { manifest },
