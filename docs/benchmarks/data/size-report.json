@@ -1,0 +1,244 @@
+{
+  "generatedAt": "2026-10-19T17:29:36.052Z",
+  "node": "v24.21.0",
+  "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+  "loadStart": [
+    18.94,
+    20.48,
+    20.98
+  ],
+  "loadEnd": [
+    19.19,
+    20.51,
+    20.99
+  ],
+  "results": {
+    "wseffect": {
+      "shell": 98627,
+      "shellRaw": 354515,
+      "firstVisit": {
+        "bytes": 155869,
+        "requests": 16
+      },
+      "speculativePrefetch": {
+        "bytes": 20667,
+        "requests": 7
+      },
+      "requestTable": [
+        {
+          "path": "/",
+          "bytes": 231,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-Cj6rd8-N.js",
+          "bytes": 3235,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-D2a5czlA.css",
+          "bytes": 23074,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/framework-CoGn8Z7K.js",
+          "bytes": 95392,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/app-shared-SFlJ1L4O.js",
+          "bytes": 21987,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/version.json",
+          "bytes": 69,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/sw.js",
+          "bytes": 897,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/workbox-030fe8f8.js",
+          "bytes": 6769,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/layout-jM88q8WR.js",
+          "bytes": 365,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/buttons-DwooiuYK.js",
+          "bytes": 320,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/tabs-BCg89EQI.css",
+          "bytes": 741,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/tabs-DmiolPw1.js",
+          "bytes": 591,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/textField-DScbZ74H.js",
+          "bytes": 362,
+          "classification": "speculative"
+        },
+        {
+          "path": "/index.html",
+          "bytes": 231,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/dialog-Jtl0yD8L.js",
+          "bytes": 606,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/theme-D4EKcr2x.js",
+          "bytes": 1091,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/theme-B23CNy5Y.css",
+          "bytes": 16900,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/typography-DT4flLZ2.js",
+          "bytes": 319,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/dropdownMenu-PnpTITh7.js",
+          "bytes": 649,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/cards-CHTtuRfu.js",
+          "bytes": 333,
+          "classification": "speculative"
+        },
+        {
+          "path": "/icons/icon-192.png",
+          "bytes": 533,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/icons/icon-512.png",
+          "bytes": 1671,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/manifest.webmanifest",
+          "bytes": 170,
+          "classification": "mandatory"
+        }
+      ],
+      "pages": {
+        "buttons": 320,
+        "cards": 333,
+        "dialog": 606,
+        "dropdownMenu": 649,
+        "form": 527,
+        "layout": 365,
+        "menus": 750,
+        "sharedA": 536,
+        "sharedB": 383,
+        "tabs": 591,
+        "textField": 362,
+        "theme": 1091,
+        "typography": 319,
+        "virtualList": 6020
+      },
+      "stylesCss": 40715,
+      "loadBeforeMeasure": [
+        18.94,
+        20.48,
+        20.98
+      ]
+    },
+    "radix2solid": {
+      "shell": 33205,
+      "shellRaw": 100037,
+      "firstVisit": {
+        "bytes": 87006,
+        "requests": 8
+      },
+      "speculativePrefetch": {
+        "bytes": 0,
+        "requests": 0
+      },
+      "requestTable": [
+        {
+          "path": "/",
+          "bytes": 289,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-D_Bo7zzK.js",
+          "bytes": 12857,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-zIijDIA0.css",
+          "bytes": 50595,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/framework-Bw8nuUml.js",
+          "bytes": 20348,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/text-align.prop-DTzihaoX-CwAfJ-nG.js",
+          "bytes": 2313,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/radius.prop-ArD5xpu8-ntp3DFOR.js",
+          "bytes": 109,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/direction-BLKDRKnq-BXf7AO0I.js",
+          "bytes": 413,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/sw.js",
+          "bytes": 82,
+          "classification": "mandatory"
+        }
+      ],
+      "pages": {
+        "buttons": 282,
+        "cards": 230,
+        "dialog": 2349,
+        "dropdown-menu": 373,
+        "form": 147,
+        "layout": 1338,
+        "menus": 149,
+        "shared-a": 150,
+        "shared": 416,
+        "tabs": 1808,
+        "text-field": 326,
+        "theme": 642,
+        "typography": 255,
+        "virtual-list": 153
+      },
+      "stylesCss": 50595,
+      "loadBeforeMeasure": [
+        19.19,
+        20.51,
+        20.99
+      ]
+    }
+  }
+}

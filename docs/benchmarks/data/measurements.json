@@ -1,0 +1,4710 @@
+{
+  "environment": {
+    "generatedAt": "2026-10-19T16:34:46.201Z",
+    "node": "v24.21.0",
+    "chromium": "156.0.8078.4",
+    "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+    "loadStart": [
+      24.48,
+      26.81,
+      24.69
+    ],
+    "loadEnd": [
+      19.27,
+      22.08,
+      22.96
+    ],
+    "hostname": "omarchy",
+    "measuredCommit": "5cde4de89666903be9e0e45c3ae971c9645e7e76",
+    "sourcePin": "radix2solid 383676172",
+    "throttleSelfTest": {
+      "eventTiming": [
+        {
+          "handlerMs": 50,
+          "eventMs": 56,
+          "qualifiedEntries": 3
+        },
+        {
+          "handlerMs": 5,
+          "eventMs": 16,
+          "qualifiedEntries": 3
+        }
+      ],
+      "cpuThrottle": {
+        "iterations": 20000000,
+        "unthrottledMs": 85,
+        "throttledMs": 334.5,
+        "ratio": 3.9352941176470586
+      },
+      "animationFrameCount": 1
+    },
+    "throttleCommands": {
+      "expectedPerRate": 360,
+      "observed": 720,
+      "countsByRate": {
+        "1x": 360,
+        "4x": 360
+      }
+    },
+    "method": "ABAB (five A/B/A/B blocks, ten sessions/app); Event Timing and trace scripting from tools/gates/perf.ts runScenario. A/A samples are ten adjacent paired repeats per app/scenario/throttle. 1x differs only by CDP throttle rate; 4x uses the harness rate. A/A bands are p95 absolute paired deltas; significance requires |median difference| to exceed the larger app-specific A/A band for that metric."
+  },
+  "sizes": {
+    "wseffect": {
+      "shell": 98629,
+      "shellRaw": 354360,
+      "firstVisit": {
+        "bytes": 155825,
+        "requests": 16
+      },
+      "speculativePrefetch": {
+        "bytes": 20588,
+        "requests": 7
+      },
+      "requestTable": [
+        {
+          "path": "/",
+          "bytes": 229,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index--y0l1UE-.js",
+          "bytes": 3187,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-D2a5czlA.css",
+          "bytes": 23074,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/framework-BUd7fXXn.js",
+          "bytes": 95442,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/app-shared-hdjmqR5h.js",
+          "bytes": 21970,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/version.json",
+          "bytes": 72,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/sw.js",
+          "bytes": 890,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/workbox-030fe8f8.js",
+          "bytes": 6769,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/layout-D4nC6ajw.js",
+          "bytes": 358,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/dropdownMenu-Cd8anmJ0.js",
+          "bytes": 612,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/cards-DYYqlfP8.js",
+          "bytes": 333,
+          "classification": "speculative"
+        },
+        {
+          "path": "/index.html",
+          "bytes": 229,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/buttons-7YOEt1H9.js",
+          "bytes": 322,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/theme-BXZnISMG.js",
+          "bytes": 1063,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/theme-B23CNy5Y.css",
+          "bytes": 16900,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/typography-hMnGHWI5.js",
+          "bytes": 345,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/tabs-CEN-q42D.js",
+          "bytes": 583,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/dialog-CSZbKvZ4.js",
+          "bytes": 564,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/tabs-BCg89EQI.css",
+          "bytes": 741,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/textField-Dhc6UPGo.js",
+          "bytes": 356,
+          "classification": "speculative"
+        },
+        {
+          "path": "/icons/icon-192.png",
+          "bytes": 533,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/icons/icon-512.png",
+          "bytes": 1671,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/manifest.webmanifest",
+          "bytes": 170,
+          "classification": "mandatory"
+        }
+      ],
+      "pages": {
+        "buttons": 322,
+        "cards": 333,
+        "dialog": 564,
+        "dropdownMenu": 612,
+        "form": 521,
+        "layout": 358,
+        "menus": 743,
+        "sharedA": 534,
+        "sharedB": 383,
+        "tabs": 583,
+        "textField": 356,
+        "theme": 1063,
+        "typography": 345,
+        "virtualList": 6036
+      },
+      "stylesCss": 40715
+    },
+    "radix2solid": {
+      "shell": 33158,
+      "shellRaw": 99910,
+      "firstVisit": {
+        "bytes": 370,
+        "requests": 2
+      },
+      "speculativePrefetch": {
+        "bytes": 86588,
+        "requests": 6
+      },
+      "requestTable": [
+        {
+          "path": "/",
+          "bytes": 288,
+          "classification": "mandatory"
+        },
+        {
+          "path": "/assets/index-B9usho0k.js",
+          "bytes": 12810,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/index-zIijDIA0.css",
+          "bytes": 50595,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/framework-Bw8nuUml.js",
+          "bytes": 20348,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/text-align.prop-DTzihaoX-CwAfJ-nG.js",
+          "bytes": 2313,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/radius.prop-ArD5xpu8-ntp3DFOR.js",
+          "bytes": 109,
+          "classification": "speculative"
+        },
+        {
+          "path": "/assets/direction-BLKDRKnq-BXf7AO0I.js",
+          "bytes": 413,
+          "classification": "speculative"
+        },
+        {
+          "path": "/sw.js",
+          "bytes": 82,
+          "classification": "mandatory"
+        }
+      ],
+      "pages": {
+        "buttons": 282,
+        "cards": 232,
+        "dialog": 2308,
+        "dropdown-menu": 331,
+        "form": 150,
+        "layout": 1338,
+        "menus": 152,
+        "shared-a": 148,
+        "shared": 415,
+        "tabs": 1808,
+        "text-field": 326,
+        "theme": 628,
+        "typography": 255,
+        "virtual-list": 153
+      },
+      "stylesCss": 50595
+    }
+  },
+  "comparison": {
+    "1x": {
+      "vl-cell": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 7.33,
+            "p95": 8.58,
+            "n": 10
+          },
+          "loads": [
+            [
+              24.54,
+              26.7,
+              24.7
+            ],
+            [
+              24.54,
+              26.7,
+              24.7
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              22.19,
+              26.09,
+              24.53
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 0.82,
+            "p95": 0.93,
+            "n": 10
+          },
+          "loads": [
+            [
+              24.54,
+              26.7,
+              24.7
+            ],
+            [
+              24.54,
+              26.7,
+              24.7
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              24.02,
+              26.56,
+              24.66
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              23.78,
+              26.47,
+              24.64
+            ],
+            [
+              22.19,
+              26.09,
+              24.53
+            ],
+            [
+              22.19,
+              26.09,
+              24.53
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -6.51
+        }
+      },
+      "vl-filter": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 24,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 9.62,
+            "p95": 11.65,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.19,
+              25.29,
+              24.33
+            ],
+            [
+              21.19,
+              25.29,
+              24.33
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 8.72,
+            "p95": 11.89,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.41,
+              25.47,
+              24.38
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.38,
+              25.39,
+              24.36
+            ],
+            [
+              21.19,
+              25.29,
+              24.33
+            ],
+            [
+              21.19,
+              25.29,
+              24.33
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -0.9
+        }
+      },
+      "vl-sort": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 24,
+            "p95": 24,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 12.45,
+            "p95": 13.92,
+            "n": 10
+          },
+          "loads": [
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 3.17,
+            "p95": 3.76,
+            "n": 10
+          },
+          "loads": [
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.57,
+              24.38,
+              24.06
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              19.37,
+              24.26,
+              24.02
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ],
+            [
+              18.38,
+              23.97,
+              23.93
+            ],
+            [
+              18.43,
+              23.89,
+              23.9
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -8,
+          "traceScriptingMedian": -9.28
+        }
+      },
+      "vl-select": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 24,
+            "p95": 24,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 6.54,
+            "p95": 7.05,
+            "n": 10
+          },
+          "loads": [
+            [
+              19.04,
+              23.48,
+              23.76
+            ],
+            [
+              19.12,
+              23.42,
+              23.74
+            ],
+            [
+              17.99,
+              23.11,
+              23.64
+            ],
+            [
+              17.99,
+              23.11,
+              23.64
+            ],
+            [
+              16.87,
+              22.79,
+              23.54
+            ],
+            [
+              16.87,
+              22.79,
+              23.54
+            ],
+            [
+              16.96,
+              22.71,
+              23.51
+            ],
+            [
+              16.96,
+              22.71,
+              23.51
+            ],
+            [
+              16.64,
+              22.55,
+              23.45
+            ],
+            [
+              16.64,
+              22.55,
+              23.45
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 0.26,
+            "p95": 0.28,
+            "n": 10
+          },
+          "loads": [
+            [
+              19.12,
+              23.42,
+              23.74
+            ],
+            [
+              19.12,
+              23.42,
+              23.74
+            ],
+            [
+              17.99,
+              23.11,
+              23.64
+            ],
+            [
+              17.99,
+              23.11,
+              23.64
+            ],
+            [
+              16.87,
+              22.79,
+              23.54
+            ],
+            [
+              16.87,
+              22.79,
+              23.54
+            ],
+            [
+              16.96,
+              22.71,
+              23.51
+            ],
+            [
+              16.64,
+              22.55,
+              23.45
+            ],
+            [
+              16.64,
+              22.55,
+              23.45
+            ],
+            [
+              16.59,
+              22.44,
+              23.41
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -8,
+          "traceScriptingMedian": -6.28
+        }
+      },
+      "form-field": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 1.79,
+            "p95": 2.14,
+            "n": 10
+          },
+          "loads": [
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 24,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 0.69,
+            "p95": 1.07,
+            "n": 10
+          },
+          "loads": [
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              16.99,
+              21.54,
+              23.04
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.15,
+              21.5,
+              23.02
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.22,
+              21.44,
+              22.99
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -1.1
+        }
+      },
+      "menus-tick": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 1.89,
+            "p95": 2.13,
+            "n": 10
+          },
+          "loads": [
+            [
+              17.47,
+              21.04,
+              22.8
+            ],
+            [
+              17.47,
+              21.04,
+              22.8
+            ],
+            [
+              17.67,
+              21.02,
+              22.78
+            ],
+            [
+              17.67,
+              21.02,
+              22.78
+            ],
+            [
+              18.1,
+              21.05,
+              22.78
+            ],
+            [
+              18.1,
+              21.05,
+              22.78
+            ],
+            [
+              18.57,
+              21.1,
+              22.79
+            ],
+            [
+              18.57,
+              21.1,
+              22.79
+            ],
+            [
+              19.09,
+              21.17,
+              22.8
+            ],
+            [
+              19.16,
+              21.15,
+              22.79
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 0.37,
+            "p95": 0.87,
+            "n": 10
+          },
+          "loads": [
+            [
+              17.47,
+              21.04,
+              22.8
+            ],
+            [
+              17.47,
+              21.04,
+              22.8
+            ],
+            [
+              17.67,
+              21.02,
+              22.78
+            ],
+            [
+              18.1,
+              21.05,
+              22.78
+            ],
+            [
+              18.1,
+              21.05,
+              22.78
+            ],
+            [
+              18.57,
+              21.1,
+              22.79
+            ],
+            [
+              18.57,
+              21.1,
+              22.79
+            ],
+            [
+              19.09,
+              21.17,
+              22.8
+            ],
+            [
+              19.09,
+              21.17,
+              22.8
+            ],
+            [
+              19.16,
+              21.15,
+              22.79
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -1.52
+        }
+      }
+    },
+    "4x": {
+      "vl-cell": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 32,
+            "p95": 40,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 26.08,
+            "p95": 34.08,
+            "n": 10
+          },
+          "loads": [
+            [
+              17.55,
+              20.51,
+              22.48
+            ],
+            [
+              17.34,
+              20.42,
+              22.44
+            ],
+            [
+              17.34,
+              20.42,
+              22.44
+            ],
+            [
+              17.34,
+              20.42,
+              22.44
+            ],
+            [
+              17.48,
+              20.39,
+              22.42
+            ],
+            [
+              17.48,
+              20.39,
+              22.42
+            ],
+            [
+              16.72,
+              20.19,
+              22.34
+            ],
+            [
+              16.72,
+              20.19,
+              22.34
+            ],
+            [
+              17.22,
+              20.23,
+              22.35
+            ],
+            [
+              17.22,
+              20.23,
+              22.35
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 3.18,
+            "p95": 4.72,
+            "n": 10
+          },
+          "loads": [
+            [
+              17.55,
+              20.51,
+              22.48
+            ],
+            [
+              17.34,
+              20.42,
+              22.44
+            ],
+            [
+              17.34,
+              20.42,
+              22.44
+            ],
+            [
+              17.48,
+              20.39,
+              22.42
+            ],
+            [
+              17.48,
+              20.39,
+              22.42
+            ],
+            [
+              16.72,
+              20.19,
+              22.34
+            ],
+            [
+              16.72,
+              20.19,
+              22.34
+            ],
+            [
+              17.22,
+              20.23,
+              22.35
+            ],
+            [
+              17.22,
+              20.23,
+              22.35
+            ],
+            [
+              17.44,
+              20.23,
+              22.34
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -16,
+          "traceScriptingMedian": -22.9
+        }
+      },
+      "vl-filter": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 64,
+            "p95": 144,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 51.52,
+            "p95": 116.79,
+            "n": 10
+          },
+          "loads": [
+            [
+              30.74,
+              23.2,
+              23.21
+            ],
+            [
+              30.28,
+              23.23,
+              23.22
+            ],
+            [
+              30.28,
+              23.23,
+              23.22
+            ],
+            [
+              33.78,
+              24.08,
+              23.5
+            ],
+            [
+              36.44,
+              24.79,
+              23.73
+            ],
+            [
+              36.44,
+              24.79,
+              23.73
+            ],
+            [
+              37.69,
+              25.24,
+              23.88
+            ],
+            [
+              37.47,
+              25.4,
+              23.94
+            ],
+            [
+              37.47,
+              25.4,
+              23.94
+            ],
+            [
+              36.15,
+              25.33,
+              23.93
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 56,
+            "p95": 144,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 40.98,
+            "p95": 123.97,
+            "n": 10
+          },
+          "loads": [
+            [
+              30.74,
+              23.2,
+              23.21
+            ],
+            [
+              30.28,
+              23.23,
+              23.22
+            ],
+            [
+              33.78,
+              24.08,
+              23.5
+            ],
+            [
+              33.78,
+              24.08,
+              23.5
+            ],
+            [
+              36.44,
+              24.79,
+              23.73
+            ],
+            [
+              37.69,
+              25.24,
+              23.88
+            ],
+            [
+              37.47,
+              25.4,
+              23.94
+            ],
+            [
+              37.47,
+              25.4,
+              23.94
+            ],
+            [
+              36.15,
+              25.33,
+              23.93
+            ],
+            [
+              36.15,
+              25.33,
+              23.93
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -8,
+          "traceScriptingMedian": -10.54
+        }
+      },
+      "vl-sort": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 56,
+            "p95": 64,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 48.19,
+            "p95": 57.64,
+            "n": 10
+          },
+          "loads": [
+            [
+              29.52,
+              25.38,
+              24.03
+            ],
+            [
+              29.52,
+              25.38,
+              24.03
+            ],
+            [
+              28.84,
+              25.31,
+              24.01
+            ],
+            [
+              28.84,
+              25.31,
+              24.01
+            ],
+            [
+              28.21,
+              25.24,
+              23.99
+            ],
+            [
+              28.21,
+              25.24,
+              23.99
+            ],
+            [
+              27.56,
+              25.15,
+              23.97
+            ],
+            [
+              27.56,
+              25.15,
+              23.97
+            ],
+            [
+              27.11,
+              25.1,
+              23.96
+            ],
+            [
+              27.11,
+              25.1,
+              23.96
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 32,
+            "p95": 40,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 12.27,
+            "p95": 14.96,
+            "n": 10
+          },
+          "loads": [
+            [
+              29.52,
+              25.38,
+              24.03
+            ],
+            [
+              28.84,
+              25.31,
+              24.01
+            ],
+            [
+              28.84,
+              25.31,
+              24.01
+            ],
+            [
+              28.21,
+              25.24,
+              23.99
+            ],
+            [
+              28.21,
+              25.24,
+              23.99
+            ],
+            [
+              27.56,
+              25.15,
+              23.97
+            ],
+            [
+              27.56,
+              25.15,
+              23.97
+            ],
+            [
+              27.11,
+              25.1,
+              23.96
+            ],
+            [
+              27.11,
+              25.1,
+              23.96
+            ],
+            [
+              26.54,
+              25.01,
+              23.94
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -24,
+          "traceScriptingMedian": -35.92
+        }
+      },
+      "vl-select": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 36,
+            "p95": 40,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 24.91,
+            "p95": 27.18,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.79,
+              23.86,
+              23.6
+            ],
+            [
+              21.79,
+              23.86,
+              23.6
+            ],
+            [
+              22.2,
+              23.92,
+              23.62
+            ],
+            [
+              22.03,
+              23.85,
+              23.6
+            ],
+            [
+              22.02,
+              23.82,
+              23.59
+            ],
+            [
+              21.94,
+              23.77,
+              23.58
+            ],
+            [
+              21.94,
+              23.77,
+              23.58
+            ],
+            [
+              20.66,
+              23.48,
+              23.48
+            ],
+            [
+              20.53,
+              23.4,
+              23.46
+            ],
+            [
+              20.73,
+              23.4,
+              23.46
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 1.27,
+            "p95": 1.98,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.79,
+              23.86,
+              23.6
+            ],
+            [
+              22.2,
+              23.92,
+              23.62
+            ],
+            [
+              22.03,
+              23.85,
+              23.6
+            ],
+            [
+              22.03,
+              23.85,
+              23.6
+            ],
+            [
+              22.02,
+              23.82,
+              23.59
+            ],
+            [
+              21.94,
+              23.77,
+              23.58
+            ],
+            [
+              20.66,
+              23.48,
+              23.48
+            ],
+            [
+              20.53,
+              23.4,
+              23.46
+            ],
+            [
+              20.53,
+              23.4,
+              23.46
+            ],
+            [
+              20.73,
+              23.4,
+              23.46
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": -20,
+          "traceScriptingMedian": -23.64
+        }
+      },
+      "form-field": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 24,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 8.61,
+            "p95": 10.26,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.56,
+              23.04,
+              23.32
+            ],
+            [
+              21.59,
+              23.02,
+              23.32
+            ],
+            [
+              21.59,
+              23.02,
+              23.32
+            ],
+            [
+              21.71,
+              23.02,
+              23.32
+            ],
+            [
+              21.71,
+              23.02,
+              23.32
+            ],
+            [
+              22.05,
+              23.07,
+              23.33
+            ],
+            [
+              22.05,
+              23.07,
+              23.33
+            ],
+            [
+              22.29,
+              23.1,
+              23.34
+            ],
+            [
+              22.29,
+              23.1,
+              23.34
+            ],
+            [
+              22.42,
+              23.11,
+              23.34
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 32,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 4.34,
+            "p95": 5.36,
+            "n": 10
+          },
+          "loads": [
+            [
+              21.59,
+              23.02,
+              23.32
+            ],
+            [
+              21.59,
+              23.02,
+              23.32
+            ],
+            [
+              21.71,
+              23.02,
+              23.32
+            ],
+            [
+              21.71,
+              23.02,
+              23.32
+            ],
+            [
+              22.05,
+              23.07,
+              23.33
+            ],
+            [
+              22.05,
+              23.07,
+              23.33
+            ],
+            [
+              22.29,
+              23.1,
+              23.34
+            ],
+            [
+              22.29,
+              23.1,
+              23.34
+            ],
+            [
+              22.42,
+              23.11,
+              23.34
+            ],
+            [
+              22.42,
+              23.11,
+              23.34
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -4.27
+        }
+      },
+      "menus-tick": {
+        "sessionsPerApp": 10,
+        "wseffect": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 6.47,
+            "p95": 7.67,
+            "n": 10
+          },
+          "loads": [
+            [
+              24.84,
+              23.66,
+              23.52
+            ],
+            [
+              23.5,
+              23.4,
+              23.44
+            ],
+            [
+              23.5,
+              23.4,
+              23.44
+            ],
+            [
+              23.37,
+              23.38,
+              23.43
+            ],
+            [
+              22.78,
+              23.26,
+              23.39
+            ],
+            [
+              22.56,
+              23.2,
+              23.37
+            ],
+            [
+              22.56,
+              23.2,
+              23.37
+            ],
+            [
+              22.52,
+              23.18,
+              23.36
+            ],
+            [
+              22.47,
+              23.16,
+              23.35
+            ],
+            [
+              22.28,
+              23.11,
+              23.34
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTimingMs": {
+            "median": 16,
+            "p95": 16,
+            "n": 10
+          },
+          "traceScriptingMs": {
+            "median": 1.73,
+            "p95": 2.02,
+            "n": 10
+          },
+          "loads": [
+            [
+              24.84,
+              23.66,
+              23.52
+            ],
+            [
+              23.5,
+              23.4,
+              23.44
+            ],
+            [
+              23.37,
+              23.38,
+              23.43
+            ],
+            [
+              22.78,
+              23.26,
+              23.39
+            ],
+            [
+              22.78,
+              23.26,
+              23.39
+            ],
+            [
+              22.56,
+              23.2,
+              23.37
+            ],
+            [
+              22.52,
+              23.18,
+              23.36
+            ],
+            [
+              22.47,
+              23.16,
+              23.35
+            ],
+            [
+              22.47,
+              23.16,
+              23.35
+            ],
+            [
+              22.28,
+              23.11,
+              23.34
+            ]
+          ]
+        },
+        "deltaRadixMinusWseffectMs": {
+          "eventTimingMedian": 0,
+          "traceScriptingMedian": -4.74
+        }
+      }
+    }
+  },
+  "noise": {
+    "1x": {
+      "vl-cell": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 7.46,
+            "minDeltaMs": -2.24,
+            "maxDeltaMs": 7.46,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.19,
+              26.09,
+              24.53
+            ],
+            [
+              22.19,
+              26.09,
+              24.53
+            ],
+            [
+              22.19,
+              26.09,
+              24.53
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.54,
+              25.89,
+              24.47
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.88,
+              24.48
+            ],
+            [
+              22.15,
+              25.88,
+              24.48
+            ],
+            [
+              22.15,
+              25.88,
+              24.48
+            ],
+            [
+              22.15,
+              25.88,
+              24.48
+            ],
+            [
+              22.15,
+              25.88,
+              24.48
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.69,
+            "minDeltaMs": -0.69,
+            "maxDeltaMs": 0.52,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.15,
+              25.88,
+              24.48
+            ],
+            [
+              22.15,
+              25.88,
+              24.48
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.82,
+              25.75,
+              24.45
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.59,
+              25.64,
+              24.42
+            ],
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.62,
+              25.58,
+              24.41
+            ],
+            [
+              21.62,
+              25.58,
+              24.41
+            ]
+          ]
+        }
+      },
+      "vl-filter": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 9.35,
+            "minDeltaMs": -9.35,
+            "maxDeltaMs": 2.47,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              21.19,
+              25.29,
+              24.33
+            ],
+            [
+              21.19,
+              25.29,
+              24.33
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.89,
+              24.95,
+              24.23
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.82,
+              24.85,
+              24.2
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ],
+            [
+              19.6,
+              24.72,
+              24.16
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 3.45,
+            "minDeltaMs": -1.26,
+            "maxDeltaMs": 3.45,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.55,
+              24.62,
+              24.13
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.5,
+              24.53,
+              24.1
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ],
+            [
+              19.62,
+              24.47,
+              24.09
+            ]
+          ]
+        }
+      },
+      "vl-sort": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 11.48,
+            "minDeltaMs": -11.48,
+            "maxDeltaMs": 0.08,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              18.43,
+              23.89,
+              23.9
+            ],
+            [
+              18.43,
+              23.89,
+              23.9
+            ],
+            [
+              18.43,
+              23.89,
+              23.9
+            ],
+            [
+              18.43,
+              23.89,
+              23.9
+            ],
+            [
+              18.43,
+              23.89,
+              23.9
+            ],
+            [
+              18.39,
+              23.79,
+              23.87
+            ],
+            [
+              18.39,
+              23.79,
+              23.87
+            ],
+            [
+              18.39,
+              23.79,
+              23.87
+            ],
+            [
+              18.39,
+              23.79,
+              23.87
+            ],
+            [
+              18.39,
+              23.79,
+              23.87
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              18.52,
+              23.73,
+              23.85
+            ],
+            [
+              17.6,
+              23.45,
+              23.76
+            ],
+            [
+              17.6,
+              23.45,
+              23.76
+            ],
+            [
+              17.6,
+              23.45,
+              23.76
+            ],
+            [
+              17.6,
+              23.45,
+              23.76
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 1.02,
+            "minDeltaMs": -0.9,
+            "maxDeltaMs": 1.02,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              17.6,
+              23.45,
+              23.76
+            ],
+            [
+              17.6,
+              23.45,
+              23.76
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.19,
+              23.47,
+              23.77
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              18.18,
+              23.38,
+              23.73
+            ],
+            [
+              19.04,
+              23.48,
+              23.76
+            ],
+            [
+              19.04,
+              23.48,
+              23.76
+            ],
+            [
+              19.04,
+              23.48,
+              23.76
+            ],
+            [
+              19.04,
+              23.48,
+              23.76
+            ],
+            [
+              19.04,
+              23.48,
+              23.76
+            ]
+          ]
+        }
+      },
+      "vl-select": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 4.51,
+            "minDeltaMs": -2.61,
+            "maxDeltaMs": 4.51,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              16.59,
+              22.44,
+              23.41
+            ],
+            [
+              16.59,
+              22.44,
+              23.41
+            ],
+            [
+              16.59,
+              22.44,
+              23.41
+            ],
+            [
+              15.58,
+              22.14,
+              23.3
+            ],
+            [
+              15.58,
+              22.14,
+              23.3
+            ],
+            [
+              15.58,
+              22.14,
+              23.3
+            ],
+            [
+              15.86,
+              22.09,
+              23.28
+            ],
+            [
+              15.86,
+              22.09,
+              23.28
+            ],
+            [
+              15.86,
+              22.09,
+              23.28
+            ],
+            [
+              15.86,
+              22.09,
+              23.28
+            ],
+            [
+              16.19,
+              22.05,
+              23.26
+            ],
+            [
+              16.19,
+              22.05,
+              23.26
+            ],
+            [
+              16.19,
+              22.05,
+              23.26
+            ],
+            [
+              16.17,
+              21.95,
+              23.22
+            ],
+            [
+              16.17,
+              21.95,
+              23.22
+            ],
+            [
+              16.17,
+              21.95,
+              23.22
+            ],
+            [
+              16.17,
+              21.95,
+              23.22
+            ],
+            [
+              16.88,
+              22,
+              23.23
+            ],
+            [
+              16.88,
+              22,
+              23.23
+            ],
+            [
+              16.88,
+              22,
+              23.23
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.06,
+            "minDeltaMs": -0.06,
+            "maxDeltaMs": 0.03,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              17.05,
+              21.95,
+              23.21
+            ],
+            [
+              17.05,
+              21.95,
+              23.21
+            ],
+            [
+              17.05,
+              21.95,
+              23.21
+            ],
+            [
+              17.05,
+              21.95,
+              23.21
+            ],
+            [
+              16.96,
+              21.85,
+              23.17
+            ],
+            [
+              16.96,
+              21.85,
+              23.17
+            ],
+            [
+              16.96,
+              21.85,
+              23.17
+            ],
+            [
+              16.96,
+              21.85,
+              23.17
+            ],
+            [
+              17.05,
+              21.79,
+              23.14
+            ],
+            [
+              17.05,
+              21.79,
+              23.14
+            ],
+            [
+              17.05,
+              21.79,
+              23.14
+            ],
+            [
+              17.05,
+              21.79,
+              23.14
+            ],
+            [
+              17.28,
+              21.76,
+              23.13
+            ],
+            [
+              17.28,
+              21.76,
+              23.13
+            ],
+            [
+              17.28,
+              21.76,
+              23.13
+            ],
+            [
+              17.28,
+              21.76,
+              23.13
+            ],
+            [
+              16.38,
+              21.5,
+              23.03
+            ],
+            [
+              16.38,
+              21.5,
+              23.03
+            ],
+            [
+              16.38,
+              21.5,
+              23.03
+            ],
+            [
+              16.38,
+              21.5,
+              23.03
+            ]
+          ]
+        }
+      },
+      "form-field": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.55,
+            "minDeltaMs": -0.49,
+            "maxDeltaMs": 0.55,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.28,
+              21.38,
+              22.96
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.5,
+              21.36,
+              22.95
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.78,
+              21.35,
+              22.94
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.23,
+            "minDeltaMs": -0.23,
+            "maxDeltaMs": 0.12,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.88,
+              21.31,
+              22.91
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.01,
+              21.07,
+              22.83
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ],
+            [
+              17.25,
+              21.06,
+              22.81
+            ]
+          ]
+        }
+      },
+      "menus-tick": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.33,
+            "minDeltaMs": -0.12,
+            "maxDeltaMs": 0.33,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              19.16,
+              21.15,
+              22.79
+            ],
+            [
+              19.16,
+              21.15,
+              22.79
+            ],
+            [
+              19.39,
+              21.16,
+              22.78
+            ],
+            [
+              19.39,
+              21.16,
+              22.78
+            ],
+            [
+              19.39,
+              21.16,
+              22.78
+            ],
+            [
+              19.11,
+              21.08,
+              22.75
+            ],
+            [
+              19.11,
+              21.08,
+              22.75
+            ],
+            [
+              19.11,
+              21.08,
+              22.75
+            ],
+            [
+              19.11,
+              21.08,
+              22.75
+            ],
+            [
+              19.67,
+              21.16,
+              22.77
+            ],
+            [
+              19.67,
+              21.16,
+              22.77
+            ],
+            [
+              19.67,
+              21.16,
+              22.77
+            ],
+            [
+              19.85,
+              21.17,
+              22.76
+            ],
+            [
+              19.85,
+              21.17,
+              22.76
+            ],
+            [
+              19.85,
+              21.17,
+              22.76
+            ],
+            [
+              19.7,
+              21.12,
+              22.73
+            ],
+            [
+              19.7,
+              21.12,
+              22.73
+            ],
+            [
+              19.7,
+              21.12,
+              22.73
+            ],
+            [
+              19.7,
+              21.12,
+              22.73
+            ],
+            [
+              19.49,
+              21.05,
+              22.7
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.12,
+            "minDeltaMs": -0.04,
+            "maxDeltaMs": 0.12,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              19.49,
+              21.05,
+              22.7
+            ],
+            [
+              19.49,
+              21.05,
+              22.7
+            ],
+            [
+              19.49,
+              21.05,
+              22.7
+            ],
+            [
+              19.77,
+              21.08,
+              22.71
+            ],
+            [
+              19.77,
+              21.08,
+              22.71
+            ],
+            [
+              19.77,
+              21.08,
+              22.71
+            ],
+            [
+              19.79,
+              21.07,
+              22.69
+            ],
+            [
+              19.79,
+              21.07,
+              22.69
+            ],
+            [
+              19.79,
+              21.07,
+              22.69
+            ],
+            [
+              19.79,
+              21.07,
+              22.69
+            ],
+            [
+              18.52,
+              20.78,
+              22.59
+            ],
+            [
+              18.52,
+              20.78,
+              22.59
+            ],
+            [
+              18.52,
+              20.78,
+              22.59
+            ],
+            [
+              18.52,
+              20.78,
+              22.59
+            ],
+            [
+              18.64,
+              20.77,
+              22.58
+            ],
+            [
+              18.64,
+              20.77,
+              22.58
+            ],
+            [
+              18.64,
+              20.77,
+              22.58
+            ],
+            [
+              18.64,
+              20.77,
+              22.58
+            ],
+            [
+              17.55,
+              20.51,
+              22.48
+            ],
+            [
+              17.55,
+              20.51,
+              22.48
+            ]
+          ]
+        }
+      }
+    },
+    "4x": {
+      "vl-cell": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 16,
+            "minDeltaMs": -16,
+            "maxDeltaMs": 16,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 12.04,
+            "minDeltaMs": -12.04,
+            "maxDeltaMs": 10.89,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              17.44,
+              20.23,
+              22.34
+            ],
+            [
+              17.44,
+              20.23,
+              22.34
+            ],
+            [
+              17.44,
+              20.23,
+              22.34
+            ],
+            [
+              17.65,
+              20.22,
+              22.32
+            ],
+            [
+              17.65,
+              20.22,
+              22.32
+            ],
+            [
+              17.65,
+              20.22,
+              22.32
+            ],
+            [
+              17.65,
+              20.22,
+              22.32
+            ],
+            [
+              17.68,
+              20.19,
+              22.3
+            ],
+            [
+              17.68,
+              20.19,
+              22.3
+            ],
+            [
+              17.68,
+              20.19,
+              22.3
+            ],
+            [
+              18.26,
+              20.27,
+              22.31
+            ],
+            [
+              18.26,
+              20.27,
+              22.31
+            ],
+            [
+              18.26,
+              20.27,
+              22.31
+            ],
+            [
+              19.92,
+              20.58,
+              22.4
+            ],
+            [
+              19.92,
+              20.58,
+              22.4
+            ],
+            [
+              19.92,
+              20.58,
+              22.4
+            ],
+            [
+              22.81,
+              21.17,
+              22.58
+            ],
+            [
+              22.81,
+              21.17,
+              22.58
+            ],
+            [
+              22.75,
+              21.18,
+              22.58
+            ],
+            [
+              22.75,
+              21.18,
+              22.58
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 6.47,
+            "minDeltaMs": -6.47,
+            "maxDeltaMs": 5.35,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.75,
+              21.18,
+              22.58
+            ],
+            [
+              23.25,
+              21.31,
+              22.62
+            ],
+            [
+              23.25,
+              21.31,
+              22.62
+            ],
+            [
+              23.25,
+              21.31,
+              22.62
+            ],
+            [
+              23.25,
+              21.31,
+              22.62
+            ],
+            [
+              24.91,
+              21.69,
+              22.73
+            ],
+            [
+              24.91,
+              21.69,
+              22.73
+            ],
+            [
+              24.91,
+              21.69,
+              22.73
+            ],
+            [
+              24.91,
+              21.69,
+              22.73
+            ],
+            [
+              29.88,
+              22.77,
+              23.08
+            ],
+            [
+              29.88,
+              22.77,
+              23.08
+            ],
+            [
+              29.88,
+              22.77,
+              23.08
+            ],
+            [
+              29.88,
+              22.77,
+              23.08
+            ],
+            [
+              31.41,
+              23.21,
+              23.22
+            ],
+            [
+              31.41,
+              23.21,
+              23.22
+            ],
+            [
+              31.41,
+              23.21,
+              23.22
+            ],
+            [
+              31.41,
+              23.21,
+              23.22
+            ],
+            [
+              31.41,
+              23.21,
+              23.22
+            ],
+            [
+              30.74,
+              23.2,
+              23.21
+            ],
+            [
+              30.74,
+              23.2,
+              23.21
+            ]
+          ]
+        }
+      },
+      "vl-filter": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 24,
+            "minDeltaMs": -16,
+            "maxDeltaMs": 24,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 20.99,
+            "minDeltaMs": -17.91,
+            "maxDeltaMs": 20.99,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              36.15,
+              25.33,
+              23.93
+            ],
+            [
+              35.02,
+              25.28,
+              23.92
+            ],
+            [
+              35.02,
+              25.28,
+              23.92
+            ],
+            [
+              35.02,
+              25.28,
+              23.92
+            ],
+            [
+              35.02,
+              25.28,
+              23.92
+            ],
+            [
+              34.06,
+              25.24,
+              23.91
+            ],
+            [
+              34.06,
+              25.24,
+              23.91
+            ],
+            [
+              34.06,
+              25.24,
+              23.91
+            ],
+            [
+              31.89,
+              24.93,
+              23.82
+            ],
+            [
+              31.89,
+              24.93,
+              23.82
+            ],
+            [
+              31.89,
+              24.93,
+              23.82
+            ],
+            [
+              33.66,
+              25.42,
+              23.98
+            ],
+            [
+              33.66,
+              25.42,
+              23.98
+            ],
+            [
+              33.66,
+              25.42,
+              23.98
+            ],
+            [
+              34.41,
+              25.71,
+              24.08
+            ],
+            [
+              34.41,
+              25.71,
+              24.08
+            ],
+            [
+              34.22,
+              25.81,
+              24.13
+            ],
+            [
+              34.22,
+              25.81,
+              24.13
+            ],
+            [
+              34.22,
+              25.81,
+              24.13
+            ],
+            [
+              33.16,
+              25.73,
+              24.11
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 6.1,
+            "minDeltaMs": -3.79,
+            "maxDeltaMs": 6.1,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              33.16,
+              25.73,
+              24.11
+            ],
+            [
+              33.16,
+              25.73,
+              24.11
+            ],
+            [
+              33.16,
+              25.73,
+              24.11
+            ],
+            [
+              33.16,
+              25.73,
+              24.11
+            ],
+            [
+              31.94,
+              25.61,
+              24.08
+            ],
+            [
+              31.94,
+              25.61,
+              24.08
+            ],
+            [
+              31.94,
+              25.61,
+              24.08
+            ],
+            [
+              31.94,
+              25.61,
+              24.08
+            ],
+            [
+              31.94,
+              25.61,
+              24.08
+            ],
+            [
+              31.07,
+              25.53,
+              24.06
+            ],
+            [
+              31.07,
+              25.53,
+              24.06
+            ],
+            [
+              31.07,
+              25.53,
+              24.06
+            ],
+            [
+              31.07,
+              25.53,
+              24.06
+            ],
+            [
+              31.07,
+              25.53,
+              24.06
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ],
+            [
+              30.18,
+              25.44,
+              24.04
+            ]
+          ]
+        }
+      },
+      "vl-sort": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 24,
+            "minDeltaMs": -24,
+            "maxDeltaMs": 16,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 14.78,
+            "minDeltaMs": -14.78,
+            "maxDeltaMs": 14.4,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              26.54,
+              25.01,
+              23.94
+            ],
+            [
+              26.54,
+              25.01,
+              23.94
+            ],
+            [
+              25.38,
+              24.79,
+              23.88
+            ],
+            [
+              25.38,
+              24.79,
+              23.88
+            ],
+            [
+              25.38,
+              24.79,
+              23.88
+            ],
+            [
+              24.06,
+              24.53,
+              23.8
+            ],
+            [
+              24.06,
+              24.53,
+              23.8
+            ],
+            [
+              24.06,
+              24.53,
+              23.8
+            ],
+            [
+              24.06,
+              24.53,
+              23.8
+            ],
+            [
+              23.82,
+              24.47,
+              23.78
+            ],
+            [
+              23.82,
+              24.47,
+              23.78
+            ],
+            [
+              23.82,
+              24.47,
+              23.78
+            ],
+            [
+              23.75,
+              24.45,
+              23.78
+            ],
+            [
+              23.75,
+              24.45,
+              23.78
+            ],
+            [
+              23.75,
+              24.45,
+              23.78
+            ],
+            [
+              23.45,
+              24.37,
+              23.76
+            ],
+            [
+              23.45,
+              24.37,
+              23.76
+            ],
+            [
+              23.45,
+              24.37,
+              23.76
+            ],
+            [
+              22.45,
+              24.15,
+              23.69
+            ],
+            [
+              22.45,
+              24.15,
+              23.69
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 4.13,
+            "minDeltaMs": -4.13,
+            "maxDeltaMs": 1.85,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.45,
+              24.15,
+              23.69
+            ],
+            [
+              22.34,
+              24.1,
+              23.67
+            ],
+            [
+              22.34,
+              24.1,
+              23.67
+            ],
+            [
+              22.34,
+              24.1,
+              23.67
+            ],
+            [
+              22.34,
+              24.1,
+              23.67
+            ],
+            [
+              22.34,
+              24.1,
+              23.67
+            ],
+            [
+              22.31,
+              24.06,
+              23.66
+            ],
+            [
+              22.31,
+              24.06,
+              23.66
+            ],
+            [
+              22.31,
+              24.06,
+              23.66
+            ],
+            [
+              22.31,
+              24.06,
+              23.66
+            ],
+            [
+              22.31,
+              24.06,
+              23.66
+            ],
+            [
+              22.13,
+              24,
+              23.64
+            ],
+            [
+              22.13,
+              24,
+              23.64
+            ],
+            [
+              22.13,
+              24,
+              23.64
+            ],
+            [
+              22.13,
+              24,
+              23.64
+            ],
+            [
+              22.12,
+              23.96,
+              23.63
+            ],
+            [
+              22.12,
+              23.96,
+              23.63
+            ],
+            [
+              22.12,
+              23.96,
+              23.63
+            ],
+            [
+              22.12,
+              23.96,
+              23.63
+            ],
+            [
+              22.12,
+              23.96,
+              23.63
+            ]
+          ]
+        }
+      },
+      "vl-select": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 7.63,
+            "minDeltaMs": -7.63,
+            "maxDeltaMs": 5.21,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              21.15,
+              23.44,
+              23.47
+            ],
+            [
+              21.15,
+              23.44,
+              23.47
+            ],
+            [
+              21.15,
+              23.44,
+              23.47
+            ],
+            [
+              21.14,
+              23.4,
+              23.46
+            ],
+            [
+              21.14,
+              23.4,
+              23.46
+            ],
+            [
+              21.05,
+              23.34,
+              23.44
+            ],
+            [
+              21.05,
+              23.34,
+              23.44
+            ],
+            [
+              21.2,
+              23.34,
+              23.44
+            ],
+            [
+              21.2,
+              23.34,
+              23.44
+            ],
+            [
+              21.19,
+              23.3,
+              23.42
+            ],
+            [
+              21.19,
+              23.3,
+              23.42
+            ],
+            [
+              21.09,
+              23.24,
+              23.4
+            ],
+            [
+              21.09,
+              23.24,
+              23.4
+            ],
+            [
+              20.28,
+              23.04,
+              23.34
+            ],
+            [
+              20.28,
+              23.04,
+              23.34
+            ],
+            [
+              21.14,
+              23.17,
+              23.38
+            ],
+            [
+              21.14,
+              23.17,
+              23.38
+            ],
+            [
+              21.37,
+              23.18,
+              23.38
+            ],
+            [
+              21.37,
+              23.18,
+              23.38
+            ],
+            [
+              21.34,
+              23.15,
+              23.37
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.62,
+            "minDeltaMs": -0.62,
+            "maxDeltaMs": 0.47,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              21.34,
+              23.15,
+              23.37
+            ],
+            [
+              21.34,
+              23.15,
+              23.37
+            ],
+            [
+              21.31,
+              23.11,
+              23.36
+            ],
+            [
+              21.31,
+              23.11,
+              23.36
+            ],
+            [
+              21.31,
+              23.11,
+              23.36
+            ],
+            [
+              21.85,
+              23.19,
+              23.38
+            ],
+            [
+              21.85,
+              23.19,
+              23.38
+            ],
+            [
+              21.85,
+              23.19,
+              23.38
+            ],
+            [
+              21.7,
+              23.14,
+              23.36
+            ],
+            [
+              21.7,
+              23.14,
+              23.36
+            ],
+            [
+              21.7,
+              23.14,
+              23.36
+            ],
+            [
+              21.64,
+              23.1,
+              23.35
+            ],
+            [
+              21.64,
+              23.1,
+              23.35
+            ],
+            [
+              21.64,
+              23.1,
+              23.35
+            ],
+            [
+              21.43,
+              23.04,
+              23.33
+            ],
+            [
+              21.43,
+              23.04,
+              23.33
+            ],
+            [
+              21.43,
+              23.04,
+              23.33
+            ],
+            [
+              21.56,
+              23.04,
+              23.32
+            ],
+            [
+              21.56,
+              23.04,
+              23.32
+            ],
+            [
+              21.56,
+              23.04,
+              23.32
+            ]
+          ]
+        }
+      },
+      "form-field": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 1.6,
+            "minDeltaMs": -1.07,
+            "maxDeltaMs": 1.6,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.42,
+              23.11,
+              23.34
+            ],
+            [
+              22.42,
+              23.11,
+              23.34
+            ],
+            [
+              24.63,
+              23.56,
+              23.49
+            ],
+            [
+              24.63,
+              23.56,
+              23.49
+            ],
+            [
+              24.63,
+              23.56,
+              23.49
+            ],
+            [
+              23.78,
+              23.4,
+              23.44
+            ],
+            [
+              23.78,
+              23.4,
+              23.44
+            ],
+            [
+              23.78,
+              23.4,
+              23.44
+            ],
+            [
+              23.78,
+              23.4,
+              23.44
+            ],
+            [
+              24.28,
+              23.51,
+              23.47
+            ],
+            [
+              24.28,
+              23.51,
+              23.47
+            ],
+            [
+              24.28,
+              23.51,
+              23.47
+            ],
+            [
+              24.02,
+              23.47,
+              23.46
+            ],
+            [
+              24.02,
+              23.47,
+              23.46
+            ],
+            [
+              24.02,
+              23.47,
+              23.46
+            ],
+            [
+              24.02,
+              23.47,
+              23.46
+            ],
+            [
+              24.58,
+              23.6,
+              23.5
+            ],
+            [
+              24.58,
+              23.6,
+              23.5
+            ],
+            [
+              24.58,
+              23.6,
+              23.5
+            ],
+            [
+              23.25,
+              23.34,
+              23.41
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.97,
+            "minDeltaMs": -0.97,
+            "maxDeltaMs": 0.74,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              23.25,
+              23.34,
+              23.41
+            ],
+            [
+              23.25,
+              23.34,
+              23.41
+            ],
+            [
+              23.25,
+              23.34,
+              23.41
+            ],
+            [
+              23.25,
+              23.34,
+              23.41
+            ],
+            [
+              22.99,
+              23.28,
+              23.4
+            ],
+            [
+              22.99,
+              23.28,
+              23.4
+            ],
+            [
+              22.99,
+              23.28,
+              23.4
+            ],
+            [
+              22.99,
+              23.28,
+              23.4
+            ],
+            [
+              22.99,
+              23.28,
+              23.4
+            ],
+            [
+              23.15,
+              23.31,
+              23.4
+            ],
+            [
+              23.15,
+              23.31,
+              23.4
+            ],
+            [
+              23.15,
+              23.31,
+              23.4
+            ],
+            [
+              23.15,
+              23.31,
+              23.4
+            ],
+            [
+              23.15,
+              23.31,
+              23.4
+            ],
+            [
+              23.7,
+              23.42,
+              23.44
+            ],
+            [
+              23.7,
+              23.42,
+              23.44
+            ],
+            [
+              23.7,
+              23.42,
+              23.44
+            ],
+            [
+              23.7,
+              23.42,
+              23.44
+            ],
+            [
+              23.7,
+              23.42,
+              23.44
+            ],
+            [
+              24.84,
+              23.66,
+              23.52
+            ]
+          ]
+        }
+      },
+      "menus-tick": {
+        "wseffect": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 16,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 16,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 7.26,
+            "minDeltaMs": -2.36,
+            "maxDeltaMs": 7.26,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              22.28,
+              23.11,
+              23.34
+            ],
+            [
+              20.97,
+              22.83,
+              23.24
+            ],
+            [
+              20.97,
+              22.83,
+              23.24
+            ],
+            [
+              21.21,
+              22.84,
+              23.25
+            ],
+            [
+              21.21,
+              22.84,
+              23.25
+            ],
+            [
+              20.8,
+              22.73,
+              23.21
+            ],
+            [
+              20.8,
+              22.73,
+              23.21
+            ],
+            [
+              19.61,
+              22.45,
+              23.12
+            ],
+            [
+              19.61,
+              22.45,
+              23.12
+            ],
+            [
+              19.4,
+              22.36,
+              23.08
+            ],
+            [
+              19.4,
+              22.36,
+              23.08
+            ],
+            [
+              19.4,
+              22.36,
+              23.08
+            ],
+            [
+              19.29,
+              22.29,
+              23.05
+            ],
+            [
+              19.29,
+              22.29,
+              23.05
+            ],
+            [
+              19.27,
+              22.23,
+              23.03
+            ],
+            [
+              19.27,
+              22.23,
+              23.03
+            ],
+            [
+              22.21,
+              22.8,
+              23.21
+            ],
+            [
+              22.21,
+              22.8,
+              23.21
+            ],
+            [
+              23.71,
+              23.1,
+              23.31
+            ],
+            [
+              23.66,
+              23.1,
+              23.3
+            ]
+          ]
+        },
+        "radix2solid": {
+          "eventTiming": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0,
+            "pairs": 10
+          },
+          "traceScripting": {
+            "p95AbsDeltaMs": 0.82,
+            "minDeltaMs": -0.82,
+            "maxDeltaMs": 0.8,
+            "pairs": 10
+          },
+          "loads": [
+            [
+              23.66,
+              23.1,
+              23.3
+            ],
+            [
+              23.66,
+              23.1,
+              23.3
+            ],
+            [
+              22.4,
+              22.85,
+              23.22
+            ],
+            [
+              22.4,
+              22.85,
+              23.22
+            ],
+            [
+              22.4,
+              22.85,
+              23.22
+            ],
+            [
+              22.13,
+              22.78,
+              23.2
+            ],
+            [
+              22.13,
+              22.78,
+              23.2
+            ],
+            [
+              22.13,
+              22.78,
+              23.2
+            ],
+            [
+              21.88,
+              22.72,
+              23.18
+            ],
+            [
+              21.88,
+              22.72,
+              23.18
+            ],
+            [
+              21.88,
+              22.72,
+              23.18
+            ],
+            [
+              20.45,
+              22.41,
+              23.07
+            ],
+            [
+              20.45,
+              22.41,
+              23.07
+            ],
+            [
+              20.45,
+              22.41,
+              23.07
+            ],
+            [
+              20.45,
+              22.41,
+              23.07
+            ],
+            [
+              19.29,
+              22.13,
+              22.98
+            ],
+            [
+              19.29,
+              22.13,
+              22.98
+            ],
+            [
+              19.29,
+              22.13,
+              22.98
+            ],
+            [
+              19.27,
+              22.08,
+              22.96
+            ],
+            [
+              19.27,
+              22.08,
+              22.96
+            ]
+          ]
+        }
+      }
+    }
+  }
+}
