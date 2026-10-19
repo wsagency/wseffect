@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import test from 'node:test'
-import { build } from 'vite'
 import { attributeShell, compareSize, measureSize } from './size.ts'
 
 const baseline = (entries: Record<string, { bytes: number; reason: string }> = {}) => ({
@@ -55,7 +55,7 @@ test('GATE-S3 rejects unexplained growth against merge-base and accepts only an 
   ])
 
   const explained = baseline(Object.fromEntries(
-    Object.entries(previous.entries).map(([id, entry]) => [id, { bytes: 103, reason: 'expected fixture increase' }]),
+    Object.entries(previous.entries).map(([id, _entry]) => [id, { bytes: 103, reason: 'expected gallery increase' }]),
   ))
   assert.deepEqual(compareSize(current, previous, explained).failures, [])
 })
@@ -69,9 +69,9 @@ test('GATE-S3 rejects current artifacts missing from the candidate baseline', ()
 test('GATE-S3 permits a seeded artifact only with a reason and an encompassing baseline', () => {
   const current = report(100, 100, { form: 100 })
   const candidate = baseline({
-    shell: { bytes: 100, reason: 'initial mini-app fixture measurement' },
-    'first-visit': { bytes: 100, reason: 'initial mini-app fixture measurement' },
-    'page:form': { bytes: 100, reason: 'initial mini-app fixture measurement' },
+    shell: { bytes: 100, reason: 'initial gallery measurement' },
+    'first-visit': { bytes: 100, reason: 'initial gallery measurement' },
+    'page:form': { bytes: 100, reason: 'initial gallery measurement' },
   })
   assert.deepEqual(compareSize(current, baseline(), candidate).failures, [])
   const missingReason = baseline({ ...candidate.entries, shell: { bytes: 100, reason: '' } })
@@ -79,33 +79,26 @@ test('GATE-S3 permits a seeded artifact only with a reason and an encompassing b
     failure.includes('shell was added without a baseline reason')))
 })
 
-test('measureSize reports the built shell and all initial server responses', async () => {
-  const fixtureDir = resolve(import.meta.dirname, '../fixtures/mini-app')
-  const outputDir = mkdtempSync(join(fixtureDir, '.size-build-'))
-  try {
-    await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), build: { outDir: outputDir }, logLevel: 'error' })
+test('measureSize reports the built Gallery shell and all initial server responses', async () => {
+  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
+  execFileSync('pnpm', ['--dir', appDir, 'build'], { stdio: 'inherit' })
+  const distDir = join(appDir, 'dist')
+  const assetsDir = join(distDir, 'assets')
+  const assets = readdirSync(assetsDir)
+  const entry = assets.find((name) => /^index-.*\.js$/.test(name))
+  const framework = assets.find((name) => /^framework-.*\.js$/.test(name))
+  assert.ok(entry, 'production build has an index entry chunk')
+  assert.ok(framework, 'production build has the APP-23 framework chunk')
+  const expectedShellRaw = readFileSync(join(assetsDir, entry)).byteLength + readFileSync(join(assetsDir, framework)).byteLength
+  const expectedShell = brotliBytes(readFileSync(join(assetsDir, entry))) + brotliBytes(readFileSync(join(assetsDir, framework)))
 
-    const distDir = outputDir
-    const assetsDir = join(distDir, 'assets')
-    const assets = readdirSync(assetsDir)
-    const entry = assets.find((name) => /^index-.*\.js$/.test(name))
-    const framework = assets.find((name) => /^framework-.*\.js$/.test(name))
-    assert.ok(entry, 'production build has an index entry chunk')
-    assert.ok(framework, 'production build has the APP-23 framework chunk')
-    const expectedShellRaw = readFileSync(join(assetsDir, entry)).byteLength + readFileSync(join(assetsDir, framework)).byteLength
-
-    const expectedShell = brotliBytes(readFileSync(join(assetsDir, entry))) + brotliBytes(readFileSync(join(assetsDir, framework)))
-
-    const result = await measureSize({ distDir, pagesDir: join(fixtureDir, 'src/pages') })
-    assert.equal(result.shell, expectedShell)
-    assert.equal(result.shellRaw, expectedShellRaw)
-    assert.deepEqual(Object.keys(result.pages).sort(), ['form', 'menus'])
-    assert.ok((result.stylesCss ?? 0) > 0, 'fixture emits CSS tracked as styles.css')
-    assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
-    assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')
-  } finally {
-    rmSync(outputDir, { recursive: true, force: true })
-  }
+  const result = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
+  assert.equal(result.shell, expectedShell)
+  assert.equal(result.shellRaw, expectedShellRaw)
+  assert.deepEqual(Object.keys(result.pages).sort(), ['buttons', 'cards', 'dialog', 'dropdownMenu', 'form', 'layout', 'menus', 'sharedA', 'sharedB', 'tabs', 'textField', 'theme', 'typography', 'virtualList'])
+  assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
+  assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
+  assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')
 })
 
 
@@ -131,7 +124,7 @@ test('shell source-map attribution reports source modules from both shell chunks
     writeFileSync(join(assetsDir, 'framework-b.js.map'), JSON.stringify(sourceMap(
       'framework-b.js',
       ['node_modules/foldkit/runtime.js'],
-      ['export const frameworkRuntime = \"shared framework module\";'],
+      ['export const frameworkRuntime = "shared framework module";'],
     )))
     writeFileSync(join(assetsDir, 'form-c.js.map'), JSON.stringify(sourceMap(
       'form-c.js',

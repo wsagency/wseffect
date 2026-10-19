@@ -39,7 +39,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm gate:size --app tools/fixtures/mini-app
+      - run: pnpm gate:size --app apps/gallery
 
   perf:
     runs-on: [self-hosted, perf]
@@ -62,7 +62,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm gate:perf --app tools/fixtures/mini-app
+      - run: pnpm gate:perf --app apps/gallery
   bench-radix2solid:
     runs-on: [self-hosted, perf]
     needs: check

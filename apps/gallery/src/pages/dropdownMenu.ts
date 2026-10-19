@@ -3,7 +3,6 @@ import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
 import * as DropdownMenu from '@wsagency/wseffect-themes/components/dropdown-menu'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
-import * as Text from '@wsagency/wseffect-themes/components/text'
 import { galleryPageContract, type PageInputs, PageOutMessage } from '../contract.js'
 
 const Menu = DropdownMenu.create<'Edit' | 'Delete'>()

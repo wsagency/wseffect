@@ -1,7 +1,7 @@
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import * as TextField from '@wsagency/wseffect-themes/components/text-field'
-import { page as virtualListPage } from '../src/pages/virtualList.js'
+import { Message as VirtualListMessage, page as virtualListPage } from '../src/pages/virtualList.js'
 import { page as formPage } from '../src/pages/form.js'
 import { Menu, page as menusPage } from '../src/pages/menus.js'
 
@@ -19,9 +19,9 @@ describe('gallery performance pages', () => {
   it('virtualizes 10,000 filterable, sortable rows', () => {
     const initial = virtualListPage.init()
     expect(initial.model.items).toHaveLength(10_000)
-    expect(virtualListPage.update(initial.model, virtualListPage.Message.FilterChanged({ value: '9999' })).model.items)
+    expect(virtualListPage.update(initial.model, VirtualListMessage.FilterChanged({ value: '9999' })).model.items)
       .toHaveLength(1)
-    const sorted = virtualListPage.update(initial.model, virtualListPage.Message.ToggleSort()).model
+    const sorted = virtualListPage.update(initial.model, VirtualListMessage.ToggleSort()).model
     expect(sorted.items[0]?.id).not.toBe(initial.model.items[0]?.id)
     Scene.scene(
       { update: virtualListPage.update, view: (model, h) => virtualListPage.view(model, inputs, h) },
@@ -43,6 +43,7 @@ describe('gallery performance pages', () => {
       Scene.given(initial.model),
       Scene.type('#form-field-0', 'changed'),
       Scene.expect(Scene.selector('#form-field-0')).toHaveAttr('value', 'changed'),
+      Scene.expect(Scene.selector('[data-perf="form-field-0"]')).toExist(),
     )
     expect(view).toHaveBeenCalledTimes(201)
   })

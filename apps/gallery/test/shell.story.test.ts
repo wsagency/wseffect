@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { Option } from 'effect'
 import { given, message, model, story } from 'foldkit/story'
-import { Message, createInitialModel, update } from '../src/shell.js'
+import { describe, expect, it } from 'vitest'
+import { Message, createInitialModel, init, update } from '../src/shell.js'
+import * as Url from 'foldkit/url'
 import { PageOutMessage } from '../src/contract.js'
 
 describe('gallery shell', () => {
@@ -8,6 +10,12 @@ describe('gallery shell', () => {
     const initial = createInitialModel([])
     story(update, given(initial), message(Message.ChangedDate({ date: '2026-10-19' })),
       model((next) => expect(next.date).toBe('2026-10-19')))
+  })
+  it('starts the current route with its page module loading', () => {
+    const url = Option.getOrThrow(Url.fromString('https://gallery.test/virtual-list'))
+    const initial = init(url)
+    expect(initial.model.kit.activeKeys).toEqual(['virtualList'])
+    expect(initial.model.kit.slots.virtualList?._tag).toBe('Loading')
   })
 
   it('routes the shared page pair together', () => {

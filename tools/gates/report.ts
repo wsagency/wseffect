@@ -9,12 +9,12 @@ import type { PerfScenario } from './scenarios.ts'
 import { measureSize, type SizeReport } from './size.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const WSEFFECT_APP = join(ROOT, 'tools/fixtures/mini-app')
+const WSEFFECT_APP = join(ROOT, 'apps/gallery')
 const RADIX2SOLID_APP = join(ROOT, 'bench/radix2solid')
 const DIFFERENCES = [
-  'Both shells use the same entry + framework/vendor chunk definition; wseffect is a three-page Foldkit fixture while radix2solid includes additional component and theme routes, so first-visit sizes reflect different application breadth.',
-  'The matched menu and text-field hooks use native buttons and inputs in the fixture; radix2solid uses Radix2Solid DropdownMenu and TextField.Root components.',
-  'Both virtual-list pages expose 15 visible rows with the same six child roles, but the fixture does not recycle rows while scrolling as the benchmark does.',
+  'The Gallery and radix2solid share the bench hooks; the Gallery exposes additional component and theme routes, so first-visit sizes reflect different application breadth.',
+  'The matched menu and text-field hooks use native buttons and inputs in the Gallery; radix2solid uses Radix2Solid DropdownMenu and TextField.Root components.',
+  'Both virtual-list pages expose 15 visible rows with the same six child roles; the benchmark also measures row recycling while scrolling.',
 ]
 
 type ScenarioId = PerfScenario['id']

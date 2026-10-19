@@ -6,7 +6,7 @@ import * as DropdownMenu from '@wsagency/wseffect-themes/components/dropdown-men
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 
-export const Menu = DropdownMenu.create<'Inspect' | 'Archive'>()
+export const Menu: DropdownMenu.Bundle<'Inspect' | 'Archive'> = DropdownMenu.create<'Inspect' | 'Archive'>()
 const MenuState = Schema.Struct({ id: Schema.String, model: Menu.Model })
 export const Model = Schema.Struct({ menus: Schema.Array(MenuState), ticks: Schema.Number })
 export const Message = defineMessageUnion({
@@ -24,7 +24,7 @@ export const renderMenu = (model: typeof Menu.Model.Type, id: string, index: num
   viewInputs: {
     items: ['Inspect', 'Archive'],
     itemToConfig: (item) => ({ content: h.span([], [item]) }),
-    buttonContent: h.span([], [`Menu ${index}`]),
+    buttonContent: h.span([h.DataAttribute('menu-index', String(index))], [`Menu ${index}`]),
   },
 })
 

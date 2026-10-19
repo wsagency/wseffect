@@ -1,5 +1,5 @@
 import * as Scene from 'foldkit/scene'
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 import { page as layoutPage } from '../src/pages/layout.js'
 import { page as typographyPage } from '../src/pages/typography.js'
 import { page as buttonsPage } from '../src/pages/buttons.js'

@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
@@ -25,15 +25,6 @@ const fixtureDirectory = join(testDirectory, 'fixtures/app-pages')
 const appBuildId = resolve(testDirectory, '../src/buildId.ts')
 const appEntry = resolve(testDirectory, '../src/index.ts')
 
-function packageRoot(entry: string, name: string): string {
-  let directory = dirname(entry)
-  while (directory !== dirname(directory)) {
-    const packageFile = join(directory, 'package.json')
-    if (existsSync(packageFile) && JSON.parse(readFileSync(packageFile, 'utf8')).name === name) return directory
-    directory = dirname(directory)
-  }
-  throw new Error(`Cannot find package root for ${name}`)
-}
 async function buildFixture(
   pwa: false | { manifest: typeof manifest },
   alphaSource?: string,

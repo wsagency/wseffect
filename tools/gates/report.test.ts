@@ -19,7 +19,7 @@ const report = {
     size: { shell: 110, shellRaw: 1_100, firstVisit: { bytes: 220, requests: 5 }, pages: { form: 35, menus: 45 } },
     perf: perf(32, 8),
   },
-  differences: ['The mini-app uses native menu buttons; radix2solid uses Radix2Solid DropdownMenu triggers.'],
+  differences: ['The Gallery and radix2solid share the bench hooks.'],
 }
 
 test('BENCH-2 renders one reporting-only side-by-side table and verified differences', () => {
@@ -35,7 +35,7 @@ test('BENCH-2 renders one reporting-only side-by-side table and verified differe
   assert.match(summary, /^\| vl-cell qualified Event Timing entries \(median\/interaction\) \| 1 \| 1 \|$/m)
   assert.match(summary, /^\| vl-cell trace rAF callbacks \(median\/interaction\) \| 1 \| 1 \|$/m)
   assert.match(summary, /^\| menus-tick trace scripting median \(ms\) \| 6 \| 8 \|$/m)
-  assert.match(summary, /## Verified differences\n- The mini-app uses native menu buttons; radix2solid uses Radix2Solid DropdownMenu triggers\./)
+  assert.match(summary, /## Verified differences\n- The Gallery and radix2solid share the bench hooks\./)
   assert.equal((summary.match(/^\|/gm) ?? []).length, 29, 'one table contains header, separator, three size rows and twenty-four metric rows')
 })
 

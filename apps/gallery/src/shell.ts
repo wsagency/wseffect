@@ -1,11 +1,12 @@
 import { Option, Schema } from 'effect'
 import { Command } from 'foldkit'
+import * as Mount from 'foldkit/mount'
 import { defineTaggedUnion } from 'foldkit/schema'
 import type { HtmlBuilder } from 'foldkit/html'
 import type { Url } from 'foldkit/url'
 import type { UrlRequest } from 'foldkit/navigation'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
-import { initKit, kitStateSchema } from '@wsagency/wseffect-app'
+import { initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
@@ -15,6 +16,7 @@ import type { Pages } from './pages.gen.js'
 
 export const Model = Schema.Struct({
   date: Schema.String,
+  datePicker: DatePicker.Model,
   theme: Theme.Settings,
   kit: kitStateSchema(pages),
 })
@@ -135,17 +137,27 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => ({
         toParentMessage: (message) => Message.GotDatePickerMessage({ message }),
       }),
     ]),
-    h.nav([h.AriaLabel('Gallery pages')], Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
-      if (path === '/') return []
-      const key = keys[0]!
-      const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) })
-      return [h.a([
-        h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
-        h.Href(path),
-        h.OnMouseEnter(prefetch),
-        h.OnFocus(prefetch),
-      ], [path.slice(1)])]
-    })),
+    h.nav([h.AriaLabel('Gallery pages')], [
+      h.div([h.Id('gallery-page-links'), h.Style({ maxHeight: '12rem', overflowY: 'auto' })],
+        Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
+          if (path === '/') return []
+          const key = keys[0]!
+          const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) })
+          const visiblePrefetches = keys.map((pageKey) => {
+            const attribute = prefetchOnVisible<Pages, KitMessage>(kit, pageKey)
+            if (attribute._tag !== 'OnMount') throw new Error('Expected an OnMount attribute')
+            return h.OnMount(Mount.mapMessage(attribute.action, (message) => Message.GotKitMessage({ message })))
+          })
+          return [h.a([
+            h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
+            h.Href(path),
+            h.Style({ display: 'block' }),
+            h.OnMouseEnter(prefetch),
+            h.OnFocus(prefetch),
+            ...visiblePrefetches,
+          ], [path.slice(1)])]
+        })),
+    ]),
     h.main([], model.kit.activeKeys.map((key) => h.submodel({
       slotId: `page-${key}`,
       model: model.kit,
@@ -156,7 +168,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => ({
     h.footer([], [kit.bannerView
       ? h.submodel({ slotId: 'pwa-banner', model: model.kit, view: kit.bannerView, toParentMessage: (message) => Message.GotKitMessage({ message }) })
       : null]),
-  ],
+    ],
     h,
   ),
 })
@@ -167,4 +179,4 @@ export const onUrlRequest = (request: UrlRequest): Message => request._tag === '
 
 export const onUrlChange = (url: Url): Message => Message.ChangedUrl({ path: url.pathname })
 
-export const init = (url: Url) => ({ model: createInitialModel(pageKeysForRoute(url.pathname)) })
+export const init = (url: Url) => routeUpdate(createInitialModel(), url.pathname)

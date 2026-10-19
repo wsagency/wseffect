@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, parse, resolve, sep } from 'node:path'
 import type { Plugin } from 'vite'
 

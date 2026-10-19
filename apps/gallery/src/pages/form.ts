@@ -19,6 +19,8 @@ const renderField = (id: string, label: string, value: string, h: HtmlBuilder<Me
   label,
   value,
   onInput: (nextValue) => Message.ChangedField({ id, value: nextValue }),
+  type: 'text',
+  inputAttributes: [h.DataAttribute('perf', id)],
 }, [], h)
 
 export const page = galleryPageContract.definePage({
@@ -30,7 +32,7 @@ export const page = galleryPageContract.definePage({
       model: { fields: model.fields.map((field) => field.id === id ? { ...field, value } : field) },
     }),
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.Class('form-grid')], [
     Heading.view({ as: 'h1' }, ['Form performance'], h),
     ...model.fields.map((field: Field) => keyedField(field.id, renderField, [field.id, field.label, field.value, h])),
   ])),

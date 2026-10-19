@@ -1,14 +1,27 @@
 import { Option, Schema } from 'effect'
 import { Command, Submodel } from 'foldkit'
-import { createKeyedLazy, type HtmlBuilder } from 'foldkit/html'
+import { childAttributes, createKeyedLazy, type HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as VirtualList from '@foldkit/ui/virtualList'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 
-const Item = Schema.Struct({ id: Schema.String, value: Schema.String })
+const Item = Schema.Struct({
+  id: Schema.String,
+  value: Schema.String,
+  account: Schema.String,
+  region: Schema.String,
+  amount: Schema.Number,
+})
 type Item = typeof Item.Type
-const initialItems = Array.from({ length: 10_000 }, (_, index) => ({ id: `item-${index}`, value: `Item ${index}` }))
+const regions = ['North', 'South', 'East', 'West'] as const
+const initialItems = Array.from({ length: 10_000 }, (_, index) => ({
+  id: `item-${index}`,
+  value: `Item ${index}`,
+  account: `Account ${index % 117}`,
+  region: regions[index % regions.length]!,
+  amount: ((index * 379) % 100_000) / 100,
+}))
 export const Model = Schema.Struct({
   items: Schema.Array(Item),
   sourceItems: Schema.Array(Item),
@@ -33,24 +46,36 @@ const visibleItems = (model: Model): ReadonlyArray<Item> => model.items
 const sortedItems = (items: ReadonlyArray<Item>, descending: boolean): ReadonlyArray<Item> =>
   descending ? [...items].reverse() : items
 
-export const renderRow = (id: string, value: string, index: number, h: HtmlBuilder<Message>) => h.div([
+export const renderRow = (
+  id: string,
+  value: string,
+  account: string,
+  region: string,
+  amount: number,
+  selected: boolean,
+  index: number,
+  h: HtmlBuilder<Message>,
+) => h.div([
   h.Id(`vl-row-${index}`),
   h.DataAttribute('perf', 'vl-row'),
 ], [
-  h.span([], [value]),
-  ...(index === 0 ? [
-    h.input([
-      h.Id('vl-cell-input'),
-      h.DataAttribute('perf', 'vl-cell-input'),
-      h.Value(value),
-      h.OnInput((nextValue) => Message.CellChanged({ id, value: nextValue })),
-    ]),
-    h.button([
-      h.Id('vl-select'),
-      h.DataAttribute('perf', 'vl-select'),
-      h.OnClick(Message.SelectedItem({ id })),
-    ], ['Select']),
-  ] : []),
+  h.span([], [id]),
+  h.input([
+    h.Type('text'),
+    ...(index === 0 ? [h.Id('vl-cell-input'), h.DataAttribute('perf', 'vl-cell-input')] : []),
+    h.AriaLabel(`Item ${id}`),
+    h.Value(value),
+    h.OnInput((nextValue) => Message.CellChanged({ id, value: nextValue })),
+  ]),
+  h.span([], [account]),
+  h.span([], [region]),
+  h.span([], [amount.toFixed(2)]),
+  h.button([
+    h.Type('button'),
+    ...(index === 0 ? [h.Id('vl-select'), h.DataAttribute('perf', 'vl-select')] : []),
+    h.AriaPressed(selected ? 'true' : 'false'),
+    h.OnClick(Message.SelectedItem({ id })),
+  ], ['Select']),
 ])
 
 const listView = VirtualList.view<Item>()
@@ -112,6 +137,7 @@ export const page = galleryPageContract.definePage({
     return h.div([], [
       Heading.view({ as: 'h1' }, ['Virtual list'], h),
       h.input([
+        h.Type('text'),
         h.Id('vl-filter'),
         h.DataAttribute('perf', 'vl-filter'),
         h.AriaLabel('Filter rows'),
@@ -132,9 +158,18 @@ export const page = galleryPageContract.definePage({
           items,
           itemToKey: (item: Item) => item.id,
           itemToRowHeightPx: () => 36,
-          itemToView: (item: Item, index: number) => keyedRow(item.id, renderRow, [item.id, item.value, index, h]),
+          itemToView: (item: Item, index: number) => keyedRow(item.id, renderRow, [
+            item.id,
+            item.value,
+            item.account,
+            item.region,
+            item.amount,
+            model.selected._tag === 'Some' && model.selected.value === item.id,
+            index,
+            h,
+          ]),
           overscan: 4,
-          containerAttributes: [h.Id('vl-list'), h.Style({ height: '360px' })],
+          containerAttributes: childAttributes([h.Id('vl-list'), h.Style({ height: '360px' })]),
         },
         toParentMessage: (childMessage) => Message.ListEvent({ message: childMessage }),
       }),

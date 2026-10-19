@@ -14,7 +14,7 @@ export const pageKeysByRoute = {
   '/virtual-list': ['virtualList'],
   '/form': ['form'],
   '/menus': ['menus'],
-}
+} as const
 
 export type GalleryRoute = keyof typeof pageKeysByRoute
 export type GalleryPageKey = typeof pageKeysByRoute[GalleryRoute][number]

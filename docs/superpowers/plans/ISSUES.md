@@ -54,7 +54,7 @@
 
 - **Issue:** C3's original fixture requirement uses `wseffect()`, but the plan makes Lane C depend only on Lane 0 and this base has no `wseffect()` export.
 - **Evidence:** Plan lines 86–87 list Lane C's dependency as Lane 0, while lines 909–915 require a C3 mini-app using `wseffect()`. At base `35640c5`, `packages/app/src/index.ts` contains only `export {}`. Spec APP-23 lines 335–337 defines the `framework` code-splitting group that the fixture must mirror.
-- **Resolution:** Per user direction, do not wait for Lane A. Build `tools/fixtures/mini-app` as plain Foldkit + Vite with `foldkit()`, a manual `build.rolldownOptions.output.codeSplitting.groups` `framework` group, three pages including two lazy pages via dynamic import, the gallery `data-perf` hooks, and its PWA. Keep both gates dependent only on build output and those hooks. When Lane D lands, point the gates at the gallery and delete this temporary fixture.
+- **Resolution:** Per user direction, do not wait for Lane A. Build a temporary plain Foldkit + Vite app with a manual framework chunk, three pages, the gallery `data-perf` hooks, and its PWA. Keep both gates dependent only on build output and those hooks. D2 later switches both gates to Gallery and removes the stand-in.
 - **Smallest compliant fix:** Replace the `wseffect()` fixture with that standalone Foldkit/Vite fixture; no gate implementation may depend on wseffect internals.
 
 
@@ -82,10 +82,10 @@
 
 ## 2026-10-19 — C5 jobs target Gallery before Lane D
 
-- **Issue:** The planned C5 jobs target `apps/gallery`, which is not available until Lane D, but the user requires the report/jobs against the mini-app now.
-- **Evidence:** Plan C5 lines 969–971 names `apps/gallery`; Lane D D1/D2 creates the Gallery and its performance pages; the user directed C4/C5 to use the mini-app now.
-- **Resolution:** Point the size, perf, and report jobs at `tools/fixtures/mini-app` until Lane D lands, then switch them to Gallery and delete the temporary fixture.
-- **Smallest compliant fix:** Use the mini-app in the new gate job arguments.
+- **Issue:** The planned C5 jobs targeted Gallery before Lane D created it; the user directed the report/jobs against a temporary fixture in the interim.
+- **Evidence:** Plan C5 lines 969–971 names `apps/gallery`; Lane D D1/D2 creates the Gallery and its performance pages; the user initially directed C4/C5 to use a temporary stand-in.
+- **Resolution:** The temporary fixture was removed in D2; size/perf/report now target `apps/gallery`.
+- **Smallest compliant fix:** Keep all gate job arguments pointed at the Gallery.
 
 ## 2026-10-19 — Root typecheck excludes tools source
 
@@ -94,11 +94,11 @@
 - **Resolution:** Add `tools/tsconfig.json` covering tools TypeScript, including gates, server, tests, Vite config and fixture source; run it from the root `typecheck` script with ES2024, Bundler resolution, and Vite client types.
 - **Smallest compliant fix:** Wire `tsc -p tools/tsconfig.json` into `pnpm typecheck` and fix diagnostics surfaced by that project.
 
-## 2026-10-19 — Mini-app perf fixture DOM did not match Solid bench
+## 2026-10-19 — Performance hooks matched the comparison bench
 
-- **Issue:** The initial mini-app lacked `vl-sort`, used a three-cell table row instead of the bench's six-child row, and filtered only by name rather than name/account/region.
-- **Evidence:** C4 `SCENARIOS` requires `vl-sort`; `bench/radix2solid/src/fixtures/BenchFixtures.tsx` lines 31–45 has six row children and filters name/account/region; the mini-app initially had only three `<td>` cells. The first contract test failed with zero `data-perf="vl-row"` elements.
-- **Resolution:** Align the mini-app to 10,000 records with matching id/name/account/region/amount fields, six row children, 15 visible rows, text input types, sort/filter hooks, and 200 menu triggers; add an integration contract test.
+- **Issue:** The temporary gate app initially lacked `vl-sort`, used a three-child table row rather than the bench's six-child row, and filtered by name only.
+- **Evidence:** C4 `SCENARIOS` requires `vl-sort`; `bench/radix2solid/src/fixtures/BenchFixtures.tsx` lines 31–45 has six row children and filters name/account/region. The first contract test failed with zero `data-perf="vl-row"` elements.
+- **Resolution:** The Gallery exposes matching id/name/account/region/amount fields, six row children, 15 visible rows, text input types, sort/filter hooks, and 200 menu triggers; its integration contract test covers them.
 - **Smallest compliant fix:** Match selectors, visible counts, text field type and row/cell structure while preserving the Foldkit/Vite implementation.
 
 ## A2-M6: Framework chunk detection must follow resolved package roots
@@ -118,7 +118,7 @@
 - **Issue:** The previous size comparison skipped build artifacts missing from the baseline and accepted an explanation without requiring updated bytes.
 - **Evidence:** The pre-change `bench/baselines/size.json` had an empty `entries` object; the comparator iterated only baseline entries and checked `reason` without requiring candidate-baseline changes.
 - **Resolution:** Compare against `origin/main`'s merge-base baseline, require every current artifact in the candidate `size.json`, and require both changed bytes and a reason for explained growth.
-- **Smallest compliant fix:** Seed the mini-app artifacts with observed measurements and reject missing or undersized candidate entries.
+- **Smallest compliant fix:** Seed the Gallery artifacts with observed measurements and reject missing or undersized candidate entries.
 
 ## 2026-10-19 — APP-23 framework group must contain boot runtime only; clarify GATE-S1
 

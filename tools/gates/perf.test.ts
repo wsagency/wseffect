@@ -1,8 +1,7 @@
-import { mkdtempSync, rmSync } from 'node:fs'
 import assert from 'node:assert/strict'
-import { join, resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { test } from 'node:test'
-import { build, preview } from 'vite'
+import { build, preview, type PreviewServer } from 'vite'
 import { applyCpuThrottle, assertNoiseBand, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount, traceScriptingDuration } from './perf.ts'
 
 const syntheticNoiseFloors = {
@@ -163,7 +162,7 @@ test('perf noise write arguments require self-test and a reason', async () => {
     readonly writeNoise: boolean
     readonly reason: string
   }
-  const appDir = resolve(import.meta.dirname, '../fixtures/mini-app')
+  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
   const parsed = parseArguments([
     '--app', appDir,
     '--self-test',
@@ -258,16 +257,13 @@ test('harness self-test observes valid slow/fast clicks and traced rAF work', { 
   assert.ok(result.animationFrameCount > 0, 'real Chromium trace includes the scheduled rAF callback')
 })
 
-test('runScenario captures input durations and records entry counts for every mini-app scenario', { timeout: 90_000 }, async () => {
-  const fixtureDir = resolve(import.meta.dirname, '../fixtures/mini-app')
-  const outputDir = mkdtempSync(join(fixtureDir, '.perf-build-'))
-  let server: Awaited<ReturnType<typeof preview>> | undefined
+test('runScenario captures input durations and records entry counts for every Gallery scenario', { timeout: 90_000 }, async () => {
+  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
+  let server: PreviewServer | undefined
   try {
-    await build({ root: fixtureDir, configFile: join(fixtureDir, 'vite.config.ts'), build: { outDir: outputDir }, logLevel: 'error' })
     server = await preview({
-      root: fixtureDir,
-      configFile: join(fixtureDir, 'vite.config.ts'),
-      build: { outDir: outputDir },
+      root: appDir,
+      configFile: resolve(appDir, 'vite.config.ts'),
       logLevel: 'error',
       preview: { host: '127.0.0.1', port: 0, strictPort: false },
     })
@@ -287,7 +283,6 @@ test('runScenario captures input durations and records entry counts for every mi
     }
   } finally {
     await server?.close()
-    rmSync(outputDir, { recursive: true, force: true })
   }
 })
 

@@ -83,7 +83,7 @@
 | 0 | 0.1–0.3 monorepo, CI skeleton, lint plugin skeleton | — | `lane-0` (merge first) |
 | A | A1–A10 `@wsagency/wseffect-app` | 0 | `lane-a` |
 | B | B1–B8 `@wsagency/wseffect-themes` | 0 | `lane-b` |
-| C | C1–C5 deploy server, bench import, size gate, perf gate, report | 0 (C3–C5 run against gallery once D1 lands; until then against `tools/fixtures/mini-app`) | `lane-c` |
+| C | C1–C5 deploy server, bench import, size gate, perf gate, report | 0 (C3–C5 target apps/gallery after D1/D2) | `lane-c` |
 | D | D1–D6 gallery, e2e, packed consumer, licenses/README | A, B, C1 (D1 needs C3's `size.json` format, frozen below) | `lane-d` |
 
 Lanes A, B and C run in parallel after lane 0 merges. Lane D may start D1 against the frozen interfaces using the integrator's merged `main` once A and B merge. Each lane rebases on `main` before its final merge and runs `pnpm check`.
@@ -290,7 +290,7 @@ apps/gallery/
   index.html  vite.config.ts  public/icons/*  src/{main.ts,shell.ts,contract.ts,routes.ts,pages.gen.ts}  src/pages/*.ts  src/pages/package.json
 tools/serve/{server.ts,server.test.ts}       # PWA-10 server with byte accounting (C1)
 tools/gates/{size.ts,perf.ts,report.ts,scenarios.ts}   # C3–C5
-tools/fixtures/mini-app/                     # TEMPORARY stand-in for apps/gallery in C3/C4: off the size path in D1, deleted in D2
+tools/fixtures/                     # Temporary Foldkit/Vite stand-in; removed in D2
 bench/radix2solid/  bench/baselines/{size.json,perf.json,perf-noise.json}
 e2e/*.spec.ts  playwright.config.ts
 tests/consumer/{run.ts,coverage-manifest.json,check-*.ts}
@@ -916,7 +916,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 **Files:**
 - Create: `tools/gates/size.ts`, `bench/baselines/size.json` (format per contract; entries filled by D1)
-- Create: `tools/fixtures/mini-app/` (Foldkit app using `wseffect()` with 3 pages, the perf hooks and the PWA)
+- Create: temporary Foldkit/Vite app with 3 pages, the perf hooks and the PWA (removed in D2)
 - Test: `tools/gates/size.test.ts`
 
 **Interfaces:**
@@ -928,7 +928,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - It fails when mandatory `firstVisit.bytes > 163840` and when `speculativePrefetch.bytes > 65536`; first-visit includes the document, JS shell, CSS, SW registration/precache assets, version.json and current-route assets.
   - A Vite-manifest classifier test assigns only non-primary page assets not needed by the current route to speculative prefetch; this includes both JS chunks and CSS. These requests/bytes are excluded from GATE-S2 and reported separately in `speculativePrefetch`. All other first-visit requests remain mandatory.
   - It fails when any tracked artifact grows by more than 2% over baseline and the baseline `reason` is empty; it passes when the same PR's baseline entry has a non-empty reason.
-  - On `tools/fixtures/mini-app`: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`, excluding CSS. The same request window runs from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms; mandatory and speculative bytes/requests are reported separately.
+  - On apps/gallery: `shell` equals the brotli-q11 size of `index-*.js` + `framework-*.js`, excluding CSS. The same request window runs from `goto('/')` until `navigator.serviceWorker.controller` is set and the server has seen no request for 1,000 ms; mandatory and speculative bytes/requests are reported separately.
 - [ ] **Step 2: Run** `node --test tools/gates/size.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement** with Playwright Chromium and the C1 server with `brotli:true`.
 - [ ] **Step 4: Run** again. Expected: PASS.
@@ -957,7 +957,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - A missing `perf-noise.json`, or a missing scenario in `floorsMs`, fails the gate with a message naming the file.
   - `traceScriptingDuration` on synthetic traces: input `EventDispatch`, then a `Paint` of a frame already in flight, then `FireAnimationFrame`, then `Paint` → the rAF interval is counted; nested intervals are merged, not double-counted.
   - `ceilings`: vl-* scenarios 50, form-field and menus-tick 30.
-  - Against `tools/fixtures/mini-app` with 2 sessions, `runScenario` returns arrays of length 2 and applies `Emulation.setCPUThrottlingRate { rate: 4 }`.
+  - Against apps/gallery with 2 sessions, `runScenario` returns arrays of length 2 and applies `Emulation.setCPUThrottlingRate { rate: 4 }`.
   - The harness self-test: a 50 ms trusted-click handler yields a qualified entry ≥ 50 ms; the in-page loop throttle ratio must be within 3–5×. Gate mode runs the self-test and then the A/A pre-check before any verdict; an A/A p95 above 1.5 × floor fails with `runner too noisy`.
 - [ ] **Step 2: Run** `node --test tools/gates/perf.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
@@ -1021,7 +1021,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 5: Record sizes** (GATE-S1..S4). Run `pnpm gate:size --app apps/gallery --write-baseline --reason "initial foundation measurement"`.
   - Expected: `bench/baselines/size.json` written with `shell`, mandatory `first-visit`, separate `speculative-prefetch`, `page:*`, and `styles.css`. The GATE-S2 `first-visit` excludes only manifest-identified speculative requests for non-primary page assets not required by `/`; every other request, including document, shell CSS, SW registration/precache assets and `version.json`, is mandatory.
   - **If `shell` > 122,880 B:** do NOT change the budget. Commit the baseline with the measured value; the `size` job then fails. Open the PR with a source-map attribution (`SOURCEMAP=on` build plus `tools/gates/size.ts --attribute`) and stop for the user's decision.
-- [ ] **Step 6: Remove the mini-app from the size path.** Switch the `size` job to `pnpm gate:size --app apps/gallery`, and point `report.ts`'s wseffect size measurement at `apps/gallery`. `tools/fixtures/mini-app` stays only for perf until D2.
+- [ ] **Step 6: Point reporting at Gallery.** The size job and `report.ts`'s wseffect size measurement target `apps/gallery`; D2 switches perf measurement and removes the temporary fixture.
 - [ ] **Step 7: Commit** `feat(gallery): shell, foundation pages and initial size baseline`.
 
 ### Task D2: Performance pages
@@ -1042,11 +1042,11 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** again, then `pnpm gate:perf --app apps/gallery --write-baseline --reason "initial foundation baseline"`. Expected: PASS; all six ceilings met; `perf.json` records the current commit.
 - [ ] **Step 5: Measure noise floors on the CI `perf` runner** (GATE-P3, GATE-P5): run `pnpm gate:perf --app apps/gallery --self-test --write-noise --reason "initial gallery noise floors"` in a manually dispatched `perf` job and commit the resulting `bench/baselines/perf-noise.json`. Floors from any other machine are not accepted.
-- [ ] **Step 6: Delete the temporary mini-app.**
+- [ ] **Step 6: Remove the temporary fixture.**
   - Switch the `perf` job and `report.ts`'s wseffect perf measurement to `apps/gallery`.
-  - Delete `tools/fixtures/mini-app/` and its tests' fixture references (`tools/gates/*.test.ts` move to the gallery build).
+  - Delete the fixture directory and its tests' fixture references (`tools/gates/*.test.ts` use the gallery build).
   - Remove `tools/fixtures/*` from `pnpm-workspace.yaml` and run `pnpm install` to update the lockfile.
-  - Expected: `git grep -n "fixtures/mini-app"` returns nothing; `pnpm check` passes.
+  - Expected: repository search finds no fixture path; `pnpm check` passes.
 - [ ] **Step 7: Commit** `feat(gallery): VirtualList, form and menus performance pages`.
 
 ### Task D3: Browser e2e: lazy pages, shared state, accessibility
