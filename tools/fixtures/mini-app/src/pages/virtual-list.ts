@@ -1,18 +1,31 @@
 import type { PageView } from '../main'
 
-const rows = Array.from({ length: 10_000 }, (_, index) => ({
-  id: index + 1,
-  name: `Record ${String(index + 1).padStart(5, '0')}`,
-  account: `Account ${index % 117}`,
-  region: ['North', 'South', 'East', 'West'][index % 4]!,
-  amount: ((index * 379) % 100_000) / 100,
-}))
+interface Row {
+  readonly id: number
+  readonly name: string
+  readonly account: string
+  readonly region: string
+  readonly amount: number
+}
+
+let cachedRows: Row[] | undefined
+
+function getRows(): Row[] {
+  return (cachedRows ??= Array.from({ length: 15_000 }, (_, index) => ({
+    id: index + 1,
+    name: `Record ${String(index + 1).padStart(5, '0')}`,
+    account: `Account ${index % 117}`,
+    region: ['North', 'South', 'East', 'West'][index % 4]!,
+    amount: ((index * 379) % 100_000) / 100,
+  })))
+}
+
 const VISIBLE_ROWS = 15
 
 export const view: PageView = (model, h, messages) => {
   const filter = model.filter.trim().toLowerCase()
-  const filtered = rows.filter((row) => `${row.name} ${row.account} ${row.region}`.toLowerCase().includes(filter))
-  if (model.descending) filtered.reverse()
+  const filtered = getRows().filter((row) => `${row.name} ${row.account} ${row.region}`.toLowerCase().includes(filter))
+  if (model.descending) filtered.sort((left, right) => right.amount - left.amount)
   const visible = filtered.slice(0, VISIBLE_ROWS)
 
   return {

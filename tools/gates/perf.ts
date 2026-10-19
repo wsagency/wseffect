@@ -195,6 +195,38 @@ const SCRIPT_TRACE_EVENTS = new Set([
   'ScriptFirstStatement',
   'V8.Execute',
 ])
+function tracePresentationBoundary(
+  events: readonly TraceEvent[],
+  presentations: readonly TraceEvent[],
+  inputStart: number,
+  eventTimingEnd: number | undefined,
+): number | undefined {
+  if (eventTimingEnd !== undefined) {
+    let boundary: number | undefined
+    for (const presentation of presentations) {
+      if (presentation.ts! > eventTimingEnd) break
+      boundary = presentation.ts
+    }
+    return boundary ?? eventTimingEnd
+  }
+
+  const firstPresentation = presentations.find((event) => event.ts! > inputStart)
+  if (firstPresentation?.ts === undefined) return undefined
+  let lastAnimationFrameEnd: number | undefined
+  for (const event of events) {
+    if (event.name === 'FireAnimationFrame'
+      && event.ph === 'X'
+      && typeof event.ts === 'number'
+      && typeof event.dur === 'number'
+      && event.ts >= firstPresentation.ts) {
+      lastAnimationFrameEnd = Math.max(lastAnimationFrameEnd ?? 0, event.ts + event.dur)
+    }
+  }
+  return lastAnimationFrameEnd === undefined
+    ? firstPresentation.ts
+    : presentations.find((event) => event.ts! >= lastAnimationFrameEnd)?.ts
+}
+
 
 export function traceScriptingDuration(
   events: readonly TraceEvent[],
@@ -218,10 +250,7 @@ export function traceScriptingDuration(
     const eventTimingEnd = eventTimingDurationMs === undefined
       ? undefined
       : inputStart + eventTimingDurationMs * 1_000
-    const presentationEnd = presentations.find((event) => eventTimingEnd === undefined
-      ? event.ts! > inputStart
-      : event.ts! >= eventTimingEnd)?.ts
-    const windowEnd = presentationEnd ?? eventTimingEnd
+    const windowEnd = tracePresentationBoundary(events, presentations, inputStart, eventTimingEnd)
     if (windowEnd === undefined) throw new Error(`trace did not contain a Paint or Commit after ${inputEventType}`)
 
     const intervals = events
@@ -266,10 +295,7 @@ export function traceAnimationFrameCount(
     .filter((event) => (event.name === 'Paint' || event.name === 'Commit') && typeof event.ts === 'number')
     .sort((left, right) => left.ts! - right.ts!)
   const eventTimingEnd = eventTimingDurationMs === undefined ? undefined : input.ts + eventTimingDurationMs * 1_000
-  const presentationEnd = presentations.find((event) => eventTimingEnd === undefined
-    ? event.ts! > input.ts!
-    : event.ts! >= eventTimingEnd)?.ts
-  const windowEnd = presentationEnd ?? eventTimingEnd
+  const windowEnd = tracePresentationBoundary(events, presentations, input.ts, eventTimingEnd)
   if (windowEnd === undefined) return 0
   return events.filter((event) => event.name === 'FireAnimationFrame'
     && event.ph === 'X'
@@ -337,14 +363,15 @@ async function traceInteraction(
   let entries: EventEntry[] = []
   try {
     await scenario.act(page)
-    entries = await eventEntries(page)
+    await new Promise<void>((resolveWait) => setTimeout(resolveWait, 50))
   } finally {
     const complete = new Promise<void>((resolveComplete) => client.once('Tracing.tracingComplete', () => resolveComplete()))
     await client.send('Tracing.end')
     await complete
     client.off('Tracing.dataCollected', onData)
   }
-  const duration = interactionDuration(entries)
+  entries = await eventEntries(page)
+  const duration = entries.length === 0 ? undefined : interactionDuration(entries)
   return {
     entries,
     scriptMs: traceScriptingDuration(events, scenario.inputEventType, duration),

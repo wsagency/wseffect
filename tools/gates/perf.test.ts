@@ -209,7 +209,7 @@ test('trace scripting duration ends at the Event Timing next-paint boundary and 
     { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 20_000, args: { data: { type: 'click' } } },
     { name: 'FunctionCall', ph: 'X', ts: 110_000, dur: 20_000 },
     { name: 'FireAnimationFrame', ph: 'X', ts: 125_000, dur: 15_000 },
-    { name: 'Paint', ph: 'X', ts: 160_000, dur: 2_000 },
+    { name: 'Paint', ph: 'X', ts: 140_000, dur: 2_000 },
     { name: 'FunctionCall', ph: 'X', ts: 170_000, dur: 20_000 },
   ], 'click', 40), 40)
 })
@@ -224,15 +224,15 @@ test('trace animation-frame counts include rAF callbacks before the Event Timing
   ], 'click', 40), 2)
 })
 
-test('GATE-P1 includes rAF work after an in-flight Paint and ends at the following Paint', async () => {
+test('GATE-P1 includes rAF work after an in-flight Paint and ends at the Event Timing Paint', async () => {
   const { traceScriptingDuration } = await import('./perf.ts')
   const events = [
     { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
     { name: 'Paint', ph: 'X', ts: 115_000, dur: 2_000 },
-    { name: 'FireAnimationFrame', ph: 'X', ts: 120_000, dur: 15_000 },
-    { name: 'Paint', ph: 'X', ts: 140_000, dur: 2_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 120_000, dur: 10_000 },
+    { name: 'Paint', ph: 'X', ts: 130_000, dur: 2_000 },
   ]
-  assert.equal(traceScriptingDuration(events, 'click', 30), 25)
+  assert.equal(traceScriptingDuration(events, 'click', 30), 20)
   assert.equal(traceAnimationFrameCount(events, 'click', 30), 1)
 })
 

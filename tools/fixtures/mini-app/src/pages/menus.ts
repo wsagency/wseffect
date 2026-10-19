@@ -1,6 +1,10 @@
 import type { PageView } from '../main'
 
-const menuIndexes = Array.from({ length: 200 }, (_, index) => index)
+let menuIndexes: readonly number[] | undefined
+
+function getMenuIndexes(): readonly number[] {
+  return (menuIndexes ??= Array.from({ length: 200 }, (_, index) => index))
+}
 
 export const view: PageView = (model, h, messages) => ({
   title: 'Menus performance fixture',
@@ -13,7 +17,7 @@ export const view: PageView = (model, h, messages) => ({
     h.main([h.Class('menus-page')], [
       h.h1([], ['Menus']),
       h.button([h.Attribute('data-perf', 'menus-tick'), h.OnClick(messages.ClickedMenusTick())], [`Unrelated update ${model.menuTicks}`]),
-      h.div([h.Class('menu-grid')], menuIndexes.map((index) => h.button([
+      h.div([h.Class('menu-grid')], getMenuIndexes().map((index) => h.button([
         h.Key(String(index)),
         h.Attribute('type', 'button'),
         h.Attribute('aria-haspopup', 'menu'),
