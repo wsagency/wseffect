@@ -31,5 +31,6 @@ peerDependencyRules:
     expect(readme).toContain('backend APIs or stored data')
     expect(readme).toContain('loses in-memory application state')
     expect(readme).toContain('Remove this override and its `allowedVersions` entries when the Foldkit upgrade')
+    expect(readme).toContain('Serve one immutable deployment directory at a time and retain the three newest deployment asset trees while old tabs may still request lazy page chunks.')
   })
 })

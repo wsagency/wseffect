@@ -60,15 +60,21 @@ export function makeServiceWorkerLayer(register: typeof registerSW): Layer.Layer
           const installing = current.installing
           if (installing !== null) {
             await new Promise<void>((resolve, reject) => {
+              const finish = (action: () => void) => {
+                clearTimeout(timeout)
+                installing.removeEventListener('statechange', stateChanged)
+                action()
+              }
               const stateChanged = () => {
                 if (installing.state === 'installed' || installing.state === 'activated') {
-                  installing.removeEventListener('statechange', stateChanged)
-                  resolve()
+                  finish(resolve)
                 } else if (installing.state === 'redundant') {
-                  installing.removeEventListener('statechange', stateChanged)
-                  reject(new Error('Service worker installation became redundant'))
+                  finish(() => reject(new Error('Service worker installation became redundant')))
                 }
               }
+              const timeout = setTimeout(() => {
+                finish(() => reject(new Error('Timed out waiting for service worker installation')))
+              }, 10_000)
               installing.addEventListener('statechange', stateChanged)
               stateChanged()
             })

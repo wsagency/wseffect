@@ -253,13 +253,13 @@ describe('page loader', () => {
     expect(calls).toEqual(['check', 'apply'])
   })
 
-  it('falls back to location.reload when no service worker registration exists', async () => {
+  it('completes after falling back to location.reload when no service worker registration exists', async () => {
     const { binding, KitMessage } = makeKitFixture()
     const reload = vi.fn()
     vi.stubGlobal('location', { reload })
     try {
       const message = await runCommand(binding.commands.ReloadDocument({}).effect)
-      expect(message).toEqual(KitMessage.FailedApplyUpdate({ reason: 'No service worker controller change' }))
+      expect(message).toEqual(KitMessage.CompletedApplyUpdate({}))
       expect(reload).toHaveBeenCalledTimes(1)
     } finally {
       vi.unstubAllGlobals()
@@ -275,7 +275,7 @@ describe('page loader', () => {
       vi.unstubAllGlobals()
     }
   })
-  it('reloads when the service worker has no registration', async () => {
+  it('completes when the service worker has no registration and reload succeeds', async () => {
     const { binding, KitMessage } = makeKitFixture()
     const reload = vi.fn()
     vi.stubGlobal('location', { reload })
@@ -287,7 +287,7 @@ describe('page loader', () => {
     })
     try {
       const message = await runCommand(binding.commands.ReloadDocument({}).effect.pipe(Effect.provide(layer)))
-      expect(message).toEqual(KitMessage.FailedApplyUpdate({ reason: 'No service worker controller change' }))
+      expect(message).toEqual(KitMessage.CompletedApplyUpdate({}))
       expect(reload).toHaveBeenCalledTimes(1)
     } finally {
       vi.unstubAllGlobals()

@@ -91,6 +91,22 @@ export function activate<Pages extends Record<string, AnyPage>, Key extends keyo
   })
 }
 
+export type KitPageMessagePayload<
+  Pages extends Record<string, AnyPage>,
+  Key extends keyof Pages & string,
+> = Readonly<{ message: MessageOf<Pages[Key]> }>
+
+export type KitPageMessageHandler<
+  Pages extends Record<string, AnyPage>,
+  Key extends keyof Pages & string,
+> = (payload: KitPageMessagePayload<Pages, Key>) => unknown
+
+function hasPageMessagePayload<Payload extends { readonly message: unknown }>(
+  payload: unknown,
+): payload is Payload {
+  return payload !== null && typeof payload === 'object' && 'message' in payload
+}
+
 export interface KitMessageMatcher<Message> {
   match(message: Message, handlers: Record<string, (payload: unknown) => unknown>): unknown
 }
@@ -117,18 +133,6 @@ export function makeKitUpdate<Pages extends Record<string, AnyPage>, KitMessage 
 > {
   const tagToKey = new Map(Object.entries(config.pageMessageTags).map(([key, tag]) => [tag, key as keyof Pages & string]))
   return (state, message) => {
-    const pageHandlers: Record<string, (payload: unknown) => unknown> = {}
-    for (const [tag, key] of tagToKey) {
-      const fold = foldPage({
-        pages: config.pages,
-        key,
-        toParentMessage: config.toParentMessage[key],
-      })
-      pageHandlers[tag] = (payload) => {
-        if (payload === null || typeof payload !== 'object' || !('message' in payload)) return { model: state }
-        return fold(state, payload.message as MessageOf<Pages[typeof key]>)
-      }
-    }
     const fields: Record<string, (payload: unknown) => unknown> = {
       EnteredRoute: (payload) => {
         const { keys } = payload as { readonly keys: ReadonlyArray<keyof Pages & string> }
@@ -204,7 +208,17 @@ export function makeKitUpdate<Pages extends Record<string, AnyPage>, KitMessage 
       ClickedApplyUpdate: () => ({ model: state, commands: [config.commands.reload()] }),
       CompletedApplyUpdate: () => ({ model: { ...state, pwa: { ...state.pwa, isUpdateAvailable: false } } }),
       FailedApplyUpdate: () => ({ model: state }),
-      ...pageHandlers,
+    }
+    for (const [tag, key] of tagToKey) {
+      const fold = foldPage({
+        pages: config.pages,
+        key,
+        toParentMessage: config.toParentMessage[key],
+      })
+      fields[tag] = (payload) => {
+        if (!hasPageMessagePayload<KitPageMessagePayload<Pages, typeof key>>(payload)) return { model: state }
+        return fold(state, payload.message)
+      }
     }
     return config.KitMessage.match(message, fields) as Update.ReturnWithOutMessage<
       KitState<Pages>, KitMessage, OutMessageOf<Pages[keyof Pages]>, ServicesOf<Pages[keyof Pages]>

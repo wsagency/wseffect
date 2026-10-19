@@ -87,7 +87,7 @@ describe('prefetch intent attributes', () => {
   it('requests prefetch on mouseenter', () => {
     const { binding, KitMessage, alphaInitial } = makeKitFixture()
     const view = (_state: Parameters<typeof binding.view>[0], h: Parameters<typeof binding.view>[2]) =>
-      h.button(prefetchOnIntent<FixturePages, FixtureMessage>(binding, 'alpha'), ['Open page'])
+      h.button(prefetchOnIntent<FixturePages, FixtureMessage>(binding, 'alpha', h), ['Open page'])
     Scene.scene({ update: binding.update, view }, Scene.given(alphaInitial()),
       Scene.hover(text('Open page')),
       Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
@@ -97,7 +97,7 @@ describe('prefetch intent attributes', () => {
   it('requests prefetch on focus', () => {
     const { binding, KitMessage, alphaInitial } = makeKitFixture()
     const view = (_state: Parameters<typeof binding.view>[0], h: Parameters<typeof binding.view>[2]) =>
-      h.button(prefetchOnIntent<FixturePages, FixtureMessage>(binding, 'alpha'), ['Open page'])
+      h.button(prefetchOnIntent<FixturePages, FixtureMessage>(binding, 'alpha', h), ['Open page'])
     Scene.scene({ update: binding.update, view }, Scene.given(alphaInitial()),
       Scene.focus(text('Open page')),
       Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
@@ -115,5 +115,30 @@ describe('prefetch intent attributes', () => {
       Scene.Mount.resolve(action, binding.messages.requestedPrefetch('alpha')),
       Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
       Scene.Command.resolve(binding.commands.LoadPageForPrefetch({ key: 'alpha' }), KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+  })
+  it('keeps visible mounts associated with their binding', () => {
+    const first = makeKitFixture()
+    const second = makeKitFixture()
+    const firstAttribute = prefetchOnVisible<FixturePages, FixtureMessage>(first.binding, 'alpha')
+    const secondAttribute = prefetchOnVisible<FixturePages, FixtureMessage>(second.binding, 'alpha')
+    if (firstAttribute._tag !== 'OnMount' || secondAttribute._tag !== 'OnMount') {
+      throw new Error('Expected mount attributes')
+    }
+
+    const firstView = (_state: Parameters<typeof first.binding.view>[0], h: Parameters<typeof first.binding.view>[2]) =>
+      h.div([firstAttribute], ['First visible page'])
+    Scene.scene({ update: first.binding.update, view: firstView }, Scene.given(first.alphaInitial()),
+      Scene.Mount.expectHas(firstAttribute.action),
+      Scene.Mount.resolve(firstAttribute.action, first.binding.messages.requestedPrefetch('alpha')),
+      Scene.Command.expectExact(first.binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
+      Scene.Command.resolve(first.binding.commands.LoadPageForPrefetch({ key: 'alpha' }), first.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+
+    const secondView = (_state: Parameters<typeof second.binding.view>[0], h: Parameters<typeof second.binding.view>[2]) =>
+      h.div([secondAttribute], ['Second visible page'])
+    Scene.scene({ update: second.binding.update, view: secondView }, Scene.given(second.alphaInitial()),
+      Scene.Mount.expectHas(secondAttribute.action),
+      Scene.Mount.resolve(secondAttribute.action, second.binding.messages.requestedPrefetch('alpha')),
+      Scene.Command.expectExact(second.binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
+      Scene.Command.resolve(second.binding.commands.LoadPageForPrefetch({ key: 'alpha' }), second.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
   })
 })
