@@ -13,7 +13,8 @@
     "check:repo": "node scripts/check-repo.ts",
     "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo",
     "gate:size": "node tools/gates/size.ts",
-    "gate:perf": "node tools/gates/perf.ts"
+    "gate:perf": "node tools/gates/perf.ts",
+    "gate:report": "node tools/gates/report.ts"
   },
   "devDependencies": {
     "@effect/platform-browser": "4.0.5",
