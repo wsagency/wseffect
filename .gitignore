@@ -1,0 +1,8 @@
+node_modules
+dist
+.artifacts
+coverage
+test-results
+playwright-report
+*.tgz
+!bench/radix2solid/packs/*.tgz
