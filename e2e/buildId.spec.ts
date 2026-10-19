@@ -1,27 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { execFileSync } from 'node:child_process'
+import type { GalleryBuildFixture } from './helpers/build.ts'
+import { createGalleryBuildFixture } from './helpers/build.ts'
 
-const repository = resolve(import.meta.dirname, '..')
-const gallery = resolve(repository, 'apps/gallery')
-const galleryPage = resolve(gallery, 'src/pages/cards.ts')
-const themeCard = resolve(repository, 'packages/themes/src/components/card.ts')
-
-async function cacheScratch(): Promise<string> {
-  const home = process.env.HOME
-  if (home === undefined) throw new Error('HOME is required to place E2E scratch under ~/.cache')
-  const cache = resolve(home, '.cache')
-  await mkdir(cache, { recursive: true })
-  return mkdtemp(resolve(cache, 'wseffect-e2e-build-id-'))
-}
-
-function build(directory: string, env: NodeJS.ProcessEnv = process.env): void {
-  execFileSync('pnpm', ['--dir', gallery, 'exec', 'vite', 'build', '--outDir', directory, '--emptyOutDir'], {
-    cwd: repository,
-    stdio: 'pipe',
-    env,
-  })
+function build(fixture: GalleryBuildFixture, directory: string, buildId?: string): void {
+  fixture.build({ outDir: directory, ...(buildId === undefined ? {} : { buildId }) })
 }
 
 async function buildId(directory: string): Promise<string> {
@@ -29,42 +13,43 @@ async function buildId(directory: string): Promise<string> {
   return version.buildId
 }
 
-async function changeOneByte(path: string, original: Buffer): Promise<void> {
+async function changeOneByte(path: string): Promise<Buffer> {
+  const original = await readFile(path)
   await writeFile(path, Buffer.concat([original, Buffer.from(' ')]))
+  return original
 }
 
 test('build IDs track gallery and workspace source inputs and match the entry JavaScript', async ({}, testInfo) => {
-  test.skip(testInfo.project.name !== 'chromium', 'build fixture mutates shared source files; run once')
-  const scratch = await cacheScratch()
-  const originalGalleryPage = await readFile(galleryPage)
-  const originalThemeCard = await readFile(themeCard)
+  test.skip(testInfo.project.name !== 'chromium', 'build fixture is isolated; run once')
+  const fixture = await createGalleryBuildFixture()
   try {
-    const plainEnv = { ...process.env, WSEFFECT_BUILD_ID: undefined }
-    const first = resolve(scratch, 'unchanged-first')
-    const second = resolve(scratch, 'unchanged-second')
-    build(first, plainEnv)
-    build(second, plainEnv)
+    const copiedGalleryPage = resolve(fixture.pagesDir, 'cards.ts')
+    const copiedThemeCard = resolve(fixture.packagesDir, 'themes/src/components/card.ts')
+    const output = resolve(fixture.rootDir, 'build-id-output')
+    const first = resolve(output, 'unchanged-first')
+    const second = resolve(output, 'unchanged-second')
+    build(fixture, first)
+    build(fixture, second)
     const initialId = await buildId(first)
     expect(await buildId(second)).toBe(initialId)
 
-    await changeOneByte(galleryPage, originalGalleryPage)
-    const changedGallery = resolve(scratch, 'changed-gallery')
-    build(changedGallery, plainEnv)
+    const originalGalleryPage = await changeOneByte(copiedGalleryPage)
+    const changedGallery = resolve(output, 'changed-gallery')
+    build(fixture, changedGallery)
     expect(await buildId(changedGallery)).not.toBe(initialId)
-    await writeFile(galleryPage, originalGalleryPage)
+    await writeFile(copiedGalleryPage, originalGalleryPage)
 
-    await changeOneByte(themeCard, originalThemeCard)
-    const changedTheme = resolve(scratch, 'changed-theme')
-    build(changedTheme, plainEnv)
+    const originalThemeCard = await changeOneByte(copiedThemeCard)
+    const changedTheme = resolve(output, 'changed-theme')
+    build(fixture, changedTheme)
     expect(await buildId(changedTheme)).not.toBe(initialId)
-    await writeFile(themeCard, originalThemeCard)
+    await writeFile(copiedThemeCard, originalThemeCard)
 
-    const override = resolve(scratch, 'override')
-    build(override, { ...plainEnv, WSEFFECT_BUILD_ID: '0123abcd' })
+    const override = resolve(output, 'override')
+    build(fixture, override, '0123abcd')
     expect(await buildId(override)).toBe('0123abcd')
 
-    expect(() => build(resolve(scratch, 'invalid-override'), { ...plainEnv, WSEFFECT_BUILD_ID: 'XYZ' }))
-      .toThrow()
+    expect(() => build(fixture, resolve(output, 'invalid-override'), 'XYZ')).toThrow()
 
     const versionId = await buildId(first)
     const assets = await readdir(resolve(first, 'assets'))
@@ -72,8 +57,6 @@ test('build IDs track gallery and workspace source inputs and match the entry Ja
     if (entry === undefined) throw new Error('entry JavaScript was not emitted')
     expect(await readFile(resolve(first, 'assets', entry), 'utf8')).toContain(versionId)
   } finally {
-    await writeFile(galleryPage, originalGalleryPage)
-    await writeFile(themeCard, originalThemeCard)
-    await rm(scratch, { recursive: true, force: true })
+    await fixture.cleanup()
   }
 })

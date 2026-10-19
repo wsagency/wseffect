@@ -139,3 +139,18 @@
 - **Issue:** The D3 theme e2e contract expects an accent change while a dialog is open, but the Gallery theme page has no themed settings dialog or accent control inside one, so the focus-preservation assertion has no realistic interaction path.
 - **Amendment:** Add a themed Dialog to the Gallery theme page with trigger `#theme-dialog-open` and accent control `#theme-dialog-accent`. The control emits the existing `ChangedThemeSetting` OutMessage. The e2e opens the dialog and changes the accent there; the dialog stays open and focus remains on the control, while only root Theme attributes change (`data-accent-color`, plus `data-gray-color` when gray is `auto`) and no structural mutation occurs outside the dialog.
 - **Gallery contract additions:** `#theme-dialog-open`, `#theme-dialog-accent`.
+
+## D4: Server retention includes the current deployment
+
+- **Issue:** The D4 skew test requires evicting the old build's assets, while the server's `retain` count includes the current deployment and rejects zero.
+- **Evidence:** `tools/serve/server.ts` sets `DEFAULT_RETENTION = 4` and throws when `retain < 1`, so the default keeps the current deployment plus three predecessors; `retain: 1` keeps only the current deployment.
+- **Resolution:** Use `server.deploy(v2, { retain: 1 })` for the zero-previous-deployments scenario, preserving the existing C1 API contract.
+- **Smallest compliant fix:** Keep the retention test at `retain: 1`; do not alter the server API solely to allow a zero count.
+
+## D4: Revision marker is environment-driven
+
+- **Issue:** The PWA and skew tests need distinguishable Gallery builds without mutating shared source.
+- **Resolution:** Use the Vite `GALLERY_REVISION` define in the tabs Overview panel, defaulting to `r1`; build fixtures set `GALLERY_REVISION=r2` for the new build.
+- **Smallest compliant fix:** Keep revision variation in the build environment rather than editing Gallery source between builds.
+
+

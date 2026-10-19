@@ -4,6 +4,7 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import * as Tabs from '@wsagency/wseffect-themes/components/tabs'
 import { galleryPageContract, type PageInputs, PageOutMessage } from '../contract.js'
+declare const __GALLERY_REVISION__: string
 
 const TabSet = Tabs.create<'Overview' | 'Settings'>()
 export const Model = Schema.Struct({ tabs: TabSet.Model, selected: Schema.Literals(['Overview', 'Settings']) })
@@ -38,7 +39,12 @@ export const page = galleryPageContract.definePage({
         selectedValue: model.selected,
         ariaLabel: 'Gallery sections',
         tabToLabel: value => h.span([], [value]),
-        tabToPanel: value => [h.p([], [value === 'Overview' ? 'Overview content' : 'Settings content'])],
+        tabToPanel: value => value === 'Overview'
+          ? [
+            h.p([], ['Overview content']),
+            h.p([], [`Gallery revision ${__GALLERY_REVISION__}`]),
+          ]
+          : [h.p([], ['Settings content'])],
       },
     }),
   ])),
