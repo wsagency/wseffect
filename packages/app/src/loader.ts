@@ -54,26 +54,25 @@ export function ensure<Pages extends Record<string, AnyPage>, Key extends keyof 
         onSome: (loader) => loader.load(key),
       })
       pages.registry.register(key, page as Pages[Key])
-      yield* Deferred.succeed(deferred, page)
-      return page as Pages[Key]
+      return page
     })
-    const loadWithCleanup = Effect.onInterrupt(load, () => Effect.andThen(
-      Deferred.interrupt(deferred),
-      Effect.sync(() => {
-        if (loads.get(key) === deferred) loads.delete(key)
-      }),
-    ))
-    return Effect.matchEffect(loadWithCleanup, {
-      onSuccess: Effect.succeed,
+    const sharedLoad = Effect.matchEffect(load, {
+      onSuccess: (page) => Effect.andThen(
+        Deferred.succeed(deferred, page),
+        Effect.sync(() => {
+          if (loads.get(key) === deferred) loads.delete(key)
+        }),
+      ),
       onFailure: (error) => Effect.andThen(
         Deferred.fail(deferred, error),
-        Effect.andThen(
-          Effect.sync(() => {
-            if (loads.get(key) === deferred) loads.delete(key)
-          }),
-          Effect.fail(error),
-        ),
+        Effect.sync(() => {
+          if (loads.get(key) === deferred) loads.delete(key)
+        }),
       ),
     })
+    return Effect.andThen(
+      Effect.forkDetach(sharedLoad),
+      Deferred.await(deferred) as Effect.Effect<Pages[Key], PageLoadError>,
+    )
   })
 }

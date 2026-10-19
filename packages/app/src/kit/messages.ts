@@ -1,14 +1,15 @@
+import { defineTaggedUnion } from 'foldkit/schema'
 import { Schema } from 'effect'
 import type { AnyPage, MessageOf } from '../contract.js'
 import type { PagesHandle } from '../registry.js'
 import { messageSchema } from '../registry.js'
 
-export const PwaEvent = Schema.Union([
-  Schema.TaggedStruct('UpdateAvailable', {}),
-  Schema.TaggedStruct('OfflineReady', {}),
-  Schema.TaggedStruct('RegisterFailed', { reason: Schema.String }),
-  Schema.TaggedStruct('ChangedOnlineStatus', { isOnline: Schema.Boolean }),
-])
+export const PwaEvent = defineTaggedUnion({
+  UpdateAvailable: {},
+  OfflineReady: {},
+  RegisterFailed: { reason: Schema.String },
+  ChangedOnlineStatus: { isOnline: Schema.Boolean },
+})
 export type PwaEvent = typeof PwaEvent.Type
 
 export type KitMessageFields<Pages extends Record<string, AnyPage>> = {

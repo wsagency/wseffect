@@ -1,5 +1,6 @@
-import { Effect, Schema, Stream } from 'effect'
-import { Command, Subscription } from 'foldkit'
+import { BUILD_ID } from '../buildId.js'
+import { Effect, Option, Schema, Stream } from 'effect'
+import { Command, Submodel, Subscription } from 'foldkit'
 import type { Update } from 'foldkit'
 import type { AnyPage, MessageOf, OutMessageOf, ServicesOf } from '../contract.js'
 import { ensure, PageLoadError } from '../loader.js'
@@ -8,8 +9,12 @@ import { classifyFailure } from './classify.js'
 import type { KitState } from './state.js'
 import { makeKitUpdate } from './update.js'
 import type { KitMessageMatcher } from './update.js'
+import type { KitPageViewInputs } from '../view/page.js'
+import { bannerView } from '../view/banner.js'
+import { viewPage } from '../view/page.js'
+import { ServiceWorker, ServiceWorkerUpdateError } from '../pwa/serviceWorker.js'
+import { PwaEvent } from './messages.js'
 
-const FailureCause = Schema.Literals(['Offline', 'NewVersion', 'LoadError'])
 
 function messageConstructor<Message>(union: object, tag: string, payload: unknown): Message {
   const candidate = (union as Record<string, unknown>)[tag]
@@ -35,6 +40,17 @@ export interface KitBinding<Pages extends Record<string, AnyPage>, KitMessage ex
   readonly update: (state: KitState<Pages>, message: KitMessage) => Update.ReturnWithOutMessage<
     KitState<Pages>, KitMessage, OutMessageOf<Pages[keyof Pages]>, ServicesOf<Pages[keyof Pages]>
   >
+  readonly messages: {
+    readonly requestedPrefetch: (key: keyof Pages & string) => KitMessage
+    readonly requestedPrefetchSchema: Schema.Codec<KitMessage, unknown>
+    readonly clickedRetryPage: (key: keyof Pages & string) => KitMessage
+    readonly clickedReloadPage: (key: keyof Pages & string) => KitMessage
+    readonly clickedApplyUpdate: () => KitMessage
+    readonly newVersionAvailable: (buildId: string) => KitMessage
+    readonly gotPwaEvent: (event: typeof PwaEvent.Type) => KitMessage
+  }
+  readonly view: Submodel.View<KitState<Pages>, KitMessage, KitPageViewInputs<Pages>>
+  readonly bannerView: Submodel.View<KitState<Pages>, KitMessage>
   readonly subscriptions: Readonly<Record<string, Subscription.Subscription<KitState<Pages>, KitMessage, { readonly isNeeded: boolean }>>>
   readonly commands: {
     readonly LoadPageForPrefetch: Command.CommandDefinition
@@ -60,7 +76,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
       try: () => fetch('/version.json', { cache: 'no-store' }),
       catch: (cause) => cause,
     }),
-    runningBuildId: (globalThis as typeof globalThis & { __WSEFFECT_BUILD_ID__?: string }).__WSEFFECT_BUILD_ID__ ?? '',
+    runningBuildId: BUILD_ID,
   }), (cause) => failedPage(key, cause, reason))
   const loadFailureReason = (error: PageLoadError) =>
     error.cause instanceof Error ? error.cause.message : String(error.cause)
@@ -81,13 +97,31 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
   })
   const ReloadDocument = Command.define('ReloadDocument', {
     messages: [messageDefinition<KitMessage>(union, 'CompletedApplyUpdate'), messageDefinition<KitMessage>(union, 'FailedApplyUpdate')],
-    execute: Effect.match(Effect.try({
-      try: () => {
-        if (typeof location !== 'undefined') location.reload()
-      },
-      catch: (cause) => new Error(String(cause)),
+    execute: Effect.match(Effect.gen(function*() {
+      const service = yield* Effect.serviceOption(ServiceWorker)
+      if (Option.isNone(service)) {
+        yield* Effect.try({
+          try: () => {
+            if (typeof location !== 'undefined') location.reload()
+          },
+          catch: (cause) => new ServiceWorkerUpdateError({ cause }),
+        })
+        return
+      }
+      const hasRegistration = yield* service.value.hasRegistration
+      if (!hasRegistration) {
+        yield* Effect.try({
+          try: () => {
+            if (typeof location !== 'undefined') location.reload()
+          },
+          catch: (cause) => new ServiceWorkerUpdateError({ cause }),
+        })
+        return
+      }
+      yield* service.value.checkForUpdate
+      yield* service.value.applyUpdate
     }), {
-      onFailure: (error) => failedApply(error.message),
+      onFailure: (error) => failedApply(String(error.cause)),
       onSuccess: completedApply,
     }),
   })
@@ -100,6 +134,17 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
       { message },
     ),
   ])) as { readonly [Key in keyof Pages]: (message: MessageOf<Pages[Key]>) => KitMessage }
+  const messages = {
+    requestedPrefetch: (key: Key) => messageConstructor<KitMessage>(union, 'RequestedPrefetch', { key }),
+    requestedPrefetchSchema: messageDefinition<KitMessage>(union, 'RequestedPrefetch'),
+    clickedRetryPage: (key: Key) => messageConstructor<KitMessage>(union, 'ClickedRetryPage', { key }),
+    clickedReloadPage: (key: Key) => messageConstructor<KitMessage>(union, 'ClickedReloadPage', { key }),
+    clickedApplyUpdate: () => messageConstructor<KitMessage>(union, 'ClickedApplyUpdate', {}),
+    newVersionAvailable: (buildId: string) => messageConstructor<KitMessage>(union, 'NewVersionAvailable', { buildId }),
+    gotPwaEvent: (event: typeof PwaEvent.Type) => messageConstructor<KitMessage>(union, 'GotPwaEvent', { event }),
+  }
+  const view = viewPage({ pages, toParentMessage, messages })
+  const updateBanner = bannerView(messages.clickedApplyUpdate)
   const subscriptions = Subscription.make<KitState<Pages>, KitMessage>()((entry) =>
     Object.fromEntries(pages.keys.map((key) => [
       `wseffect:load:${key}`,
@@ -134,5 +179,5 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
       reload: () => ReloadDocument() as unknown as Command.Command<KitMessage>,
     },
   })
-  return { pages, toParentMessage, update, subscriptions, commands }
+  return { pages, toParentMessage, update, subscriptions, commands, messages, view, bannerView: updateBanner }
 }
