@@ -30,7 +30,7 @@ export const view: PageView = (model, h, messages) => {
             h.Attribute('data-perf', 'vl-filter'),
             h.OnInput((value) => messages.ChangedFilter({ value })),
           ]),
-          h.button([h.OnClick(messages.ClickedSort())], [model.descending ? 'Sort ascending' : 'Sort descending']),
+          h.button([h.Attribute('data-perf', 'vl-sort'), h.OnClick(messages.ClickedSort())], [model.descending ? 'Sort ascending' : 'Sort descending']),
           h.span([h.Attribute('aria-live', 'polite')], [`${filtered.length} records`]),
         ]),
         h.table([h.Class('virtual-table')], [

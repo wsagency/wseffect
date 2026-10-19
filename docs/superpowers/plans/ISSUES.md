@@ -65,6 +65,28 @@
 - **Resolution:** C3 adds an attribute-only mode over the index/framework source maps and enables fixture maps with `SOURCEMAP=on`. It reports per-source Brotli-q11 weights from `sourcesContent` and labels them as indicative, not an additive decomposition of minified chunk bytes.
 - **Smallest compliant fix:** Add the `--attribute` mode to C3's `size.ts` and honor `SOURCEMAP=on` in the fixture's Vite config so D1 can invoke the specified command.
 
+
+## 2026-10-19 — C4 A/A noise-band control absent from task plan
+
+- **Issue:** The user requires an A/A self-test mode and a reported noise band, but C4 specifies only baseline/candidate ABAB regression measurement.
+- **Evidence:** Plan C4 lines 940–953 omits an A/A mode; spec GATE-P3 lines 522–525 cites the research A/A result but does not require the harness to measure and report one.
+- **Resolution:** Add `--self-test` with ten ABAB pairs over identical builds and report per-scenario, per-metric empirical p95 absolute paired deltas plus the observed signed range. This is diagnostic only and does not gate.
+- **Smallest compliant fix:** Extend C4 with an A/A measurement path and report its noise band.
+
+## 2026-10-19 — C4 server choice is ambiguous against GATE-P1
+
+- **Issue:** The C4 pre-flight notes expect C1 `startServer` reuse, while the performance spec requires the production build to be served by `vite preview`.
+- **Evidence:** Plan C4 lines 947–951 assumes C1 production serving; spec GATE-P1 line 501 explicitly says `vite preview`.
+- **Resolution:** Use `vite preview` for performance measurements so the harness follows the binding GATE-P1 method; retain C1 `startServer` for size accounting.
+- **Smallest compliant fix:** Launch preview servers for the baseline and candidate builds from the shared performance harness.
+
+## 2026-10-19 — C5 jobs target Gallery before Lane D
+
+- **Issue:** The planned C5 jobs target `apps/gallery`, which is not available until Lane D, but the user requires the report/jobs against the mini-app now.
+- **Evidence:** Plan C5 lines 969–971 names `apps/gallery`; Lane D D1/D2 creates the Gallery and its performance pages; the user directed C4/C5 to use the mini-app now.
+- **Resolution:** Point the size, perf, and report jobs at `tools/fixtures/mini-app` until Lane D lands, then switch them to Gallery and delete the temporary fixture.
+- **Smallest compliant fix:** Use the mini-app in the new gate job arguments.
+
 ## A2-M6: Framework chunk detection must follow resolved package roots
 
 - **Issue:** A path regex for `node_modules` misses linked `@wsagency/wseffect-*` packages whose real files are outside the consumer's `node_modules` tree.
