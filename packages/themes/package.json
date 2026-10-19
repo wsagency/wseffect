@@ -91,7 +91,7 @@
     "build": "tsc -p tsconfig.build.json && node scripts/brand-dist.mjs && node scripts/build-css.js",
     "build:css": "node scripts/build-css.js",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run --coverage"
   },
   "peerDependencies": {
     "foldkit": "0.168.0",

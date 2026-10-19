@@ -1,9 +1,9 @@
 import { readFile, readdir } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-const packageRoot = resolve(fileURLToPath(new URL('..', import.meta.url)))
+const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs'] as const
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',

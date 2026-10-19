@@ -2,5 +2,5 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "composite": true, "declaration": true, "noEmit": true },
   "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"],
-  "exclude": ["test/oxlint/fixtures/**"]
+  "exclude": ["test/oxlint/fixtures/**", "test/fixtures/app-pages/**"]
 }

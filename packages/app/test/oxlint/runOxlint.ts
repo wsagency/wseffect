@@ -30,11 +30,13 @@ export function runOxlint(fixtureDir: string, rule: string): OxlintDiagnostic[] 
     } catch {
       throw new Error(run.stderr || run.stdout || `oxlint exited with status ${run.status}`)
     }
-    return (result.diagnostics ?? []).map((diagnostic) => ({
-      file: diagnostic.filename ?? '',
-      line: diagnostic.labels[0]?.span.line ?? 0,
-      ruleId: diagnostic.code.replace(/^([^(]+)\(([^)]+)\)$/, '$1/$2'),
-    }))
+    return (result.diagnostics ?? [])
+      .filter((diagnostic) => diagnostic.code.replace(/^([^(]+)\(([^)]+)\)$/, '$1/$2') === rule)
+      .map((diagnostic) => ({
+        file: diagnostic.filename ?? '',
+        line: diagnostic.labels[0]?.span.line ?? 0,
+        ruleId: diagnostic.code.replace(/^([^(]+)\(([^)]+)\)$/, '$1/$2'),
+      }))
   } finally {
     rmSync(tempDir, { recursive: true, force: true })
   }

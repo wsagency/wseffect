@@ -18,19 +18,26 @@
     "./codegen": { "types": "./dist/codegen/index.d.ts", "default": "./dist/codegen/index.js" },
     "./oxlint-plugin": { "types": "./dist/oxlint-plugin/index.d.ts", "default": "./dist/oxlint-plugin/index.js" }
   },
+  "bin": { "wseffect-codegen": "./dist/codegen/bin.js" },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && node scripts/brand-dist.mjs",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
     "build:lint": "tsc -p tsconfig.lint.json"
   },
   "peerDependencies": {
     "foldkit": "0.168.0",
     "effect": "^4.0.5",
-    "@effect/platform-browser": "^4.0.5"
+    "@effect/platform-browser": "^4.0.5",
+    "@foldkit/vite-plugin": "0.27.1",
+    "vite": "8.3.4",
+    "vite-plugin-pwa": "2.0.0"
   },
   "devDependencies": {
     "@foldkit/ui": "0.168.0",
-    "foldkit": "0.168.0"
+    "foldkit": "0.168.0",
+    "@foldkit/vite-plugin": "0.27.1",
+    "vite": "8.3.4",
+    "vite-plugin-pwa": "2.0.0"
   }
 }
