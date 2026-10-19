@@ -1,0 +1,12 @@
+{
+  "ignorePatterns": ["packages/app/test/oxlint/fixtures/no-effect-promise/bad.ts"],
+  "jsPlugins": [
+    {
+      "name": "wseffect",
+      "specifier": "./packages/app/dist/oxlint-plugin/index.js"
+    }
+  ],
+  "rules": {
+    "wseffect/no-effect-promise-in-command": "error"
+  }
+}

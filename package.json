@@ -9,7 +9,7 @@
     "build": "pnpm --recursive --if-present build",
     "typecheck": "pnpm --recursive --if-present typecheck",
     "lint": "pnpm --filter @wsagency/wseffect-app build:lint && oxlint",
-    "test": "vitest run --coverage && node scripts/check-update-coverage.ts",
+    "test": "vitest run --coverage --exclude 'scripts/**/*.test.ts' && node --test scripts/*.test.ts && node scripts/check-update-coverage.ts",
     "check:repo": "node scripts/check-repo.ts",
     "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo"
   },

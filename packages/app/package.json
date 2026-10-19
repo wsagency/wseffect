@@ -22,7 +22,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "build:lint": "tsc -p tsconfig.build.json"
+    "build:lint": "tsc -p tsconfig.lint.json"
   },
   "peerDependencies": {
     "foldkit": "0.168.0",
