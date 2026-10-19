@@ -3,8 +3,9 @@ import { expect, test } from '@playwright/test'
 // Values sampled in Chromium from radix2solid @ 383676172abb84b4a1d2e54a087d290437ee8848.
 test('Card surface matches the pinned Radix2Solid Card surface', async ({ page }) => {
   await page.goto('/cards')
-  const card = page.locator('.rt-Card').first()
-  await expect(card).toHaveClass(/\brt-reset\b.*\brt-BaseCard\b.*\brt-variant-surface\b/)
+  await expect(page.getByRole('heading', { name: 'Card sample' })).toBeVisible()
+  const card = page.locator('main .rt-Card').last()
+  await expect(card).toHaveClass(/\brt-reset\b.*\brt-BaseCard\b.*\brt-r-size-1\b.*\brt-variant-surface\b/)
   const style = await card.evaluate((element) => {
     const css = getComputedStyle(element)
     const before = getComputedStyle(element, '::before')
@@ -30,7 +31,7 @@ test('Card surface matches the pinned Radix2Solid Card surface', async ({ page }
 
 test('TextField uses the pinned Radix2Solid boxed surface defaults', async ({ page }) => {
   await page.goto('/text-field')
-  const root = page.locator('.rt-TextFieldRoot')
+  const root = page.locator('main .rt-TextFieldRoot')
   await expect(root).toHaveClass(/\brt-r-size-2\b.*\brt-variant-surface\b/)
   const style = await root.evaluate((element) => {
     const css = getComputedStyle(element)
@@ -46,6 +47,9 @@ test('TextField uses the pinned Radix2Solid boxed surface defaults', async ({ pa
 test('Dialog content uses the pinned 600px default max width', async ({ page }) => {
   await page.goto('/dialog')
   await page.getByRole('button', { name: 'Open dialog' }).click()
+  const dialogRoot = page.locator('dialog')
+  await expect(dialogRoot).toBeVisible()
+  expect(await dialogRoot.evaluate(element => element.closest('.rt-BaseCard'))).toBeNull()
   const dialogContent = page.locator('.rt-DialogContent')
   await expect(dialogContent).toBeVisible()
   await expect(dialogContent).toHaveClass(/\brt-r-max-w\b/)

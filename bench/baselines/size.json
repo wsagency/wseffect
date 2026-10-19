@@ -3,76 +3,76 @@
   "compression": "brotli-q11",
   "entries": {
     "shell": {
-      "bytes": 99607,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 98871,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "first-visit": {
-      "bytes": 143641,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 156492,
+      "reason": "Themed controls and the Box surface add 36 B to initial transfer; GATE-S2 remains under its 160 KiB cap."
     },
     "speculative-prefetch": {
-      "bytes": 35050,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 28911,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:buttons": {
-      "bytes": 320,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 355,
+      "reason": "The shared themed Button shell usage reshapes the lazy buttons chunk by 35 B; page modules remain lazy."
     },
     "page:cards": {
-      "bytes": 555,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 326,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:dialog": {
-      "bytes": 2993,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 571,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:dropdownMenu": {
-      "bytes": 599,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 625,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:form": {
-      "bytes": 515,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 521,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:layout": {
-      "bytes": 1898,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 365,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:menus": {
-      "bytes": 756,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 839,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:sharedA": {
-      "bytes": 529,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 536,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:sharedB": {
-      "bytes": 315,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 383,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:tabs": {
-      "bytes": 2082,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 589,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:textField": {
-      "bytes": 350,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 358,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:theme": {
-      "bytes": 602,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 1063,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:typography": {
-      "bytes": 308,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 344,
+      "reason": "The shared themed Heading/Text shell usage reshapes the lazy typography chunk by 27 B; page modules remain lazy."
     },
     "page:virtualList": {
-      "bytes": 6024,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 6030,
+      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "styles.css": {
-      "bytes": 39974,
-      "reason": "initial foundation measurement; replaces the over-budget D1 entry"
+      "bytes": 40848,
+      "reason": "The themed Box panel adds 17 B of scoped shell-surface CSS; layout and page modules remain lazy."
     }
   }
 }

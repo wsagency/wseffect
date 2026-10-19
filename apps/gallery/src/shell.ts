@@ -7,6 +7,7 @@ import type { HtmlBuilder } from 'foldkit/html'
 import type { Url } from 'foldkit/url'
 import type { UrlRequest } from 'foldkit/navigation'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
+import { Box, Flex, Heading, Text } from '@wsagency/wseffect-themes'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
@@ -132,58 +133,74 @@ const pageInputs = (model: Model): PageInputs => ({
   panelBackground: model.theme.panelBackground,
 })
 
-export const view = (model: Model, h: HtmlBuilder<Message>) => ({
-  title: 'WS Effect Gallery',
-  body: Theme.view(
-    { settings: model.theme, isRoot: true },
-    [
-    h.header([], [
-      h.h1([], ['WS Effect Gallery']),
-      h.output([h.Id('date-shell')], [model.date]),
-      h.output([h.Id('build-id')], [BUILD_ID]),
-      h.submodel({
-        slotId: 'date-picker',
-        model: model.datePicker,
-        view: DatePicker.view,
-        viewInputs: { date: model.date },
-        toParentMessage: (message) => Message.GotDatePickerMessage({ message }),
-      }),
-    ]),
-    h.nav([h.AriaLabel('Gallery pages')], [
-      h.div([h.Id('gallery-page-links'), h.Style({ maxHeight: '12rem', overflowY: 'auto' })],
-        Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
-          if (path === '/') return []
-          const key = keys[0]!
-          const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) })
-          const visiblePrefetches = keys.map((pageKey) => {
-            const attribute = prefetchOnVisible<Pages, KitMessage>(kit, pageKey)
-            if (attribute._tag !== 'OnMount') throw new Error('Expected an OnMount attribute')
-            return h.OnMount(Mount.mapMessage(attribute.action, (message) => Message.GotKitMessage({ message })))
-          })
-          return [h.a([
-            h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
-            h.Href(path),
-            h.Style({ display: 'block' }),
-            h.OnMouseEnter(prefetch),
-            h.OnFocus(prefetch),
-            ...visiblePrefetches,
-          ], [path.slice(1)])]
-        })),
-    ]),
-    h.main([], model.kit.activeKeys.map((key) => h.submodel({
-      slotId: `page-${key}`,
-      model: model.kit,
-      view: kit.view,
-      viewInputs: { key, inputs: pageInputs(model) },
-      toParentMessage: (message) => Message.GotKitMessage({ message }),
-    }))),
-    h.footer([], [kit.bannerView
-      ? h.submodel({ slotId: 'pwa-banner', model: model.kit, view: kit.bannerView, toParentMessage: (message) => Message.GotKitMessage({ message }) })
-      : null]),
-    ],
-    h,
-  ),
-})
+export const view = (model: Model, h: HtmlBuilder<Message>) => {
+  const routeLinks = Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
+    if (path === '/') return []
+    const key = keys[0]!
+    const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) })
+    const visiblePrefetches = keys.map((pageKey) => {
+      const attribute = prefetchOnVisible<Pages, KitMessage>(kit, pageKey)
+      if (attribute._tag !== 'OnMount') throw new Error('Expected an OnMount attribute')
+      return h.OnMount(Mount.mapMessage(attribute.action, (message) => Message.GotKitMessage({ message })))
+    })
+    const isActive = keys.some((pageKey) => model.kit.activeKeys.includes(pageKey))
+    return [h.a([
+      h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
+      h.Href(path),
+      h.Class('rt-reset rt-BaseButton rt-r-size-1 rt-variant-outline rt-Button gallery-route-link'),
+      ...(isActive ? [h.DataAttribute('active', '')] : []),
+      h.OnMouseEnter(prefetch),
+      h.OnFocus(prefetch),
+      ...visiblePrefetches,
+    ], [path.slice(1)])]
+  })
+  const activePages = model.kit.activeKeys.map((key) => h.submodel({
+    slotId: `page-${key}`,
+    model: model.kit,
+    view: kit.view,
+    viewInputs: { key, inputs: pageInputs(model) },
+    toParentMessage: (message) => Message.GotKitMessage({ message }),
+  }))
+
+  return {
+    title: 'WS Effect Gallery',
+    body: Theme.view(
+      { settings: model.theme, isRoot: true },
+      [
+        h.div([h.Class('gallery-shell')], [
+          h.header([h.Class('gallery-topbar')], [
+            Flex.view({ align: 'center', justify: 'between', wrap: 'wrap', gap: '3' }, [
+              Heading.view({ as: 'h1', size: '4', weight: 'medium' }, ['WS Effect Gallery'], h),
+              Flex.view({ align: 'center', wrap: 'wrap', gap: '3' }, [
+                h.output([h.Id('date-shell')], [Text.view({ as: 'span', size: '2' }, [model.date], h)]),
+                h.submodel({
+                  slotId: 'date-picker',
+                  model: model.datePicker,
+                  view: DatePicker.view,
+                  viewInputs: { date: model.date },
+                  toParentMessage: (message) => Message.GotDatePickerMessage({ message }),
+                }),
+                h.output([h.Id('build-id'), h.Class('gallery-build-id')], [
+                  Text.view({ as: 'span', size: '1' }, [BUILD_ID], h),
+                ]),
+              ], h),
+            ], h),
+          ]),
+          h.nav([h.AriaLabel('Gallery pages'), h.Class('gallery-route-nav')], [
+            h.div([h.Id('gallery-page-links')], [Flex.view({ wrap: 'nowrap', gap: '2' }, routeLinks, h)]),
+          ]),
+          h.main([h.Class('gallery-page-content')], activePages.length > 0
+            ? [Box.view({ p: '4' }, activePages, h)]
+            : []),
+          h.footer([], [kit.bannerView
+            ? h.submodel({ slotId: 'pwa-banner', model: model.kit, view: kit.bannerView, toParentMessage: (message) => Message.GotKitMessage({ message }) })
+            : null]),
+        ]),
+      ],
+      h,
+    ),
+  }
+}
 
 export const onUrlRequest = (request: UrlRequest): Message => request._tag === 'Internal'
   ? Message.RequestedUrl({ path: request.url.pathname })
