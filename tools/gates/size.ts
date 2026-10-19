@@ -8,6 +8,7 @@ import { startServer, type ServerHandle, type ServerStats } from '../serve/serve
 
 export interface SizeReport {
   readonly shell: number
+  readonly shellRaw: number
   readonly firstVisit: { readonly bytes: number; readonly requests: number }
   readonly pages: Record<string, number>
   readonly stylesCss?: number
@@ -116,7 +117,10 @@ export async function measureSize(input: { readonly distDir: string; readonly pa
   if (entryFile === undefined) throw new Error('production build is missing the index entry chunk')
   if (frameworkFile === undefined) throw new Error('production build is missing the framework chunk')
 
-  const shell = brotliBytes(readFileSync(entryFile)) + brotliBytes(readFileSync(frameworkFile))
+  const entryContents = readFileSync(entryFile)
+  const frameworkContents = readFileSync(frameworkFile)
+  const shellRaw = entryContents.byteLength + frameworkContents.byteLength
+  const shell = brotliBytes(entryContents) + brotliBytes(frameworkContents)
   const pages = pageSizes(distDir, input.pagesDir, manifest)
   const cssFiles = filesUnder(assetsDir).filter((path) => path.endsWith('.css'))
   const stylesCss = cssFiles.length === 0
@@ -134,6 +138,7 @@ export async function measureSize(input: { readonly distDir: string; readonly pa
     const firstVisit = await waitForQuiet(server, page)
     return {
       shell,
+      shellRaw,
       firstVisit: { bytes: firstVisit.bytes, requests: firstVisit.requests },
       pages,
       ...(stylesCss === undefined ? {} : { stylesCss }),

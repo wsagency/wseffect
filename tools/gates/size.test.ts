@@ -68,10 +68,13 @@ test('measureSize reports the built shell and all initial server responses', asy
   const framework = assets.find((name) => /^framework-.*\.js$/.test(name))
   assert.ok(entry, 'production build has an index entry chunk')
   assert.ok(framework, 'production build has the APP-23 framework chunk')
+  const expectedShellRaw = readFileSync(join(assetsDir, entry)).byteLength + readFileSync(join(assetsDir, framework)).byteLength
+
   const expectedShell = brotliBytes(readFileSync(join(assetsDir, entry))) + brotliBytes(readFileSync(join(assetsDir, framework)))
 
   const result = await measureSize({ distDir, pagesDir: join(fixtureDir, 'src/pages') })
   assert.equal(result.shell, expectedShell)
+  assert.equal(result.shellRaw, expectedShellRaw)
   assert.deepEqual(Object.keys(result.pages).sort(), ['form', 'menus'])
   assert.ok((result.stylesCss ?? 0) > 0, 'fixture emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')

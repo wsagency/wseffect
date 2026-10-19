@@ -532,7 +532,6 @@ These rules come from the performance research repercussions [P:144-155].
     - **Changes:** the file changes only through a PR that gives a reason, and is re-measured whenever the runner, Node or Chromium changes.
     - **Missing file:** the gate fails if the file or a scenario's floor is missing.
   - **Why this design:**
-    - An A/A control showed a 0.83 ms median scripting split, with paired spread up to +10.14 ms [P:246-253].
     - ABAB is the method that measured #1700 [P:220].
     - The first harness A/A runs on a loaded developer machine (Node 26.8.2, outside `engines`) gave trace-scripting p95 |Δ| of 42–163% of the scenario medians and Event Timing p95 |Δ| of 24–104 ms. Noise floors therefore come from the isolated CI runner (GATE-P5), not from local runs.
     - Every Event Timing value in the research is a multiple of 8 ms [P:35-52].
@@ -596,7 +595,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 
 - **BENCH-1 The comparison app.** `bench/radix2solid/` is a Solid 2 app with the gallery's foundation scope: the same components and lazy routes. It consumes radix2solid only from packed tarballs of commit `383676172abb84b4a1d2e54a087d290437ee8848` (public `main`, rc.3), under the TH-1 pin rule.
   - The commit is recorded in `bench/radix2solid/library-source.json` as `{ repository, commit }`, the shape radix2solid-web uses (radix2solid-web pins `e1ecdf69bc24ec24035d7b1977c3931430294cc4`) [R:69].
-- **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2-equivalent sizes and the GATE-P1 scenarios, measured the same way. It is reporting only and never gates.
+- **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2-equivalent sizes and the GATE-P1 scenarios, measured the same way. Shell size uses the same entry + framework/vendor chunk definition for both apps and reports both raw and Brotli-q11 bytes to keep units explicit. It is reporting only and never gates.
   - **Research context, matched DOM.** The earlier "Solid filters about 11× faster" figure [P:131-142] compared pages whose Foldkit side had 3.4× more layout objects (24,025 vs 7,011) [P:179], and is not used. The S9 comparison used the same table on both sides: 1,000 rows, 10,000 cells, 1,001 inputs, 1,007 buttons (`domCounts` of S9 groups `branch 1000/*/keyed/*` and `solid 1000/*/Solid/*`). Event Timing / scripting medians in ms:
 
     | CPU | Action | Foldkit keyed | Solid 2 |
