@@ -1,4 +1,4 @@
-import { Option, Schema } from 'effect'
+import { Effect, Option, Schema, SchemaGetter } from 'effect'
 import { describe, expect, it } from 'vitest'
 import { alphaPage, Message as AlphaMessage } from './fixtures/pages/alpha.js'
 import { betaPage } from './fixtures/pages/beta.js'
@@ -25,6 +25,21 @@ describe('makePages', () => {
     expect(Schema.is(schema)(validMessage)).toBe(false)
     pages.registry.register('alpha', alphaPage)
     expect(Schema.is(schema)(validMessage)).toBe(true)
+  })
+  it('encodes messages with asynchronous schemas without requiring sync encoding', async () => {
+    const pages = makePages(loaders)
+    const AsyncMessage = alphaPage.Message.pipe(Schema.encode({
+      decode: SchemaGetter.passthrough(),
+      encode: SchemaGetter.transformEffect((message) => Effect.promise(async () => message)),
+    }))
+    const page = { ...alphaPage, Message: AsyncMessage } as typeof alphaPage
+    pages.registry.register('alpha', page)
+
+    const codec = Schema.toCodecJson(messageSchema(pages, 'alpha'))
+    const message = AlphaMessage.AlphaPing()
+    const encoded = await Schema.encodePromise(codec)(message)
+
+    expect(encoded).toEqual({ _tag: 'AlphaPing' })
   })
 
   it('round-trips registered page messages through JSON and rejects unregistered decoding', () => {

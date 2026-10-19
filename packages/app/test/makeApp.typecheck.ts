@@ -1,12 +1,20 @@
 import type { Layer } from 'effect'
 import type { KitBinding } from '../src/kit/binding.js'
+import type { KitPageMessageHandler } from '../src/kit/update.js'
 import type { MakeAppConfig } from '../src/app.js'
 import { makeApp } from '../src/app.js'
-import { makeKitFixture } from './fixtures/kit.js'
+import { alphaMessage, makeKitFixture } from './fixtures/kit.js'
+import { Message as BetaMessage } from './fixtures/pages/beta.js'
 
 type Fixture = ReturnType<typeof makeKitFixture>
+
+
 type Binding = Fixture['binding']
 type Pages = Binding extends KitBinding<infer P, any> ? P : never
+declare const alphaPageHandler: KitPageMessageHandler<Pages, 'alpha'>
+alphaPageHandler({ message: alphaMessage })
+// @ts-expect-error beta page messages cannot be handled as alpha page messages
+alphaPageHandler({ message: BetaMessage.BetaPing() })
 type Message = any
 type KitMessage = any
 type Model = unknown

@@ -1,4 +1,4 @@
-import { Option, Schema, SchemaTransformation } from 'effect'
+import { Effect, Option, Schema, SchemaTransformation } from 'effect'
 import type { AnyPage, MessageOf } from './contract.js'
 
 export type PageLoaders<Pages extends Record<string, AnyPage>> = {
@@ -58,17 +58,19 @@ export function messageSchema<Pages extends Record<string, AnyPage>, Key extends
       expected: `PageMessage<${key}>`,
       toCodecJson: () => Schema.link<Message>()(
         Schema.Json,
-        SchemaTransformation.transform({
-          decode: (json: Schema.Json) => Option.match(getPage(), {
+        SchemaTransformation.transformEffect({
+          decode: (json: Schema.Json) => Effect.succeed(Option.match(getPage(), {
             onNone: () => json as Message,
             onSome: (page) => Option.getOrElse(
               Schema.decodeUnknownOption(jsonCodecOf(page.Message))(json),
               () => json as Message,
             ),
-          }),
+          })),
           encode: (message: Message) => Option.match(getPage(), {
-            onNone: () => message as Schema.Json,
-            onSome: (page) => Schema.encodeSync(jsonCodecOf(page.Message))(message),
+            onNone: () => Effect.succeed(message as Schema.Json),
+            onSome: (page) => Schema.encodeUnknownEffect(jsonCodecOf(page.Message))(message).pipe(
+              Effect.mapError((error) => error.issue),
+            ),
           }),
         }),
       ),

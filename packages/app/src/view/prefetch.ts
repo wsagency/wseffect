@@ -1,24 +1,29 @@
 import { Effect, Queue, Schema, Stream } from 'effect'
 import { Mount } from 'foldkit'
-import type { Attribute } from 'foldkit/html'
+import type { Attribute, HtmlBuilder } from 'foldkit/html'
 import type { AnyPage } from '../contract.js'
 import type { KitBinding } from '../kit/binding.js'
 
 export function prefetchOnIntent<Pages extends Record<string, AnyPage>, KitMessage extends object>(
   binding: Pick<KitBinding<Pages, KitMessage>, 'messages'>,
   key: keyof Pages & string,
+  h: HtmlBuilder<KitMessage>,
 ): ReadonlyArray<Attribute<KitMessage>> {
   const message = binding.messages.requestedPrefetch(key)
   return [
-    { _tag: 'OnMouseEnter', message },
-    { _tag: 'OnFocus', message },
+    h.OnMouseEnter(message),
+    h.OnFocus(message),
   ]
 }
 
-export function prefetchOnVisible<Pages extends Record<string, AnyPage>, KitMessage extends object>(
+const visiblePrefetchMounts = new WeakMap<object, Mount.MountDefinition>()
+
+function getVisiblePrefetchMount<Pages extends Record<string, AnyPage>, KitMessage extends object>(
   binding: Pick<KitBinding<Pages, KitMessage>, 'messages'>,
-  key: keyof Pages & string,
-): Attribute<KitMessage> {
+) {
+  const cached = visiblePrefetchMounts.get(binding.messages)
+  if (cached) return cached as Mount.MountDefinition<'PrefetchOnVisible', KitMessage>
+
   const observeVisible = Mount.defineStream('PrefetchOnVisible', {
     args: { key: Schema.String },
     messages: [binding.messages.requestedPrefetchSchema],
@@ -41,5 +46,13 @@ export function prefetchOnVisible<Pages extends Record<string, AnyPage>, KitMess
         return yield* Effect.never
       })),
   })
-  return { _tag: 'OnMount', action: observeVisible({ key }) }
+  visiblePrefetchMounts.set(binding.messages, observeVisible)
+  return observeVisible
+}
+
+export function prefetchOnVisible<Pages extends Record<string, AnyPage>, KitMessage extends object>(
+  binding: Pick<KitBinding<Pages, KitMessage>, 'messages'>,
+  key: keyof Pages & string,
+): Attribute<KitMessage> {
+  return { _tag: 'OnMount', action: getVisiblePrefetchMount(binding)({ key }) }
 }

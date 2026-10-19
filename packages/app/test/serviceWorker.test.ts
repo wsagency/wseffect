@@ -77,6 +77,36 @@ describe('ServiceWorker', () => {
     await running
     expect(complete).toBe(true)
   })
+  it('fails update checking when the installing worker does not finish within ten seconds', async () => {
+    vi.useFakeTimers()
+    const worker = new EventTarget()
+    const installing = worker as unknown as ServiceWorker
+    Object.defineProperty(worker, 'state', { value: 'installing' })
+    const registration = {
+      installing,
+      waiting: null,
+      update: vi.fn(async () => undefined),
+    }
+    const layer = makeServiceWorkerLayer((options) => {
+      options?.onRegisteredSW?.('/sw.js', registration as unknown as ServiceWorkerRegistration)
+      return async () => {}
+    })
+    try {
+      const running = service(Effect.gen(function*() {
+        const serviceWorker = yield* ServiceWorker
+        yield* serviceWorker.checkForUpdate
+      }), layer)
+      const failure = expect(running).rejects.toMatchObject({
+        _tag: 'ServiceWorkerUpdateError',
+        cause: expect.objectContaining({ message: 'Timed out waiting for service worker installation' }),
+      })
+      await Promise.resolve()
+      await vi.advanceTimersByTimeAsync(10_000)
+      await failure
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 
   it('fails activation if the active controller does not change', async () => {
     vi.useFakeTimers()

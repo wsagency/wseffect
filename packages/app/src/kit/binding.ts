@@ -106,7 +106,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
           },
           catch: (cause) => new ServiceWorkerUpdateError({ cause }),
         })
-        return false
+        return true
       }
       const hasRegistration = yield* service.value.hasRegistration
       if (!hasRegistration) {
@@ -116,7 +116,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
           },
           catch: (cause) => new ServiceWorkerUpdateError({ cause }),
         })
-        return false
+        return true
       }
       yield* service.value.checkForUpdate
       yield* service.value.applyUpdate

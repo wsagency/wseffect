@@ -34,7 +34,7 @@ Remove this override and its `allowedVersions` entries when the Foldkit upgrade 
 
 ## Server contract
 
-Serve one immutable deployment directory at a time and retain the three previous deployment asset trees while old tabs may still request lazy page chunks.
+Serve one immutable deployment directory at a time and retain the three newest deployment asset trees while old tabs may still request lazy page chunks.
 
 | Request path | Required behavior |
 |---|---|
