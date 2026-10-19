@@ -157,7 +157,6 @@ export const page = galleryPageContract.definePage({
         viewInputs: {
           items,
           itemToKey: (item: Item) => item.id,
-          itemToRowHeightPx: () => 36,
           itemToView: (item: Item, index: number) => keyedRow(item.id, renderRow, [
             item.id,
             item.value,
