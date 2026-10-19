@@ -18,7 +18,7 @@ export const page = galleryPageContract.definePage({
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((_model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Cards'], h),
-    Card.view({ variant: 'surface', size: '2' }, [
+    Card.view({ variant: 'surface' }, [
       Heading.view({ as: 'h2' }, ['Card sample'], h),
       Text.view({ as: 'p' }, ['A surface card with themed spacing.'], h),
     ], h),

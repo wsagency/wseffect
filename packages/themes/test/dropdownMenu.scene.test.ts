@@ -76,13 +76,34 @@ describe('themed DropdownMenu view', () => {
       Scene.Mount.resolve(UiMenu.AnchorMenu, UiMenu.Message.CompletedAnchorMenu()),
       Scene.Mount.resolve(UiMenu.PortalMenuBackdrop, UiMenu.Message.CompletedPortalMenuBackdrop()),
       Scene.Command.resolve(UiMenu.FocusItems, UiMenu.Message.CompletedFocusItems()),
-      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent rt-r-size-2 rt-variant-solid'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'radix-themes rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent rt-r-size-2 rt-variant-solid'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-is-root-theme', 'false'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-has-background', 'false'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-panel-background', 'translucent'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-accent-color', 'indigo'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-gray-color', 'slate'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-radius', 'medium'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-scaling', '100%'),
       Scene.expect(Scene.role('menu')).toHaveAttr('aria-activedescendant', 'actions-item-0'),
       Scene.expect(Scene.selector('.rt-BaseMenuViewport.rt-DropdownMenuViewport')).toExist(),
       Scene.expect(Scene.role('menuitem', { name: 'edit' })).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-DropdownMenuItem'),
       Scene.expect(Scene.role('menuitem', { name: 'edit' })).toHaveAttr('data-active', ''),
     )
   })
+  it('renders the anchored themed panel after a trigger click', () => {
+    Scene.scene(
+      { update, view },
+      Scene.given({ menu: Menu.init({ id: 'actions' }) }),
+      Scene.click(Scene.role('button', { name: 'Actions' })),
+      Scene.expect(Scene.role('button', { name: 'Actions' })).toHaveAttr('aria-expanded', 'true'),
+      Scene.Mount.resolve(UiMenu.AnchorMenu, UiMenu.Message.CompletedAnchorMenu()),
+      Scene.Mount.resolve(UiMenu.PortalMenuBackdrop, UiMenu.Message.CompletedPortalMenuBackdrop()),
+      Scene.Command.resolve(UiMenu.FocusItems, UiMenu.Message.CompletedFocusItems()),
+      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'radix-themes rt-PopperContent rt-BaseMenuContent rt-DropdownMenuContent rt-r-size-2 rt-variant-solid'),
+      Scene.expect(Scene.selector('.rt-BaseMenuViewport.rt-DropdownMenuViewport')).toExist(),
+    )
+  })
+
 
   it('reuses 200 closed menu views on an unrelated parent update', () => {
     renderMenu.mockClear()

@@ -8,7 +8,7 @@ export { Model, Message, OutMessage, init, update, open, close, titleId, descrip
 
 const sizes = ['1', '2', '3', '4'] as const
 const contentClasses = Object.freeze(Object.fromEntries(
-  sizes.map(size => [size, `rt-BaseDialogContent rt-DialogContent rt-r-size-${size}`]),
+  sizes.map(size => [size, `rt-BaseDialogContent rt-DialogContent rt-r-size-${size} rt-r-max-w`]),
 )) as Readonly<Record<(typeof sizes)[number], string>>
 
 export const fold = <ParentModel, ParentMessage, ParentOutMessage, Input = never>(
@@ -36,7 +36,7 @@ export const embed = <Message>(h: HtmlBuilder<Message>, config: EmbedConfig<Mess
             h.div([...render.backdrop, h.Class('rt-BaseDialogOverlay rt-DialogOverlay'), h.DataAttribute('state', 'open')], [
               h.div([h.Class('rt-BaseDialogScroll rt-DialogScroll')], [
                 h.div([h.Class('rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center')], [
-                  h.div([...render.panel, h.Class(contentClasses[size]), h.DataAttribute('state', 'open')], [
+                  h.div([...render.panel, h.Class(contentClasses[size]), h.Style({ '--max-width': '600px' }), h.DataAttribute('state', 'open')], [
                     h.div([h.Class('rt-Flex rt-r-jc-end')], [
                       h.button([...render.closeButton, h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-soft rt-Button')], ['Close']),
                     ]),

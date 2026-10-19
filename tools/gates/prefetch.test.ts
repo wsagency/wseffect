@@ -19,6 +19,7 @@ test('Gallery prefetches page links when they enter the viewport', { timeout: 60
     const browser = await chromium.launch()
     try {
       const page = await browser.newPage()
+      await page.setViewportSize({ width: 320, height: 180 })
       await page.goto(new URL('/virtual-list', baseUrl).href)
       await page.waitForFunction((key) => {
         const messages = (window as Window & {
@@ -41,9 +42,10 @@ test('Gallery prefetches page links when they enter the viewport', { timeout: 60
       })
       assert.ok(prefetchedBeforeScroll.includes('layout'))
       assert.ok(!prefetchedBeforeScroll.includes('form'), 'the off-screen form link waits for scrolling')
-
-      await page.locator('#gallery-page-links').evaluate((element) => {
-        element.scrollTop = element.scrollHeight
+      const pageLinks = page.locator('#gallery-page-links')
+      assert.ok(await pageLinks.evaluate((element) => element.scrollWidth > element.clientWidth), 'the narrow gallery nav has a horizontal scroll range')
+      await pageLinks.evaluate((element) => {
+        element.scrollLeft = element.scrollWidth
       })
       await page.waitForFunction((key) => {
         const messages = (window as Window & {

@@ -7,9 +7,8 @@ import * as Tabs from '@wsagency/wseffect-themes/components/tabs'
 import { galleryPageContract, type PageInputs, PageOutMessage } from '../contract.js'
 declare const __GALLERY_REVISION__: string
 const galleryRevision = typeof __GALLERY_REVISION__ === 'undefined' ? 'r1' : __GALLERY_REVISION__
-
-const TabSet = Tabs.create<'Overview' | 'Settings'>()
-export const Model = Schema.Struct({ tabs: TabSet.Model, selected: Schema.Literals(['Overview', 'Settings']) })
+const TabSet = Tabs.create<'Overview' | 'Details'>()
+export const Model = Schema.Struct({ tabs: TabSet.Model, selected: Schema.Literals(['Overview', 'Details']) })
 export const Message = defineMessageUnion({ TabsEvent: { message: TabSet.Message } })
 type Model = typeof Model.Type
 type Message = typeof Message.Type
@@ -37,16 +36,16 @@ export const page = galleryPageContract.definePage({
       model: model.tabs,
       toParentMessage: message => Message.TabsEvent({ message }),
       viewInputs: {
-        tabs: ['Overview', 'Settings'],
+        tabs: ['Overview', 'Details'],
         selectedValue: model.selected,
         ariaLabel: 'Gallery sections',
         tabToLabel: value => h.span([], [value]),
         tabToPanel: value => value === 'Overview'
           ? [
-            h.p([], ['Overview content']),
+            h.p([], ['Overview panel.']),
             h.p([], [`Gallery revision ${galleryRevision}`]),
           ]
-          : [h.p([], ['Settings content'])],
+          : [h.p([], ['Details panel.'])],
       },
     }),
   ])),
