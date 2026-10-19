@@ -1,11 +1,12 @@
 import { Schema } from 'effect'
 import { Submodel } from 'foldkit'
+import { defineMessageUnion } from 'foldkit/message'
 import { pageContract } from '../../../src/contract.js'
 
-const OutMessage = Schema.TaggedStruct('ShiftDay', { days: Schema.Number })
+const OutMessage = defineMessageUnion({ ShiftDay: { days: Schema.Number } })
 const contract = pageContract({ OutMessage })
 export const Model = Schema.Struct({ count: Schema.Number })
-export const Message = Schema.TaggedStruct('BetaPing', {})
+export const Message = defineMessageUnion({ BetaPing: {} })
 
 export const betaPage = contract.definePage({
   Model,

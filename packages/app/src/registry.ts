@@ -35,7 +35,10 @@ export function makePages<Pages extends Record<string, AnyPage>>(loaders: PageLo
     register: (key, page) => {
       registered.set(key, page)
     },
-    get: (key) => Option.fromNullishOr(registered.get(key)),
+    get: <Key extends keyof Pages & string>(key: Key): Option.Option<Pages[Key]> => {
+      const page = registered.get(key)
+      return (page === undefined ? Option.none() : Option.some(page)) as Option.Option<Pages[Key]>
+    },
   }
   return { keys, loaders, registry }
 }

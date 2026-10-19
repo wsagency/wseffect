@@ -18,7 +18,11 @@ function encodeAlpha(slot: PageSlot<ModelOf<typeof alphaPage>>, register = true)
   const pages = makeRegistry()
   if (register) pages.registry.register('alpha', alphaPage)
   const slots = { ...idleSlots(), alpha: slot }
-  return Schema.encodeSync(Schema.toCodecJson(slotsSchema(pages)))(slots).alpha
+  const encoded = Schema.encodeSync(Schema.toCodecJson(slotsSchema(pages)))(slots)
+  if (encoded === null || typeof encoded !== 'object' || Array.isArray(encoded) || !('alpha' in encoded)) {
+    throw new Error('Expected encoded page slots object')
+  }
+  return encoded.alpha
 }
 
 function decodeAlpha(encoded: Schema.Json, register = true): PageSlot<ModelOf<typeof alphaPage>> | undefined {
