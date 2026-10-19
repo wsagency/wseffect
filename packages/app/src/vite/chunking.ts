@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'
-import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, join, parse, resolve, sep } from 'node:path'
+import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { dirname, join, parse, posix, resolve, sep } from 'node:path'
 import type { Plugin } from 'vite'
 
 function packageRootFrom(entry: string, expectedName: string): string | undefined {
@@ -20,6 +20,7 @@ export function frameworkChunking(pagesDir: string): Plugin {
   const appShared = new Set<string>()
   let appRoot = ''
   let pagesRoot = ''
+  let pageChunkFiles = new Set<string>()
   let packageRoots: Array<string> = []
   const modulePath = (id: string): string => {
     const cleanId = id.split('?')[0]!
@@ -54,11 +55,31 @@ export function frameworkChunking(pagesDir: string): Plugin {
           // Some framework packages are optional to an app build.
         }
       }
-      appRoot = realpathSync(root)
       const pageDirectory = resolve(root, pagesDir)
       pagesRoot = existsSync(pageDirectory) ? realpathSync(pageDirectory) : pageDirectory
+      pageChunkFiles.clear()
+      const modulePreload = config.build?.modulePreload
+      const configuredResolver = typeof modulePreload === 'object'
+        ? modulePreload.resolveDependencies
+        : undefined
       return {
         build: {
+          ...(modulePreload === false ? {} : {
+            modulePreload: {
+              ...(typeof modulePreload === 'object' ? modulePreload : {}),
+              resolveDependencies(filename, deps, context) {
+                // Filter canonical paths before and after consumer rewrites.
+                const canonicalFilename = posix.normalize(filename.split(/[?#]/, 1)[0]!)
+                const shouldExclude = (dependency: string): boolean => {
+                  const path = posix.normalize(dependency.split(/[?#]/, 1)[0]!)
+                  return path === canonicalFilename || pageChunkFiles.has(path)
+                }
+                const filtered = deps.filter((dependency) => !shouldExclude(dependency))
+                const resolved = configuredResolver?.(filename, filtered, context) ?? filtered
+                return resolved.filter((dependency) => !shouldExclude(dependency))
+              },
+            },
+          }),
           rolldownOptions: {
             output: {
               codeSplitting: {
@@ -77,6 +98,18 @@ export function frameworkChunking(pagesDir: string): Plugin {
           },
         },
       }
+    },
+    // Use page module facades to collect exact output paths regardless of naming pattern.
+    generateBundle: {
+      order: 'pre',
+      handler(_options, bundle) {
+        pageChunkFiles.clear()
+        for (const output of Object.values(bundle)) {
+          if (output.type !== 'chunk' || output.facadeModuleId === null) continue
+          if (!isInside(modulePath(output.facadeModuleId), pagesRoot)) continue
+          pageChunkFiles.add(posix.normalize(output.fileName))
+        }
+      },
     },
     buildEnd() {
       appShared.clear()

@@ -1,5 +1,5 @@
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { describe, expect, it } from 'vitest'
@@ -25,15 +25,34 @@ const fixtureDirectory = join(testDirectory, 'fixtures/app-pages')
 const appBuildId = resolve(testDirectory, '../src/buildId.ts')
 const appEntry = resolve(testDirectory, '../src/index.ts')
 
+type FixtureResolveDependencies = (
+  filename: string,
+  deps: Array<string>,
+  context: { readonly hostId: string; readonly hostType: 'html' | 'js' },
+) => Array<string>
+
+interface BuildFixtureOptions {
+  readonly modulePreload?: false | {
+    readonly polyfill?: boolean
+    readonly resolveDependencies?: FixtureResolveDependencies
+  }
+  readonly extraPages?: Readonly<Record<string, string>>
+  readonly outputFilePattern?: string
+}
+
 async function buildFixture(
   pwa: false | { manifest: typeof manifest },
   alphaSource?: string,
+  options: BuildFixtureOptions = {},
 ): Promise<{ directory: string; output: string }> {
   const directory = mkdtempSync(join(workspaceRoot, '.wseffect-app-build-'))
   try {
     cpSync(fixtureDirectory, directory, { recursive: true })
     writeFileSync(join(directory, 'src/pages/package.json'), JSON.stringify({ sideEffects: false }))
     if (alphaSource !== undefined) writeFileSync(join(directory, 'src/pages/alpha.ts'), alphaSource)
+    for (const [key, source] of Object.entries(options.extraPages ?? {})) {
+      writeFileSync(join(directory, `src/pages/${key}.ts`), source)
+    }
     writeFileSync(
       join(directory, 'src/main.ts'),
       `${readFileSync(join(directory, 'src/main.ts'), 'utf8')}\nimport './entry.css'\nimport { Props } from '@wsagency/wseffect-themes/components/box'\ndocument.documentElement.dataset.theme = String(Props)\n`,
@@ -78,7 +97,21 @@ async function buildFixture(
           { find: '@wsagency/wseffect-app', replacement: appEntry },
         ],
       },
-      build: { outDir: join(directory, 'dist'), emptyOutDir: true, sourcemap: true, manifest: true },
+      build: {
+        outDir: join(directory, 'dist'),
+        emptyOutDir: true,
+        sourcemap: true,
+        manifest: true,
+        ...(options.modulePreload === undefined ? {} : { modulePreload: options.modulePreload }),
+        ...(options.outputFilePattern === undefined ? {} : {
+          rolldownOptions: {
+            output: {
+              entryFileNames: options.outputFilePattern,
+              chunkFileNames: options.outputFilePattern,
+            },
+          },
+        }),
+      },
     })
     return { directory, output: join(directory, 'dist') }
   } catch (error) {
@@ -141,9 +174,26 @@ function expectedPrecacheUrls(
 }
 
 function outputFiles(output: string): string[] {
-  return readdirSync(join(output, 'assets')).filter((file) => file.endsWith('.js'))
+  const assets = join(output, 'assets')
+  const files: string[] = []
+  const visit = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name)
+      if (entry.isDirectory()) visit(path)
+      else if (entry.name.endsWith('.js') || entry.name.endsWith('.mjs')) files.push(relative(assets, path))
+    }
+  }
+  visit(assets)
+  return files
 }
 
+function modulePreloadDependencies(output: string): Array<string> {
+  return outputFiles(output).flatMap((file) => {
+    const code = readFileSync(join(output, 'assets', file), 'utf8')
+    const match = code.match(/__vite__mapDeps[\s\S]*?\.f=\[([^\]]*)\]/)
+    return match === null ? [] : [...match[1].matchAll(/"([^"]+)"/g)].map(([, dependency]) => dependency!)
+  })
+}
 describe('wseffect Vite plugin', () => {
   it('requires app identity and installable PNG icons in the web manifest', () => {
     expect(validateManifest(manifest)).toEqual([])
@@ -276,6 +326,87 @@ describe('wseffect Vite plugin', () => {
       expect(readdirSync(output)).not.toContain('sw.js')
       const entry = readFileSync(join(output, 'assets', outputFiles(output).find((file) => file.startsWith('index-'))!), 'utf8')
       expect(entry).not.toContain('workbox')
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+  it('does not modulepreload registry page chunks', async () => {
+    const { directory, output } = await buildFixture(
+      false,
+      "import { page as frameworkPage } from './framework'\nexport const page = { name: 'alpha', frameworkPage }\n",
+      {
+        extraPages: {
+          app: "export const page = { name: 'app' }",
+          framework: "export const page = { name: 'framework' }",
+        },
+        outputFilePattern: 'assets/[name]-[hash]/index.js',
+      },
+    )
+    try {
+      const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+      const pageFiles = new Set(Object.entries(buildManifest)
+        .filter(([key, entry]) => entry.isDynamicEntry === true && key.includes('/pages/'))
+        .map(([, entry]) => entry.file))
+      expect([...pageFiles].every((file) => file.endsWith('/index.js'))).toBe(true)
+      const preloadDependencies = modulePreloadDependencies(output)
+      expect([...preloadDependencies].filter((dependency) => pageFiles.has(dependency))).toEqual([])
+
+      const sharedFiles = outputFiles(output)
+        .filter((file) => /(?:^|\/)(?:app-shared|framework)-/.test(file))
+        .map((file) => `assets/${file}`)
+        .filter((file) => !pageFiles.has(file))
+      expect(sharedFiles.some((file) => file.includes('/app-shared-'))).toBe(true)
+      expect(sharedFiles.some((file) => file.includes('/framework-'))).toBe(true)
+      expect(preloadDependencies).toEqual(expect.arrayContaining(sharedFiles))
+      const alpha = buildManifest['src/pages/alpha.ts']!
+      expect(alpha.css).toBeDefined()
+      expect(preloadDependencies).toContain(alpha.css![0])
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+  it('composes a path-rewriting consumer resolver without reintroducing page chunks', async () => {
+    const observed: Array<string> = []
+    const { directory, output } = await buildFixture(
+      false,
+      "import { page as frameworkPage } from './framework'\nexport const page = { name: 'alpha', frameworkPage }\n",
+      {
+        extraPages: { framework: "export const page = { name: 'framework' }" },
+        modulePreload: {
+          resolveDependencies: (_filename, deps, context) => {
+            observed.push(context.hostType)
+            return deps.map((dependency) => `./${dependency}`)
+          },
+        },
+        outputFilePattern: 'assets/[name]-[hash].mjs',
+      },
+    )
+    try {
+      expect(observed.length).toBeGreaterThan(0)
+      const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+      const pageFiles = new Set(Object.entries(buildManifest)
+        .filter(([key, entry]) => entry.isDynamicEntry === true && key.includes('/pages/'))
+        .map(([, entry]) => entry.file))
+      expect([...pageFiles].every((file) => file.endsWith('.mjs'))).toBe(true)
+      const dependencies = modulePreloadDependencies(output)
+      const canonicalDependencies = dependencies.map((dependency) => dependency.replace(/^\.\//, ''))
+      expect(canonicalDependencies.filter((dependency) => pageFiles.has(dependency))).toEqual([])
+      const sharedFiles = outputFiles(output)
+        .filter((file) => /(?:^|\/)(?:app-shared|framework)-/.test(file))
+        .map((file) => `assets/${file}`)
+        .filter((file) => !pageFiles.has(file))
+      expect(sharedFiles.some((file) => file.includes('/app-shared-'))).toBe(true)
+      expect(sharedFiles.some((file) => file.includes('/framework-'))).toBe(true)
+      expect(dependencies).toEqual(expect.arrayContaining(sharedFiles.map((file) => `./${file}`)))
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+  it('preserves disabled modulepreload configuration', async () => {
+    const { directory, output } = await buildFixture(false, undefined, { modulePreload: false })
+    try {
+      expect(modulePreloadDependencies(output).some((dependency) => dependency.endsWith('.js'))).toBe(false)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }
