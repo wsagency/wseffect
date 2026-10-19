@@ -11,11 +11,13 @@ test('dev reload restores shared state, filters init messages, and re-inits only
   const originalSharedA = await readFile(sharedAPath)
   try {
     await page.goto('/shared')
+    await expect(page.locator('#sharedB-init-count')).toHaveText('1')
+    await page.locator('#sharedB-increment').click()
+    await expect(page.locator('#sharedB-init-count')).toHaveText('2')
     await page.locator('#sharedA-add-note').click()
     await page.locator('#date-input').fill('2027-03-17')
-    await expect(page.locator('#sharedA-note')).toHaveText('A shared note')
     await page.evaluate(() => {
-      const messages = (window as Window & { __wseffectMessages?: string[] }).__wseffectMessages
+      const messages = (window as Window & { __wseffectMessages?: Array<{ readonly _tag: string }> }).__wseffectMessages
       if (messages === undefined) throw new Error('DEV message instrumentation is unavailable')
       messages.length = 0
     })
@@ -25,11 +27,12 @@ test('dev reload restores shared state, filters init messages, and re-inits only
     await expect(page.locator('#sharedA-note')).toHaveText('A shared note')
     await expect(page.locator('#date-shell')).toHaveText('2027-03-17')
     const restoredMessages = await page.evaluate(() => {
-      const messages = (window as Window & { __wseffectMessages?: ReadonlyArray<string> }).__wseffectMessages
+      const messages = (window as Window & { __wseffectMessages?: ReadonlyArray<{ readonly _tag: string }> }).__wseffectMessages
       if (messages === undefined) throw new Error('DEV message instrumentation is unavailable')
-      return messages.filter((tag) => tag === 'GotSharedAPageMessage').length
+      return messages.filter((message) => message._tag === 'GotSharedAPageMessage').length
     })
     expect(restoredMessages).toBe(0)
+    await expect(page.locator('#sharedB-init-count')).toHaveText('2')
 
     const originalSource = originalSharedA.toString()
     const withNewSchemaField = originalSource.replace(

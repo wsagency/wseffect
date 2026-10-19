@@ -13,6 +13,14 @@ test('date inputs update every mounted shared view without replacing nodes', asy
   const sharedB = page.locator('#date-page-sharedB')
   await expect(sharedB).toBeVisible()
   const stableNodes = await Promise.all([shell, submodel, sharedA, sharedB].map((locator) => locator.elementHandle()))
+  await page.evaluate(() => {
+    const windowWithObserver = window as Window & { __childListMutations?: number; __childListObserver?: MutationObserver }
+    windowWithObserver.__childListMutations = 0
+    windowWithObserver.__childListObserver = new MutationObserver((records) => {
+      windowWithObserver.__childListMutations! += records.filter((record) => record.type === 'childList').length
+    })
+    windowWithObserver.__childListObserver.observe(document.body, { childList: true, subtree: true })
+  })
 
   for (const date of ['2027-01-03', '2027-01-10']) {
     await page.locator('#date-input').fill(date)
@@ -31,6 +39,11 @@ test('date inputs update every mounted shared view without replacing nodes', asy
   await expect(submodel).toHaveText('2027-01-10')
   await expect(sharedA).toHaveText('2027-01-10')
   await expect(sharedB).toHaveText('2027-01-10')
+  expect(await page.evaluate(() => {
+    const windowWithObserver = window as Window & { __childListMutations?: number; __childListObserver?: MutationObserver }
+    windowWithObserver.__childListObserver?.disconnect()
+    return windowWithObserver.__childListMutations
+  })).toBe(0)
 
   for (const node of stableNodes) expect(await node.evaluate((element) => element.isConnected)).toBe(true)
 })

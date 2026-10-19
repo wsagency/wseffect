@@ -57,27 +57,45 @@ test('back and forward retain shared page state and fetch each chunk once', asyn
   expect(counts).toEqual({ sharedA: 1, sharedB: 1, dialog: 1 })
 })
 
-test('delayed dialog-tabs-dialog navigation fetches each page once and ends on dialog', async ({ page }) => {
+test('dialog-tabs-dialog navigation interrupts the tabs load and fetches each page chunk once', async ({ page }, testInfo) => {
   const assets = await galleryPageAssets(['dialog', 'tabs'])
-  const counts: Record<string, number> = {}
-  for (const key of ['dialog', 'tabs']) {
-    countRequests(page, key, assets[key]!, counts)
-    await page.route((url) => url.pathname === assets[key], async (route) => {
-      await waitForDelay(600)
-      await route.continue()
-    })
+  const devServer = testInfo.project.name === 'devNavigation'
+  const chunkPaths = {
+    dialog: devServer ? '/src/pages/dialog.ts' : assets.dialog!,
+    tabs: devServer ? '/src/pages/tabs.ts' : assets.tabs!,
   }
+  const counts: Record<string, number> = {}
+  for (const key of ['dialog', 'tabs'] as const) countRequests(page, key, chunkPaths[key], counts)
+  await page.route((url) => url.pathname === chunkPaths.tabs, async (route) => {
+    await waitForDelay(1_200)
+    await route.continue()
+  })
+  const tabsRequest = page.waitForRequest((request) => new URL(request.url()).pathname === chunkPaths.tabs)
+  await page.setViewportSize({ width: 320, height: 100 })
   await page.goto('/')
   await page.locator('#link-dialog').click()
   await expect(page.getByRole('heading', { name: 'Dialog', exact: true })).toBeVisible()
+  if (devServer) {
+    await page.evaluate(() => {
+      const messages = (window as Window & { __wseffectMessages?: Array<{ readonly _tag: string }> }).__wseffectMessages
+      if (messages === undefined) throw new Error('DEV message instrumentation is unavailable')
+      messages.length = 0
+    })
+  }
   await page.locator('#link-tabs').click()
-  await expect(page.getByRole('heading', { name: 'Tabs', exact: true })).toBeVisible()
+  await tabsRequest
   await page.locator('#link-dialog').click()
   await expect(page.getByRole('heading', { name: 'Dialog', exact: true })).toBeVisible()
   expect(counts).toEqual({ dialog: 1, tabs: 1 })
-  await expect(page.getByRole('heading', { name: 'Tabs', exact: true })).toHaveCount(0)
-  await expect(page.locator('#loading-dialog')).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Tabs' })).toHaveCount(0)
   await expect(page.locator('#loading-tabs')).toHaveCount(0)
+  if (devServer) {
+    expect(await page.evaluate(() => {
+      const messages = (window as Window & { __wseffectMessages?: Array<{ readonly _tag: string; readonly key?: string }> }).__wseffectMessages
+      if (messages === undefined) throw new Error('DEV message instrumentation is unavailable')
+      return messages.filter((message) => message._tag === 'LoadedPageModule' && message.key === 'tabs')
+    })).toHaveLength(0)
+  }
 })
 
 

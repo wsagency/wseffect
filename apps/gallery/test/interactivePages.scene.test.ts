@@ -137,6 +137,6 @@ describe('gallery interactive pages', () => {
     Scene.scene({ update: sharedBPage.update, view: (model, h) => sharedBPage.view(model, inputs, h) }, Scene.given(initial.model),
       Scene.expect(Scene.selector('#date-page-sharedB')).toExist(),
       Scene.expect(Scene.text('2026-10-19')).toExist())
-    expect(sharedBPage.update(initial.model, { _tag: 'Tick' } as typeof sharedBPage.Message.Type).model).toEqual(initial.model)
+    expect(sharedBPage.update(initial.model, { _tag: 'Tick' } as typeof sharedBPage.Message.Type).model).toEqual({ initCount: 2 })
   })
 })
