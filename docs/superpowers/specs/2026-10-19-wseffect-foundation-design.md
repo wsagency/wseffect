@@ -34,9 +34,11 @@ The order is strict. A change that improves a lower priority at the expense of a
 | P | `/tmp/wseffect-research/perf.md` | Runtime benchmarks S1–S9 and their design repercussions | `8d8bfff8dd25f3a74d0fcc21e1085d4948f243657539f33bb6be41662a2f0214` |
 | E | `/tmp/wseffect-research/effect.md` | Effect v4 patch releases, exact-peer override probe, idiom audit, upstream activity | `2a63a992dd920c7c70f6114bd80690111a9d9785470d5aa0025e8149afe5c668` |
 | R | `/tmp/wseffect-research/radix2solid.md` | radix2solid layout, packages, Themes pipeline, gates, docs and README conventions | `2bdf939bc3cb66795b269d5119edfdcab0f8c8bc0e8c08e536b921b4751d27d3` |
+| S9 | `/tmp/wseffect-research/perf/s9-summary.json` | Raw S9 group summaries (`origin`, `branch`, `solid`), including the matched-DOM Foldkit/Solid comparison, cited by group key | `9038cca956b1d0d9c68c64102e3e1df0adaed1c7d1e1e91b507ff7024ee72cdc` |
 
 **How citations work:**
 - `[F:899-906]` means lines 899–906 of F.
+- `[S9 groups …]` names entries of S9 by their `key` field (for example `branch 1000/4/keyed/filter`); the JSON has no stable line numbers.
 - `[PR #1699]` and `[PR #1700]` are foldkit/foldkit pull requests; their state was read on 2026-10-19 (both open).
 - `[FK path:a-b]` is a file in the Foldkit repository at commit `76fa0d1` (`foldkit@0.168.0`).
 
@@ -61,8 +63,7 @@ The order is strict. A change that improves a lower priority at the expense of a
   - **The conflict:** Foldkit 0.168.0 peers both at exactly 4.0.0 [F:6-31], but 4.0.1–4.0.5 fix Schema parser, interruption, retention, stream and timer defects that matter to a browser runtime [E:9-14].
   - **Upstream fix:** [PR #1699] widens Foldkit's Effect peers to `^4.0.0`. It keeps `@foldkit/vite-plugin` and `@foldkit/devtools-mcp` at `^4.0.5`, because Effect 4.0.3's #8935 changed `Crypto.randomUUIDv4` in a patch release.
   - **Interim resolution, until wseffect adopts a Foldkit release containing #1699:**
-    - one pnpm `overrides` block setting `effect` and `@effect/platform-browser` to 4.0.5;
-    - `peerDependencyRules.allowedVersions` entries scoped to the Effect peers of the Foldkit packages;
+    - the pnpm `overrides` and `peerDependencyRules.allowedVersions` entries of the consumer snippet (UP-8), placed in the repository's `pnpm-workspace.yaml`;
     - nothing else.
   - **Evidence the interim resolution works:** the override probe passed `tsc`, the production build and 9/9 browser checks, with one deduplicated Effect copy [E:16-23; App. A.1].
 - **UP-3 Single Effect copy.** CI fails if any of these holds:
@@ -71,7 +72,24 @@ The order is strict. A change that improves a lower priority at the expense of a
   - the gallery production source map references Effect sources from more than one package directory.
 
   This check stays after UP-4.
-- **UP-4 Removing the interim resolution.** The Foldkit upgrade PR that adopts peers accepting 4.0.5 deletes the override and the `allowedVersions` entries.
+- **UP-4 Removing the interim resolution.** The Foldkit upgrade PR that adopts peers accepting 4.0.5 deletes the override and the `allowedVersions` entries from the repository. The same PR removes the consumer snippet from the wseffect-app README and from the TEST-7 fixture (UP-8), or narrows it to the entries the new Foldkit peers still require.
+- **UP-8 Consumer-side resolution.** Every app consuming `@wsagency/wseffect-*` (peer `^4.0.5`, REPO-1) together with Foldkit 0.168.0 (exact `effect` 4.0.0 peers) hits the same peer conflict until a Foldkit release containing #1699 is adopted.
+  - The `@wsagency/wseffect-app` README contains a section "Effect version (temporary)" with exactly this `pnpm-workspace.yaml` snippet, the reason (link to [PR #1699]), and the removal condition of UP-4:
+
+    ```yaml
+    overrides:
+      effect: 4.0.5
+      '@effect/platform-browser': 4.0.5
+    peerDependencyRules:
+      allowedVersions:
+        foldkit>effect: 4.0.5
+        foldkit>@effect/platform-browser: 4.0.5
+        '@foldkit/ui>effect': 4.0.5
+        '@foldkit/vite-plugin>effect': 4.0.5
+    ```
+
+  - The TEST-7 fixture's `pnpm-workspace.yaml` contains exactly this snippet (plus the fixture's tarball paths); a test compares it byte-for-byte with the README block.
+  - When the README snippet changes, the repository's own interim entries (UP-2) change in the same PR.
 - **UP-5 Keyed diff.** [PR #1700] defers removals of keyed children that are absent from the next list. On a 1k keyed filter it cut retained-row moves from 271 to 0 and dirty layout objects from 6,513 to 9 (of 6,530). On a 10k filter at 4× CPU, Event Timing fell from 4,784 to 1,392 ms [P:216-262; App. A.8].
   - wseffect does not patch Foldkit locally.
   - Until a Foldkit release containing #1700 is adopted, large filtered collections render through VirtualList (PERF-3).
@@ -455,7 +473,9 @@ These rules come from the performance research repercussions [P:144-155].
 
 **Gates:**
 - **GATE-S1 Shell size.** The entry chunk plus the `framework` chunk of the gallery production build total ≤ 122,880 B (120 KiB) brotli.
-  - Reference: the research shell measured 94,557 B (6,097 B entry + 88,460 B `framework`) without Themes components [F:889; App. A.4].
+  - Reference: the research shell measured 94,557 B (6,097 B entry + 88,460 B `framework`) **without Themes JavaScript** [F:889; App. A.4]. The foundation shell has not been measured.
+  - The first implementation-plan task that builds the gallery records the real foundation shell size in `bench/baselines/size.json`.
+  - If that size exceeds 122,880 B, the gate is not raised silently: the PR reports the measured size with a source-map attribution and an explanation, and the user decides whether the budget changes or the code does. Until that decision, the `size` job stays failing.
 - **GATE-S2 First-visit transfer.** Server-counted brotli bytes from navigating to `/` until the service worker controls the page and the server has seen no request for 1 s total ≤ 163,840 B (160 KiB).
   - Reference: 117,945 B in 12 requests with 4 primary pages [F:906; App. A.4].
 - **GATE-S3 Growth.** These tracked artifacts are compared with `bench/baselines/size.json`:
@@ -501,7 +521,7 @@ These rules come from the performance research repercussions [P:144-155].
 
 ### 12.2 Functional tests
 
-- **TEST-1 Story tests.** Every module exporting an `update` (packages, the gallery shell, gallery pages) has Story tests. Vitest V8 per-file function coverage is 100% for those modules, which covers every `Message.match` arm.
+- **TEST-1 Story tests.** Every module exporting an `update` (packages, the gallery shell, gallery pages) has Story tests. The coverage requirement applies to `update` modules only, not to view modules: Vitest V8 per-file function coverage is 100% for every module that exports an `update`, which covers every `Message.match` arm. View modules are covered by TEST-2, without a coverage percentage.
 - **TEST-2 Scene tests.** Every exported view (Themes components, `viewPage`, gallery pages) has Scene tests that use role and label locators and assert ARIA output and interactions.
 - **TEST-3 Browser e2e.** Every Playwright spec runs against the production gallery in Chromium, Firefox and WebKit. On every gallery route in every engine, axe-core 4.11.0 must report zero violations [R:54].
 - **TEST-4 Ported probe scenarios.** The probe scenarios become e2e specs with the same pass criteria [F:726-747, F:899-947; App. A.2, A.4, A.5]:
@@ -524,7 +544,7 @@ These rules come from the performance research repercussions [P:144-155].
   - a page emitting a non-`PageOutMessage`;
   - `makeApp` without the required `resources`.
 - **TEST-6 Lint fixtures.** Fixture tests for every APP-22 rule.
-- **TEST-7 Packed consumer.** Each package is `pnpm pack`ed and its tarball renamed to a content-hash name. An independent fixture is then installed from those tarballs with the root's exact pins [R:51-52]. In that fixture:
+- **TEST-7 Packed consumer.** Each package is `pnpm pack`ed and its tarball renamed to a content-hash name. An independent fixture is then installed from those tarballs with the root's exact pins [R:51-52]. The fixture lives outside the repository's pnpm workspace, so no root `pnpm-workspace.yaml` setting (overrides, peer rules, release-age settings) applies to it. Its own `pnpm-workspace.yaml` contains exactly the UP-8 consumer snippet and nothing that resolves Effect or Foldkit differently. In that fixture:
   - a gallery copy is built and `tsc` runs;
   - Chromium e2e runs against the packed build;
   - the tree-shaking check (APP-6) and the branding check (REPO-2) run.
@@ -541,7 +561,16 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 - **BENCH-1 The comparison app.** `bench/radix2solid/` is a Solid 2 app with the gallery's foundation scope: the same components and lazy routes. It consumes radix2solid only from packed tarballs of commit `db5c0f04596be5bf1838c79efa7357d675736acd`.
   - The commit is recorded in `bench/radix2solid/library-source.json` as `{ repository, commit }`, the shape radix2solid-web uses (radix2solid-web pins `e1ecdf69bc24ec24035d7b1977c3931430294cc4`) [R:69].
 - **BENCH-2 Side-by-side report.** Every CI run reports wseffect and radix2solid side by side as a job summary and a JSON artifact. The report covers GATE-S1/S2-equivalent sizes and the GATE-P1 scenarios, measured the same way. It is reporting only and never gates.
-  - Research context: at 1k rows, Solid 2 filtered about 11× faster at the Event Timing median than Foldkit keyed [P:131-142].
+  - **Research context, matched DOM.** The earlier "Solid filters about 11× faster" figure [P:131-142] compared pages whose Foldkit side had 3.4× more layout objects (24,025 vs 7,011) [P:179], and is not used. The S9 comparison used the same table on both sides: 1,000 rows, 10,000 cells, 1,001 inputs, 1,007 buttons (`domCounts` of S9 groups `branch 1000/*/keyed/*` and `solid 1000/*/Solid/*`). Event Timing / scripting medians in ms:
+
+    | CPU | Action | Foldkit keyed | Solid 2 |
+    |---|---|---|---|
+    | 1× | Cell | 40 / 2.54 | 40 / 4.77 |
+    | 1× | Filter | 52 / 16.95 | 32 (8 of 10 qualified) / 24.69 |
+    | 4× | Cell | 168 / 10.59 | 184 / 41.66 |
+    | 4× | Filter | 208 / 65.24 | 292 / 118.62 |
+
+  - These Foldkit figures were measured on an earlier #1700 revision that was later discarded [P:218]. The current #1700 revision and `origin/main` were not measured against Solid on the matched DOM. The bench therefore re-measures both frameworks itself and does not reuse these numbers.
 - **BENCH-3 Provenance and import.** The first version of this baseline is being built now at `/tmp/wseffect-research/r2s-baseline` and is **to be imported in sub-project #1**. Its provisional build used source commit `db5c0f04…` with an uncommitted worktree snapshot.
   - The imported bench must build from a clean checkout of the pinned commit.
   - Provisional numbers from the snapshot are not reused.
@@ -609,6 +638,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 | 10 | Library views lose view identity | The app plugin skips `node_modules` [FK `viewIdentity.ts:197-208`] | Brand at library build time; packed check (REPO-2) |
 | 11 | HTTP cache masks offline gaps | First-session pages are offline only via the HTTP cache without `clientsClaim` [F:926-931] | `clientsClaim: true`; tests check service-worker cache membership (PWA-4) |
 | 12 | Event Timing threshold censors fast interactions | Interactions under 16 ms emit no entry [P:7] | Record missing entries as 16 ms (GATE-P1) |
+| 13 | The radix2solid comparison targets a moving library | The bench pins `db5c0f04…`, which is on radix2solid `origin/main`; the rc.3 work in the next-suite worktree is not merged | The bench compares only against the merged pinned commit (BENCH-1). Moving the pin is a separate PR that edits `library-source.json` and states the reason; it is never bundled with wseffect changes |
 
 ## 16. Licensing and attribution
 
@@ -772,6 +802,15 @@ In every row, a reload moves the tab to the new build and loses in-memory state.
 | A/A control, 1k cell | servers A / B | 56 / 64 ms; 4.72 / 5.55 ms | — |
 
 The A/A control showed a 0.83 ms median scripting split, and paired scripting deltas ranged from −3.57 to +10.14 ms.
+
+**Matched-DOM Foldkit vs Solid 2** [S9 groups `branch 1000/*/keyed/*`, `solid 1000/*/Solid/*`; P:218]. Both pages have 1,000 rows, 10,000 cells, 1,001 inputs and 1,007 buttons. Foldkit ran on a discarded earlier #1700 revision. Event Timing / scripting medians:
+
+| Action | Foldkit keyed 1× | Solid 2 1× | Foldkit keyed 4× | Solid 2 4× |
+|---|---|---|---|---|
+| Cell | 40 / 2.54 ms | 40 / 4.77 ms | 168 / 10.59 ms | 184 / 41.66 ms |
+| Filter | 52 / 16.95 ms | 32 / 24.69 ms (8 of 10 qualified) | 208 / 65.24 ms | 292 / 118.62 ms |
+
+The earlier S7 comparison (Solid filter about 11× faster) had 3.4× more layout objects on the Foldkit side [P:179] and is superseded.
 
 ### A.7 Bundle reductions and floor [F:587-657]
 
