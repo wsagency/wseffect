@@ -264,6 +264,12 @@ Artifact ids: `shell` (entry + framework chunk), `first-visit`, `page:<key>`, `s
 { "baselineCommit": "<sha>", "reason": "string" }
 ```
 
+**`bench/baselines/perf-noise.json`** (owned by C4; values written only on the CI `perf` runner, GATE-P3/GATE-P5):
+```json
+{ "runner": "perf", "node": "24.21.0", "chromium": "<playwright chromium version>", "commit": "<sha>", "measuredAt": "<ISO-8601>", "pairs": 10,
+  "floorsMs": { "vl-cell": 0, "vl-filter": 0, "vl-sort": 0, "vl-select": 0, "form-field": 0, "menus-tick": 0 } }
+```
+
 ## File structure
 
 ```
@@ -283,8 +289,8 @@ apps/gallery/
   index.html  vite.config.ts  public/icons/*  src/{main.ts,shell.ts,contract.ts,routes.ts,pages.gen.ts}  src/pages/*.ts  src/pages/package.json
 tools/serve/{server.ts,server.test.ts}       # PWA-10 server with byte accounting (C1)
 tools/gates/{size.ts,perf.ts,report.ts,scenarios.ts}   # C3–C5
-tools/fixtures/mini-app/                     # small Foldkit app with the perf hooks, for C3/C4 before D lands
-bench/radix2solid/  bench/baselines/{size.json,perf.json}
+tools/fixtures/mini-app/                     # TEMPORARY stand-in for apps/gallery in C3/C4: off the size path in D1, deleted in D2
+bench/radix2solid/  bench/baselines/{size.json,perf.json,perf-noise.json}
 e2e/*.spec.ts  playwright.config.ts
 tests/consumer/{run.ts,coverage-manifest.json,check-*.ts}
 README.md  LICENSE  CONTRIBUTING.md
@@ -927,7 +933,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 ### Task C4: Performance gate harness
 
 **Files:**
-- Create: `tools/gates/perf.ts`, `tools/gates/scenarios.ts`, `bench/baselines/perf.json`
+- Create: `tools/gates/perf.ts`, `tools/gates/scenarios.ts`, `bench/baselines/perf.json`; `bench/baselines/perf-noise.json` is written by `gate:perf --self-test --write-noise --reason <text>` on the CI `perf` runner only
 - Test: `tools/gates/perf.test.ts`
 
 **Interfaces:**
@@ -937,17 +943,22 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `abab(baselineUrl, candidateUrl, scenario): Promise<RegressionResult>`;
   - CLI `pnpm gate:perf --app apps/gallery`.
 
-- [ ] **Step 1: Write the failing tests** (GATE-P1, P2, P3):
+- [ ] **Step 1: Write the failing tests** (GATE-P1, P2, P3, P5):
   - `interactionDuration(entries)` takes the longest entry per `interactionId` and returns `16` when no entry qualifies.
-  - `regressed({ baseScript, candScript, baseEvent, candEvent })` (medians over the arrays):
-    - script 10.0 → 11.1 ms: true (> 1.10×); script 10.0 → 10.9 ms: false;
+  - `regressed({ scenarioId, baseScript, candScript, baseEvent, candEvent }, floors)` (medians over the arrays; script threshold `max(0.10 × base median, 8 ms, floors[scenarioId])`):
+    - floor 0: script 10.0 → 18.0 ms: false; 10.0 → 18.1 ms: true (8 ms minimum); 300 → 330 ms: false; 300 → 330.1 ms: true (10%);
+    - floor 12 ms: script 10.0 → 22.0 ms: false; 10.0 → 22.1 ms: true;
     - event 40 → 48 ms: true (+20% and +8 ms); 16 → 24 ms: true;
     - event 72 → 78 ms: false (+6 ms); 100 → 109 ms: false (+9%); 200 → 212 ms: false (+6%).
+  - A missing `perf-noise.json`, or a missing scenario in `floorsMs`, fails the gate with a message naming the file.
+  - `traceScriptingDuration` on synthetic traces: input `EventDispatch`, then a `Paint` of a frame already in flight, then `FireAnimationFrame`, then `Paint` → the rAF interval is counted; nested intervals are merged, not double-counted.
   - `ceilings`: vl-* scenarios 50, form-field and menus-tick 30.
   - Against `tools/fixtures/mini-app` with 2 sessions, `runScenario` returns arrays of length 2 and applies `Emulation.setCPUThrottlingRate { rate: 4 }`.
+  - The harness self-test: a 50 ms trusted-click handler yields a qualified entry ≥ 50 ms; the in-page loop throttle ratio must be within 3–5×. Gate mode runs the self-test and then the A/A pre-check before any verdict; an A/A p95 above 1.5 × floor fails with `runner too noisy`.
 - [ ] **Step 2: Run** `node --test tools/gates/perf.test.ts`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
-  - `PerformanceObserver({ type:'event', durationThreshold:16, buffered:true })` is installed via `addInitScript`; CDP `Performance.getMetrics` `ScriptDuration` delta per interaction.
+  - `PerformanceObserver({ type:'event', durationThreshold:16, buffered:true })` is installed via `addInitScript`; scripting is the GATE-P1 trace window (CDP `devtools.timeline`), not `Performance.getMetrics`.
+  - When `taskset` is on `PATH` and `WSEFFECT_PERF_CPUS` is set, Chromium is launched under `taskset -c $WSEFFECT_PERF_CPUS`; otherwise the gate logs that pinning was skipped (GATE-P5).
   - ABAB: build the baseline commit in `git worktree add .artifacts/perf-baseline <baselineCommit>` with `pnpm install --frozen-lockfile && pnpm --filter @wsagency/wseffect-gallery build`; serve both builds on two ports; alternate 10 pairs.
 - [ ] **Step 4: Run** again. Expected: PASS.
 - [ ] **Step 5: Commit** `feat(gates): Event Timing perf gate with ABAB regression`.
@@ -956,7 +967,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 **Files:**
 - Create: `tools/gates/report.ts`
-- Modify: `.gitea/workflows/check.yml` (jobs `size`, `perf` with `needs: check`, and `bench-radix2solid` with `continue-on-error: true`)
+- Modify: `.gitea/workflows/check.yml` (jobs `size` with `needs: check`; `perf` and `bench-radix2solid` (`continue-on-error: true`) with `needs: check`, `runs-on: perf` and `concurrency: { group: perf, cancel-in-progress: false }` per GATE-P5)
 - Test: `tools/gates/report.test.ts`
 
 **Interfaces:**
@@ -1006,7 +1017,8 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 5: Record sizes** (GATE-S1). Run `pnpm gate:size --app apps/gallery --write-baseline --reason "initial foundation measurement"`.
   - Expected: `bench/baselines/size.json` written with `shell`, `first-visit`, `page:*`, `styles.css`.
   - **If `shell` > 122,880 B:** do NOT change the budget. Commit the baseline with the measured value; the `size` job then fails. Open the PR with a source-map attribution (`SOURCEMAP=on` build plus `tools/gates/size.ts --attribute`) and stop for the user's decision.
-- [ ] **Step 6: Commit** `feat(gallery): shell, foundation pages and initial size baseline`.
+- [ ] **Step 6: Remove the mini-app from the size path.** Switch the `size` job to `pnpm gate:size --app apps/gallery`, and point `report.ts`'s wseffect size measurement at `apps/gallery`. `tools/fixtures/mini-app` stays only for perf until D2.
+- [ ] **Step 7: Commit** `feat(gallery): shell, foundation pages and initial size baseline`.
 
 ### Task D2: Performance pages
 
@@ -1025,7 +1037,13 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-gallery test perfPages`. Expected: FAIL.
 - [ ] **Step 3: Implement.**
 - [ ] **Step 4: Run** again, then `pnpm gate:perf --app apps/gallery --write-baseline --reason "initial foundation baseline"`. Expected: PASS; all six ceilings met; `perf.json` records the current commit.
-- [ ] **Step 5: Commit** `feat(gallery): VirtualList, form and menus performance pages`.
+- [ ] **Step 5: Measure noise floors on the CI `perf` runner** (GATE-P3, GATE-P5): run `pnpm gate:perf --app apps/gallery --self-test --write-noise --reason "initial gallery noise floors"` in a manually dispatched `perf` job and commit the resulting `bench/baselines/perf-noise.json`. Floors from any other machine are not accepted.
+- [ ] **Step 6: Delete the temporary mini-app.**
+  - Switch the `perf` job and `report.ts`'s wseffect perf measurement to `apps/gallery`.
+  - Delete `tools/fixtures/mini-app/` and its tests' fixture references (`tools/gates/*.test.ts` move to the gallery build).
+  - Remove `tools/fixtures/*` from `pnpm-workspace.yaml` and run `pnpm install` to update the lockfile.
+  - Expected: `git grep -n "fixtures/mini-app"` returns nothing; `pnpm check` passes.
+- [ ] **Step 7: Commit** `feat(gallery): VirtualList, form and menus performance pages`.
 
 ### Task D3: Browser e2e: lazy pages, shared state, accessibility
 
@@ -1213,8 +1231,9 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 | PERF-5 | B2, B4, B5 |
 | PERF-6 | A4 |
 | GATE-S1, GATE-S2, GATE-S3 | C3; D1 (initial record) |
-| GATE-P1, GATE-P2, GATE-P3 | C4; D2 (baseline) |
+| GATE-P1, GATE-P2, GATE-P3 | C4; D2 (baseline, noise floors) |
 | GATE-P4 | A4, B3–B7, D2 |
+| GATE-P5 | C4, C5; D2 (runner-measured floors) |
 | TEST-1 | 0.2 (`check-update-coverage`); A2, A5, B6, B7, D1 |
 | TEST-2 | A4, B3–B7, D1, D2 |
 | TEST-3 | D3 |

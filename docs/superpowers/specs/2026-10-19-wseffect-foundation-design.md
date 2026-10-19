@@ -129,7 +129,7 @@ wseffect/
   packages/themes/       @wsagency/wseffect-themes
   apps/gallery/          @wsagency/wseffect-gallery (private)
   bench/radix2solid/     radix2solid comparison app (private)
-  bench/baselines/       size.json, perf.json
+  bench/baselines/       size.json, perf.json, perf-noise.json
   tests/consumer/        packed-consumer gate, coverage-manifest.json
   e2e/                   Playwright specs
   .gitea/workflows/      CI
@@ -502,7 +502,11 @@ These rules come from the performance research repercussions [P:144-155].
 - **GATE-P1 Method** [P:6-7]:
   - **Build and browser:** the gallery production build served by `vite preview`, in Chromium via Playwright, with CDP `Emulation.setCPUThrottlingRate { rate: 4 }`.
   - **Event Timing:** `PerformanceObserver({ type: 'event', durationThreshold: 16, buffered: true })`. An interaction's duration is its longest entry per `interactionId`. An interaction with no qualifying entry is recorded as 16 ms.
-  - **Scripting:** the CDP `ScriptDuration` delta per interaction.
+  - **Scripting:** a CDP `devtools.timeline` trace recorded around the interaction. The window starts at the trusted input's `EventDispatch` (`click` or `keydown`).
+    - It ends at the first `Paint` or `Commit` that begins after the last main-thread task the input caused: its `EventDispatch` plus the work it scheduled, i.e. `FireAnimationFrame`, `TimerFire`, microtask and `FunctionCall` tasks.
+    - Foldkit renders in the `requestAnimationFrame` after the input, so a `Paint` of a frame already in flight does not end the window.
+    - The value is the sum of the main-thread script-event intervals inside the window. Overlapping and nested intervals are merged first, so they are not counted twice.
+  - **Why not `ScriptDuration`:** in the harness, CDP `Performance.getMetrics` `ScriptDuration` deltas around Playwright actions included CDP and `evaluate` overhead. A/A p95 |Δ| was 10–48 ms on 7–35 ms medians.
   - **Sampling:** 10 page sessions per scenario; the statistic is the median.
 - **GATE-P2 Ceilings** (Event Timing median):
 
@@ -519,17 +523,31 @@ These rules come from the performance research repercussions [P:144-155].
   - **Baseline:** `bench/baselines/perf.json` stores a baseline commit.
   - **Procedure:** CI builds the gallery at that commit and at the candidate, then runs 10 interleaved baseline/candidate session pairs (ABAB) per scenario on the same runner.
   - **Fail conditions:**
-    - the candidate `ScriptDuration` median exceeds 1.10 × the baseline median from the same run; or
+    - the candidate trace-scripting median exceeds the baseline median from the same run by more than `max(0.10 × baseline median, 8 ms, floor[scenario])`, where `floor[scenario]` comes from `bench/baselines/perf-noise.json`. The 10% and 8 ms terms are the minimum floor: a measured noise floor can raise the threshold but never lower it; or
     - the candidate Event Timing median exceeds the baseline by more than 10% **and** by at least 8 ms.
+  - **Noise floors (`bench/baselines/perf-noise.json`):**
+    - **Shape:** `{ runner, node, chromium, commit, measuredAt, pairs, floorsMs: { <scenario>: number } }`.
+    - **Value:** `floorsMs[s]` is the rounded-up p95 of the absolute paired trace-scripting deltas over 10 A/A pairs of one build.
+    - **Where measured:** on the CI `perf` runner under GATE-P5 isolation, with the pinned Node and Playwright Chromium. Floors measured on developer machines, other Node versions or a loaded host are not valid.
+    - **Changes:** the file changes only through a PR that gives a reason, and is re-measured whenever the runner, Node or Chromium changes.
+    - **Missing file:** the gate fails if the file or a scenario's floor is missing.
   - **Why this design:**
     - An A/A control showed a 0.83 ms median scripting split, with paired spread up to +10.14 ms [P:246-253].
     - ABAB is the method that measured #1700 [P:220].
+    - The first harness A/A runs on a loaded developer machine (Node 26.8.2, outside `engines`) gave trace-scripting p95 |Δ| of 42–163% of the scenario medians and Event Timing p95 |Δ| of 24–104 ms. Noise floors therefore come from the isolated CI runner (GATE-P5), not from local runs.
     - Every Event Timing value in the research is a multiple of 8 ms [P:35-52].
   - The baseline commit changes only through a PR that edits `perf.json` and gives a reason.
 - **GATE-P4 Reuse assertions.** Every Themes component and every memoized gallery subtree has a reuse assertion based on view-execution counters.
   - The memoized view function is wrapped in a counting spy and rendered through `createLazy` or `createKeyedLazy`.
   - The test asserts that an unrelated Model change leaves the count unchanged, and that a change to one memo argument increments it by exactly one per affected view.
   - **Why counters:** `Lazy.expectAllReused` is not exported by `foldkit@0.168.0`; `foldkit/test` there exports only `Story` and `Scene`. Foldkit `main` has it as the unreleased changeset `lazy-expect-all-reused`. The Foldkit upgrade PR that ships it switches these assertions to `Lazy.expectAllReused`.
+- **GATE-P5 Runner isolation.** The `perf` and `bench-radix2solid` jobs run only under these conditions:
+  - **Dedicated runner:** a Gitea runner with the label `perf` and capacity 1, so no other job shares the host during a measurement. The jobs also share the workflow `concurrency` group `perf`, so at most one of them runs at a time.
+  - **CPU pinning:** when `taskset` is available, Chromium is launched under `taskset -c <cores>` with a fixed core set from the runner configuration. When it is not available, the job log states that pinning was skipped.
+  - **Pre-checks before any verdict, in order:**
+    1. the harness self-test: trusted clicks on 50 ms and 5 ms busy-wait handlers, where the 50 ms handler must produce a qualified Event Timing entry ≥ 50 ms; and a fixed in-page JavaScript loop that must run 3–5× slower under the 4× CPU throttle than without it;
+    2. a 10-pair A/A run of the candidate build. If any scenario's A/A trace-scripting p95 |Δ| exceeds 1.5 × its `perf-noise.json` floor, the job fails with "runner too noisy" and reports no regression verdict.
+  - **Why:** the A/A results in GATE-P3 were dominated by host load rather than by the harness, so a measurement taken on a shared host is not evidence of a regression or of its absence.
 
 ### 12.2 Functional tests
 
@@ -602,9 +620,9 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
   |---|---|---|
   | `check` | Required | Build, typecheck, lint (APP-22), TEST-1 to TEST-9 |
   | `size` | Required; runs after `check` passes | GATE-S1 to GATE-S3 |
-  | `perf` | Required; runs after `check` passes | GATE-P1 to GATE-P4 |
+  | `perf` | Required; runs after `check` passes, on the `perf` runner (GATE-P5) | GATE-P1 to GATE-P5 |
   | `effect-latest` | Required for PRs that change any dependency version; informational otherwise; also nightly | Resolves `effect` and `@effect/platform-browser` to the newest 4.x published at least 24 h earlier, then runs typecheck, Story and Scene tests and Chromium e2e. A failing run on `main` must be resolved before any further dependency-changing PR merges, either by a fix or by lowering the upper bound of the published `effect` peer range below the failing version |
-  | `bench-radix2solid` | Informational | BENCH-2 |
+  | `bench-radix2solid` | Informational; on the `perf` runner (GATE-P5) | BENCH-2 |
 
 - **CI-3 Tool pins.**
 
@@ -650,7 +668,7 @@ Story and Scene tests run in Vitest with happy-dom, as Foldkit's do [F:312]. Hap
 | 4 | Upstream website E2E runs out of memory, slowing upstream contributions | 16 workers OOM at about 4.1 GB V8 heap on unmodified main; passes with `--workers=4` and an 8 GB heap [PR #1699] | `CONTRIBUTING.md` section "Upstream Foldkit PRs" prescribes `--workers=4` and `NODE_OPTIONS=--max-old-space-size=8192` for local upstream verification |
 | 5 | Cold first visit to a lazy page costs 2 frames | 37.7–40.8 ms cold vs 16.5–19.7 ms prefetched at 4× [F:776-781, F:789] | Prefetch on intent and viewport (APP-13); precaching only saves bytes, not the frame |
 | 6 | #1700 is slower in Happy DOM's shuffle case | 5.5% slower, outside the 3.5% noise band; Chromium within noise [PR #1700, P:211-214] | Performance gates run in Chromium only; Happy DOM serves functional tests only (§12.3) |
-| 7 | Performance-gate noise on CI | A/A scripting spread up to +10.14 ms [P:246-253] | Same-runner ABAB against the baseline commit (GATE-P3) |
+| 7 | Performance-gate noise on CI | A/A scripting spread up to +10.14 ms [P:246-253]; harness A/A on a loaded host 42–163% of medians | Same-runner ABAB against the baseline commit (GATE-P3), runner-measured noise floors (GATE-P3), isolated `perf` runner with a noise pre-check (GATE-P5) |
 | 8 | Bundle floor | About 83 KB brotli for any Foldkit SPA; < 50 KB unreachable without an API redesign [F:637-657] | Budgets sized against measurement (§11); no local stubs (UP-7) |
 | 9 | Registry invariant is not type-guaranteed | `Ready ⇒ registered` holds by construction only [F:798] | Codec and transition tests for every state (APP-7, APP-8) |
 | 10 | Library views lose view identity | The app plugin skips `node_modules` [FK `viewIdentity.ts:197-208`] | Brand at library build time; packed check (REPO-2) |
@@ -697,6 +715,9 @@ To make approved statements testable, the following were fixed explicitly:
 | KiB units and brotli quality 11 | §11 |
 | 16 ms recording rule for censored Event Timing | GATE-P1 |
 | ABAB regression method and the 8 ms Event Timing floor | GATE-P3 |
+| Trace-window scripting instead of `ScriptDuration` | GATE-P1 |
+| Scripting threshold `max(10%, 8 ms, runner-measured noise floor)` | GATE-P3 |
+| Dedicated `perf` runner, `taskset` pinning, "runner too noisy" pre-check with a 1.5× tolerance | GATE-P5 |
 | Failure classification via `version.json` | APP-15 |
 | Poll interval of 300,000 ms (chosen default) | PWA-9 |
 | Retention of the previous 3 deployments (chosen value) | PWA-10 |
