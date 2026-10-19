@@ -1,4 +1,5 @@
 # WSEffect vs Radix gallery QA
+> **Historical benchmark:** measured at commit `5cde4de`; results describe that tree, not current `origin/main`.
 
 ## Scope and method
 
@@ -54,13 +55,13 @@ Medians (ms), Wseffect vs Radix; each entry is `Event Timing / trace scripting`.
 
 | Scenario | 1x Wseffect vs Radix | 4x Wseffect vs Radix | Noise-screen result |
 |---|---:|---:|---|
-| Theme appearance | 24 / 2.57 vs 16 / 4.32 | 48 / 10.50 vs 28 / 18.62 | 1x scripting Wseffect lower*; 4x Event Timing and scripting Wseffect lower* |
-| Theme accent | 24 / 2.59 vs 16 / 2.63 | 24 / 9.43 vs 16 / 10.46 | No clear Event Timing difference; scripting gaps do not exceed A/A bands |
-| Shared date | 16 / 1.90 vs 16 / 0.51 | 16 / 6.79 vs 16 / 2.50 | 1x and 4x scripting Wseffect higher*; 0 child-list mutations in either app at either rate |
-| Dialog open | 32 / 7.64 vs 16 / 8.41 | 48 / 35.37 vs 56 / 41.86 | 1x Event Timing Wseffect higher*; 4x gaps are within A/A bands |
-| Dropdown open | 24 / 9.39 vs 24 / 3.68 | 68 / 50.77 vs 96 / 23.41 | 1x scripting Wseffect higher*; 4x Event Timing Wseffect lower* and scripting higher* |
-| `/menus` navigation (`nav-cold`) | 16 / 3.47 vs 16 / 6.42 | 32 / 11.00 vs 40 / 24.37 | 1x scripting Wseffect lower*; 4x gaps within A/A bands |
-| `/dialog` navigation (`nav-prefetch`) | 24 / 4.87 vs 16 / 5.61 | 40 / 18.45 vs 32 / 19.88 | Gaps within A/A bands |
+| Theme appearance | 24 / 2.57 vs 16 / 4.32 | 48 / 10.50 vs 28 / 18.62 | 1x Event Timing: no difference beyond noise; scripting: Wseffect lower*; 4x Event Timing: Radix lower*; scripting: Wseffect lower* |
+| Theme accent | 24 / 2.59 vs 16 / 2.63 | 24 / 9.43 vs 16 / 10.46 | No difference beyond noise on either metric at 1x or 4x |
+| Shared date | 16 / 1.90 vs 16 / 0.51 | 16 / 6.79 vs 16 / 2.50 | Event Timing: no difference at either rate; scripting: Radix lower* at 1x and 4x; 0 child-list mutations in either app at either rate |
+| Dialog open | 32 / 7.64 vs 16 / 8.41 | 48 / 35.37 vs 56 / 41.86 | 1x Event Timing: Radix lower*; scripting: no difference beyond noise; 4x: no difference beyond noise on either metric |
+| Dropdown open | 24 / 9.39 vs 24 / 3.68 | 68 / 50.77 vs 96 / 23.41 | 1x Event Timing: no difference beyond noise; scripting: Radix lower*; 4x Event Timing: Wseffect lower*; scripting: Radix lower* |
+| `/menus` navigation (`nav-cold`) | 16 / 3.47 vs 16 / 6.42 | 32 / 11.00 vs 40 / 24.37 | 1x Event Timing: no difference beyond noise; scripting: Wseffect lower*; 4x: no difference beyond noise on either metric |
+| `/dialog` navigation (`nav-prefetch`) | 24 / 4.87 vs 16 / 5.61 | 40 / 18.45 vs 32 / 19.88 | No difference beyond noise on either metric at 1x or 4x |
 
 Caveat: `nav-cold` is not a truly cold Wseffect route. The gallery wires both `OnMouseEnter` and `OnFocus` to `requestedPrefetch`, so Playwright's click may prefetch while beginning the interaction. Its `prefetchOnVisible` mount behavior can also warm visible links. The Radix fixture has no matching prefetch implementation. The `/dialog` prefetch row therefore compares the two apps' actual but different navigation behavior, not an isolated renderer-only effect; treat both navigation rows as descriptive user-flow measurements, not like-for-like component comparisons. The existing `nav-prefetch` hook on Radix does not imply that it prefetches.
 

@@ -119,6 +119,16 @@ test('CPU throttle helper sends the CDP 4x command', async () => {
   assert.deepEqual(calls, [{ method: 'Emulation.setCPUThrottlingRate', params: { rate: 4 } }])
 })
 
+test('CPU throttle helper accepts an explicit 1x rate', async () => {
+  const calls: Array<{ method: string; params: unknown }> = []
+  await applyCpuThrottle({
+    send: async (method, params) => {
+      calls.push({ method, params })
+    },
+  }, 1)
+  assert.deepEqual(calls, [{ method: 'Emulation.setCPUThrottlingRate', params: { rate: 1 } }])
+})
+
 test('CPU throttle self-test accepts only synthetic ratios from 3× through 5×', async () => {
   const perf = await import('./perf.ts') as unknown as Record<string, unknown>
   assert.equal(typeof perf.assertThrottleRatio, 'function')

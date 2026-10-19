@@ -9,6 +9,7 @@ import { galleryPageContract, type PageInputs } from '../contract.js'
 const Item = Schema.Struct({
   id: Schema.String,
   value: Schema.String,
+  searchValue: Schema.String,
   account: Schema.String,
   region: Schema.String,
   amount: Schema.Number,
@@ -18,12 +19,13 @@ const regions = ['North', 'South', 'East', 'West'] as const
 const initialItems = Array.from({ length: 10_000 }, (_, index) => ({
   id: `item-${index}`,
   value: `Item ${index}`,
+  searchValue: `item ${index}`,
   account: `Account ${index % 117}`,
   region: regions[index % regions.length]!,
   amount: ((index * 379) % 100_000) / 100,
 }))
 export const Model = Schema.Struct({
-  items: Schema.Array(Item),
+  items: Schema.Array(Schema.String),
   sourceItems: Schema.Array(Item),
   list: VirtualList.Model,
   query: Schema.String,
@@ -41,11 +43,22 @@ type Model = typeof Model.Type
 type Message = typeof Message.Type
 const keyedRow = createKeyedLazy()
 
-const visibleItems = (model: Model): ReadonlyArray<Item> => model.items
-
-const sortedItems = (items: ReadonlyArray<Item>, descending: boolean): ReadonlyArray<Item> =>
-  descending ? [...items].reverse() : items
-
+const visibleItems = (sourceItems: ReadonlyArray<Item>, query: string, descending: boolean): ReadonlyArray<string> => {
+  const normalizedQuery = query.toLowerCase()
+  const itemIds: string[] = []
+  if (descending) {
+    for (let index = sourceItems.length - 1; index >= 0; index--) {
+      const item = sourceItems[index]!
+      if (item.searchValue.includes(normalizedQuery)) itemIds.push(item.id)
+    }
+  } else {
+    for (let index = 0; index < sourceItems.length; index++) {
+      const item = sourceItems[index]!
+      if (item.searchValue.includes(normalizedQuery)) itemIds.push(item.id)
+    }
+  }
+  return itemIds
+}
 export const renderRow = (
   id: string,
   value: string,
@@ -78,14 +91,14 @@ export const renderRow = (
   ], ['Select']),
 ])
 
-const listView = VirtualList.view<Item>()
+const listView = VirtualList.view<string>()
 
 export const page = galleryPageContract.definePage({
   Model,
   Message,
   init: () => ({
     model: {
-      items: initialItems,
+      items: initialItems.map((item) => item.id),
       sourceItems: initialItems,
       list: VirtualList.init({ id: 'gallery-virtual-list', rowHeightPx: 36 }),
       query: '',
@@ -95,31 +108,33 @@ export const page = galleryPageContract.definePage({
   }),
   update: (model: Model, message: Message) => Message.match(message, {
     FilterChanged: ({ value }) => {
-      const items = model.sourceItems.filter((item) => item.value.toLowerCase().includes(value.toLowerCase()))
+      const items = visibleItems(model.sourceItems, value, model.descending)
       const filtered = { ...model, items, query: value }
-      const result = VirtualList.informItemsChanged(model.list, items.map((item) => item.id))
+      const result = VirtualList.informItemsChanged(model.list, items)
       return {
         model: { ...filtered, list: result.model },
         commands: result.commands?.map((command) => Command.mapMessage(command, (childMessage) => Message.ListEvent({ message: childMessage }))) ?? [],
       }
     },
     ToggleSort: () => {
-      const sourceItems = sortedItems(model.sourceItems, !model.descending)
-      const items = sourceItems.filter((item) => item.value.toLowerCase().includes(model.query.toLowerCase()))
-      const sorted = { ...model, sourceItems, items, descending: !model.descending }
-      const result = VirtualList.informItemsChanged(model.list, items.map((item) => item.id))
+      const descending = !model.descending
+      const items = visibleItems(model.sourceItems, model.query, descending)
+      const sorted = { ...model, items, descending }
+      const result = VirtualList.informItemsChanged(model.list, items)
       return {
         model: { ...sorted, list: result.model },
         commands: result.commands?.map((command) => Command.mapMessage(command, (childMessage) => Message.ListEvent({ message: childMessage }))) ?? [],
       }
     },
     CellChanged: ({ id, value }) => {
-      const sourceItems = model.sourceItems.map((item) => item.id === id ? { ...item, value } : item)
+      const sourceItems = model.sourceItems.map((item) => item.id === id
+        ? { ...item, value, searchValue: value.toLowerCase() }
+        : item)
       return {
         model: {
           ...model,
           sourceItems,
-          items: sourceItems.filter((item) => item.value.toLowerCase().includes(model.query.toLowerCase())),
+          items: visibleItems(sourceItems, model.query, model.descending),
         },
       }
     },
@@ -133,7 +148,7 @@ export const page = galleryPageContract.definePage({
     },
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => {
-    const items = visibleItems(model)
+    const items = model.items
     return h.div([], [
       Heading.view({ as: 'h1' }, ['Virtual list'], h),
       h.input([
@@ -156,17 +171,20 @@ export const page = galleryPageContract.definePage({
         view: listView,
         viewInputs: {
           items,
-          itemToKey: (item: Item) => item.id,
-          itemToView: (item: Item, index: number) => keyedRow(item.id, renderRow, [
-            item.id,
-            item.value,
-            item.account,
-            item.region,
-            item.amount,
-            model.selected._tag === 'Some' && model.selected.value === item.id,
-            index,
-            h,
-          ]),
+          itemToKey: (id: string) => id,
+          itemToView: (id: string, index: number) => {
+            const item = model.sourceItems[Number(id.slice(5))]!
+            return keyedRow(item.id, renderRow, [
+              item.id,
+              item.value,
+              item.account,
+              item.region,
+              item.amount,
+              model.selected._tag === 'Some' && model.selected.value === item.id,
+              index,
+              h,
+            ])
+          },
           overscan: 4,
           containerAttributes: childAttributes([h.Id('vl-list'), h.Style({ height: '360px' })]),
         },
