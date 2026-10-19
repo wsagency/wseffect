@@ -61,7 +61,7 @@ export function interactionDuration(entries: readonly EventEntry[]): number {
   const longestByInteraction = new Map<number, number>()
   for (const { interactionId, duration } of entries) {
     if (interactionId <= 0) continue
-    longestByInteraction.set(interactionId, Math.max(longestByInteraction.get(interactionId) ?? 0, duration))
+    longestByInteraction.set(interactionId, Math.max(longestByInteraction.get(interactionId) ?? 16, duration, 16))
   }
   return longestByInteraction.size === 0 ? 16 : Math.max(...longestByInteraction.values())
 }
@@ -127,7 +127,7 @@ export async function runScenario(
         await applyCpuThrottle(client)
         await client.send('Performance.enable')
         await page.addInitScript(() => {
-          new PerformanceObserver(() => {}).observe({ type: 'event', durationThreshold: 16, buffered: true })
+          new PerformanceObserver(() => {}).observe({ type: 'event', durationThreshold: 16, buffered: true } as PerformanceObserverInit & { durationThreshold: number })
         })
         await page.goto(new URL(scenario.route, baseUrl).href, { waitUntil: 'networkidle' })
         await page.locator(`[data-perf="${HOOK_BY_SCENARIO[scenario.id]}"]`).waitFor({ state: 'visible' })
