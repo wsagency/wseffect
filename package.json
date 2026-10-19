@@ -11,6 +11,7 @@
     "lint": "pnpm --filter @wsagency/wseffect-app build:lint && oxlint",
     "test": "pnpm --recursive test && node --test --test-concurrency=1 scripts/*.test.ts tools/gates/*.test.ts tools/serve/*.test.ts && node scripts/check-update-coverage.ts",
     "test:consumer": "node tests/consumer/run.ts",
+    "e2e": "pnpm build && pnpm exec playwright test",
     "check:repo": "node scripts/check-repo.ts",
     "check": "pnpm build && node packages/app/dist/codegen/bin.js --check apps/gallery && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo && pnpm test:consumer",
     "gate:size": "node tools/gates/size.ts",
