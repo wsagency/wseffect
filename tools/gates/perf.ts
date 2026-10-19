@@ -354,14 +354,14 @@ async function traceInteraction(
   let entries: EventEntry[] = []
   try {
     await scenario.act(page)
-    await new Promise<void>((resolveWait) => setTimeout(resolveWait, 50))
+    // Keep tracing active until the interaction's paint and Event Timing observer flush.
+    entries = await eventEntries(page)
   } finally {
     const complete = new Promise<void>((resolveComplete) => client.once('Tracing.tracingComplete', () => resolveComplete()))
     await client.send('Tracing.end')
     await complete
     client.off('Tracing.dataCollected', onData)
   }
-  entries = await eventEntries(page)
   const duration = entries.length === 0 ? undefined : interactionDuration(entries)
   return {
     entries,
