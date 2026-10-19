@@ -26,39 +26,53 @@ import '@wsagency/wseffect-themes/tokens/colors/teal.css'
 import '@wsagency/wseffect-themes/tokens/colors/tomato.css'
 import '@wsagency/wseffect-themes/tokens/colors/violet.css'
 import '@wsagency/wseffect-themes/tokens/colors/yellow.css'
-import { Schema } from 'effect'
+import { Option, Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
 import * as Button from '@wsagency/wseffect-themes/components/button'
+import * as Dialog from '@wsagency/wseffect-themes/components/dialog'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
 import { galleryPageContract, type PageInputs, PageOutMessage } from '../contract.js'
 
-export const Model = Schema.Struct({})
+export const Model = Schema.Struct({ dialog: Dialog.Model })
 export const Message = defineMessageUnion({
   ChangeAccent: {},
+  SelectAccent: { value: Schema.String },
   ChangeGray: {},
   ChangeRadius: {},
   ChangeScaling: {},
   ChangeAppearance: {},
   ChangePanelBackground: {},
+  OpenThemeDialog: {},
+  DialogEvent: { message: Dialog.Message },
 })
 type Model = typeof Model.Type
 type Message = typeof Message.Type
 
+const foldDialog = Dialog.fold<Model, Message, typeof PageOutMessage.Type>({
+  read: model => Option.some(model.dialog),
+  write: (model, dialog) => ({ ...model, dialog }),
+  toParentMessage: message => Message.DialogEvent({ message }),
+  foldOutMessage: () => model => ({ model }),
+})
+
 export const page = galleryPageContract.definePage({
   Model,
   Message,
-  init: () => ({ model: {} }),
+  init: () => ({ model: { dialog: Dialog.init({ id: 'theme-dialog' }) } }),
   update: (model: Model, message: Message) => Message.match(message, {
     ChangeAccent: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'accentColor', value: 'crimson' }) }),
+    SelectAccent: ({ value }) => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'accentColor', value }) }),
     ChangeGray: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'grayColor', value: 'gray' }) }),
     ChangeRadius: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'radius', value: 'large' }) }),
     ChangeScaling: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'scaling', value: '105%' }) }),
     ChangeAppearance: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'appearance', value: 'dark' }) }),
     ChangePanelBackground: () => ({ model, outMessage: PageOutMessage.ChangedThemeSetting({ setting: 'panelBackground', value: 'solid' }) }),
+    OpenThemeDialog: () => foldDialog(model, Dialog.Message.RequestedOpen()),
+    DialogEvent: ({ message: dialogMessage }) => foldDialog(model, dialogMessage),
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((_model, inputs, h) => h.div([], [
+  view: Submodel.defineView<Model, Message, PageInputs>((model, inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Theme settings'], h),
     Theme.view({
       id: 'theme-preview',
@@ -72,6 +86,32 @@ export const page = galleryPageContract.definePage({
         panelBackground: inputs.panelBackground,
       },
     }, [h.p([], ['Preview of the current theme settings.'])], h),
+    h.button([
+      h.Id('theme-dialog-open'),
+      h.Type('button'),
+      h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button'),
+      h.OnClick(Message.OpenThemeDialog()),
+    ], [h.span([h.Class('rt-ButtonContent'), h.Style({ display: 'contents' })], ['Open theme settings'])]),
+    Dialog.embed(h, {
+      slotId: 'theme-dialog',
+      model: model.dialog,
+      toParentMessage: message => Message.DialogEvent({ message }),
+      title: 'Theme settings',
+      description: 'Change the accent color used by this theme.',
+      content: builder => [
+        builder.label([], [
+          'Accent color',
+          builder.select([
+            builder.Id('theme-dialog-accent'),
+            builder.Value(inputs.accentColor),
+            builder.OnInput(value => Message.SelectAccent({ value })),
+          ], [
+            builder.option([builder.Value('indigo')], ['Indigo']),
+            builder.option([builder.Value('crimson')], ['Crimson']),
+          ]),
+        ]),
+      ],
+    }),
     Button.view({ onClick: Message.ChangeAccent() }, ['Accent color'], h),
     Button.view({ onClick: Message.ChangeGray() }, ['Gray color'], h),
     Button.view({ onClick: Message.ChangeRadius() }, ['Radius'], h),

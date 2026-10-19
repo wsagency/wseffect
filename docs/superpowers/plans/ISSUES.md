@@ -134,3 +134,8 @@
 - **Issue:** The original framework group classified every module under `node_modules` as framework code. This eagerly included page-only `@foldkit/ui` components and their Floating UI dependencies, defeating page lazy loading.
 - **Amendment:** The `framework` group contains only resolved package roots for `foldkit`, `effect`, `@effect/platform-browser`, `@wsagency/wseffect-app`, and `workbox-window`. All other dependencies use default splitting. An integrator amends APP-23 accordingly.
 - **Evidence:** Gallery build attribution identified `@foldkit/ui/menu` (20 KB), `@foldkit/ui/dialog` (9 KB), and Floating UI (13.5 KB) inside the framework chunk.
+## D3: Theme accent changes from an open settings dialog
+
+- **Issue:** The D3 theme e2e contract expects an accent change while a dialog is open, but the Gallery theme page has no themed settings dialog or accent control inside one, so the focus-preservation assertion has no realistic interaction path.
+- **Amendment:** Add a themed Dialog to the Gallery theme page with trigger `#theme-dialog-open` and accent control `#theme-dialog-accent`. The control emits the existing `ChangedThemeSetting` OutMessage. The e2e opens the dialog and changes the accent there; the dialog stays open and focus remains on the control, while only root Theme attributes change (`data-accent-color`, plus `data-gray-color` when gray is `auto`) and no structural mutation occurs outside the dialog.
+- **Gallery contract additions:** `#theme-dialog-open`, `#theme-dialog-accent`.
