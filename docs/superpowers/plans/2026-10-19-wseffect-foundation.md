@@ -508,7 +508,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `Failed{LoadError}` renders `#failed-alpha[data-cause=LoadError]` with button "Retry"; clicking dispatches `ClickedRetryPage`.
   - `Failed{NewVersion}` renders a "Reload" button dispatching `ClickedReloadPage`.
   - `Ready` renders the page view with `inputs`.
-  - `Lazy.expectAllReused` holds when the shell re-renders with identical slot model and input primitives, and re-runs when one input primitive changes.
+  - Reuse (GATE-P4 view-execution counter): the page view, wrapped in a counting spy, is not re-run when the shell re-renders with an identical slot model and input primitives, and runs exactly once more when one input primitive changes.
   - `prefetchOnIntent` attributes dispatch `RequestedPrefetch` on `mouseenter` and on `focus`.
   - Banner: hidden when `isUpdateAvailable` is false; `#wseffect-update` with button `#wseffect-update-reload` dispatching `ClickedApplyUpdate` when true.
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-app test view`. Expected: FAIL.
@@ -711,7 +711,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 2: Write the failing tests** (TH-1..4, LIC-2):
   - after `pnpm --filter @wsagency/wseffect-themes build:css`, each TH-2 output exists with a `.layer.css` sibling starting with `@layer radix {`;
   - `css/button.css` exists and `css/checkbox.css` does not;
-  - `tokens/colors/` has 30 palette files;
+  - `tokens/colors/` has 31 palette files (6 grays and 25 accents, matching radix2solid 38367617 and `@radix-ui/colors` 3.0.0);
   - `styles.css` contains `@media (min-width: 520px)`, `768px`, `1024px`, `1280px`, `1640px`;
   - `@radix-ui/colors` resolved version is `3.0.0`;
   - LICENSE contains the project MIT, Radix Themes (2023 WorkOS), Radix Colors (2021 Radix) and radix2solid notices.
@@ -754,7 +754,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 - [ ] **Step 1: Write the failing Scene tests** (TH-11, TH-12, TH-13, GATE-P4):
   - Root render with defaults has class `radix-themes` and attributes `data-is-root-theme="true"`, `data-accent-color="indigo"`, `data-gray-color="slate"`, `data-radius="medium"`, `data-scaling="100%"`, `data-has-background="true"`, `data-panel-background="translucent"`. It has no `light`/`dark` class with `appearance: 'inherit'`, and class `dark` with `'dark'`.
   - A nested Theme with only `{ radius: 'full' }` carries `data-radius` only. Nested `{ accentColor: 'crimson' }` with gray `auto` also emits `data-gray-color="mauve"`.
-  - Changing `accentColor` in the Model mutates exactly one attribute on the Theme element (MutationObserver), and a memoized child (`createLazy`) is reused (`Lazy.expectAllReused`).
+  - Changing `accentColor` in the Model with gray `auto` mutates only `data-accent-color` and `data-gray-color` on the Theme element (MutationObserver). With an explicit `grayColor`, it mutates `data-accent-color` only. A memoized child (`createLazy`, view wrapped in a counting spy) is not re-run (GATE-P4 view-execution counter).
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-themes test theme`. Expected: FAIL.
 - [ ] **Step 3: Implement.** The gray-matching table is copied from radix2solid `get-matching-gray-color.ts`.
 - [ ] **Step 4: Run** again. Expected: PASS.
@@ -775,7 +775,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - `Grid.view({ columns: '3' })` → `rt-r-gtc-3`.
   - `Heading.view({ as: 'h2', size: '6' })` → role `heading` level 2, class `rt-r-size-6`.
   - `Card.view({ variant: 'surface' })` → `rt-Card rt-variant-surface`.
-  - Each component under `createLazy` with equal primitive args → `Lazy.expectAllReused`.
+  - Each component under `createLazy` with its primitive props as memo args: an unrelated Model change leaves the view-execution count unchanged, and changing one prop increments it by exactly one (GATE-P4).
   - `X.Props` decodes valid props and rejects `size: '99'`.
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-themes test layout typography`. Expected: FAIL.
 - [ ] **Step 3: Implement** each component as a pure function using class tables (no per-render enum concatenation).
@@ -796,7 +796,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   - Button renders role `button` named by its children, with classes `rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button` and `data-accent-color` only when `color` is passed.
   - Click dispatches `onClick`; `disabled` sets `aria-disabled`/`disabled` from `@foldkit/ui`; `loading` renders a spinner and keeps the label width.
   - TextField `label: 'Email'` is found by `label('Email')`; typing dispatches `onInput` with the value; classes `rt-TextFieldRoot rt-r-size-2 rt-variant-surface`.
-  - Lazy reuse for both.
+  - Lazy reuse for both, asserted with view-execution counters as in B4 (GATE-P4).
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-themes test controls`. Expected: FAIL.
 - [ ] **Step 3: Implement** via `toView` attribute bundles plus the class tables.
 - [ ] **Step 4: Run** again. Expected: PASS.
@@ -1019,7 +1019,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
 
 - [ ] **Step 1: Write the failing Scene tests** (PERF-1..4, GATE-P4, UP-5):
   - **virtualList:** 10,000 items through `@foldkit/ui` VirtualList; renders ≤ 20 rows; filter and sort operate on the Model; row views are memoized with `createKeyedLazy` keyed by item id, and the cache instance belongs to the page module's lifetime with keys bounded by the 10,000 ids.
-  - **form:** 200 TextFields; editing field 0 re-runs exactly 1 field view (`Lazy.expectAllReused` for the other 199).
+  - **form:** 200 TextFields; editing field 0 re-runs exactly 1 field view, and the view-execution count of the other 199 stays unchanged (GATE-P4).
   - **menus:** 200 DropdownMenus; `menus-tick` re-runs 0 menu views.
   - Every `createLazy` call site passes only primitives and `h` (PERF-2).
 - [ ] **Step 2: Run** `pnpm --filter @wsagency/wseffect-gallery test perfPages`. Expected: FAIL.
@@ -1045,7 +1045,7 @@ All tests are Vitest with happy-dom and Foldkit's `foldkit/test/vitest` setup (`
   | `shared` | Date changed from `#date-input`, `#date-submodel-next` and `#sharedA-prev` keeps `#date-shell`, `#date-submodel`, `#date-page-sharedA`, `#date-page-sharedB` equal; MutationObserver records 0 `childList` mutations outside `<title>`; date changed while the sharedA chunk is delayed 1,200 ms shows the new date when the page appears |
   | `navigation` | Deep links `/shared` fetch sharedA+sharedB, `/dialog` fetches dialog only; back/forward keeps `#sharedA-note` and fetches each chunk once; `/dialog` → `/tabs` → `/dialog` with 600 ms delays fetches each once and shows only dialog |
   | `failure` | Aborted chunk → `#failed-buttons[data-cause=LoadError]` → `#retry-buttons` succeeds after unroute; hover on `#link-buttons` and scroll to a viewport-prefetched link each fetch once and add no `#loading-*` node on navigation; a failed prefetch then navigation renders the page |
-  | `theme` | Accent change mutates exactly one attribute on the root Theme; "changing accent while dialog is open keeps it open and focused" (Review Focus 4) |
+  | `theme` | Accent change with root gray `auto` mutates only `data-accent-color` and `data-gray-color` on the root Theme (TH-13); "changing accent while dialog is open keeps it open and focused" (Review Focus 4) |
   | `devReload` | Dev server: sharedA note set, `apps/gallery/src/routes.ts` touched; after reload the note and the date are restored, and no `GotSharedAPageMessage` from init appears (via `window.__wseffectMessages` exposed only when `import.meta.env.DEV`); a sharedA schema field added → sharedA re-inits, sharedB keeps state; files restored afterwards |
   | `chunks` | Two builds with `WSEFFECT_BUILD_ID` fixed and one page source byte changed differ in exactly 2 asset filenames |
   | `axe` | Every route in every engine: `accessibilityViolations(page)` is `[]` |

@@ -410,7 +410,7 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
   - **Plugin chain:** `postcss-import` → `postcss-nesting` → `postcss-breakpoints` → `postcss-custom-media` → `postcss-combine-duplicated-selectors` → `postcss-discard-empty` → `postcss-whitespace` → `autoprefixer` [R:33].
 - **TH-2 CSS outputs.** `styles.css`, `components.css`, `utilities.css`, `tokens.css`, `tokens/base.css`, `tokens/colors/<color>.css`, `layout.css`, `layout/{tokens,components,utilities}.css`, per-component `css/<component>.css`, `css/common.css` and `css/utilities.css`. Each has a `.layer.css` sibling wrapped in `@layer radix` [R:34].
   - Component CSS covers the foundation components plus their CSS dependencies from the radix2solid dependency map.
-- **TH-3 Radix Colors.** `@radix-ui/colors` 3.0.0 is consumed unchanged from npm: 30 palettes, imported the way radix2solid imports them [R:36].
+- **TH-3 Radix Colors.** `@radix-ui/colors` 3.0.0 is consumed unchanged from npm: 31 palettes (6 grays and 25 accents), imported the way radix2solid imports them [R:36].
 - **TH-4 Breakpoints.** `xs` 520, `sm` 768, `md` 1024, `lg` 1280, `xl` 1640 px, all min-width [R:43].
 
 ### 9.2 Stateless components
@@ -443,8 +443,10 @@ The gallery declares `primaryPages: ['layout', 'typography', 'buttons', 'dialog'
 - **TH-12 Settings live in the Model.** Theme settings, including appearance, live in the app Model; Foldkit has no context mechanism.
   - A nested `Theme.view` renders a wrapper element carrying only the attributes passed to it. One exception: when `accentColor` is passed and `grayColor` is `auto`, it also emits `data-gray-color` with the matching gray.
   - Settings that are not passed inherit through the CSS cascade.
-- **TH-13 Minimal theme-change DOM work.** Changing one theme setting mutates exactly one attribute (or the appearance class) on the Theme element, and memoized descendants are reused.
-  - **Test:** a MutationObserver scoped outside the theme controls, plus `Lazy.expectAllReused`.
+- **TH-13 Minimal theme-change DOM work.** Changing one theme setting mutates only the attributes derived from it on the Theme element, and memoized descendants are reused.
+  - Most settings map to exactly one attribute (or the appearance class).
+  - One exception: changing `accentColor` while `grayColor` is `auto` also changes `data-gray-color`, because the gray is resolved from the accent through the matching-gray table (TH-11, TH-12).
+  - **Test:** a MutationObserver scoped outside the theme controls, plus view-execution counters on memoized descendants (GATE-P4).
   - **Evidence:** the measured upper bound re-ran all 1,000 button views and reached a 120 ms p95 theme switch at 4× CPU [P:100, P:152, P:154].
 - **TH-14 Accessibility of the CSS.** The themed CSS keeps Radix Themes' focus and forced-colors rules unchanged; per-component Scene tests assert the ARIA output of the wrapped `@foldkit/ui` behavior.
 
@@ -524,7 +526,10 @@ These rules come from the performance research repercussions [P:144-155].
     - ABAB is the method that measured #1700 [P:220].
     - Every Event Timing value in the research is a multiple of 8 ms [P:35-52].
   - The baseline commit changes only through a PR that edits `perf.json` and gives a reason.
-- **GATE-P4 Reuse assertions.** `Lazy.expectAllReused` [F:312] covers every Themes component and every memoized gallery subtree.
+- **GATE-P4 Reuse assertions.** Every Themes component and every memoized gallery subtree has a reuse assertion based on view-execution counters.
+  - The memoized view function is wrapped in a counting spy and rendered through `createLazy` or `createKeyedLazy`.
+  - The test asserts that an unrelated Model change leaves the count unchanged, and that a change to one memo argument increments it by exactly one per affected view.
+  - **Why counters:** `Lazy.expectAllReused` is not exported by `foldkit@0.168.0`; `foldkit/test` there exports only `Story` and `Scene`. Foldkit `main` has it as the unreleased changeset `lazy-expect-all-reused`. The Foldkit upgrade PR that ships it switches these assertions to `Lazy.expectAllReused`.
 
 ### 12.2 Functional tests
 
@@ -865,7 +870,7 @@ The earlier S7 comparison (Solid filter about 11× faster) had 3.4× more layout
 ### A.9 radix2solid conventions [R:7-66]
 
 - **Tooling:** pnpm 11.5.0; Node 24.21.0; `engines >=24 <25`; exact devDependency pins; `strictPeerDependencies: true`; global 24 h `minimumReleaseAge` with exact-version `minimumReleaseAgeExclude` entries, each commented.
-- **Themes pipeline:** PostCSS chain of TH-1; outputs of TH-2; breakpoints 520/768/1024/1280/1640; 30 Radix Colors palettes from npm 3.0.0 unchanged.
+- **Themes pipeline:** PostCSS chain of TH-1; outputs of TH-2; breakpoints 520/768/1024/1280/1640; 31 Radix Colors palettes from npm 3.0.0 unchanged.
 - **Packed consumer:** pack, content-hash rename, independent fixture from tarballs, build, `tsc`, distribution and tree-shaking checks, Playwright on the packed build, `coverage-manifest.json` mapping every public module, export and CSS file to checks.
 - **radix2solid-web** pins its library in `library-source.json` as `{ repository, commit, provenance }`.
 
