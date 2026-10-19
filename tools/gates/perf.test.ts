@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { join, resolve } from 'node:path'
 import { test } from 'node:test'
 import { build, preview } from 'vite'
-import { applyCpuThrottle, assertNoiseBand, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount } from './perf.ts'
+import { applyCpuThrottle, assertNoiseBand, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount, traceScriptingDuration } from './perf.ts'
 
 const syntheticNoiseFloors = {
   'vl-cell': 38,
@@ -231,6 +231,19 @@ test('GATE-P1 includes rAF work after an in-flight Paint and ends at the Event T
   assert.equal(traceScriptingDuration(events, 'click', 30), 20)
   assert.equal(traceAnimationFrameCount(events, 'click', 30), 1)
 })
+test('trace window without ET bounds rAF search to the first frame after input', () => {
+  const events = [
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 5_000, args: { data: { type: 'click' } } },
+    { name: 'Paint', ph: 'X', ts: 110_000, dur: 1_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 115_000, dur: 5_000 },
+    { name: 'Paint', ph: 'X', ts: 120_000, dur: 1_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 125_000, dur: 5_000 },
+    { name: 'Paint', ph: 'X', ts: 130_000, dur: 1_000 },
+  ]
+  assert.equal(traceScriptingDuration(events, 'click'), 10)
+  assert.equal(traceAnimationFrameCount(events, 'click'), 1)
+})
+
 
 test('harness self-test observes valid slow/fast clicks and traced rAF work', { timeout: 45_000 }, async () => {
   const { runHarnessSelfTest } = await import('./perf.ts')
