@@ -23,12 +23,12 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:dialog": {
-      "bytes": 571,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 611,
+      "reason": "Theme component parity reshapes the lazy dialog chunk by 40 B; the page remains lazy."
     },
     "page:dropdownMenu": {
-      "bytes": 625,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 656,
+      "reason": "Theme component parity reshapes the lazy dropdown-menu chunk by 31 B; the page remains lazy."
     },
     "page:form": {
       "bytes": 521,
@@ -59,8 +59,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:theme": {
-      "bytes": 1063,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 1093,
+      "reason": "Theme component parity reshapes the lazy theme chunk by 30 B; the page remains lazy."
     },
     "page:typography": {
       "bytes": 344,
