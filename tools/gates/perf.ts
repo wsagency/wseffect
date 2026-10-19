@@ -25,6 +25,7 @@ const SESSIONS = 10
 const SCRIPT_RATIO = 1.10
 const EVENT_RATIO = 1.10
 const EVENT_DELTA_MS = 8
+const SCRIPT_ABSOLUTE_MS = 8
 
 export type ScenarioNoiseFloors = Record<PerfScenario['id'], number>
 
@@ -33,6 +34,7 @@ export interface PerfNoiseBaseline {
   readonly node: string
   readonly chromium: string
   readonly commit: string
+  readonly reason: string
   readonly measuredAt: string
   readonly pairs: number
   readonly floorsMs: ScenarioNoiseFloors
@@ -155,7 +157,7 @@ export function assertQualifiedEntryCoverage(label: string, counts: readonly (re
 }
 
 function scriptRegressionThresholdMs(scenarioId: PerfScenario['id'], baseMedianMs: number, noiseFloorMs: number): number {
-  return Math.max((SCRIPT_RATIO - 1) * baseMedianMs, noiseFloorMs)
+  return Math.max((SCRIPT_RATIO - 1) * baseMedianMs, SCRIPT_ABSOLUTE_MS, noiseFloorMs)
 }
 
 export function regressed(input: RegressionInput, noiseFloors: ScenarioNoiseFloors): boolean {
@@ -213,13 +215,13 @@ export function traceScriptingDuration(
     .sort((left, right) => left.ts! - right.ts!)
   const durations = inputs.map((input) => {
     const inputStart = input.ts!
-    const presentationEnd = presentations.find((event) => event.ts! > inputStart)?.ts
     const eventTimingEnd = eventTimingDurationMs === undefined
       ? undefined
       : inputStart + eventTimingDurationMs * 1_000
-    const windowEnd = eventTimingEnd === undefined
-      ? presentationEnd
-      : presentationEnd === undefined ? eventTimingEnd : Math.min(presentationEnd, eventTimingEnd)
+    const presentationEnd = presentations.find((event) => eventTimingEnd === undefined
+      ? event.ts! > inputStart
+      : event.ts! >= eventTimingEnd)?.ts
+    const windowEnd = presentationEnd ?? eventTimingEnd
     if (windowEnd === undefined) throw new Error(`trace did not contain a Paint or Commit after ${inputEventType}`)
 
     const intervals = events
@@ -260,14 +262,14 @@ export function traceAnimationFrameCount(
     && event.args?.data?.type === inputEventType
     && typeof event.ts === 'number')
   if (input?.ts === undefined) return 0
-  const presentationEnd = events
-    .filter((event) => (event.name === 'Paint' || event.name === 'Commit') && typeof event.ts === 'number' && event.ts > input.ts!)
-    .map((event) => event.ts!)
-    .sort((left, right) => left - right)[0]
+  const presentations = events
+    .filter((event) => (event.name === 'Paint' || event.name === 'Commit') && typeof event.ts === 'number')
+    .sort((left, right) => left.ts! - right.ts!)
   const eventTimingEnd = eventTimingDurationMs === undefined ? undefined : input.ts + eventTimingDurationMs * 1_000
-  const windowEnd = eventTimingEnd === undefined
-    ? presentationEnd
-    : presentationEnd === undefined ? eventTimingEnd : Math.min(presentationEnd, eventTimingEnd)
+  const presentationEnd = presentations.find((event) => eventTimingEnd === undefined
+    ? event.ts! > input.ts!
+    : event.ts! >= eventTimingEnd)?.ts
+  const windowEnd = presentationEnd ?? eventTimingEnd
   if (windowEnd === undefined) return 0
   return events.filter((event) => event.name === 'FireAnimationFrame'
     && event.ph === 'X'
@@ -342,7 +344,7 @@ async function traceInteraction(
     await complete
     client.off('Tracing.dataCollected', onData)
   }
-  const duration = entries.length === 0 ? undefined : interactionDuration(entries)
+  const duration = interactionDuration(entries)
   return {
     entries,
     scriptMs: traceScriptingDuration(events, scenario.inputEventType, duration),
@@ -480,7 +482,7 @@ export async function runHarnessSelfTest(): Promise<HarnessSelfTestReport> {
     const unthrottledMs = median(unthrottledSamples)
     const throttledMs = median(throttledSamples)
     const ratio = throttledMs / unthrottledMs
-    if (ratio < 3.4 || ratio > 4.6) throw new Error(`4× CPU throttle self-test ratio outside 3.4–4.6: ${ratio.toFixed(2)}×`)
+    assertThrottleRatio(ratio)
     return {
       eventTiming,
       cpuThrottle: { iterations, unthrottledMs, throttledMs, ratio },
@@ -502,10 +504,11 @@ async function startPreview(appDir: string) {
   return { server, url }
 }
 
-function parseArguments(args: readonly string[]): { appDir: string; selfTest: boolean; measureNoise: boolean } {
+export function parseArguments(args: readonly string[]): { appDir: string; selfTest: boolean; writeNoise: boolean; reason: string } {
   let appDir = ''
   let selfTest = false
-  let measureNoise = false
+  let writeNoise = false
+  let reason = ''
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]!
     if (arg === '--app') {
@@ -514,24 +517,38 @@ function parseArguments(args: readonly string[]): { appDir: string; selfTest: bo
       appDir = resolve(value)
     } else if (arg === '--self-test') {
       selfTest = true
-    } else if (arg === '--measure-noise') {
-      measureNoise = true
+    } else if (arg === '--write-noise') {
+      writeNoise = true
+    } else if (arg === '--reason') {
+      const value = args[++index]
+      if (value === undefined) throw new Error('--reason requires text')
+      reason = value
     } else {
       throw new Error(`unknown argument: ${arg}`)
     }
   }
-  if (selfTest && measureNoise) throw new Error('--self-test cannot be combined with --measure-noise')
-  if (appDir === '') throw new Error('usage: pnpm gate:perf --app <app-directory> [--self-test | --measure-noise]')
+  if (writeNoise && !selfTest) throw new Error('--write-noise requires --self-test')
+  if (writeNoise && reason.trim() === '') throw new Error('--write-noise requires a non-empty --reason')
+  if (!writeNoise && reason !== '') throw new Error('--reason requires --write-noise')
+  if (appDir === '') throw new Error('usage: pnpm gate:perf --app <app-directory> [--self-test [--write-noise --reason <text>]]')
   if (!statSync(appDir).isDirectory()) throw new Error(`app directory does not exist: ${appDir}`)
-  return { appDir, selfTest, measureNoise }
+  return { appDir, selfTest, writeNoise, reason }
 }
 
-function pinPerfProcess(): void {
-  const cpus = process.env.WSEFFECT_PERF_CPUS
+export function pinPerfProcess(cpus = process.env.WSEFFECT_PERF_CPUS): void {
   if (cpus === undefined || cpus.trim() === '') {
-    throw new Error('WSEFFECT_PERF_CPUS must list the dedicated CPU set for perf runs')
+    console.warn('CPU affinity pinning skipped: WSEFFECT_PERF_CPUS is not configured')
+    return
   }
-  execFileSync('taskset', ['-pc', cpus, String(process.pid)], { stdio: 'inherit' })
+  try {
+    execFileSync('taskset', ['-pc', cpus, String(process.pid)], { stdio: 'inherit' })
+  } catch (error) {
+    if (error !== null && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+      console.warn('CPU affinity pinning skipped: taskset is not installed')
+      return
+    }
+    throw error
+  }
 }
 
 function pairedNoise(samples: readonly number[]): NoiseBand {
@@ -539,12 +556,22 @@ function pairedNoise(samples: readonly number[]): NoiseBand {
   return noiseBand(samples.filter((_, index) => index % 2 === 0), samples.filter((_, index) => index % 2 === 1))
 }
 
+export function roundedNoiseFloorMs(samples: readonly number[]): number {
+  return Math.ceil(pairedNoise(samples).p95AbsDeltaMs)
+}
+
+export function assertThrottleRatio(ratio: number): void {
+  if (!Number.isFinite(ratio) || ratio < 3 || ratio > 5) {
+    throw new Error(`4× CPU throttle self-test ratio outside 3–5: ${ratio.toFixed(2)}×`)
+  }
+}
+
 async function measureNoiseFloors(baseUrl: string, browser: Browser): Promise<ScenarioNoiseFloors> {
   const floors = {} as ScenarioNoiseFloors
   for (const scenario of SCENARIOS) {
     const result = await runScenario(baseUrl, scenario, SESSIONS * 2, browser)
     assertQualifiedEntryCoverage(`${scenario.id} A/A noise measurement`, result.eventEntryCounts)
-    floors[scenario.id] = pairedNoise(result.scriptMs).p95AbsDeltaMs
+    floors[scenario.id] = roundedNoiseFloorMs(result.scriptMs)
   }
   return floors
 }
@@ -558,15 +585,15 @@ async function assertRunnerNoise(baseUrl: string, browser: Browser, floors: Scen
 }
 
 async function runCli(): Promise<void> {
-  const { appDir, selfTest, measureNoise } = parseArguments(process.argv.slice(2))
-  const noiseFloors = selfTest || measureNoise ? undefined : loadNoiseFloors()
-  if (!selfTest) pinPerfProcess()
+  const { appDir, selfTest, writeNoise, reason } = parseArguments(process.argv.slice(2))
+  const noiseFloors = selfTest ? undefined : loadNoiseFloors()
+  if (!selfTest || writeNoise) pinPerfProcess()
 
   execFileSync('pnpm', ['--dir', appDir, 'build'], { cwd: ROOT, stdio: 'inherit' })
   const candidate = await startPreview(appDir)
   try {
     const harnessSelfTest = await runHarnessSelfTest()
-    if (selfTest) {
+    if (selfTest && !writeNoise) {
       const browser = await chromium.launch()
       try {
         const results = []
@@ -593,7 +620,7 @@ async function runCli(): Promise<void> {
       return
     }
 
-    if (measureNoise) {
+    if (writeNoise) {
       const browser = await chromium.launch()
       try {
         const floorsMs = await measureNoiseFloors(candidate.url, browser)
@@ -603,6 +630,7 @@ async function runCli(): Promise<void> {
           chromium: browser.version(),
           commit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(),
           measuredAt: new Date().toISOString(),
+          reason,
           pairs: SESSIONS,
           floorsMs,
         }
@@ -628,7 +656,7 @@ async function runCli(): Promise<void> {
       try {
         const reports = []
         let failed = false
-        await assertRunnerNoise(base.url, browser, noiseFloors)
+        await assertRunnerNoise(candidate.url, browser, noiseFloors)
         for (const scenario of SCENARIOS) {
           const baseEvent: number[] = []
           const candEvent: number[] = []

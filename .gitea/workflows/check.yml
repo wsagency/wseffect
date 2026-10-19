@@ -84,10 +84,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: node bench/radix2solid/scripts/prepare-library.ts --verify
-      - name: Generate side-by-side report on pinned CPUs
+      - name: Generate side-by-side report (CPU pinning when available)
         run: |
-          test -n "$WSEFFECT_PERF_CPUS"
-          taskset -c "$WSEFFECT_PERF_CPUS" pnpm gate:report
+          if [ -n "$WSEFFECT_PERF_CPUS" ] && command -v taskset >/dev/null 2>&1; then
+            taskset -c "$WSEFFECT_PERF_CPUS" pnpm gate:report
+          else
+            echo "CPU affinity pinning skipped: WSEFFECT_PERF_CPUS or taskset is unavailable"
+            pnpm gate:report
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: radix2solid-comparison

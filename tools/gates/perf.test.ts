@@ -51,6 +51,19 @@ test('GATE-P3 applies synthetic A/A script-noise floors and combined Event Timin
   assert.equal(regressed(regression({ baseEvent: [200], candEvent: [212] }), syntheticNoiseFloors), false)
 })
 
+test('GATE-P3 keeps an 8 ms absolute script threshold when the synthetic noise floor is zero', () => {
+  const zeroNoiseFloors = {
+    'vl-cell': 0,
+    'vl-filter': 0,
+    'vl-sort': 0,
+    'vl-select': 0,
+    'form-field': 0,
+    'menus-tick': 0,
+  }
+  assert.equal(regressed(regression({ candScript: [18] }), zeroNoiseFloors), false)
+  assert.equal(regressed(regression({ candScript: [18.1] }), zeroNoiseFloors), true)
+})
+
 test('GATE-P3 fails a perf runner whose paired A/A noise exceeds 1.5 times its measured floor', () => {
   assert.doesNotThrow(() => assertNoiseBand({ p95AbsDeltaMs: 15, minDeltaMs: -15, maxDeltaMs: 14 }, 10))
   assert.throws(() => assertNoiseBand({ p95AbsDeltaMs: 16, minDeltaMs: -16, maxDeltaMs: 15 }, 10), /runner too noisy/)
@@ -75,6 +88,13 @@ test('A/A noise band reports empirical p95 absolute delta and signed range', () 
     minDeltaMs: -2,
     maxDeltaMs: 3,
   })
+})
+
+test('measured A/A noise floors round a fractional p95 up to whole milliseconds', async () => {
+  const perf = await import('./perf.ts') as unknown as Record<string, unknown>
+  assert.equal(typeof perf.roundedNoiseFloorMs, 'function')
+  const roundedNoiseFloorMs = perf.roundedNoiseFloorMs as (samples: readonly number[]) => number
+  assert.equal(roundedNoiseFloorMs(Array.from({ length: 20 }, (_, index) => index % 2 === 0 ? 10 : 10.25)), 1)
 })
 test('Event Timing coverage tolerates at most half of sessions without qualified entries', () => {
   assert.doesNotThrow(() => assertQualifiedEntryCoverage('fixture', [[1], [2], [], [3]]))
@@ -102,6 +122,63 @@ test('CPU throttle helper sends the CDP 4x command', async () => {
     },
   })
   assert.deepEqual(calls, [{ method: 'Emulation.setCPUThrottlingRate', params: { rate: 4 } }])
+})
+
+test('CPU throttle self-test accepts only synthetic ratios from 3× through 5×', async () => {
+  const perf = await import('./perf.ts') as unknown as Record<string, unknown>
+  assert.equal(typeof perf.assertThrottleRatio, 'function')
+  const assertThrottleRatio = perf.assertThrottleRatio as (ratio: number) => void
+  assert.doesNotThrow(() => assertThrottleRatio(3))
+  assert.doesNotThrow(() => assertThrottleRatio(5))
+  assert.throws(() => assertThrottleRatio(2.99), /3–5/)
+  assert.throws(() => assertThrottleRatio(5.01), /3–5/)
+})
+
+test('CPU affinity pinning skips cleanly when the configuration or taskset is absent', async () => {
+  const perf = await import('./perf.ts') as unknown as Record<string, unknown>
+  assert.equal(typeof perf.pinPerfProcess, 'function')
+  const pinPerfProcess = perf.pinPerfProcess as (cpus?: string) => void
+  const previousCpus = process.env.WSEFFECT_PERF_CPUS
+  const previousPath = process.env.PATH
+  const previousWarn = console.warn
+  const warnings: string[] = []
+  console.warn = (message?: unknown) => warnings.push(String(message))
+  try {
+    delete process.env.WSEFFECT_PERF_CPUS
+    assert.doesNotThrow(() => pinPerfProcess())
+    process.env.WSEFFECT_PERF_CPUS = '0'
+    process.env.PATH = ''
+    assert.doesNotThrow(() => pinPerfProcess())
+    assert.equal(warnings.length, 2)
+  } finally {
+    if (previousCpus === undefined) delete process.env.WSEFFECT_PERF_CPUS
+    else process.env.WSEFFECT_PERF_CPUS = previousCpus
+    if (previousPath === undefined) delete process.env.PATH
+    else process.env.PATH = previousPath
+    console.warn = previousWarn
+  }
+})
+
+test('perf noise write arguments require self-test and a reason', async () => {
+  const perf = await import('./perf.ts') as unknown as Record<string, unknown>
+  assert.equal(typeof perf.parseArguments, 'function')
+  const parseArguments = perf.parseArguments as (args: readonly string[]) => {
+    readonly selfTest: boolean
+    readonly writeNoise: boolean
+    readonly reason: string
+  }
+  const appDir = resolve(import.meta.dirname, '../fixtures/mini-app')
+  const parsed = parseArguments([
+    '--app', appDir,
+    '--self-test',
+    '--write-noise',
+    '--reason', 'dedicated perf runner calibration',
+  ])
+  assert.equal(parsed.selfTest, true)
+  assert.equal(parsed.writeNoise, true)
+  assert.equal(parsed.reason, 'dedicated perf runner calibration')
+  assert.throws(() => parseArguments(['--app', appDir, '--write-noise', '--reason', 'missing self-test']))
+  assert.throws(() => parseArguments(['--app', appDir, '--self-test', '--write-noise']))
 })
 test('trace scripting duration unions script intervals from input dispatch to next paint', async () => {
   const { traceScriptingDuration } = await import('./perf.ts')
@@ -145,6 +222,18 @@ test('trace animation-frame counts include rAF callbacks before the Event Timing
     { name: 'Paint', ph: 'X', ts: 140_000, dur: 2_000 },
     { name: 'FireAnimationFrame', ph: 'X', ts: 150_000, dur: 2_000 },
   ], 'click', 40), 2)
+})
+
+test('GATE-P1 includes rAF work after an in-flight Paint and ends at the following Paint', async () => {
+  const { traceScriptingDuration } = await import('./perf.ts')
+  const events = [
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
+    { name: 'Paint', ph: 'X', ts: 115_000, dur: 2_000 },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 120_000, dur: 15_000 },
+    { name: 'Paint', ph: 'X', ts: 140_000, dur: 2_000 },
+  ]
+  assert.equal(traceScriptingDuration(events, 'click', 30), 25)
+  assert.equal(traceAnimationFrameCount(events, 'click', 30), 1)
 })
 
 test('harness self-test observes valid slow/fast clicks and verifies 4x CPU throttling', { timeout: 45_000 }, async () => {
