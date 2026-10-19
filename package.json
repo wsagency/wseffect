@@ -15,7 +15,7 @@
     "check": "pnpm build && node packages/app/dist/codegen/bin.js --check apps/gallery && pnpm typecheck && pnpm lint && pnpm test && pnpm check:repo && pnpm test:consumer",
     "gate:size": "node tools/gates/size.ts",
     "gate:perf": "node tools/gates/perf.ts",
-    "perf:noise": "node tools/gates/perf.ts --app apps/gallery --self-test --write-noise --reason 'Dedicated perf runner noise-floor measurement'",
+    "perf:noise": "pnpm exec node tools/gates/perf.ts --app apps/gallery --self-test --write-noise --reason 'Dedicated perf runner noise-floor measurement'",
     "gate:report": "node tools/gates/report.ts"
   },
   "devDependencies": {
