@@ -1,10 +1,10 @@
-# wseffect app capabilities (sub-project #2): design specification
+# wseffect app capabilities (sub-project #2b): design specification
 
 Status: **Design approved by the user in conversation on 2026-10-20. This document records the design and is ready for review.** The next step after review is an implementation plan. This specification adds no product code, dependencies, package scaffolding, or publication changes. Its requirements are binding inputs to that plan. Measurements are evidence for design choices, not implementation claims or guaranteed performance.
 
 ## 1. Goal and context
 
-Sub-project #2 adds focused browser/application capabilities to `@wsagency/wseffect-app`, the Effect-v4-native application package built on Foldkit's Elm architecture. Each capability is a standalone named export with an independently lazy-loadable implementation; consumers opt in by importing it. Foldkit remains the owner of ordinary view DOM, Models remain the source of truth, Commands and Subscriptions remain the side-effect boundary, and Mounts own element lifetimes [FND:13-17, 221-227].
+Sub-project #2b adds focused browser/application capabilities to `@wsagency/wseffect-app`, the Effect-v4-native application package built on Foldkit's Elm architecture. It is delivered alongside sub-project #2 (remaining Themes components and primitives) and changes only the app package, so there is no package overlap. Each capability is a standalone named export with an independently lazy-loadable implementation; consumers opt in by importing it. Foldkit remains the owner of ordinary view DOM, Models remain the source of truth, Commands and Subscriptions remain the side-effect boundary, and Mounts own element lifetimes [FND:13-17, 221-227].
 
 The adopted capabilities are: a typed signal stream; Schema-backed native constraint validation; versioned persistence; theme-aligned breakpoints; bounded-cache `Locale`; clipboard and scroll Commands; and a ResizeObserver Mount. Idiomorph is limited to an explicit, bounded `Island` component for server-rendered content. Query synchronization gets no helper: the app README documents Foldkit's existing `Route.query(Schema)` pattern.
 

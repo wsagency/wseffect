@@ -104,6 +104,7 @@ The order is strict. A change that improves a lower priority at the expense of a
 |---|---|---|
 | 1 | **Foundation (this spec)** | Monorepo and CI gates; the complete `@wsagency/wseffect-app`; the `@wsagency/wseffect-themes` core; `apps/gallery`; `bench/radix2solid` |
 | 2 | Remaining Themes components and `@wsagency/wseffect-primitives` | Every Themes component not in TH-7/TH-8, plus Foldkit-style primitives missing upstream; DataTable (TH-15) |
+| 2b | App capabilities | `@wsagency/wseffect-app`: `docs/superpowers/specs/2026-10-20-wseffect-sp2-app-capabilities-design.md` |
 | 3 | `@wsagency/wseffect-icons` | Icon package |
 | 4 | Charts | Chart package |
 
