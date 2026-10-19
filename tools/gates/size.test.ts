@@ -90,6 +90,30 @@ test('manifest classification makes only non-primary page JS and CSS speculative
     { path: '/manifest.webmanifest', bytes: 15, classification: 'mandatory' },
   ])
 })
+test('manifest classification keeps the root static graph mandatory when the app has no primary pages', () => {
+  const manifest = {
+    'index.html': { file: 'assets/index.js', imports: ['_framework.js'], css: ['assets/index.css'] },
+    'src/pages/buttons.ts': { file: 'assets/buttons.js', name: 'buttons', isDynamicEntry: true, imports: ['index.html'] },
+    '_framework.js': { file: 'assets/framework.js' },
+  }
+  const classified = classifyRequestTable(
+    [
+      { path: '/assets/index.js', bytes: 100 },
+      { path: '/assets/index.css', bytes: 200 },
+      { path: '/assets/framework.js', bytes: 300 },
+      { path: '/assets/buttons.js', bytes: 400 },
+    ],
+    manifest,
+    [],
+    ['buttons'],
+  )
+  assert.deepEqual(classified, [
+    { path: '/assets/index.js', bytes: 100, classification: 'mandatory' },
+    { path: '/assets/index.css', bytes: 200, classification: 'mandatory' },
+    { path: '/assets/framework.js', bytes: 300, classification: 'mandatory' },
+    { path: '/assets/buttons.js', bytes: 400, classification: 'speculative' },
+  ])
+})
 
 test('size gate uses the candidate baseline when merge-base lookup is unavailable', () => {
   const candidate = baseline({ shell: { bytes: 100, reason: 'checked-out baseline' } })

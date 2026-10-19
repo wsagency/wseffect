@@ -16,6 +16,7 @@ export const view = Submodel.defineView<typeof Model.Type, Message, Inputs>((_mo
     h.input([
       h.Id('date-input'),
       h.Type('date'),
+      h.DataAttribute('perf', 'shared-date'),
       h.AriaLabel('Shared date'),
       h.Value(inputs.date),
       h.OnInput((date) => Message.ChangedDate({ date })),

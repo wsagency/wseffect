@@ -98,10 +98,7 @@ export function classifyRequestTable(
   const requestedPages = new Set(pageKeys)
   const ownersByAsset = new Map<string, Set<string>>()
 
-  for (const [source, entry] of Object.entries(manifest)) {
-    const pageKey = entry.name ?? basename(source, extname(source))
-    if (entry.isDynamicEntry !== true || !requestedPages.has(pageKey)) continue
-
+  const assetsForEntry = (source: string): Set<string> => {
     const visited = new Set<string>()
     const assets = new Set<string>()
     const visit = (manifestKey: string): void => {
@@ -114,8 +111,15 @@ export function classifyRequestTable(
       for (const imported of dependency.imports ?? []) visit(imported)
     }
     visit(source)
+    return assets
+  }
+  const mandatoryAssets = assetsForEntry('index.html')
 
-    for (const asset of assets) {
+  for (const [source, entry] of Object.entries(manifest)) {
+    const pageKey = entry.name ?? basename(source, extname(source))
+    if (entry.isDynamicEntry !== true || !requestedPages.has(pageKey)) continue
+
+    for (const asset of assetsForEntry(source)) {
       const owners = ownersByAsset.get(asset) ?? new Set<string>()
       owners.add(pageKey)
       ownersByAsset.set(asset, owners)
@@ -124,7 +128,7 @@ export function classifyRequestTable(
 
   return responses.map(({ path, bytes }) => {
     const owners = ownersByAsset.get(path)
-    let isSpeculative = owners !== undefined
+    let isSpeculative = owners !== undefined && !mandatoryAssets.has(path)
     if (owners !== undefined) {
       for (const owner of owners) {
         if (primary.has(owner)) {

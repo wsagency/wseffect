@@ -163,6 +163,8 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => ({
           return [h.a([
             h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
             h.Href(path),
+            ...(path === '/menus' ? [h.DataAttribute('perf', 'nav-cold')] : []),
+            ...(path === '/dialog' ? [h.DataAttribute('perf', 'nav-prefetch')] : []),
             h.Style({ display: 'block' }),
             h.OnMouseEnter(prefetch),
             h.OnFocus(prefetch),
