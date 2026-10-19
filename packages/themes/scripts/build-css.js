@@ -58,3 +58,5 @@ for (const [input, output, source] of targets) {
   await writeFile(to.replace(/\.css$/, '.layer.css'), `@layer radix {\n${css}\n}\n`);
   console.log(`${input} → ${output}`);
 }
+await mkdir(resolve(root, 'dist'), { recursive: true });
+await writeFile(resolve(root, 'dist/css.d.ts'), await readFile(resolve(root, 'src/css.d.ts'), 'utf8'));
