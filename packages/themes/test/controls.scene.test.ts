@@ -71,7 +71,7 @@ describe('themed controls', () => {
       Scene.expect(Scene.role('button', { name: 'Saving' })).toHaveAttr('aria-disabled', 'true'),
       Scene.expect(Scene.selector('.rt-loading .rt-ButtonContent')).toExist(),
       Scene.expect(Scene.selector('.rt-ButtonContent')).toHaveStyle('display', 'contents'),
-      Scene.click(Scene.role('button', { name: 'Saving' })),
+      Scene.expect(Scene.role('button', { name: 'Saving' })).not.toHaveHandler('click'),
       Scene.expect(Scene.text('Clicks: 0')).toExist(),
       Scene.expect(Scene.selector('.rt-Spinner')).toExist(),
     )
@@ -81,7 +81,7 @@ describe('themed controls', () => {
         h.span([], [`Clicks: ${model.clicks}`]),
       ]) },
       Scene.given({ value: '', clicks: 0, ticks: 0 }),
-      Scene.click(Scene.role('button', { name: 'Disabled' })),
+      Scene.expect(Scene.role('button', { name: 'Disabled' })).not.toHaveHandler('click'),
       Scene.expect(Scene.text('Clicks: 0')).toExist(),
     )
   })
@@ -94,6 +94,7 @@ describe('themed controls', () => {
       Scene.expect(Scene.role('textbox')).toHaveAttr('class', 'rt-reset rt-TextFieldInput'),
       Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('class', 'rt-TextFieldRoot rt-r-size-2 rt-variant-surface'),
       Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('data-radius', 'full'),
+      Scene.type(Scene.role('textbox'), 'person@example.test'),
       Scene.expect(Scene.role('textbox')).toHaveValue('person@example.test'),
     )
   })
