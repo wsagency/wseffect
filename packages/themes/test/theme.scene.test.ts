@@ -4,6 +4,7 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import * as Theme from '../src/components/theme.js'
+import { portalThemeAttributes } from '../src/components/themeAttributes.js'
 
 type Settings = typeof Theme.Settings.Type
 type Model = Readonly<{ settings: Partial<Settings>; isRoot: boolean }>
@@ -53,8 +54,31 @@ describe('Theme view', () => {
       Scene.expect(root).toHaveAttr('data-scaling', '100%'),
       Scene.expect(root).toHaveAttr('data-has-background', 'true'),
       Scene.expect(root).toHaveAttr('data-panel-background', 'translucent'),
+      Scene.expect(Scene.selector('.radix-themes #foldkit-portal-root')).toExist(),
     )
   })
+
+  it('reuses portal attributes for identical theme settings', () => {
+    let sameReference = false
+    const themeAttributesView = (_model: Model, h: HtmlBuilder<Message>) => {
+      const settings = {
+        accentColor: 'crimson',
+        grayColor: 'gray',
+        radius: 'full',
+        scaling: '100%',
+        appearance: 'dark',
+        panelBackground: 'solid',
+      } as const
+      sameReference = portalThemeAttributes(settings, h) === portalThemeAttributes({ ...settings }, h)
+      return h.div([], [])
+    }
+    Scene.scene(
+      { update, view: themeAttributesView },
+      Scene.given({ settings: {}, isRoot: true }),
+    )
+    expect(sameReference).toBe(true)
+  })
+
 
   it('adds the appearance class when the root explicitly selects dark', () => {
     Scene.scene(

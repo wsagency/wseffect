@@ -20,16 +20,26 @@ export const defaults: Settings = {
 
 export const themeClassName = (appearance: Settings['appearance'] | undefined): string => themeClassNames[appearance ?? defaults.appearance]
 
+const portalThemeAttributesCache = new Map<string, ReadonlyArray<ChildAttribute>>()
+
 export const portalThemeAttributes = <Message>(settings: Partial<Settings>, h: HtmlBuilder<Message>): ReadonlyArray<ChildAttribute> => {
   const accentColor = settings.accentColor ?? defaults.accentColor
   const grayColor = settings.grayColor ?? defaults.grayColor
-  return childAttributes([
+  const radius = settings.radius ?? defaults.radius
+  const scaling = settings.scaling ?? defaults.scaling
+  const panelBackground = settings.panelBackground ?? defaults.panelBackground
+  const cacheKey = `${accentColor}\u0000${grayColor}\u0000${radius}\u0000${scaling}\u0000${panelBackground}`
+  const cachedAttributes = portalThemeAttributesCache.get(cacheKey)
+  if (cachedAttributes !== undefined) return cachedAttributes
+  const attributes = childAttributes([
     h.DataAttribute('is-root-theme', 'false'),
     h.DataAttribute('accent-color', accentColor),
     h.DataAttribute('gray-color', grayColor === 'auto' ? grayMatch[accentColor] : grayColor),
-    h.DataAttribute('radius', settings.radius ?? defaults.radius),
-    h.DataAttribute('scaling', settings.scaling ?? defaults.scaling),
+    h.DataAttribute('radius', radius),
+    h.DataAttribute('scaling', scaling),
     h.DataAttribute('has-background', 'false'),
-    h.DataAttribute('panel-background', settings.panelBackground ?? defaults.panelBackground),
+    h.DataAttribute('panel-background', panelBackground),
   ])
+  portalThemeAttributesCache.set(cacheKey, attributes)
+  return attributes
 }

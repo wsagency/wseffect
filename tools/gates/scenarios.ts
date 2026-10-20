@@ -9,6 +9,7 @@ export interface PerfScenario {
   readonly reset: (page: Page) => Promise<void>
   readonly act: (page: Page) => Promise<void>
   readonly ceilingMs: 50 | 30
+  readonly hook?: string
 }
 
 export const SCENARIOS: ReadonlyArray<PerfScenario> = [

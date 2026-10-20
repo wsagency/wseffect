@@ -12,4 +12,5 @@
 - Match the gallery Cards and Tabs sample props/content to the pinned Radix2Solid reference for visual comparisons.
 - Separate Tabs label and panel rendering; apply Button styling to DropdownMenu triggers and Dialog close controls.
 - Apply the active Theme settings to portaled DropdownMenu panels so their panel tokens resolve outside the page Theme root.
+- Place the shared portal root inside the root Theme so portaled controls inherit its tokens.
 - Render the gallery shell with themed layout, navigation, date, and action controls.

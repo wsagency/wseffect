@@ -64,6 +64,8 @@ export const view = <Message>(
     if (settings.hasBackground !== undefined) attributes.push(h.DataAttribute('has-background', String(settings.hasBackground)))
     if (settings.panelBackground !== undefined) attributes.push(h.DataAttribute('panel-background', settings.panelBackground))
   }
-
-  return brandViewResult(h.div(attributes, children), 'wseffect/Theme')
+  const themeChildren = isRoot
+    ? [h.div([h.Id('foldkit-portal-root')], []), ...children]
+    : children
+  return brandViewResult(h.div(attributes, themeChildren), 'wseffect/Theme')
 }

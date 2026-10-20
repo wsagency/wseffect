@@ -22,6 +22,19 @@ const layout = Box.view({ p: '3', width: '100%' }, [title, action], h)
 
 The package also exports `Card`, `DropdownMenu`, and `Tabs`. `Dialog`, `DropdownMenu`, and `Tabs` expose the stateful Foldkit helpers described by their component exports; they do not add wrapper state.
 
+## Portaled menus and Themes
+
+Foldkit's anchored UI panels share a `#foldkit-portal-root` in their containing Document or ShadowRoot. Render that element as the first child of the root Theme so portaled menu panels inherit its CSS variables, appearance, and color settings:
+
+```ts
+Theme.view({ settings, isRoot: true }, [
+  h.div([h.Id('foldkit-portal-root')], []),
+  appContent,
+], h)
+```
+
+Menus inherit that shared root Theme by default. A menu inside a nested Theme can opt into its local settings by passing `themeSettings` in `DropdownMenu.embed`'s `viewInputs`; the override is applied only while the panel is visible.
+
 ## Stylesheets
 
 Import the token/theme CSS and component CSS in your application entry point:
