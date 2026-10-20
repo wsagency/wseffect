@@ -44,6 +44,7 @@
     "build": "tsc -p tsconfig.build.json && node scripts/brand-dist.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --coverage",
+    "test:browser": "playwright test --config test/browser/playwright.config.ts",
     "build:lint": "tsc -p tsconfig.lint.json"
   },
   "peerDependencies": {
