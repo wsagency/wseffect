@@ -1,13 +1,13 @@
 import { Effect, Queue, Stream } from 'effect'
 import { Subscription } from 'foldkit'
-import { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
+import type { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
 
 export type Breakpoint = 'initial' | typeof BREAKPOINTS[number]['name']
 
-function currentBreakpoint(): Breakpoint {
+function currentBreakpoint(breakpoints: typeof BREAKPOINTS): Breakpoint {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'initial'
   let current: Breakpoint = 'initial'
-  for (const breakpoint of BREAKPOINTS) {
+  for (const breakpoint of breakpoints) {
     if (window.matchMedia(`(min-width: ${breakpoint.minWidth}px)`).matches) current = breakpoint.name
   }
   return current
@@ -15,11 +15,12 @@ function currentBreakpoint(): Breakpoint {
 
 function breakpointStream<Message>(toMessage: (value: Breakpoint) => Message): Stream.Stream<Message> {
   return Stream.callback<Message>((queue) => Effect.gen(function*() {
+    const { BREAKPOINTS } = yield* Effect.promise(() => import('@wsagency/wseffect-themes/breakpoints'))
     yield* Effect.acquireRelease(
       Effect.sync(() => {
         let lastEmitted: Breakpoint | undefined
         const emit = () => {
-          const current = currentBreakpoint()
+          const current = currentBreakpoint(BREAKPOINTS)
           if (current === lastEmitted) return
           lastEmitted = current
           Queue.offerUnsafe(queue, toMessage(current))

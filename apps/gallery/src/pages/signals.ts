@@ -1,3 +1,5 @@
+import '@wsagency/wseffect-themes/tokens/colors/red.css'
+import '@wsagency/wseffect-themes/tokens/colors/green.css'
 import { Schema } from 'effect'
 import { Mount, Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'

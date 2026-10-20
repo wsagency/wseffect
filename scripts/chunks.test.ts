@@ -26,6 +26,11 @@ test('fixed build IDs rename only the entry and changed page, leaving app-shared
       },
     ))
     const eagerNames = eagerMaps.flatMap((sourceMap) => sourceMap.names)
+    assert.equal(
+      eagerMaps.some((sourceMap) => sourceMap.sources.some((source) => source.endsWith('packages/themes/dist/breakpoints.js'))),
+      false,
+      'the shared breakpoint tokens must stay out of the eager closure when used only by the lazy browser page',
+    )
     assert.equal(eagerSourceMaps.length > 0, true)
     assert.equal(
       eagerNames.some((name) => /^(?:signalSubscription|projectConstraintValidity|persist|breakpointSubscription|makeLocale|clipboardCommand|scrollIntoViewCommand|resizeObserverMount|Island)$/.test(name)),

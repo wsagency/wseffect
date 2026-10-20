@@ -1,3 +1,5 @@
+import '@wsagency/wseffect-themes/tokens/colors/red.css'
+import '@wsagency/wseffect-themes/tokens/colors/green.css'
 import { Effect, Result, Schema } from 'effect'
 import { Command, Mount, Submodel } from 'foldkit'
 import * as Stream from 'effect/Stream'

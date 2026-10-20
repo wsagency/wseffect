@@ -35,26 +35,26 @@ describe('Gallery app capability demos', () => {
   it('nativeValidationTransitions', () => {
     const initial = validationPage.init()
     const invalidCommand = validationPage.update(initial.model, ValidationMessage.Validate()).commands?.[0]
-    const invalidModel = validationPage.update(initial.model, ValidationMessage.ValidationProjected({ result: 'Enter a name' })).model
+    const invalidModel = validationPage.update(initial.model, ValidationMessage.ValidationProjected({ result: 'Invalid (native checkValidity: false)', error: 'Enter a name' })).model
     const edited = validationPage.update(invalidModel, ValidationMessage.NameChanged({ value: 'Gallery' }))
     const clearCommand = edited.commands?.[0]
     const validCommand = validationPage.update(edited.model, ValidationMessage.Validate()).commands?.[0]
     Scene.scene(
       { update: validationPage.update, view: (model, h) => validationPage.view(model, inputs, h) },
       Scene.given(initial.model),
-      Scene.Mount.resolve({ name: 'GalleryValidationProjection' }, ValidationMessage.ValidationProjected({ result: 'Not validated' })),
+      Scene.Mount.resolve({ name: 'GalleryValidationProjection' }, ValidationMessage.ValidationProjected({ result: 'Not validated', error: '' })),
       Scene.expect(Scene.selector('.capability-stack')).toExist(),
       Scene.expect(Scene.selector('#validation-name.rt-TextFieldInput')).toExist(),
       Scene.expect(Scene.selector('#name-error')).toBeAbsent(),
       Scene.click(Scene.selector('#validation-submit button')),
-      Scene.Command.resolve(invalidCommand!, ValidationMessage.ValidationProjected({ result: 'Enter a name' })),
+      Scene.Command.resolve(invalidCommand!, ValidationMessage.ValidationProjected({ result: 'Invalid (native checkValidity: false)', error: 'Enter a name' })),
       Scene.expect(Scene.selector('#name-error')).toHaveText('Enter a name'),
       Scene.expect(Scene.selector('#validation-name')).toHaveAttr('aria-describedby', 'name-error'),
-      Scene.expect(Scene.selector('#validation-result')).toHaveText('Enter a name'),
+      Scene.expect(Scene.selector('#validation-result')).toHaveText('Invalid (native checkValidity: false)'),
       Scene.type('#validation-name', 'Gallery'),
-      Scene.Command.resolve(clearCommand!, ValidationMessage.ValidationProjected({ result: 'Not validated' })),
+      Scene.Command.resolve(clearCommand!, ValidationMessage.ValidationProjected({ result: 'Not validated', error: '' })),
       Scene.click(Scene.selector('#validation-submit button')),
-      Scene.Command.resolve(validCommand!, ValidationMessage.ValidationProjected({ result: 'Valid' })),
+      Scene.Command.resolve(validCommand!, ValidationMessage.ValidationProjected({ result: 'Valid', error: '' })),
       Scene.expect(Scene.selector('#validation-result')).toHaveText('Valid'),
     )
   })
@@ -102,7 +102,7 @@ describe('Gallery app capability demos', () => {
       Scene.expect(Scene.selector('#outside-island')).toHaveText('Outside content unchanged'),
       Scene.expect(Scene.selector('#trusted-island-region')).toExist(),
       Scene.expect(Scene.selector('#island-apply-inside')).toExist(),
-      Scene.expect(Scene.selector('#island-status')).toHaveText('RejectedIslandPatch: Target is outside the island root'),
+      Scene.expect(Scene.selector('#island-status')).toBeAbsent(),
       Scene.expect(Scene.selector('#island-log')).toHaveText('RejectedIslandPatch: Target is outside the island root'),
     )
   })

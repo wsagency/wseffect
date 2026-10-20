@@ -1,3 +1,5 @@
+import '@wsagency/wseffect-themes/tokens/colors/red.css'
+import '@wsagency/wseffect-themes/tokens/colors/green.css'
 import { Effect, Queue, Schema } from 'effect'
 import * as Stream from 'effect/Stream'
 import { Command, Submodel } from 'foldkit'
@@ -10,7 +12,7 @@ const IslandResultSchema = Schema.Union([
   Schema.Struct({ _tag: Schema.Literal('Applied') }),
   Schema.Struct({ _tag: Schema.Literal('RejectedIslandPatch'), reason: Schema.String }),
 ])
-export const Model = Schema.Struct({ status: Schema.String, results: Schema.Array(Schema.String) })
+export const Model = Schema.Struct({ results: Schema.Array(Schema.String) })
 export const Message = defineMessageUnion({
   ApplyInsidePatch: {},
   ApplyOutsidePatch: {},
@@ -36,14 +38,14 @@ const requestPatch = (patch: IslandPatch): Command.Command<Message, never> => ({
 export const page = galleryPageContract.definePage({
   Model,
   Message,
-  init: () => ({ model: { status: 'Trusted server-owned Island is static until patched', results: [] } }),
+  init: () => ({ model: { results: [] } }),
   update: (model: Model, message: Message) => Message.match(message, {
     ApplyInsidePatch: () => ({ model, commands: [requestPatch({ _tag: 'InnerHtml', selector: '#trusted-message', html: 'Updated by scripted Island patch' })] }),
     ApplyOutsidePatch: () => ({ model, commands: [requestPatch({ _tag: 'OuterHtml', selector: '#outside-island', html: '<p>Changed outside content</p>' })] }),
-    PatchRequested: () => ({ model: { ...model, status: 'Patch requested' } }),
+    PatchRequested: () => ({ model }),
     IslandUpdated: ({ result }) => {
       const status = result._tag === 'Applied' ? 'Applied' : `RejectedIslandPatch: ${result.reason}`
-      return { model: { ...model, status, results: [...model.results, status] } }
+      return { model: { ...model, results: [...model.results, status] } }
     },
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.Class('capability-stack')], [
@@ -65,12 +67,6 @@ export const page = galleryPageContract.definePage({
       h.div([h.Id('island-apply-outside')], [
         Button.view({ type: 'button', variant: 'soft', onClick: Message.ApplyOutsidePatch() }, ['Apply out-of-root patch'], h),
       ]),
-    ]),
-    h.div([h.Id('island-status'), h.AriaLive('polite')], [
-      Text.view({
-        as: 'p',
-        color: model.status === 'Applied' ? 'green' : model.status.startsWith('RejectedIslandPatch:') ? 'red' : 'gray',
-      }, [model.status], h),
     ]),
     h.div([h.Id('outside-island')], [Text.view({ as: 'p' }, ['Outside content unchanged'], h)]),
     h.div([h.Id('island-log'), h.AriaLive('polite'), h.Class('capability-result-log')], model.results.map((result) => h.p([], [

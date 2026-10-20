@@ -15,8 +15,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:browser": {
-      "bytes": 2529,
-      "reason": "New lazy browser-capability demo; module remains outside the initial transfer."
+      "bytes": 2599,
+      "reason": "Lazy browser-capability page now owns breakpoint tokens and color styles; both remain outside the initial transfer."
     },
     "page:buttons": {
       "bytes": 355,
@@ -87,8 +87,8 @@
       "reason": "The shared themed Heading/Text shell usage reshapes the lazy typography chunk by 27 B; page modules remain lazy."
     },
     "page:validation": {
-      "bytes": 1154,
-      "reason": "New lazy native-validation demo; module remains outside the initial transfer."
+      "bytes": 1200,
+      "reason": "Lazy validation page now owns its status color styles, keeping them outside the initial transfer."
     },
     "page:virtualList": {
       "bytes": 6030,
