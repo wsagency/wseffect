@@ -98,6 +98,56 @@ describe('Island', () => {
     expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
   })
 
+  it('restoresFocusedInputAndSelectionAfterOuterHtmlMorphFailure', async () => {
+    const root = installIsland()
+    const patch: IslandPatch = { _tag: 'OuterHtml', selector: '#form', html: '<form id="form"><input id="field" value="replacement"></form>' }
+    const action = islandAction(Stream.make(patch), '<form id="form"><input id="field" value="server"></form>')
+    const updates = action.f(root, Stream.empty)
+    const input = root.querySelector<HTMLInputElement>('#field')
+    if (input === null) throw new Error('missing test input')
+    input.value = 'typed by user'
+    input.focus()
+    input.setSelectionRange(2, 7, 'backward')
+    vi.mocked(Idiomorph.morph).mockImplementation(async (target) => {
+      if (target.parentNode !== null) target.parentNode.replaceChild(document.createElement('article'), target)
+      throw new Error('partial outer morph')
+    })
+
+    const results = await Effect.runPromise(Stream.runCollect(updates))
+    const restored = root.querySelector<HTMLInputElement>('#field')
+    expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
+    expect(restored?.value).toBe('typed by user')
+    expect(document.activeElement).toBe(restored)
+    expect(restored?.selectionStart).toBe(2)
+    expect(restored?.selectionEnd).toBe(7)
+    expect(restored?.selectionDirection).toBe('backward')
+  })
+  it('restoresFocusedInputAndSelectionAfterInnerHtmlMorphFailure', async () => {
+    const root = installIsland()
+    const patch: IslandPatch = { _tag: 'InnerHtml', selector: '#form', html: '<input id="field" value="replacement">' }
+    const action = islandAction(Stream.make(patch), '<form id="form"><input id="field" value="server"></form>')
+    const updates = action.f(root, Stream.empty)
+    const input = root.querySelector<HTMLInputElement>('#field')
+    if (input === null) throw new Error('missing test input')
+    input.value = 'typed by user'
+    input.focus()
+    input.setSelectionRange(2, 7, 'backward')
+    vi.mocked(Idiomorph.morph).mockImplementation(async (target) => {
+      if (target instanceof Element) target.replaceChildren(document.createElement('div'))
+      throw new Error('partial inner morph')
+    })
+
+    const results = await Effect.runPromise(Stream.runCollect(updates))
+    const restored = root.querySelector<HTMLInputElement>('#field')
+    expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
+    expect(restored?.value).toBe('typed by user')
+    expect(document.activeElement).toBe(restored)
+    expect(restored?.selectionStart).toBe(2)
+    expect(restored?.selectionEnd).toBe(7)
+    expect(restored?.selectionDirection).toBe('backward')
+  })
+
+
 
   it('rejectsSiblingInsertionWithoutInIslandParent', async () => {
     await rejectionSnapshot({ _tag: 'OuterHtml', selector: '#outside', html: '<p id="new">sibling</p>' }, 'TargetOutsideIsland')
