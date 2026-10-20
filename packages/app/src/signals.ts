@@ -1,4 +1,6 @@
-import { Effect, Queue, Schema, Stream } from 'effect'
+import { Effect, Queue, Stream } from 'effect'
+import type { Schema } from 'effect'
+import * as SchemaParser from 'effect/SchemaParser'
 import { Subscription } from 'foldkit'
 
 export type SignalTransport =
@@ -37,11 +39,9 @@ function decodeFrame<A>(schema: Schema.Codec<A, any, never, never>, frame: Parse
     return rejected('MalformedJson')
   }
   if (signals === null || typeof signals !== 'object' || Array.isArray(signals)) return rejected('UnsupportedOperation')
-  try {
-    return { _tag: 'SignalPatch', value: Schema.decodeUnknownSync(schema)(signals), onlyIfMissing }
-  } catch {
-    return rejected('SchemaFailure')
-  }
+  const decoded = SchemaParser.decodeUnknownExit(schema)(signals)
+  if (decoded._tag === 'Failure') return rejected('SchemaFailure')
+  return { _tag: 'SignalPatch', value: decoded.value, onlyIfMissing }
 }
 
 /**
