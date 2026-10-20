@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ scrollIntoViewCommand }) => console.log(scrollIntoViewCommand))
+import { scrollIntoViewCommand } from '@wsagency/wseffect-app'
+export const page = { scrollIntoViewCommand }

@@ -312,15 +312,15 @@ The Themes-owned breakpoint source is `packages/themes/src/breakpoints.ts`, expo
 
 **Files:**
 - Create: `tools/gates/app-capabilities.ts`, `tools/gates/app-capabilities.test.ts`
-- Modify: `tests/consumer/run.ts`, `tests/consumer/check-app-capabilities.ts`, `.gitea/workflows/check.yml`, root `package.json`
+- Modify: `packages/app/package.json`, `packages/app/src/codegen/index.ts`, `packages/app/src/vite/chunking.ts`, `packages/app/test/vitePlugin.test.ts`, `tests/consumer/run.ts`, `tests/consumer/check-app-capabilities.ts`, `.gitea/workflows/check.yml`, root `package.json`
 
 **Interfaces:**
-- Consumes: consumer fixture source maps and shipped gallery framework source-map baseline.
+- Consumes: packed consumer source maps for **B** (helper page present with no helper imported) and **B+H** (the same fixture with exactly one helper imported by its lazy page); B+H Effect modules are compared against B, not the Gallery framework source map.
 - Produces: `checkAppCapabilityModules({ helper, modules, baseline }): { ok: boolean; unexpected: string[] }`; CI command `pnpm gate:app-capabilities` checks every helper independently.
 
 - [ ] **Step 1: Write failing gate tests** `allowsFrameworkBaselineModules`, `allowsOnlyKeyValueStoreForPersistence`, `rejectsUnexpectedEffectModulesForEveryOtherHelper`, and `reportsUnexpectedModulePaths`; include a fixture modeling spike pulls of `DateTime`, `Tuple`, `http/internal/urlParams`, `Redacted`, and `encoding/EncodingError`.
 - [ ] **Step 2: Run `pnpm exec vitest run tools/gates/app-capabilities.test.ts`;** expected: FAIL before implementation.
-- [ ] **Step 3: Inspect each capability's source-map module closure against the shipped framework baseline.** Specifically trace why clipboard/scroll/resize pulled `DateTime`, `Tuple`, `urlParams`, and `Redacted`; remove the broad/deep imports responsible and use narrow public imports or native platform APIs. For Persistence allow only `persistence/KeyValueStore.js` beyond baseline. Add helper-by-helper source-map diff and actionable unexpected-module report.
+- [ ] **Step 3: Inspect each capability's source-map module closure against B.** Specifically trace why clipboard/scroll/resize pulled `DateTime`, `Tuple`, `urlParams`, and `Redacted`; remove the broad/deep imports responsible and use narrow public imports or native platform APIs. For Persistence allow only `persistence/KeyValueStore.js` beyond B. Add helper-by-helper source-map diff and actionable unexpected-module report.
 - [ ] **Step 4: Run `pnpm exec vitest run tools/gates/app-capabilities.test.ts` and `pnpm gate:app-capabilities`;** expected: PASS with no unexpected Effect additions; persistence reports at most KeyValueStore.
 - [ ] **Step 5: Commit** `git add tools/gates/app-capabilities.ts tools/gates/app-capabilities.test.ts tests/consumer/run.ts tests/consumer/check-app-capabilities.ts .gitea/workflows/check.yml package.json && git commit -m "ci: gate app capability module closure"`.
 

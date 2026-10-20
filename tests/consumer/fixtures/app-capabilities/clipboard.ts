@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ clipboardCommand }) => console.log(clipboardCommand))
+import { clipboardCommand } from '@wsagency/wseffect-app'
+export const page = { clipboardCommand }

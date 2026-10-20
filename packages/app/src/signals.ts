@@ -1,7 +1,9 @@
-import { Effect, Queue, Stream } from 'effect'
+import * as Effect from 'effect/Effect'
+import * as Queue from 'effect/Queue'
+import * as Stream from 'effect/Stream'
 import type { Schema } from 'effect'
 import * as SchemaParser from 'effect/SchemaParser'
-import { Subscription } from 'foldkit'
+import * as Subscription from 'foldkit/subscription'
 
 export type SignalTransport =
   | { readonly _tag: 'EventSource'; readonly url: string; readonly withCredentials?: boolean }

@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ resizeObserverMount }) => console.log(resizeObserverMount))
+import { resizeObserverMount } from '@wsagency/wseffect-app'
+export const page = { resizeObserverMount }

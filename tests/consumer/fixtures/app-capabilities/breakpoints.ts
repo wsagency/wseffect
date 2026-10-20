@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ breakpointSubscription }) => console.log(breakpointSubscription))
+import { breakpointSubscription } from '@wsagency/wseffect-app'
+export const page = { breakpointSubscription }

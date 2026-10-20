@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ persist }) => console.log(persist))
+import { persist } from '@wsagency/wseffect-app'
+export const page = { persist }

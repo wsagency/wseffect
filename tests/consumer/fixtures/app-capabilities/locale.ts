@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ makeLocale, LocaleService }) => console.log(makeLocale, LocaleService))
+import { makeLocale, LocaleService } from '@wsagency/wseffect-app'
+export const page = { makeLocale, LocaleService }

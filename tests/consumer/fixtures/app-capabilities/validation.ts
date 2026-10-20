@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ projectConstraintValidity }) => console.log(projectConstraintValidity))
+import { projectConstraintValidity } from '@wsagency/wseffect-app'
+export const page = { projectConstraintValidity }

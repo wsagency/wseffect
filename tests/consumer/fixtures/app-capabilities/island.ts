@@ -1,1 +1,2 @@
-void import('@wsagency/wseffect-app').then(({ Island }) => console.log(Island))
+import { Island } from '@wsagency/wseffect-app'
+export const page = { Island }

@@ -616,6 +616,22 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:./runtime:bindKit": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:./runtime:kitMessageFields": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:./runtime:makePages": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:./runtime:messageSchema": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:./vite:computeBuildId": [
     "public-surface",
     "branding"
@@ -825,6 +841,12 @@
     "gallery-typecheck"
   ],
   "subpath:@wsagency/wseffect-app:./oxlint-plugin": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-app:./runtime": [
     "public-surface",
     "consumer-install",
     "gallery-build",
@@ -2627,6 +2649,22 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:./oxlint-plugin:default": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:./runtime:bindKit": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:./runtime:kitMessageFields": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:./runtime:makePages": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:./runtime:messageSchema": [
     "public-surface",
     "gallery-typecheck"
   ],

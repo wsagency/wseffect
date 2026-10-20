@@ -17,7 +17,7 @@ export const APP_CAPABILITIES: ReadonlyArray<AppCapability> = [
   { helper: 'island', exports: ['Island'], budgetBytes: 4_608, allowedExtraEffectModules: [] },
 ]
 
-const UNEXPECTED_MODULE_GUIDANCE = 'DEP-1: The spike imported Schema from the effect package root in browserCommands.ts and resizeMount.ts. Its module graph reaches DateTime and http/internal/urlParams directly from Schema.js, Tuple through Array.js, Redacted through Redacted.js/internal/redacted.js, and encoding/EncodingError through Schema.js → encoding/Base64.js. For browser helpers, avoid broad Schema/Effect imports and Foldkit abstractions that retain unrelated framework internals; use the narrowest public API or native browser API compatible with the helper contract. Inspect source-map importers and remove the cause; never suppress this diff.'
+const UNEXPECTED_MODULE_GUIDANCE = 'DEP-1: B is the packed consumer entry closure with an empty helper page; B+H is the same build with exactly one helper imported only by its lazy page. Compare B+H Effect modules to B; the Gallery framework map is historical only, not the production baseline. When decoding is required, use the public SchemaParser.decodeUnknownExit API; never import runtime Schema from the effect package root. Root Schema runtime use adds DateTime.js, Tuple.js, encoding/EncodingError.js, http/internal/urlParams.js, and internal/redacted.js beyond B. Keep browser-helper Effect module deltas at zero and allow only persistence/KeyValueStore.js for Persistence. Inspect source-map importers and remove the cause; never suppress this diff.'
 
 export interface CapabilityAvailability {
   readonly available: ReadonlyArray<AppCapability>
@@ -53,9 +53,9 @@ export function checkAppCapabilityModules(input: {
 }): AppCapabilityModulesResult {
   const capability = APP_CAPABILITIES.find((entry) => entry.helper === input.helper)
   if (!capability) throw new Error(`Unknown app capability helper: ${input.helper}`)
-  const baseline = new Set(input.baseline.map(normalizeEffectModule).filter(isEffectModule))
+  const baseline = new Set(input.baseline.map(normalizeEffectModule))
   const allowed = new Set(capability.allowedExtraEffectModules)
-  const unexpected = [...new Set(input.modules.map(normalizeEffectModule).filter(isEffectModule))]
+  const unexpected = [...new Set(input.modules.map(normalizeEffectModule))]
     .filter((module) => !baseline.has(module) && !allowed.has(module))
     .sort()
   return { ok: unexpected.length === 0, unexpected }
@@ -66,7 +66,7 @@ export function formatAppCapabilityModuleFailure(helper: string, unexpected: Rea
 }
 
 export function effectModulesFromSourceMap(sources: ReadonlyArray<string>): string[] {
-  return [...new Set(sources.map(normalizeEffectModule).filter(isEffectModule))].sort()
+  return [...new Set(sources.filter(isEffectModule).map(normalizeEffectModule))].sort()
 }
 
 export function checkUnusedAppCapabilityModules(input: {
@@ -86,5 +86,6 @@ function normalizeEffectModule(source: string): string {
 }
 
 function isEffectModule(source: string): boolean {
-  return !source.startsWith('.') && !source.startsWith('/') && source.endsWith('.js')
+  const normalized = source.replaceAll('\\', '/')
+  return normalized.includes('/effect/dist/') || normalized.startsWith('effect/dist/')
 }

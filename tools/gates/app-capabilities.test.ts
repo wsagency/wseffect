@@ -48,8 +48,11 @@ test('reportsUnexpectedModulePaths with actionable DEP-1 guidance', () => {
   assert.equal(result.ok, false)
   const message = formatAppCapabilityModuleFailure('resize', result.unexpected)
   assert.match(message, /http\/internal\/urlParams\.js/)
-  assert.match(message, /narrowest public API/i)
-  assert.match(message, /DateTime and http/)
+  assert.match(message, /SchemaParser\.decodeUnknownExit/)
+  assert.match(message, /never import runtime Schema/i)
+  assert.match(message, /DateTime\.js.*http\/internal\/urlParams\.js/)
+  assert.match(message, /B\+H.*B/)
+  assert.match(message, /Gallery framework map is historical only, not the production baseline/)
 })
 
 test('extracts effect modules from source-map module lists', () => {
@@ -58,6 +61,13 @@ test('extracts effect modules from source-map module lists', () => {
     '/work/node_modules/effect/dist/http/internal/urlParams.js',
     '/work/packages/app/dist/clipboard.js',
   ]), ['DateTime.js', 'http/internal/urlParams.js'])
+})
+test('excludes non-Effect JavaScript modules from source-map Effect lists', () => {
+  assert.deepEqual(effectModulesFromSourceMap([
+    '/work/node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/DateTime.js',
+    'node_modules/.pnpm/idb@7.1.1/node_modules/idb/build/index.js',
+    'node_modules/.pnpm/workbox-window@7.4.1/node_modules/workbox-window/build/workbox-window.prod.js',
+  ]), ['DateTime.js'])
 })
 
 test('registered-but-missing exports fail once requireAll is enabled', () => {
