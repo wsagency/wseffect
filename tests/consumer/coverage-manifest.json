@@ -495,6 +495,18 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:.:persist": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:LocaleService": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:makeLocale": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:.:messageSchema": [
     "public-surface",
     "branding"
@@ -613,6 +625,14 @@
     "branding"
   ],
   "export:@wsagency/wseffect-app:./vite:wseffect": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:breakpointSubscription": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-themes:./breakpoints:BREAKPOINTS": [
     "public-surface",
     "branding"
   ],
@@ -817,6 +837,12 @@
     "gallery-typecheck"
   ],
   "subpath:@wsagency/wseffect-themes:.": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-themes:./breakpoints": [
     "public-surface",
     "consumer-install",
     "gallery-build",
@@ -2252,6 +2278,18 @@
     "public-surface",
     "gallery-typecheck"
   ],
+  "type:@wsagency/wseffect-app:.:Breakpoint": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:breakpointSubscription": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:ConflictPolicy": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
   "type:@wsagency/wseffect-app:.:bindKit": [
     "public-surface",
     "gallery-typecheck"
@@ -2340,6 +2378,14 @@
     "public-surface",
     "gallery-typecheck"
   ],
+  "type:@wsagency/wseffect-app:.:Locale": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:LocaleService": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
   "type:@wsagency/wseffect-app:.:makeApp": [
     "public-surface",
     "gallery-typecheck"
@@ -2397,6 +2443,26 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:PageLoadError": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:makeLocale": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:persist": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:PersistConfig": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:Persistence": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:PersistenceFailure": [
     "public-surface",
     "gallery-typecheck"
   ],
@@ -2629,6 +2695,10 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-themes:.:Theme": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-themes:./breakpoints:BREAKPOINTS": [
     "public-surface",
     "gallery-typecheck"
   ],

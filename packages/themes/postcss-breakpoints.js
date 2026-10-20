@@ -2,24 +2,13 @@
 import fs from 'node:fs';
 import postcssModule from 'postcss';
 
-// Build a list of breakpoints from "@custom media" rules in "breakpoints.css"
-const breakpointsFile = new URL('./src/styles/breakpoints.css', import.meta.url);
-const breakpointsCss = fs.readFileSync(breakpointsFile, 'utf-8');
-const breakpoints = postcssModule
-  .parse(breakpointsCss)
-  .nodes.map((node) => {
-    if (node.type === 'atrule' && node.name === 'custom-media') {
-      const match = node.params.match(/--(\w+)\s+(.+)/);
-      if (!match) {
-        throw new Error(`Invalid custom media rule: ${node.params}`);
-      }
-      const [_match, name, params] = match;
-      return { name, params };
-    }
-
-    return null;
-  })
-  .filter(Boolean);
+// Derive custom media rules from the public breakpoint token tuple.
+const breakpointTokens = fs.readFileSync(new URL('./src/breakpoints.ts', import.meta.url), 'utf-8');
+const breakpoints = [...breakpointTokens.matchAll(/\{ name: '(\w+)', minWidth: (\d+) \}/g)]
+  .map((match) => ({ name: match[1], params: `(min-width: ${match[2]}px)` }));
+if (breakpoints.length !== 5) {
+  throw new Error(`Expected five breakpoint tokens, found ${breakpoints.length}`);
+}
 
 const cache = new WeakMap();
 
