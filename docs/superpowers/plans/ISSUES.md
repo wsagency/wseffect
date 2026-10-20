@@ -173,3 +173,9 @@
 - **Issue:** The first APP-23 amendment constrained the framework chunk but left app-shared eligibility too broad: a page-only dependency could enter a shared chunk through the module graph.
 - **Amendment:** `app-shared` may contain only application modules statically reachable from both the entry and at least one page. The framework group remains limited to resolved roots for Foldkit, Effect, `@effect/platform-browser`, `@wsagency/wseffect-app`, and `workbox-window`; all other modules use Rolldown default splitting.
 - **Guard:** Verify the static/modulepreload closure of `index.html` excludes page-only `@foldkit/ui/dialog`, menu, tabs, and Floating UI dependencies.
+
+## SIZE-1 (signals) amendment
+
+- **Amendment:** Increase the signals helper Brotli-q11 ceiling from 1,536 B to 1,600 B.
+- **Reason:** Correct SSE framing for CR/CRLF and chunked UTF-8, multi-line JSON, and EventSource race fixes from review; correctness is PRI-1.
+- **Before/after:** 1,534 → 1,551 B (Brotli-q11).
