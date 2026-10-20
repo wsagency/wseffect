@@ -241,9 +241,9 @@ The consumer gate measures helper-only JavaScript with Brotli quality 11, exclud
 | Helper | Measured (Brotli-q11) | Gate budget |
 |---|---:|---:|
 | Signals | 1,489 B | 1,600 B |
-| Constraint validation | 399 B | 1,536 B |
+| Constraint validation | 395 B | 1,536 B |
 | Persistence | 1,300 B | 1,536 B |
-| Breakpoints | 547 B | 1,536 B |
+| Breakpoints | 552 B | 1,536 B |
 | Locale | 500 B | 1,536 B |
 | Clipboard | 382 B | 1,536 B |
 | ScrollIntoView | 336 B | 1,536 B |
