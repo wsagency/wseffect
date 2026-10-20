@@ -177,7 +177,7 @@
 
 - **Issue:** The helper spike’s isolated clipboard, ScrollIntoView, and ResizeObserver closures each add the same five Effect modules absent from the Gallery framework baseline: `DateTime.js`, `Tuple.js`, `http/internal/urlParams.js`, `internal/redacted.js` (Redacted), and `encoding/EncodingError.js`. The spike report source-map lists establish the exact module sets: `spikes/helpers/REPORT.md` lines 75–88.
 - **Evidence:** The spike implementations in `spikes/helpers/src/browserCommands.ts` import `{ Effect, Schema }` from the `effect` package root (and `Command` from `foldkit`); `spikes/helpers/src/resizeMount.ts` imports `{ Effect, Queue, Schema, Stream }` from `effect` (and `Mount` from `foldkit`). Rebuilt isolated Vite source maps from these entries reproduce the same five-module closure delta against the spike's Gallery framework map; the dependency edges are in Effect 4.0.5: `Schema.js` imports `DateTime.js` and `http/internal/urlParams.js`; `Schema.js` → `Array.js` → `Tuple.js`; `Schema.js` → `Redacted.js` → `internal/redacted.js`; `Schema.js` → `encoding/Base64.js` → `encoding/EncodingError.js`. The baseline map already contains `Schema.js` and `Effect.js`; the five modules above are the exact new closure additions for these helper probes.
-- **Fix rule:** Browser helpers must avoid the Effect root `Schema` entry point where the helper contract does not require Schema decoding; use only narrow public APIs or native browser APIs compatible with the frozen helper contract. Do not paper over it with deep imports or gate exceptions. Keep the module-diff strict; Persistence may add only `persistence/KeyValueStore.js`.
+- **Fix rule:** When a helper needs schema decoding, use the public `SchemaParser.decodeUnknownExit` API; do not import runtime `Schema` from the `effect` package root. Keep module diffs strict, allow no Effect additions for browser helpers, and permit only `persistence/KeyValueStore.js` for Persistence.
 
 ## ISL-4 amendment: Rollback focus preservation budget
 
@@ -194,3 +194,12 @@
 
 - **Amendment (director-approved):** Native EventSource observes only `datastar-patch-signals` and the default `message` event; other named events are platform-unobservable and not reported. Fetch reports every unsupported event, so applications that require complete rejection reporting should choose Fetch.
 - **Reconnection:** Both transports ignore SSE `id:` and `retry:` fields because reconnection uses explicit `SignalBackoff` (SIG-4).
+
+## SP2b frozen-interface deviations
+
+- Effect 4.0.5 has no `Either`; public results use `Result.Result`.
+- Mount APIs use `Mount.MountAction<M>`, not the planned `Mount.Mount<M>`.
+- Foldkit Subscription uses `Subscription.Subscription<unknown, M, Record<string, never>>`.
+- `@wsagency/wseffect-themes` is a required peer dependency of app because breakpoints consume its public tokens.
+- Helpers that decode use `SchemaParser.decodeUnknownExit`; importing runtime `Schema` from the `effect` root pulls five unrelated modules absent from the Gallery baseline: `DateTime.js`, `Tuple.js`, `encoding/EncodingError.js`, `http/internal/urlParams.js`, and `internal/redacted.js`. This is the DEP-1 rule: use `SchemaParser.decodeUnknownExit`, never the runtime root `Schema` import.
+- DEP-1 production measurement: **B** is the packed consumer build with the lazy helper page present but no helper imported; **B+H** is the same build with exactly one helper imported by that lazy page. Compare B+H Effect modules to B (allowing only Persistence's `KeyValueStore`); measure bytes from B+H's lazy-only closure, excluding B's eager closure. The Gallery framework map is retained only as historical spike evidence, not as the gate baseline.
