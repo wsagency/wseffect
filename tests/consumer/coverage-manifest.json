@@ -532,6 +532,14 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:.:projectConstraintValidity": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:signalSubscription": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:.:ServiceWorker": [
     "public-surface",
     "branding"
@@ -2441,6 +2449,34 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:PwaState": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:SignalBackoff": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:SignalOutcome": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:SignalTransport": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:ValidationProjectionError": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:ValidationResult": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:projectConstraintValidity": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:signalSubscription": [
     "public-surface",
     "gallery-typecheck"
   ],
