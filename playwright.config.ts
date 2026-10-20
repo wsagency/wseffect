@@ -19,10 +19,19 @@ export default defineConfig({
         : name === 'firefox' ? devices['Desktop Firefox'] : devices['Desktop Safari']
       return {
         name,
-        testIgnore: '**/devReload.spec.ts',
-        // Playwright exposes service-worker controls only for Chromium; skip those cases on Firefox/WebKit.
+        testIgnore: ['**/devReload.spec.ts', '**/capabilities.spec.ts'],
         ...(name === 'chromium' ? {} : { grepInvert: /PWA service-worker/ }),
         use: { ...device, baseURL: productionURL },
+      }
+    }),
+    ...(['chromium', 'firefox', 'webkit'] as const).map((name) => {
+      const device = name === 'chromium'
+        ? devices['Desktop Chrome']
+        : name === 'firefox' ? devices['Desktop Firefox'] : devices['Desktop Safari']
+      return {
+        name: `capabilities-${name}`,
+        testMatch: '**/capabilities.spec.ts',
+        use: { ...device, baseURL: 'http://127.0.0.1:4452', browserName: name },
       }
     }),
     {
@@ -49,6 +58,12 @@ export default defineConfig({
       url: developmentURL,
       reuseExistingServer: false,
       timeout: 30_000,
+    },
+    {
+      command: `pnpm --dir ${root}apps/gallery build && GALLERY_CAPABILITY_SSE=1 pnpm --dir ${root}apps/gallery exec vite preview --host 127.0.0.1 --port 4452 --strictPort`,
+      url: 'http://127.0.0.1:4452',
+      reuseExistingServer: false,
+      timeout: 120_000,
     },
   ],
 })

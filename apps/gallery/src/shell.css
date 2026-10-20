@@ -60,3 +60,11 @@ body {
   background-color: var(--color-panel);
 }
 
+.capability-resize-box {
+  width: 180px;
+  height: 48px;
+  padding: 8px;
+  border: 1px solid var(--gray-7);
+  background: var(--gray-3);
+}
+
