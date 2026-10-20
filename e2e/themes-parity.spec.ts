@@ -62,6 +62,17 @@ test('Dialog content uses the pinned 600px default max width', async ({ page }) 
   expect(style.padding).toBe('24px')
   expect(style.background).toBe('rgb(255, 255, 255)')
 })
+test('Dialog content inherits the dark root Theme', async ({ page }) => {
+  await page.goto('/theme')
+  await page.getByRole('button', { name: 'Appearance' }).click()
+  await page.locator('[href="/dialog"]').click()
+  await page.getByRole('button', { name: 'Open dialog' }).click()
+  const dialogContent = page.locator('.rt-DialogContent')
+  await expect(dialogContent).toBeVisible()
+  await expect(page.locator('.radix-themes.dark').first()).toBeVisible()
+  const background = await dialogContent.evaluate(element => getComputedStyle(element).backgroundColor)
+  expect(background).not.toBe('rgb(255, 255, 255)')
+})
 
 test('DropdownMenu themes its visible portal panel', async ({ page }) => {
   await page.goto('/dropdown-menu')
@@ -69,9 +80,12 @@ test('DropdownMenu themes its visible portal panel', async ({ page }) => {
   const panel = page.getByRole('menu')
   await expect(panel).toBeVisible()
   await expect(panel).toHaveClass(/\bradix-themes\b.*\brt-PopperContent\b.*\brt-BaseMenuContent\b.*\brt-DropdownMenuContent\b/)
-  await expect(panel).toHaveAttribute('data-is-root-theme', 'false')
-  await expect(panel).toHaveAttribute('data-has-background', 'false')
-  await expect(panel).toHaveAttribute('data-panel-background', 'translucent')
+  const rootTheme = page.locator('.radix-themes').first()
+  await expect(rootTheme).toHaveAttribute('data-is-root-theme', 'true')
+  await expect(rootTheme).toHaveAttribute('data-has-background', 'true')
+  await expect(panel).not.toHaveAttribute('data-is-root-theme')
+  await expect(panel).not.toHaveAttribute('data-has-background')
+  await expect(panel).not.toHaveAttribute('data-panel-background')
   const style = await panel.evaluate((element) => {
     const css = getComputedStyle(element)
     const rect = element.getBoundingClientRect()
@@ -84,6 +98,44 @@ test('DropdownMenu themes its visible portal panel', async ({ page }) => {
   expect(style.zIndex).toBe('1')
   expect(style.position).toBe('absolute')
   expect(style.width).toBeGreaterThan(0)
+})
+test('DropdownMenu portals inherit light and dark root Themes', async ({ page }) => {
+  await page.goto('/dropdown-menu')
+  const lightPanel = page.getByRole('button', { name: 'Actions' })
+  await lightPanel.click()
+  const lightMenu = page.getByRole('menu')
+  await expect(lightMenu).toBeVisible()
+  const lightBackground = await lightMenu.evaluate(element => getComputedStyle(element).backgroundColor)
+  expect(lightBackground).toBe('rgb(255, 255, 255)')
+  await page.getByRole('button', { name: 'Actions' }).click()
+
+  await page.locator('[href="/theme"]').click()
+  await page.getByRole('button', { name: 'Appearance' }).click()
+  await page.locator('[href="/dropdown-menu"]').click()
+  await page.getByRole('button', { name: 'Actions' }).click()
+  const darkMenu = page.getByRole('menu')
+  await expect(darkMenu).toBeVisible()
+  await expect(page.locator('.radix-themes.dark #foldkit-portal-root .rt-DropdownMenuContent')).toHaveCount(1)
+  const darkBackground = await darkMenu.evaluate(element => getComputedStyle(element).backgroundColor)
+  expect(darkBackground).not.toBe(lightBackground)
+})
+
+test('the shared portal root stays inside the Theme and survives shell/theme rerenders', async ({ page }) => {
+  await page.goto('/menus')
+  const portalRoot = page.locator('.radix-themes > #foldkit-portal-root')
+  await expect(portalRoot).toHaveCount(1)
+  await portalRoot.evaluate(element => {
+    ;(window as typeof window & { __portalRootIdentity?: Element }).__portalRootIdentity = element
+  })
+
+  await page.locator('[href="/theme"]').click()
+  await page.getByRole('button', { name: 'Appearance' }).click()
+  await expect(page.locator('.radix-themes.dark > #foldkit-portal-root')).toHaveCount(1)
+  await page.locator('[href="/menus"]').click()
+  await expect(page.locator('.radix-themes.dark > #foldkit-portal-root')).toHaveCount(1)
+  expect(await page.locator('#foldkit-portal-root').evaluate(element =>
+    (window as typeof window & { __portalRootIdentity?: Element }).__portalRootIdentity === element,
+  )).toBe(true)
 })
 
 test('Tabs retain the pinned Radix2Solid list and trigger surface styles', async ({ page }) => {

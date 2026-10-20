@@ -417,7 +417,8 @@ export async function runScenario(
       try {
         await applyCpuThrottle(client, cpuThrottleRate)
         await page.goto(new URL(scenario.route, baseUrl).href, { waitUntil: 'networkidle' })
-        await page.locator(`[data-perf="${HOOK_BY_SCENARIO[scenario.id]}"]`).waitFor({ state: 'visible' })
+        const hook = scenario.hook ?? HOOK_BY_SCENARIO[scenario.id]
+        await page.locator(`[data-perf="${hook}"]`).waitFor({ state: 'visible' })
         await scenario.prepare(page)
         await scenario.warmup(page)
         await scenario.reset(page)

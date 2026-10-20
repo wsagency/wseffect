@@ -133,6 +133,7 @@ const pageInputs = (model: Model): PageInputs => ({
   panelBackground: model.theme.panelBackground,
 })
 
+
 export const view = (model: Model, h: HtmlBuilder<Message>) => {
   const routeLinks = Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
     if (path === '/') return []

@@ -19,10 +19,10 @@ export interface PageViewMessages<Pages extends Record<string, AnyPage>, KitMess
 
 interface PageViewContext<Pages extends Record<string, AnyPage>, Key extends keyof Pages & string, KitMessage> {
   key: Key
-  page: Pages[Key]
   inputs: InputsOf<Pages[Key]>
   toParentMessage: (message: MessageOf<Pages[Key]>) => KitMessage
   h: HtmlBuilder<KitMessage>
+  renderPage: Pages[Key]['view']
 }
 
 function renderSubmodel<Pages extends Record<string, AnyPage>, Key extends keyof Pages & string, KitMessage>(
@@ -33,10 +33,10 @@ function renderSubmodel<Pages extends Record<string, AnyPage>, Key extends keyof
   return context.h.submodel({
     slotId: `page-${context.key}`,
     model,
-    view: context.page.view,
+    view: context.renderPage,
     viewInputs: context.inputs,
     toParentMessage: context.toParentMessage,
-  })
+  } as never)
 }
 
 function readyView<Pages extends Record<string, AnyPage>, Key extends keyof Pages & string, KitMessage>(
@@ -55,10 +55,9 @@ function readyView<Pages extends Record<string, AnyPage>, Key extends keyof Page
     : Object.entries(inputs).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0).map(([, value]) => value)
   let context = contexts.get(key)
   if (context === undefined) {
-    context = { key, page, inputs, toParentMessage, h }
+    context = { key, inputs, toParentMessage, h, renderPage: page.view }
     contexts.set(key, context)
   } else {
-    context.page = page
     context.inputs = inputs
     context.toParentMessage = toParentMessage
     context.h = h

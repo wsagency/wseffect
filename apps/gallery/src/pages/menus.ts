@@ -17,23 +17,11 @@ type Model = typeof Model.Type
 type Message = typeof Message.Type
 const keyedMenu = createKeyedLazy()
 
-export const renderMenu = (
-  model: typeof Menu.Model.Type,
-  id: string,
-  index: number,
-  h: HtmlBuilder<Message>,
-  accentColor: PageInputs['accentColor'],
-  grayColor: PageInputs['grayColor'],
-  radius: PageInputs['radius'],
-  scaling: PageInputs['scaling'],
-  appearance: PageInputs['appearance'],
-  panelBackground: PageInputs['panelBackground'],
-) => Menu.embed(h, {
+export const renderMenu = (model: typeof Menu.Model.Type, id: string, index: number, h: HtmlBuilder<Message>) => Menu.embed(h, {
   slotId: id,
   model,
   toParentMessage: (message) => Message.MenuEvent({ index, message }),
   viewInputs: {
-    themeSettings: { accentColor, grayColor, radius, scaling, appearance, panelBackground, hasBackground: true },
     items: ['Inspect', 'Archive'],
     itemToConfig: (item) => ({ content: h.span([], [item]) }),
     buttonContent: h.span([h.DataAttribute('menu-index', String(index))], [`Menu ${index}`]),
@@ -67,11 +55,9 @@ export const page = galleryPageContract.definePage({
       }
     },
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((model, inputs, h) => h.div([], [
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Menus performance'], h),
     h.button([h.Id('menus-tick'), h.DataAttribute('perf', 'menus-tick'), h.OnClick(Message.Tick())], ['Unrelated update']),
-    ...model.menus.map((menu, index) => keyedMenu(menu.id, renderMenu, [
-      menu.model, menu.id, index, h, inputs.accentColor, inputs.grayColor, inputs.radius, inputs.scaling, inputs.appearance, inputs.panelBackground,
-    ])),
+    ...model.menus.map((menu, index) => keyedMenu(menu.id, renderMenu, [menu.model, menu.id, index, h])),
   ])),
 })
