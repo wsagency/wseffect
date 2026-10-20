@@ -10,7 +10,7 @@ export type IslandResult =
   | { readonly _tag: 'Applied' }
   | { readonly _tag: 'RejectedIslandPatch'; readonly reason: string }
 
-/** Explicit Foldkit ownership exception for trusted server-rendered HTML; never pass user-controlled raw HTML. */
+/** Explicit Foldkit ownership exception for trusted server-rendered subtrees; not a general app-rendering path, and never pass user-controlled raw HTML. */
 export function Island<M>(props: {
   readonly id: string
   readonly html: string
