@@ -10,6 +10,7 @@ type FrameHost = {
   readonly cancelAnimationFrame?: (handle: number) => void
 }
 
+/** Observes read-only dimensions, coalesces to one frame, and does not prevent oscillation caused by consumer layout writes. */
 export function resizeObserverMount<M>(toMessage: (result: ResizeResult) => M): Mount.MountAction<M> {
   return {
     name: 'ResizeObserver',

@@ -5,6 +5,7 @@ export type BrowserCommandResult =
   | { readonly _tag: 'Succeeded' }
   | { readonly _tag: 'Failed'; readonly reason: string }
 
+/** Uses the browser Clipboard API, which generally requires a secure context and user activation; permission policy cannot be bypassed. */
 export function clipboardCommand<M>(text: string, toMessage: (result: BrowserCommandResult) => M): Command.Command<M, never> {
   const effect = Effect.map(
     Effect.tryPromise({

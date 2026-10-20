@@ -71,12 +71,14 @@ describe('resizeObserverMount', () => {
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { frames.push(callback); return frames.length })
     vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame)
     const element = makeElement()
-    const fiber = Effect.runFork(Stream.runHead(resizeObserverMount(toResult).f(element, Stream.empty)))
+    const toMessage = vi.fn((result: ResizeResult) => result)
+    const fiber = Effect.runFork(Stream.runHead(resizeObserverMount(toMessage).f(element, Stream.empty)))
     await vi.waitFor(() => expect(observerCallback).toBeDefined())
     observerCallback?.([{ contentRect: { width: 1, height: 2 } }])
     await Effect.runPromise(Fiber.interrupt(fiber))
     expect(cancelAnimationFrame).toHaveBeenCalledTimes(1)
     frames.shift()?.(0)
+    expect(toMessage).not.toHaveBeenCalled()
   })
 
   it('reportsUnsupportedAndObserverFailureAsTypedOutcomes', async () => {
