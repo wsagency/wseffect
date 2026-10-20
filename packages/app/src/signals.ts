@@ -9,34 +9,50 @@ export type SignalOutcome<A> =
   | { readonly _tag: 'RejectedSignalPatch'; readonly reason: 'MalformedJson' | 'UnsupportedEvent' | 'UnsupportedOperation' | 'SchemaFailure' }
   | { readonly _tag: 'SignalTransportFailure'; readonly reason: 'Network' | 'Interrupted' }
 export interface SignalBackoff { readonly delaysMs: ReadonlyArray<number>; readonly jitter: number }
+type RejectedSignalPatch = Extract<SignalOutcome<never>, { readonly _tag: 'RejectedSignalPatch' }>
+type SignalTransportFailure = Extract<SignalOutcome<never>, { readonly _tag: 'SignalTransportFailure' }>
+const rejected = (reason: RejectedSignalPatch['reason']): RejectedSignalPatch => ({ _tag: 'RejectedSignalPatch', reason })
+const networkFailure = (): SignalTransportFailure => ({ _tag: 'SignalTransportFailure', reason: 'Network' })
 
 const defaultBackoff: SignalBackoff = { delaysMs: [250, 500, 1000, 2000, 4000], jitter: 0.2 }
 type ParsedFrame = { readonly event: string; readonly data: string }
 
 function decodeFrame<A>(schema: Schema.Codec<A, any, never, never>, frame: ParsedFrame): SignalOutcome<A> {
-  if (frame.event !== 'datastar-patch-signals') return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedEvent' }
-  let signals: unknown
+  if (frame.event !== 'datastar-patch-signals') return rejected('UnsupportedEvent')
+  const signalLines: string[] = []
   let onlyIfMissing = false
-  let sawSignals = false
   for (const line of frame.data.split('\n')) {
     if (line.startsWith('signals ')) {
-      if (sawSignals) return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedOperation' }
-      sawSignals = true
-      try { signals = JSON.parse(line.slice(8)) } catch { return { _tag: 'RejectedSignalPatch', reason: 'MalformedJson' } }
-      if (signals === null || typeof signals !== 'object' || Array.isArray(signals)) return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedOperation' }
+      signalLines.push(line.slice(8))
     } else if (line.startsWith('onlyIfMissing ')) {
       if (line === 'onlyIfMissing true') onlyIfMissing = true
-      else if (line !== 'onlyIfMissing false') return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedOperation' }
-    } else if (line.trim()) return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedOperation' }
+      else if (line !== 'onlyIfMissing false') return rejected('UnsupportedOperation')
+    } else if (line.trim()) return rejected('UnsupportedOperation')
   }
-  if (!sawSignals) return { _tag: 'RejectedSignalPatch', reason: 'UnsupportedOperation' }
+  if (!signalLines.length) return rejected('UnsupportedOperation')
+  let signals: unknown
+  try {
+    signals = JSON.parse(signalLines.join('\n'))
+  } catch {
+    return rejected('MalformedJson')
+  }
+  if (signals === null || typeof signals !== 'object' || Array.isArray(signals)) return rejected('UnsupportedOperation')
   try {
     return { _tag: 'SignalPatch', value: Schema.decodeUnknownSync(schema)(signals), onlyIfMissing }
   } catch {
-    return { _tag: 'RejectedSignalPatch', reason: 'SchemaFailure' }
+    return rejected('SchemaFailure')
   }
 }
 
+/**
+ * Subscribes to the JSON-only Datastar `patch-signals` SSE subset.
+ *
+ * Reconnection is managed by this Subscription for both transports: SSE `id:`
+ * and `retry:` fields are ignored, and EventSource is closed on error so no
+ * Last-Event-ID or server retry interval is used. Fetch reports unsupported
+ * named events; EventSource can report the default `message` event, but its API
+ * cannot observe arbitrary other named events.
+ */
 export function signalSubscription<A, M>(config: {
   readonly schema: Schema.Codec<A, any, never, never>
   readonly transport: SignalTransport
@@ -54,7 +70,7 @@ export function signalSubscription<A, M>(config: {
       let online = navigator.onLine
       let generation = 0
       const emit = (outcome: SignalOutcome<A>) => {
-        if (!closed) Effect.runSync(Queue.offer(queue, config.toMessage(outcome)))
+        if (!closed) Queue.offerUnsafe(queue, config.toMessage(outcome))
       }
       const reconnect = () => {
         if (closed || !online) return
@@ -87,28 +103,43 @@ export function signalSubscription<A, M>(config: {
         let buffer = ''
         let event = ''
         let data: string[] = []
+        const parseLine = (line: string) => {
+          if (line.length === 0) {
+            if (data.length && session === generation && online) emit(decodeFrame(config.schema, { event, data: data.join('\n') }))
+            event = ''
+            data = []
+            return
+          }
+          if (line.startsWith('event:')) event = line.slice(6).replace(/^ /, '')
+          else if (line.startsWith('data:')) data.push(line.slice(5).replace(/^ /, ''))
+        }
         try {
+          let done = false
           while (!closed && session === generation && online) {
             const item = await reader.read()
-            if (item.done) break
-            buffer += decoder.decode(item.value, { stream: true })
-            let boundary = buffer.indexOf('\n')
-            while (boundary >= 0) {
-              const line = buffer.slice(0, boundary).replace(/\r$/, '')
-              buffer = buffer.slice(boundary + 1)
-              if (!line) {
-                if (data.length && session === generation && online) emit(decodeFrame(config.schema, { event, data: data.join('\n') }))
-                event = ''
-                data = []
-              } else if (line.startsWith('event:')) event = line.slice(6).trim()
-              else if (line.startsWith('data:')) data.push(line.slice(5).replace(/^ /, ''))
-              boundary = buffer.indexOf('\n')
+            if (item.done) {
+              buffer += decoder.decode()
+              done = true
+            } else {
+              buffer += decoder.decode(item.value, { stream: true })
+            }
+            while (true) {
+              const boundary = buffer.search(/[\r\n]/)
+              if (boundary < 0) break
+              if (!done && buffer[boundary] === '\r' && boundary === buffer.length - 1) break
+              const separatorLength = buffer[boundary] === '\r' && buffer[boundary + 1] === '\n' ? 2 : 1
+              parseLine(buffer.slice(0, boundary))
+              buffer = buffer.slice(boundary + separatorLength)
+            }
+            if (done) {
+              if (buffer) parseLine(buffer)
+              break
             }
           }
           if (!closed && session === generation && online) reconnect()
         } catch {
           if (!closed && session === generation && online) {
-            emit({ _tag: 'SignalTransportFailure', reason: 'Network' })
+            emit(networkFailure())
             reconnect()
           }
         } finally { reader.releaseLock() }
@@ -125,28 +156,32 @@ export function signalSubscription<A, M>(config: {
                 emit(decodeFrame(config.schema, { event: 'datastar-patch-signals', data: (event as MessageEvent<string>).data }))
               }
             })
+            current.addEventListener('message', () => {
+              if (session === generation && online) emit(rejected('UnsupportedEvent'))
+            })
             current.onerror = () => {
               if (session === generation && online) {
-                emit({ _tag: 'SignalTransportFailure', reason: 'Network' })
+                generation += 1
+                emit(networkFailure())
                 current.close()
                 source = undefined
                 reconnect()
               }
             }
           } catch {
-            emit({ _tag: 'SignalTransportFailure', reason: 'Network' })
+            emit(networkFailure())
             reconnect()
           }
         } else {
           const current = new AbortController()
           controller = current
           void fetch(config.transport.url, { ...config.transport.init, signal: current.signal }).then((response) => {
-            if (!response.ok || !response.body) throw new Error('Network')
+            if (!response.ok || !response.body) throw 0
             if (session === generation) attempt = 0
             return consumeSse(response.body.getReader(), session)
           }).catch(() => {
             if (!closed && online && session === generation) {
-              emit({ _tag: 'SignalTransportFailure', reason: 'Network' })
+              emit(networkFailure())
               reconnect()
             }
           })
@@ -166,7 +201,7 @@ export function signalSubscription<A, M>(config: {
       }
     }),
     (release) => Effect.sync(release),
-  ))
+  ), { bufferSize: Number.POSITIVE_INFINITY })
   return Subscription.make<unknown, M>()((entry) => ({
     signal: entry({}, { modelToDependencies: () => ({}), dependenciesToStream: () => stream }),
   })).signal
