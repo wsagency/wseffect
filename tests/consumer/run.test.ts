@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createServer } from 'node:net'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { findNewTarballName, packageDirectory, packedBuildEnvironment } from './run.ts'
+import { findFreePreviewPort, findNewTarballName, packageDirectory, packedBuildEnvironment } from './run.ts'
 import { checkBranding } from './check-branding.ts'
 import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { checkTreeShaking } from './check-tree-shaking.ts'
@@ -11,6 +12,17 @@ import { createScratchDir } from '../../e2e/helpers/build.ts'
 import { checkUp8 } from './check-up8.ts'
 const readme = '<!-- up8:start -->\n```yaml\nthe exact block\n```\n<!-- up8:end -->'
 const workspace = 'the exact block\n'
+test('packed consumer preview port is available to bind', async () => {
+  const port = await findFreePreviewPort()
+  const server = createServer()
+  const listening = Promise.withResolvers<void>()
+  server.once('error', listening.reject)
+  server.listen(port, '127.0.0.1', listening.resolve)
+  await listening.promise
+  const closed = Promise.withResolvers<void>()
+  server.close((error) => error ? closed.reject(error) : closed.resolve())
+  await closed.promise
+})
 test('packed tarballs are sourced from the matching local package directory', () => {
   assert.equal(packageDirectory('/consumer-workspace', 'app'), resolve('/consumer-workspace/packages/app'))
   assert.equal(packageDirectory('/consumer-workspace', 'themes'), resolve('/consumer-workspace/packages/themes'))
