@@ -5,7 +5,8 @@ declare global {
   interface Window {
     startPersistence?: (key: string) => { save: (value: string) => Promise<void>; stop: () => Promise<void> }
     persistence?: { save: (value: string) => Promise<void>; stop: () => Promise<void> }
-}
+    persistenceSubscribed?: boolean
+  }
 }
 
 
@@ -27,8 +28,10 @@ async function start(page: import('@playwright/test').Page, key: string): Promis
   await page.goto(`${baseUrl}/test/browser/persistence.html`)
   await page.waitForFunction(() => typeof window.startPersistence === 'function')
   await page.evaluate((storageKey) => {
+    window.addEventListener('persist-subscribed', () => { window.persistenceSubscribed = true }, { once: true })
     Object.assign(window, { persistence: window.startPersistence!(storageKey) })
   }, key)
+  await page.waitForFunction(() => window.persistenceSubscribed === true, undefined, { timeout: 5_000 })
 }
 
 async function waitForMessage(page: import('@playwright/test').Page) {
