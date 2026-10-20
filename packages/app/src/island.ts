@@ -63,19 +63,15 @@ export function Island<M>(props: {
             if (patch._tag === 'InnerHtml') {
               target.replaceChildren(...Array.from(snapshot.childNodes))
             } else if (parent !== null) {
-              if (target.parentNode === parent) {
-                parent.replaceChild(snapshot, target)
-              } else {
-                const before = nextSibling?.parentNode === parent ? nextSibling : null
-                const afterPrevious = previousSibling?.parentNode === parent ? previousSibling.nextSibling : parent.firstChild
-                let node = afterPrevious
-                while (node !== null && node !== before) {
-                  const next = node.nextSibling
-                  parent.removeChild(node)
-                  node = next
-                }
-                parent.insertBefore(snapshot, before)
+              const before = nextSibling?.parentNode === parent ? nextSibling : null
+              const afterPrevious = previousSibling?.parentNode === parent ? previousSibling.nextSibling : parent.firstChild
+              let node = afterPrevious
+              while (node !== null && node !== before) {
+                const next = node.nextSibling
+                parent.removeChild(node)
+                node = next
               }
+              parent.insertBefore(snapshot, before)
             }
             return props.toMessage({ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' })
           }

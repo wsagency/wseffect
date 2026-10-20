@@ -86,6 +86,18 @@ describe('Island', () => {
     expect(document.documentElement.outerHTML).toBe(before)
     expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
   })
+  it('removesInsertedSiblingsWhenOuterHtmlMorphFails', async () => {
+    const root = installIsland()
+    const before = document.documentElement.outerHTML
+    vi.mocked(Idiomorph.morph).mockImplementation(async (target) => {
+      if (target.parentNode !== null) target.parentNode.insertBefore(document.createElement('aside'), target)
+      throw new Error('partial outer morph with sibling insertion')
+    })
+    const results = await apply(root, [{ _tag: 'OuterHtml', selector: '#inside', html: '<article>next</article>' }])
+    expect(document.documentElement.outerHTML).toBe(before)
+    expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
+  })
+
 
   it('rejectsSiblingInsertionWithoutInIslandParent', async () => {
     await rejectionSnapshot({ _tag: 'OuterHtml', selector: '#outside', html: '<p id="new">sibling</p>' }, 'TargetOutsideIsland')
