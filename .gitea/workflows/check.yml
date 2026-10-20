@@ -36,7 +36,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
-      - run: pnpm e2e
+      - name: Run package browser specs and Gallery E2E
+        run: pnpm e2e
 
   size:
     runs-on: ubuntu-24.04

@@ -560,6 +560,22 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:.:Island": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:clipboardCommand": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:resizeObserverMount": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:scrollIntoViewCommand": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:./codegen:checkPages": [
     "public-surface",
     "branding"
@@ -2453,6 +2469,38 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:viewPage": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:BrowserCommandResult": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:Island": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:IslandPatch": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:IslandResult": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:ResizeResult": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:clipboardCommand": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:resizeObserverMount": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:scrollIntoViewCommand": [
     "public-surface",
     "gallery-typecheck"
   ],

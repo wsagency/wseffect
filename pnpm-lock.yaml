@@ -155,6 +155,9 @@ importers:
       effect:
         specifier: 4.0.5
         version: 4.0.5
+      idiomorph:
+        specifier: 0.8.0
+        version: 0.8.0
     devDependencies:
       '@foldkit/ui':
         specifier: 0.168.0
@@ -1970,6 +1973,9 @@ packages:
 
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
+
+  idiomorph@0.8.0:
+    resolution: {integrity: sha512-R47JBL+6jHDQvcnbppIUtXXcxi5h6+wuCEEZXnRhUltsgzPFKzThL5PuHppP9ypJuy+7WawcY1TsSBD/iQbMhw==}
 
   internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
@@ -4618,6 +4624,8 @@ snapshots:
   html-entities@2.3.3: {}
 
   idb@7.1.1: {}
+
+  idiomorph@0.8.0: {}
 
   internal-slot@1.1.0:
     dependencies:
