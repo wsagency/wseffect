@@ -58,7 +58,7 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
     return parsed
   }
 
-  const restore: Effect.Effect<A> = Effect.gen(function*() {
+  const restore: Effect.Effect<A> = Effect.sync(() => {
     let raw: string | null
     try { raw = localStorage.getItem(config.key) } catch (cause) {
       emit(failure('Restore', String(cause)))

@@ -1,4 +1,4 @@
-import { Effect, Fiber, Option, Result, Schema, Stream } from 'effect'
+import { Effect, Fiber, Result, Schema, Stream } from 'effect'
 import { TestClock } from 'effect/testing'
 import { describe, expect, it, vi } from 'vitest'
 import { persist, type PersistConfig } from '../src/persistence.js'
@@ -48,6 +48,14 @@ describe('versioned persistence', () => {
     localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 2, data: { count: 11 } }))
     expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 11 })
     expect(migrate).toHaveBeenCalledTimes(1)
+    localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 3, data: { count: 1 } }))
+    const onFailure = vi.fn((failure: { _tag: 'PersistenceFailure'; operation: 'Restore' | 'Save' | 'Migrate' | 'Sync'; reason: string }) => `failure:${failure.operation}`)
+    const invalidMigration = persist(config({
+      migrate: () => Result.succeed({ count: 'invalid' } as unknown as { count: number }),
+      toFailureMessage: onFailure,
+    }))
+    expect(await Effect.runPromise(invalidMigration.restore)).toEqual({ count: 0 })
+    expect(onFailure).toHaveBeenCalledWith(expect.objectContaining({ _tag: 'PersistenceFailure', operation: 'Migrate' }))
   })
 
   it('saves only the latest debounced value after the quiet interval', async () => {
