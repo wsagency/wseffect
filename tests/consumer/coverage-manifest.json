@@ -532,26 +532,6 @@
     "public-surface",
     "branding"
   ],
-  "export:@wsagency/wseffect-app:.:SignalBackoff": [
-    "public-surface",
-    "branding"
-  ],
-  "export:@wsagency/wseffect-app:.:SignalOutcome": [
-    "public-surface",
-    "branding"
-  ],
-  "export:@wsagency/wseffect-app:.:SignalTransport": [
-    "public-surface",
-    "branding"
-  ],
-  "export:@wsagency/wseffect-app:.:ValidationProjectionError": [
-    "public-surface",
-    "branding"
-  ],
-  "export:@wsagency/wseffect-app:.:ValidationResult": [
-    "public-surface",
-    "branding"
-  ],
   "export:@wsagency/wseffect-app:.:projectConstraintValidity": [
     "public-surface",
     "branding"
