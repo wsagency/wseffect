@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { createServer } from 'node:net'
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -10,6 +11,7 @@ import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { discoverPackagePublicSurface } from './discover-public-surface.ts'
 import type { CoverageManifest } from './check-coverage-manifest.ts'
 import { checkEffectCopies } from '../../scripts/check-repo.ts'
+import { checkPackedAppCapabilities } from './check-app-capabilities.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
@@ -21,7 +23,21 @@ const passedChecks: string[] = []
 export function packedBuildEnvironment(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
   return { ...env, WSEFFECT_BUILD_ID: 'd5c0ffee' }
 }
-
+export async function findFreePreviewPort(): Promise<number> {
+  const server = createServer()
+  const { promise, resolve, reject } = Promise.withResolvers<number>()
+  server.once('error', reject)
+  server.listen(0, '127.0.0.1', () => {
+    const address = server.address()
+    if (!address || typeof address === 'string') {
+      server.close()
+      reject(new Error('could not determine the packed consumer preview port'))
+      return
+    }
+    server.close((error) => error ? reject(error) : resolve(address.port))
+  })
+  return promise
+}
 function run(command: string, args: ReadonlyArray<string>, cwd: string, env: NodeJS.ProcessEnv = process.env): void {
   execFileSync(command, [...args], { cwd, env, stdio: 'inherit' })
 }
@@ -127,11 +143,13 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
   await cp(resolve(repoRoot, 'tools/serve'), resolve(root, 'tools/serve'), { recursive: true })
   await writeFile(resolve(root, 'playwright.packed.config.ts'), `
 import { defineConfig, devices } from '@playwright/test'
+const port = Number(process.env.WSEFFECT_CONSUMER_PREVIEW_PORT ?? 4450)
+const url = \`http://127.0.0.1:\${port}\`
 export default defineConfig({
   testDir: './e2e', fullyParallel: false, workers: 1, timeout: 30000,
-  reporter: 'list', use: { ...devices['Desktop Chrome'], baseURL: 'http://127.0.0.1:4450' },
+  reporter: 'list', use: { ...devices['Desktop Chrome'], baseURL: url },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: [{ command: 'pnpm exec vite preview --host 127.0.0.1 --port 4450 --strictPort', url: 'http://127.0.0.1:4450', reuseExistingServer: false }],
+  webServer: [{ command: \`pnpm exec vite preview --host 127.0.0.1 --port \${port} --strictPort\`, url, reuseExistingServer: false }],
 })\n`)
   await writeFile(resolve(root, 'tree-shaking.ts'), `
 import { makePages, loaderSubscriptions } from '@wsagency/wseffect-app'
@@ -163,8 +181,13 @@ async function main(): Promise<void> {
     run('pnpm', ['install', '--lockfile-only'], root)
     run('pnpm', ['install', '--frozen-lockfile'], root)
     run('pnpm', ['exec', 'vite', 'build'], root, packedBuildEnvironment())
+    await checkPackedAppCapabilities({
+      consumerRoot: root,
+      fixturesDirectory: resolve(consumerDir, 'fixtures/app-capabilities'),
+      requireAll: process.env.WSEFFECT_REQUIRE_APP_CAPABILITIES === '1',
+    })
     run('pnpm', ['exec', 'tsc', '--noEmit'], root)
-    passedChecks.push('consumer-install', 'gallery-build', 'gallery-typecheck', 'up8')
+    passedChecks.push('consumer-install', 'gallery-build', 'app-capabilities', 'gallery-typecheck', 'up8')
 
     const lockfile = await readFile(resolve(root, 'pnpm-lock.yaml'), 'utf8')
     fail(checkEffectCopies(lockfile))
@@ -187,9 +210,11 @@ async function main(): Promise<void> {
 
     const e2eFiles = (await filesUnder(resolve(root, 'e2e'), '.spec.ts'))
       .filter((path) => !path.endsWith('/buildId.spec.ts') && !path.endsWith('/chunks.spec.ts') && !path.endsWith('/devReload.spec.ts'))
+    const previewPort = process.env.WSEFFECT_CONSUMER_PREVIEW_PORT ?? String(await findFreePreviewPort())
     run('pnpm', ['exec', 'playwright', 'test', ...e2eFiles.map((path) => relative(root, path)), '--config', 'playwright.packed.config.ts', '--project=chromium'], root, packedBuildEnvironment({
       ...process.env,
       GALLERY_PACKED: '1',
+      WSEFFECT_CONSUMER_PREVIEW_PORT: previewPort,
     }))
     passedChecks.push('playwright')
 
