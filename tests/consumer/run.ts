@@ -21,7 +21,7 @@ const forbiddenTreeShakingMarkers = ['viewPage', 'ServiceWorker', 'makeApp', 'pr
 const passedChecks: string[] = []
 
 export function packedBuildEnvironment(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
-  return { ...env, WSEFFECT_BUILD_ID: 'd5c0ffee' }
+  return { ...env, WSEFFECT_BUILD_ID: 'd5c0ffee', GALLERY_CAPABILITY_SSE: '1' }
 }
 export async function findFreePreviewPort(): Promise<number> {
   const server = createServer()

@@ -18,5 +18,5 @@ test('nativeValidityAndErrorAssociationFollowModelResult', async ({ page }) => {
 
   expect(state.invalid).toEqual({ valid: false, message: 'Required', invalid: 'true', describedBy: 'help error' })
   expect(state.valid).toBe(true)
-  expect(state.finalInvalid).toBeNull()
+  expect(state.finalInvalid).toBe('false')
 })

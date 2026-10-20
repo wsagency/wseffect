@@ -5,71 +5,95 @@ import { bindKit, kitMessageFields, makePages, messageSchema } from '@wsagency/w
 
 
 export type Pages = {
+  readonly browser: typeof import('./pages/browser').page
   readonly buttons: typeof import('./pages/buttons').page
+  readonly capabilities: typeof import('./pages/capabilities').page
   readonly cards: typeof import('./pages/cards').page
   readonly dialog: typeof import('./pages/dialog').page
   readonly dropdownMenu: typeof import('./pages/dropdownMenu').page
   readonly form: typeof import('./pages/form').page
+  readonly island: typeof import('./pages/island').page
   readonly layout: typeof import('./pages/layout').page
   readonly menus: typeof import('./pages/menus').page
+  readonly persistence: typeof import('./pages/persistence').page
   readonly sharedA: typeof import('./pages/sharedA').page
   readonly sharedB: typeof import('./pages/sharedB').page
+  readonly signals: typeof import('./pages/signals').page
   readonly tabs: typeof import('./pages/tabs').page
   readonly textField: typeof import('./pages/textField').page
   readonly theme: typeof import('./pages/theme').page
   readonly typography: typeof import('./pages/typography').page
+  readonly validation: typeof import('./pages/validation').page
   readonly virtualList: typeof import('./pages/virtualList').page
 }
 
 export const pages = makePages<Pages>({
+  browser: () => import('./pages/browser').then(module => module.page),
   buttons: () => import('./pages/buttons').then(module => module.page),
+  capabilities: () => import('./pages/capabilities').then(module => module.page),
   cards: () => import('./pages/cards').then(module => module.page),
   dialog: () => import('./pages/dialog').then(module => module.page),
   dropdownMenu: () => import('./pages/dropdownMenu').then(module => module.page),
   form: () => import('./pages/form').then(module => module.page),
+  island: () => import('./pages/island').then(module => module.page),
   layout: () => import('./pages/layout').then(module => module.page),
   menus: () => import('./pages/menus').then(module => module.page),
+  persistence: () => import('./pages/persistence').then(module => module.page),
   sharedA: () => import('./pages/sharedA').then(module => module.page),
   sharedB: () => import('./pages/sharedB').then(module => module.page),
+  signals: () => import('./pages/signals').then(module => module.page),
   tabs: () => import('./pages/tabs').then(module => module.page),
   textField: () => import('./pages/textField').then(module => module.page),
   theme: () => import('./pages/theme').then(module => module.page),
   typography: () => import('./pages/typography').then(module => module.page),
+  validation: () => import('./pages/validation').then(module => module.page),
   virtualList: () => import('./pages/virtualList').then(module => module.page),
 })
-export const PageKey = Schema.Literals(['buttons', 'cards', 'dialog', 'dropdownMenu', 'form', 'layout', 'menus', 'sharedA', 'sharedB', 'tabs', 'textField', 'theme', 'typography', 'virtualList'])
+export const PageKey = Schema.Literals(['browser', 'buttons', 'capabilities', 'cards', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
 export const KitMessage = defineTaggedUnion({
   ...kitMessageFields(pages),
+  GotBrowserPageMessage: { message: messageSchema(pages, 'browser') },
   GotButtonsPageMessage: { message: messageSchema(pages, 'buttons') },
+  GotCapabilitiesPageMessage: { message: messageSchema(pages, 'capabilities') },
   GotCardsPageMessage: { message: messageSchema(pages, 'cards') },
   GotDialogPageMessage: { message: messageSchema(pages, 'dialog') },
   GotDropdownMenuPageMessage: { message: messageSchema(pages, 'dropdownMenu') },
   GotFormPageMessage: { message: messageSchema(pages, 'form') },
+  GotIslandPageMessage: { message: messageSchema(pages, 'island') },
   GotLayoutPageMessage: { message: messageSchema(pages, 'layout') },
   GotMenusPageMessage: { message: messageSchema(pages, 'menus') },
+  GotPersistencePageMessage: { message: messageSchema(pages, 'persistence') },
   GotSharedAPageMessage: { message: messageSchema(pages, 'sharedA') },
   GotSharedBPageMessage: { message: messageSchema(pages, 'sharedB') },
+  GotSignalsPageMessage: { message: messageSchema(pages, 'signals') },
   GotTabsPageMessage: { message: messageSchema(pages, 'tabs') },
   GotTextFieldPageMessage: { message: messageSchema(pages, 'textField') },
   GotThemePageMessage: { message: messageSchema(pages, 'theme') },
   GotTypographyPageMessage: { message: messageSchema(pages, 'typography') },
+  GotValidationPageMessage: { message: messageSchema(pages, 'validation') },
   GotVirtualListPageMessage: { message: messageSchema(pages, 'virtualList') },
 })
 export type KitMessage = typeof KitMessage.Type
 export const pageMessageTags = {
+  browser: 'GotBrowserPageMessage',
   buttons: 'GotButtonsPageMessage',
+  capabilities: 'GotCapabilitiesPageMessage',
   cards: 'GotCardsPageMessage',
   dialog: 'GotDialogPageMessage',
   dropdownMenu: 'GotDropdownMenuPageMessage',
   form: 'GotFormPageMessage',
+  island: 'GotIslandPageMessage',
   layout: 'GotLayoutPageMessage',
   menus: 'GotMenusPageMessage',
+  persistence: 'GotPersistencePageMessage',
   sharedA: 'GotSharedAPageMessage',
   sharedB: 'GotSharedBPageMessage',
+  signals: 'GotSignalsPageMessage',
   tabs: 'GotTabsPageMessage',
   textField: 'GotTextFieldPageMessage',
   theme: 'GotThemePageMessage',
   typography: 'GotTypographyPageMessage',
+  validation: 'GotValidationPageMessage',
   virtualList: 'GotVirtualListPageMessage',
 } as const
 export const kit = bindKit({ pages, KitMessage, pageMessageTags })

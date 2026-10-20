@@ -20,7 +20,7 @@ export function projectConstraintValidity(
     control.setAttribute('aria-describedby', describedBy.join(' '))
   } else {
     control.setCustomValidity('')
-    control.removeAttribute('aria-invalid')
+    control.setAttribute('aria-invalid', 'false')
     const describedBy = (control.getAttribute('aria-describedby') ?? '').split(/\s+/).filter((id) => id && id !== errorId)
     if (describedBy.length) control.setAttribute('aria-describedby', describedBy.join(' '))
     else control.removeAttribute('aria-describedby')
