@@ -1,4 +1,7 @@
-import { Cause, Clock, Effect, Queue, Result, Schema, Stream } from 'effect'
+import { Cause, Effect, Queue, Result, Stream } from 'effect'
+import * as Exit from 'effect/Exit'
+import * as SchemaParser from 'effect/SchemaParser'
+import type * as Schema from 'effect/Schema'
 
 export type ConflictPolicy = 'last-writer-wins-by-timestamp' | 'local-wins'
 export type PersistenceFailure = {
@@ -25,7 +28,16 @@ export interface Persistence<A, M> {
 }
 
 type Envelope = { readonly version: number; readonly writtenAt: number; readonly data: unknown }
-const EnvelopeSchema = Schema.Struct({ version: Schema.Number, writtenAt: Schema.Number, data: Schema.Unknown })
+
+function isEnvelope(value: unknown): value is Envelope {
+  if (typeof value !== 'object' || value === null) return false
+  const envelope = value as Record<string, unknown>
+  return Object.hasOwn(envelope, 'version') &&
+    typeof envelope.version === 'number' &&
+    Object.hasOwn(envelope, 'writtenAt') &&
+    typeof envelope.writtenAt === 'number' &&
+    Object.hasOwn(envelope, 'data')
+}
 
 export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   let localWrittenAt = -Infinity
@@ -35,18 +47,15 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   const failure = (operation: PersistenceFailure['operation'], reason: string) =>
     config.toFailureMessage({ _tag: 'PersistenceFailure', operation, reason })
 
+  const decodeData = (value: unknown): A | undefined => {
+    const decoded = SchemaParser.decodeUnknownExit(config.schema)(value)
+    return Exit.isSuccess(decoded) ? decoded.value : undefined
+  }
   const decodeEnvelope = (raw: string): Envelope | undefined => {
     let parsed: unknown
     try { parsed = JSON.parse(raw) } catch { return undefined }
-    const envelope = Schema.decodeUnknownOption(EnvelopeSchema)(parsed)
-    if (envelope._tag === 'None') return undefined
-    const data = Schema.decodeUnknownOption(config.schema)(envelope.value.data)
-    if (data._tag === 'None') return undefined
-    return envelope.value
-  }
-  const decodeData = (value: unknown): A | undefined => {
-    const decoded = Schema.decodeUnknownOption(config.schema)(value)
-    return decoded._tag === 'Some' ? decoded.value : undefined
+    if (!isEnvelope(parsed) || decodeData(parsed.data) === undefined) return undefined
+    return parsed
   }
 
   const restore: Effect.Effect<A> = Effect.gen(function*() {
@@ -81,7 +90,7 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   })
 
   const save = (value: A): Effect.Effect<void> => Effect.gen(function*() {
-    const writtenAt = yield* Clock.currentTimeMillis
+    const writtenAt = yield* Effect.clockWith((clock) => clock.currentTimeMillis)
     const envelope = { version: config.version, writtenAt, data: value }
     try {
       localStorage.setItem(config.key, JSON.stringify(envelope))
@@ -107,9 +116,8 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
       Effect.sync(() => {
         listeners.add(queue)
         const applyIncoming = (input: unknown) => {
-          const decodedEnvelope = Schema.decodeUnknownOption(EnvelopeSchema)(input)
-          if (decodedEnvelope._tag === 'None') { emit(failure('Sync', 'Malformed remote envelope')); return }
-          const envelope = decodedEnvelope.value
+          if (!isEnvelope(input)) { emit(failure('Sync', 'Malformed remote envelope')); return }
+          const envelope = input
           if (envelope.version !== config.version) { emit(failure('Sync', 'Foreign remote version')); return }
           const data = decodeData(envelope.data)
           if (data === undefined) { emit(failure('Sync', 'Remote value failed current schema')); return }

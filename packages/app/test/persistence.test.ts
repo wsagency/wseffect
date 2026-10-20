@@ -39,12 +39,15 @@ describe('versioned persistence', () => {
   })
   it('migrates a different version and validates the migrated value', async () => {
     localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 1, data: { count: 9 } }))
-    const migrate = (version: number, data: unknown) => {
+    const migrate = vi.fn((version: number, data: unknown) => {
       if (version !== 0 || data === null || typeof data !== 'object' || !('count' in data) || typeof data.count !== 'number') return Result.fail(data)
       return Result.succeed({ count: data.count + 1 })
-    }
+    })
     const persistence = persist(config({ migrate }))
     expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 10 })
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 2, data: { count: 11 } }))
+    expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 11 })
+    expect(migrate).toHaveBeenCalledTimes(1)
   })
 
   it('saves only the latest debounced value after the quiet interval', async () => {
@@ -73,6 +76,10 @@ describe('versioned persistence', () => {
     localStorage.setItem('counter', '{bad')
     expect(await Effect.runPromise(malformed.restore)).toEqual({ count: 0 })
     expect(failures.at(-1)).toMatchObject({ operation: 'Restore' })
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 'invalid', data: { count: 1 } }))
+    expect(await Effect.runPromise(malformed.restore)).toEqual({ count: 0 })
+    expect(failures.at(-1)).toMatchObject({ operation: 'Restore' })
+
 
     const foreign = persist(failureConfig)
     localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 1, data: { count: 7 } }))
