@@ -94,7 +94,7 @@ async function buildFixture(
       resolve: {
         alias: [
           { find: '@wsagency/wseffect-app/buildId', replacement: appBuildId },
-          { find: '@wsagency/wseffect-app', replacement: appEntry },
+          { find: /^@wsagency\/wseffect-app$/, replacement: appEntry },
         ],
       },
       build: {
@@ -212,16 +212,18 @@ describe('wseffect Vite plugin', () => {
       const index = files.find((file) => file.startsWith('index-'))
       const alpha = files.find((file) => file.startsWith('alpha-'))
       const beta = files.find((file) => file.startsWith('beta-'))
+      const appShared = files.find((file) => file.startsWith('app-shared-'))
       expect(framework).toBeDefined()
       expect(index).toBeDefined()
       expect(alpha).toBeDefined()
       expect(beta).toBeDefined()
+      expect(appShared).toBeDefined()
 
       const entry = readFileSync(join(output, 'assets', index!), 'utf8')
       const version = JSON.parse(readFileSync(join(output, 'version.json'), 'utf8')) as { buildId: string }
       expect(entry).toContain(version.buildId)
       for (const page of [alpha!, beta!]) {
-        expect(readFileSync(join(output, 'assets', page), 'utf8')).toContain(framework)
+        expect(readFileSync(join(output, 'assets', page), 'utf8')).toContain(appShared)
         expect(readFileSync(join(output, 'assets', page), 'utf8')).not.toContain(index)
       }
 
@@ -249,17 +251,16 @@ describe('wseffect Vite plugin', () => {
       rmSync(directory, { recursive: true, force: true })
     }
   })
-  it('keeps only boot packages in framework and lazy-loads page-only menu code', async () => {
+  it('keeps boot packages and app runtime in framework and lazy-loads page-only menu code', async () => {
     const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\nimport * as Dialog from '@foldkit/ui/dialog'\nimport * as Tabs from '@foldkit/ui/tabs'\n\nexport const page = { Menu, Dialog, Tabs }\n")
     try {
       const files = outputFiles(output)
       const framework = files.find((file) => file.startsWith('framework-'))!
-      const index = files.find((file) => file.startsWith('index-'))!
       const alpha = files.find((file) => file.startsWith('alpha-'))!
       const sources = (file: string) =>
         (JSON.parse(readFileSync(join(output, 'assets', `${file}.map`), 'utf8')) as { sources: string[] }).sources
-      const bootPackages = ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']
-      const bootModule = (source: string) => source.includes('/packages/app/src/') || bootPackages.some((name) =>
+      const bootPackages = ['foldkit', 'effect', '@effect/platform-browser', 'workbox-window']
+      const bootModule = (source: string) => source.includes('/packages/app/') || bootPackages.some((name) =>
         source.includes(`/node_modules/${name}/`) || source.includes(`/node_modules/.pnpm/${name.replace('/', '+')}@`),
       )
       expect(sources(framework).every(bootModule)).toBe(true)
@@ -280,6 +281,55 @@ describe('wseffect Vite plugin', () => {
         return sources(file.split('/').at(-1)!)
       })
       expect(staticSources.some((source) => /@foldkit\/ui\/(?:dialog|menu|tabs)|@floating-ui/.test(source))).toBe(false)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+  it('keeps app runtime modules statically used by the entry in framework', async () => {
+    const { directory, output } = await buildFixture(false)
+    try {
+      const framework = outputFiles(output).find((file) => file.startsWith('framework-'))
+      expect(framework).toBeDefined()
+      const sources = (JSON.parse(readFileSync(join(output, 'assets', `${framework}.map`), 'utf8')) as { sources: string[] }).sources
+      expect(sources.some((source) => source.endsWith('/dist/registry.js'))).toBe(true)
+      expect(sources.some((source) => source.endsWith('/dist/kit/binding.js'))).toBe(true)
+      expect(sources.some((source) => source.endsWith('/dist/kit/messages.js'))).toBe(true)
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
+
+  it('keeps app capability helpers in their lazy page chunks', async () => {
+    const { directory, output } = await buildFixture(false, "import { signalSubscription } from '@wsagency/wseffect-app'\nexport const page = { name: 'alpha', signalSubscription }\n")
+    try {
+      const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
+      const helperEntry = Object.entries(buildManifest).find(([key, entry]) =>
+        entry.isDynamicEntry === true && key.endsWith('/pages/alpha.ts'),
+      )
+      if (helperEntry === undefined) throw new Error('Vite manifest is missing the helper page')
+      const closure = (start: string): Set<string> => {
+        const visited = new Set<string>()
+        const pending = [start]
+        while (pending.length > 0) {
+          const key = pending.pop()!
+          if (visited.has(key)) continue
+          visited.add(key)
+          pending.push(...(buildManifest[key]?.imports ?? []))
+        }
+        return visited
+      }
+      const includesSignalHelper = (keys: ReadonlySet<string>): boolean =>
+        [...keys].some((key) => {
+          const file = buildManifest[key]?.file
+          if (file === undefined || !file.endsWith('.js')) return false
+          const sourceMap = JSON.parse(readFileSync(join(output, `${file}.map`), 'utf8')) as { sources?: string[] }
+          return (sourceMap.sources ?? []).some((source) =>
+            source.endsWith('/src/signals.ts') || source.endsWith('/dist/signals.js'),
+          )
+        })
+      expect(includesSignalHelper(closure('index.html'))).toBe(false)
+      expect(includesSignalHelper(closure(helperEntry[0]))).toBe(true)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }

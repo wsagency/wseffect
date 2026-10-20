@@ -19,8 +19,8 @@
       "reason": "The shared themed Button shell usage reshapes the lazy buttons chunk by 35 B; page modules remain lazy."
     },
     "page:cards": {
-      "bytes": 326,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 362,
+      "reason": "APP-23 runtime-only framework grouping reshapes the Cards lazy chunk by 36 B Brotli-q11; the page remains lazy."
     },
     "page:dialog": {
       "bytes": 611,

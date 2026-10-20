@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, parse, posix, resolve, sep } from 'node:path'
 import type { Plugin } from 'vite'
 
@@ -18,7 +18,9 @@ function packageRootFrom(entry: string, expectedName: string): string | undefine
 
 export function frameworkChunking(pagesDir: string): Plugin {
   const appShared = new Set<string>()
-  let appRoot = ''
+  let appRoot: string | undefined
+  let runtimeEntryId: string | undefined
+  let runtimeModuleIds: Set<string> | undefined
   let pagesRoot = ''
   let pageChunkFiles = new Set<string>()
   let packageRoots: Array<string> = []
@@ -35,18 +37,42 @@ export function frameworkChunking(pagesDir: string): Plugin {
     modulePath === directory || modulePath.startsWith(`${directory}${sep}`)
   const isFrameworkPath = (resolvedId: string): boolean =>
     packageRoots.some((packageRoot) => isInside(resolvedId, packageRoot))
-  const isFrameworkModule = (id: string): boolean => isFrameworkPath(modulePath(id))
+  const isAppModule = (id: string): boolean =>
+    appRoot !== undefined && isInside(modulePath(id), appRoot)
+  const isRuntimeModule = (
+    id: string,
+    getModuleInfo: (moduleId: string) => { readonly importedIds: ReadonlyArray<string> } | null,
+  ): boolean => {
+    if (!isAppModule(id) || runtimeEntryId === undefined || appRoot === undefined) return false
+    if (runtimeModuleIds === undefined) {
+      const modules = new Set<string>()
+      const visited = new Set<string>()
+      const pending = [runtimeEntryId]
+      while (pending.length > 0) {
+        const current = pending.pop()!
+        const resolvedId = modulePath(current)
+        if (visited.has(resolvedId) || !isInside(resolvedId, appRoot)) continue
+        visited.add(resolvedId)
+        modules.add(resolvedId)
+        const info = getModuleInfo(current)
+        if (info !== null) pending.push(...info.importedIds)
+      }
+      runtimeModuleIds = modules
+    }
+    return runtimeModuleIds.has(modulePath(id))
+  }
   const isAppSharedModule = (id: string): boolean => {
     const resolvedId = modulePath(id)
     return existsSync(resolvedId) && !isInside(resolvedId, pagesRoot) && !isFrameworkPath(resolvedId)
   }
+
   return {
     name: 'wseffect:framework-chunk',
     config(config) {
       const root = resolve(config.root ?? process.cwd())
       const require = createRequire(join(root, 'package.json'))
       packageRoots = []
-      for (const packageName of ['foldkit', 'effect', '@effect/platform-browser', '@wsagency/wseffect-app', 'workbox-window']) {
+      for (const packageName of ['foldkit', 'effect', '@effect/platform-browser', 'workbox-window']) {
         try {
           const resolvedEntry = realpathSync(require.resolve(packageName))
           const packageRoot = packageRootFrom(resolvedEntry, packageName)
@@ -55,6 +81,16 @@ export function frameworkChunking(pagesDir: string): Plugin {
           // Some framework packages are optional to an app build.
         }
       }
+      try {
+        const resolvedEntry = realpathSync(require.resolve('@wsagency/wseffect-app'))
+        const packageRoot = packageRootFrom(resolvedEntry, '@wsagency/wseffect-app')
+        appRoot = packageRoot === undefined ? undefined : realpathSync(packageRoot)
+        runtimeEntryId = realpathSync(require.resolve('@wsagency/wseffect-app/runtime'))
+      } catch {
+        appRoot = undefined
+        runtimeEntryId = undefined
+      }
+      runtimeModuleIds = undefined
       const pageDirectory = resolve(root, pagesDir)
       pagesRoot = existsSync(pageDirectory) ? realpathSync(pageDirectory) : pageDirectory
       pageChunkFiles.clear()
@@ -85,8 +121,12 @@ export function frameworkChunking(pagesDir: string): Plugin {
               codeSplitting: {
                 groups: [
                   {
-                    name: 'framework',
-                    test: isFrameworkModule,
+                    name: (id, context) =>
+                      isFrameworkPath(modulePath(id)) ||
+                      isRuntimeModule(id, (moduleId) => context.getModuleInfo(moduleId))
+                        ? 'framework'
+                        : null,
+                    debugName: 'framework',
                   },
                   {
                     name: 'app-shared',
@@ -98,6 +138,9 @@ export function frameworkChunking(pagesDir: string): Plugin {
           },
         },
       }
+    },
+    buildStart() {
+      runtimeModuleIds = undefined
     },
     // Use page module facades to collect exact output paths regardless of naming pattern.
     generateBundle: {

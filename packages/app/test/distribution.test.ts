@@ -6,12 +6,12 @@ import { describe, expect, it } from 'vitest'
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 describe('package distribution contract', () => {
-  it('exports only the four supported package entrypoints and the codegen command', async () => {
+  it('exports only the five supported package entrypoints and the codegen command', async () => {
     const manifest = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')) as {
       exports: Record<string, unknown>
       bin: Record<string, string>
     }
-    expect(Object.keys(manifest.exports)).toEqual(['.', './vite', './codegen', './oxlint-plugin'])
+    expect(Object.keys(manifest.exports)).toEqual(['.', './vite', './codegen', './runtime', './oxlint-plugin'])
     expect(manifest.bin['wseffect-codegen']).toBe('./dist/codegen/bin.js')
   })
 
