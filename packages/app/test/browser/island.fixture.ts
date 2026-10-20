@@ -46,7 +46,7 @@ const runtime = Runtime.makeElement({
       id: 'runtime-island',
       html: model.html,
       patches: Stream.make({ _tag: 'InnerHtml', selector: '#target', html: '<p id="patched">patched</p>' }),
-      toMessage: (result) => ({ _tag: 'IslandResult', result }),
+      toMessage: (result) => ({ _tag: 'IslandResult' as const, result }),
     }, h),
   ]),
 })
