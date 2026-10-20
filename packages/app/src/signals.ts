@@ -47,11 +47,13 @@ function decodeFrame<A>(schema: Schema.Codec<A, any, never, never>, frame: Parse
 /**
  * Subscribes to the JSON-only Datastar `patch-signals` SSE subset.
  *
- * Reconnection is managed by this Subscription for both transports: SSE `id:`
- * and `retry:` fields are ignored, and EventSource is closed on error so no
- * Last-Event-ID or server retry interval is used. Fetch reports unsupported
- * named events; EventSource can report the default `message` event, but its API
- * cannot observe arbitrary other named events.
+ * Reconnection uses `SignalBackoff` for both transports; SSE `id:` and
+ * `retry:` fields are ignored, and EventSource closes on error so neither
+ * Last-Event-ID nor the server retry interval is used.
+ * EventSource observes only `datastar-patch-signals` and the default
+ * `message` event; other named events are platform-unobservable and not
+ * reported. Fetch reports every unsupported event, so choose Fetch when
+ * complete rejection reporting is required.
  */
 export function signalSubscription<A, M>(config: {
   readonly schema: Schema.Codec<A, any, never, never>

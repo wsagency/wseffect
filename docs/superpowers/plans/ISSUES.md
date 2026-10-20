@@ -179,3 +179,8 @@
 - **Amendment:** Increase the signals helper Brotli-q11 ceiling from 1,536 B to 1,600 B.
 - **Reason:** Correct SSE framing for CR/CRLF and chunked UTF-8, multi-line JSON, and EventSource race fixes from review; correctness is PRI-1.
 - **Before/after:** 1,534 → 1,551 B (Brotli-q11).
+
+## SIG-3/SIG-1 (EventSource) amendment
+
+- **Amendment (director-approved):** Native EventSource observes only `datastar-patch-signals` and the default `message` event; other named events are platform-unobservable and not reported. Fetch reports every unsupported event, so applications that require complete rejection reporting should choose Fetch.
+- **Reconnection:** Both transports ignore SSE `id:` and `retry:` fields because reconnection uses explicit `SignalBackoff` (SIG-4).

@@ -48,6 +48,31 @@ describe('signalSubscription', () => {
     vi.unstubAllGlobals()
   })
 
+  it('preservesOnlyIfMissingFromRawAndSdkFrames', async () => {
+    const rawFrame = [
+      'event: datastar-patch-signals',
+      'data: onlyIfMissing true',
+      'data: signals {"count":1}',
+      '',
+      '',
+    ].join('\n')
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(rawFrame)))
+    expect(await Effect.runPromise(Stream.runCollect(Stream.take(streamFor({ _tag: 'Fetch', url: '/signals' }), 1)))).toEqual([
+      { _tag: 'SignalPatch', value: { count: 1 }, onlyIfMissing: true },
+    ])
+
+    const response = ServerSentEventGenerator.stream((events) => {
+      events.patchSignals('{"count":2}', { onlyIfMissing: true })
+    }, { keepalive: false })
+    const sdkFrame = await response.text()
+    expect(sdkFrame).toContain('data: onlyIfMissing true')
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(sdkFrame)))
+    expect(await Effect.runPromise(Stream.runCollect(Stream.take(streamFor({ _tag: 'Fetch', url: '/signals' }), 1)))).toEqual([
+      { _tag: 'SignalPatch', value: { count: 2 }, onlyIfMissing: true },
+    ])
+    vi.unstubAllGlobals()
+  })
+
   it('parsesChunkedUtf8CRLFAndCRFramesAndIgnoresIdRetryFields', async () => {
     const wire = [
       'event: datastar-patch-signals\r\n',
