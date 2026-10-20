@@ -10,6 +10,7 @@ import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { discoverPackagePublicSurface } from './discover-public-surface.ts'
 import type { CoverageManifest } from './check-coverage-manifest.ts'
 import { checkEffectCopies } from '../../scripts/check-repo.ts'
+import { checkPackedAppCapabilities } from './check-app-capabilities.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
@@ -163,8 +164,13 @@ async function main(): Promise<void> {
     run('pnpm', ['install', '--lockfile-only'], root)
     run('pnpm', ['install', '--frozen-lockfile'], root)
     run('pnpm', ['exec', 'vite', 'build'], root, packedBuildEnvironment())
+    await checkPackedAppCapabilities({
+      consumerRoot: root,
+      fixturesDirectory: resolve(consumerDir, 'fixtures/app-capabilities'),
+      requireAll: process.env.WSEFFECT_REQUIRE_APP_CAPABILITIES === '1',
+    })
     run('pnpm', ['exec', 'tsc', '--noEmit'], root)
-    passedChecks.push('consumer-install', 'gallery-build', 'gallery-typecheck', 'up8')
+    passedChecks.push('consumer-install', 'gallery-build', 'app-capabilities', 'gallery-typecheck', 'up8')
 
     const lockfile = await readFile(resolve(root, 'pnpm-lock.yaml'), 'utf8')
     fail(checkEffectCopies(lockfile))
