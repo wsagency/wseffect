@@ -29,6 +29,110 @@ describe('versioned persistence', () => {
     expect(JSON.parse(localStorage.getItem('counter')!)).toEqual({ version: 1, writtenAt: expect.any(Number), data: { count: 7 } })
     expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 7 })
   })
+  it('persists transform-codec values in encoded form for immediate and debounced saves', async () => {
+    localStorage.clear()
+    const transformed = persist(config({
+      schema: Schema.Struct({ count: Schema.NumberFromString }),
+    }))
+    await Effect.runPromise(transformed.save({ count: 42 }))
+    expect(JSON.parse(localStorage.getItem('counter')!).data).toEqual({ count: '42' })
+    expect(await Effect.runPromise(transformed.restore)).toEqual({ count: 42 })
+
+    const debounced = Effect.gen(function*() {
+      const fiber = yield* Effect.forkChild(transformed.saveDebounced({ count: 43 }))
+      yield* Effect.yieldNow
+      yield* TestClock.adjust(50)
+      yield* Fiber.join(fiber)
+    }).pipe(Effect.provide(TestClock.layer()))
+    await Effect.runPromise(debounced)
+    expect(JSON.parse(localStorage.getItem('counter')!).data).toEqual({ count: '43' })
+    expect(await Effect.runPromise(transformed.restore)).toEqual({ count: 43 })
+  })
+  it('validates migrated decoded values against the current codec without decoding them again', async () => {
+    localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 1, data: 'legacy' }))
+    const migrated = persist(config({
+      schema: Schema.Struct({ count: Schema.NumberFromString.check(Schema.isGreaterThan(0)) }),
+      migrate: () => Result.succeed({ count: 7 }),
+    }))
+    expect(await Effect.runPromise(migrated.restore)).toEqual({ count: 7 })
+
+    const migratedFailures: string[] = []
+    const invalid = persist(config({
+      schema: Schema.Struct({ count: Schema.NumberFromString.check(Schema.isGreaterThan(0)) }),
+      migrate: () => Result.succeed({ count: -1 }),
+      toFailureMessage: (failure) => { migratedFailures.push(failure.operation); return `failure:${failure.operation}` },
+    }))
+    expect(await Effect.runPromise(invalid.restore)).toEqual({ count: 0 })
+    expect(migratedFailures).toEqual(['Migrate'])
+  })
+  it('rejects an unencodable value before writing or broadcasting', async () => {
+    const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+    const posted: unknown[] = []
+    class RecordingBroadcastChannel extends EventTarget {
+      postMessage(data: unknown) { posted.push(data) }
+      close() {}
+    }
+    Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: RecordingBroadcastChannel })
+    const key = 'counter'
+    const setItem = vi.spyOn(localStorage, 'setItem')
+    const failures: string[] = []
+    const constrained = persist(config({
+      schema: Schema.Struct({ count: Schema.NumberFromString.check(Schema.isGreaterThan(0)) }),
+      migrate: () => Result.fail('unsupported'),
+      toFailureMessage: (failure) => { failures.push(failure.operation); return `failure:${failure.operation}` },
+    }))
+    try {
+      await Effect.runPromise(constrained.save({ count: -1 }))
+      expect(setItem).not.toHaveBeenCalledWith(key, expect.any(String))
+      expect(posted).toEqual([])
+      expect(failures).toEqual(['Save'])
+    } finally {
+      setItem.mockRestore()
+      if (originalChannel === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+      else Object.defineProperty(globalThis, 'BroadcastChannel', originalChannel)
+    }
+  })
+  it('decodes transformed BroadcastChannel and storage payloads once', async () => {
+    localStorage.clear()
+    const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+    const channels = new Set<TransformedBroadcastChannel>()
+    class TransformedBroadcastChannel extends EventTarget {
+      constructor() { super(); channels.add(this) }
+      postMessage(data: unknown) {
+        for (const channel of channels) {
+          if (channel !== this) channel.dispatchEvent(new MessageEvent('message', { data }))
+        }
+      }
+      close() { channels.delete(this) }
+    }
+    Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: TransformedBroadcastChannel })
+    const transformedConfig = config({
+      schema: Schema.Struct({ count: Schema.NumberFromString }),
+    })
+    const receiver = persist(transformedConfig)
+    const sender = persist(transformedConfig)
+    await Effect.runPromise(receiver.restore)
+    const messages: string[] = []
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+    const fiber = Effect.runFork(Stream.runForEach(receiver.subscribe, (message) => Effect.sync(() => { messages.push(message) })))
+    try {
+      await vi.waitFor(() => expect(channels.size).toBe(1))
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function)))
+      await Effect.runPromise(sender.save({ count: 42 }))
+      const stored = localStorage.getItem('counter')!
+      expect(JSON.parse(stored).data).toEqual({ count: '42' })
+      window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: stored }))
+      await vi.waitFor(() => expect(messages).toEqual(['value:42']))
+      expect(messages).toEqual(['value:42'])
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      channels.clear()
+      addEventListener.mockRestore()
+      if (originalChannel === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+      else Object.defineProperty(globalThis, 'BroadcastChannel', originalChannel)
+    }
+  })
+
 
   it('recovers the supplied default from corrupt data', async () => {
     localStorage.setItem('counter', '{bad')

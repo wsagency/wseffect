@@ -1,6 +1,7 @@
 # Changelog
 ## Unreleased
 
+- Persist and sync values in the supplied Schema codec's encoded form, and validate decoded migration results with the current codec.
 - Document the standalone app capabilities, their platform and lifecycle caveats, the measured helper budgets, and Foldkit's typed `Route.query(Schema)` pattern.
 - Keep generated page-registry imports isolated behind `@wsagency/wseffect-app/runtime` so lazy capability helpers remain in their lazy chunks.
 - Retry navigation loads that overlap failed page prefetches, and group shared dependencies in a stable app chunk.

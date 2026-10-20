@@ -3,8 +3,8 @@ import { createServer, type ViteDevServer } from 'vite'
 import { resolve } from 'node:path'
 declare global {
   interface Window {
-    startPersistence?: (key: string) => { save: (value: string) => Promise<void>; stop: () => Promise<void> }
-    persistence?: { save: (value: string) => Promise<void>; stop: () => Promise<void> }
+    startPersistence?: (key: string) => { save: (value: number) => Promise<void>; stop: () => Promise<void> }
+    persistence?: { save: (value: number) => Promise<void>; stop: () => Promise<void> }
     persistenceSubscribed?: boolean
   }
 }
@@ -36,8 +36,8 @@ async function start(page: import('@playwright/test').Page, key: string): Promis
 
 async function waitForMessage(page: import('@playwright/test').Page) {
   return page.evaluate(() => {
-    const { promise, resolve } = Promise.withResolvers<{ value: string }>()
-    window.addEventListener('persist-message', (event) => resolve((event as CustomEvent<{ value: string }>).detail), { once: true })
+    const { promise, resolve } = Promise.withResolvers<{ value: number }>()
+    window.addEventListener('persist-message', (event) => resolve((event as CustomEvent<{ value: number }>).detail), { once: true })
     return promise
   })
 }
@@ -50,8 +50,8 @@ test('BroadcastChannel sync sends one typed message between actual page contexts
   await start(sender, key)
   await start(receiver, key)
   const received = waitForMessage(receiver)
-  await sender.evaluate(() => window.persistence!.save('from-channel'))
-  expect(await received).toEqual({ value: 'from-channel' })
+  await sender.evaluate(() => window.persistence!.save(42))
+  expect(await received).toEqual({ value: 42 })
   await context.close()
 })
 
@@ -68,8 +68,8 @@ test('storage-event fallback syncs when BroadcastChannel is unavailable', async 
   expect(await sender.evaluate(() => location.origin)).toBe(await receiver.evaluate(() => location.origin))
   expect(await receiver.evaluate(() => typeof BroadcastChannel)).toBe('undefined')
   const received = waitForMessage(receiver)
-  await sender.evaluate(() => window.persistence!.save('from-storage'))
-  expect(await received).toEqual({ value: 'from-storage' })
+  await sender.evaluate(() => window.persistence!.save(43))
+  expect(await received).toEqual({ value: 43 })
   const [writerValue, receiverValue] = await Promise.all([
     sender.evaluate((storageKey) => localStorage.getItem(storageKey), key),
     receiver.evaluate((storageKey) => localStorage.getItem(storageKey), key),
