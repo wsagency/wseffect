@@ -173,3 +173,9 @@
 - **Issue:** The first APP-23 amendment constrained the framework chunk but left app-shared eligibility too broad: a page-only dependency could enter a shared chunk through the module graph.
 - **Amendment:** `app-shared` may contain only application modules statically reachable from both the entry and at least one page. The framework group remains limited to resolved roots for Foldkit, Effect, `@effect/platform-browser`, `@wsagency/wseffect-app`, and `workbox-window`; all other modules use Rolldown default splitting.
 - **Guard:** Verify the static/modulepreload closure of `index.html` excludes page-only `@foldkit/ui/dialog`, menu, tabs, and Floating UI dependencies.
+
+## ISL-4 amendment: Rollback focus preservation budget
+
+- **Reason:** rollback must preserve focus/selection (PRI-1).
+- **Before/after:** 4,577 B before focus restoration; 4,808 B after compact focus restoration (Brotli-q11: Island 1,521 B + Idiomorph 3,287 B). Set the Island budget to 4,864 B, the measured total rounded up to the next 64 B.
+

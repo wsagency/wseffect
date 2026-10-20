@@ -10,22 +10,12 @@ export type IslandResult =
   | { readonly _tag: 'Applied' }
   | { readonly _tag: 'RejectedIslandPatch'; readonly reason: string }
 
+type FocusableElement = Element & Pick<HTMLInputElement, 'focus' | 'selectionStart' | 'selectionEnd' | 'selectionDirection' | 'setSelectionRange'>
+
 type FocusSnapshot = Readonly<{
   path: ReadonlyArray<number>
-  selection?: Readonly<{
-    start: number
-    end: number
-    direction?: 'forward' | 'backward' | 'none'
-  }>
+  selection?: readonly [number, number, Exclude<HTMLInputElement['selectionDirection'], null> | undefined]
 }>
-
-type FocusableElement = Element & {
-  focus?: (options?: FocusOptions) => void
-  selectionStart?: number | null
-  selectionEnd?: number | null
-  selectionDirection?: 'forward' | 'backward' | 'none' | null
-  setSelectionRange?: (start: number, end: number, direction?: 'forward' | 'backward' | 'none') => void
-}
 
 function captureFocus(target: Element): FocusSnapshot | undefined {
   const activeElement = document.activeElement
@@ -43,20 +33,14 @@ function captureFocus(target: Element): FocusSnapshot | undefined {
   }
   path.reverse()
 
-  const selectionElement = activeElement as FocusableElement
+  let selection: FocusSnapshot['selection']
   try {
-    const start = selectionElement.selectionStart
-    const end = selectionElement.selectionEnd
-    if (typeof start === 'number' && typeof end === 'number') {
-      return {
-        path,
-        selection: { start, end, direction: selectionElement.selectionDirection ?? undefined },
-      }
-    }
-  } catch {
-    // Some input types expose selection properties that throw when read.
-  }
-  return { path }
+    const input = activeElement as FocusableElement
+    const start = input.selectionStart
+    const end = input.selectionEnd
+    if (start !== null && end !== null) selection = [start, end, input.selectionDirection ?? undefined]
+  } catch {}
+  return selection === undefined ? { path } : { path, selection }
 }
 
 function restoreFocus(target: Element, snapshot: FocusSnapshot | undefined): void {
@@ -67,20 +51,11 @@ function restoreFocus(target: Element, snapshot: FocusSnapshot | undefined): voi
     if (child === null) return
     node = child
   }
-  if (!(node instanceof Element)) return
   const focusable = node as FocusableElement
   try {
     focusable.focus?.({ preventScroll: true })
-  } catch {
-    // A restored node may no longer be focusable.
-  }
-  if (snapshot.selection !== undefined && typeof focusable.setSelectionRange === 'function') {
-    try {
-      focusable.setSelectionRange(snapshot.selection.start, snapshot.selection.end, snapshot.selection.direction)
-    } catch {
-      // Selection APIs are not available for every focusable element.
-    }
-  }
+    if (snapshot.selection !== undefined) focusable.setSelectionRange?.(...snapshot.selection)
+  } catch {}
 }
 
 /** Explicit Foldkit ownership exception for trusted server-rendered subtrees; not a general app-rendering path, and never pass user-controlled raw HTML. */
