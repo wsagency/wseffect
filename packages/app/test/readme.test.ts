@@ -1,4 +1,5 @@
-import { readFile } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
+import { readFile, rm, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
@@ -32,6 +33,47 @@ peerDependencyRules:
     expect(readme).toContain('loses in-memory application state')
     expect(readme).toContain('Remove this override and its `allowedVersions` entries when the Foldkit upgrade')
     expect(readme).toContain('Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.')
+  })
+  it('documentsSupportedRouteQueryPattern', async () => {
+    const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')
+    const example = readme.match(/<!-- route-query-example:start -->\n```ts\n([\s\S]*?)\n```\n<!-- route-query-example:end -->/)
+    expect(example).not.toBeNull()
+    if (example === null) return
+
+    const source = example[1]!
+    expect(source).toContain('Route.query')
+    expect(source).toContain('Navigation.pushUrl')
+    expect(source).toContain('Navigation.replaceUrl')
+
+    const examplePath = resolve(packageRoot, 'test/readme-route-query.generated.ts')
+    await writeFile(examplePath, source)
+    try {
+      execFileSync('pnpm', [
+        'exec', 'tsc', '--ignoreConfig', '--noEmit', '--strict', '--target', 'ES2022', '--module', 'ESNext',
+        '--moduleResolution', 'Bundler', '--skipLibCheck', examplePath,
+      ], { cwd: packageRoot, encoding: 'utf8' })
+    } finally {
+      await rm(examplePath, { force: true })
+    }
+  })
+
+  it('documentsBrowserAndIslandLimitations', async () => {
+    const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')
+    expect(readme).toContain('secure context')
+    expect(readme).toContain('user activation')
+    expect(readme).toContain('not secure storage')
+    expect(readme).toContain('`local-wins`')
+    expect(readme).toContain('read-only')
+    expect(readme).toContain('cannot prevent application-induced oscillation')
+    expect(readme).toContain('trusted server-rendered HTML')
+    expect(readme).toContain('mount-time initialization')
+    expect(readme).toContain('new `id`')
+    expect(readme).toContain('rolls back')
+    expect(readme).toContain('JSON-only `patch-signals` subset')
+    expect(readme).toContain('Fetch when complete rejection reporting is required')
+    expect(readme).toContain('ignore SSE `id:` and `retry:`')
+    expect(readme).toContain('Datastar Pro compatibility')
+    expect(readme).toContain('no query synchronization helper')
   })
   it('ends with a License paragraph', async () => {
     const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')
