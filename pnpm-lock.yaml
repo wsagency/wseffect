@@ -162,6 +162,9 @@ importers:
       '@foldkit/vite-plugin':
         specifier: 0.27.1
         version: 0.27.1(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))(redis@6.3.0)(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))
+      '@starfederation/datastar-sdk':
+        specifier: 1.0.0
+        version: 1.0.0
       foldkit:
         specifier: 0.168.0
         version: 0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5)
@@ -1360,6 +1363,9 @@ packages:
     engines: {node: '>=22.12.0'}
     peerDependencies:
       solid-js: ^2.0.0-rc.15
+
+  '@starfederation/datastar-sdk@1.0.0':
+    resolution: {integrity: sha512-VT1co9LeRLJ3wynffvkxXLJaCh4PHt1YUhH3zCQYhjTuaeWjozNjQQrg+BUbkDMO58mSgeQp9pgOXRWciy0y6g==}
 
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     resolution: {integrity: sha512-/67zpWDBLV+oYAEL682s1ktXL0HgqX76f6gaVGkGnVZlBbm1zd0v4Bz8MFF2GGhoX9rvfq3KSQHubFHwa6w6/Q==}
@@ -4000,6 +4006,8 @@ snapshots:
       seroval: 1.6.7
       seroval-plugins: 1.6.7(seroval@1.6.7)
       solid-js: 2.0.0-rc.15
+
+  '@starfederation/datastar-sdk@1.0.0': {}
 
   '@trickfilm400/rollup-plugin-off-main-thread@3.0.0-pre1':
     dependencies:

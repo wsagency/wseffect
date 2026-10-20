@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { projectConstraintValidity } from '../src/validation.js'
 
 describe('projectConstraintValidity', () => {
-  it('projects valid-invalid-valid transitions while preserving existing descriptions', () => {
+  it('projects valid-invalid-valid transitions', () => {
     const input = document.createElement('input')
     input.setAttribute('aria-describedby', 'help error')
 
@@ -20,6 +20,15 @@ describe('projectConstraintValidity', () => {
     expect(input.validationMessage).toBe('')
     expect(input.getAttribute('aria-invalid')).toBeNull()
     expect(input.getAttribute('aria-describedby')).toBe('help')
+  })
+
+  it('preservesOtherDescribedByTokens', () => {
+    const input = document.createElement('input')
+    input.setAttribute('aria-describedby', 'help details')
+    projectConstraintValidity(input, 'error', { _tag: 'Invalid', message: 'Required' })
+    expect(input.getAttribute('aria-describedby')).toBe('help details error')
+    projectConstraintValidity(input, 'error', { _tag: 'Valid' })
+    expect(input.getAttribute('aria-describedby')).toBe('help details')
   })
 
   it('returns a typed error for controls outside the supported native control set', () => {
