@@ -5,7 +5,7 @@ import {
   breakpointSubscription, clipboardCommand, makeLocale, resizeObserverMount, scrollIntoViewCommand,
   type Breakpoint, type BrowserCommandResult, type ResizeResult,
 } from '@wsagency/wseffect-app'
-import { Heading } from '@wsagency/wseffect-themes'
+import { Button, Card, Flex, Heading, Text } from '@wsagency/wseffect-themes'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 
 const BreakpointSchema = Schema.Literals(['initial', 'xs', 'sm', 'md', 'lg', 'xl'])
@@ -17,7 +17,7 @@ const ResizeResultSchema = Schema.Union([
   Schema.Struct({ _tag: Schema.Literal('Resized'), width: Schema.Number, height: Schema.Number }),
   Schema.Struct({ _tag: Schema.Literals(['ResizeUnavailable', 'ResizeFailure']), reason: Schema.optional(Schema.String) }),
 ])
-export const Model = Schema.Struct({ breakpoint: BreakpointSchema, clipboard: Schema.String, scroll: Schema.String, resize: Schema.String })
+export const Model = Schema.Struct({ breakpoint: BreakpointSchema, localeNumber: Schema.String, clipboard: Schema.String, scroll: Schema.String, resize: Schema.String })
 export const Message = defineMessageUnion({
   BreakpointChanged: { value: BreakpointSchema },
   Copy: {}, Scroll: {},
@@ -28,20 +28,18 @@ export const Message = defineMessageUnion({
 type Model = typeof Model.Type
 type Message = typeof Message.Type
 
-const locale = makeLocale('de-DE')
-const breakpointSubscriptionSet = breakpointSubscription<Message>((value: Breakpoint) => Message.BreakpointChanged({ value }))
 const breakpointMount: Mount.MountAction<Message> = {
   name: 'GalleryCapabilityBreakpoint',
-  f: () => breakpointSubscriptionSet['wseffect:breakpoint'].dependenciesToStream({}),
+  f: () => breakpointSubscription<Message>((value: Breakpoint) => Message.BreakpointChanged({ value }))['wseffect:breakpoint'].dependenciesToStream({}),
 }
-const resizeMount = resizeObserverMount<Message>((result: ResizeResult) => Message.ResizeReported({ result }))
+const resizeMount = () => resizeObserverMount<Message>((result: ResizeResult) => Message.ResizeReported({ result }))
 const copy = (): Command.Command<Message, never> => clipboardCommand('Gallery capability clipboard', (result: BrowserCommandResult) => Message.ClipboardFinished({ result }))
 const scroll = (): Command.Command<Message, never> => scrollIntoViewCommand('scroll-target', { behavior: 'instant', block: 'center' }, (result: BrowserCommandResult) => Message.ScrollFinished({ result }))
 
 export const page = galleryPageContract.definePage({
   Model,
   Message,
-  init: () => ({ model: { breakpoint: 'initial' as const, clipboard: 'Not copied', scroll: 'Ready', resize: 'Waiting for size' } }),
+  init: () => ({ model: { breakpoint: 'initial' as const, localeNumber: makeLocale('de-DE').number(1234.5), clipboard: 'Not copied', scroll: 'Ready', resize: 'Waiting for size' } }),
   update: (model: Model, message: Message) => Message.match(message, {
     BreakpointChanged: ({ value }) => ({ model: { ...model, breakpoint: value } }),
     Copy: () => ({ model, commands: [copy()] }),
@@ -50,16 +48,57 @@ export const page = galleryPageContract.definePage({
     ScrollFinished: ({ result }) => ({ model: { ...model, scroll: result._tag === 'Succeeded' ? 'Scrolled to target' : `Scroll failed: ${result.reason}` } }),
     ResizeReported: ({ result }) => ({ model: { ...model, resize: result._tag === 'Resized' ? `${result.width} × ${result.height}` : result._tag } }),
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.OnMount(breakpointMount)], [
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.OnMount(breakpointMount), h.Class('capability-stack')], [
     Heading.view({ as: 'h1' }, ['Browser capabilities'], h),
-    h.p([], ['Breakpoint: ', h.span([h.Id('breakpoint-value')], [model.breakpoint])]),
-    h.p([], ['German number: ', h.span([h.Id('locale-number')], [locale.number(1234.5)])]),
-    h.button([h.OnClick(Message.Copy())], ['Copy capability text']),
-    h.p([h.Id('clipboard-status'), h.AriaLive('polite')], [model.clipboard]),
-    h.button([h.OnClick(Message.Scroll())], ['Scroll to target']),
-    h.p([h.Id('scroll-status'), h.AriaLive('polite')], [model.scroll]),
-    h.div([h.Id('scroll-target')], ['Scroll target']),
-    h.div([h.Id('resize-box'), h.OnMount(resizeMount), h.Class('capability-resize-box')], ['Resize this owned element']),
-    h.p([h.Id('resize-value')], [model.resize]),
+    Card.view({ size: '2', variant: 'classic' }, [
+      h.div([h.Id('capability-breakpoint')], [
+        Flex.view({ direction: 'column', align: 'start', gap: '2' }, [
+          Heading.view({ as: 'h2', size: '3' }, ['Breakpoint'], h),
+          Text.view({ as: 'p' }, ['Current breakpoint: ', h.span([h.Id('breakpoint-value'), h.Class('rt-r-weight-bold')], [model.breakpoint])], h),
+        ], h),
+      ]),
+    ], h),
+    Card.view({ size: '2', variant: 'classic' }, [
+      h.div([h.Id('capability-locale')], [
+        Flex.view({ direction: 'column', align: 'start', gap: '2' }, [
+          Heading.view({ as: 'h2', size: '3' }, ['Locale'], h),
+          Text.view({ as: 'p' }, ['German number: ', h.span([h.Id('locale-number'), h.Class('rt-r-weight-bold')], [model.localeNumber])], h),
+        ], h),
+      ]),
+    ], h),
+    Card.view({ size: '2', variant: 'classic' }, [
+      h.div([h.Id('capability-clipboard')], [
+        Flex.view({ direction: 'column', align: 'start', gap: '2' }, [
+          Heading.view({ as: 'h2', size: '3' }, ['Clipboard'], h),
+          Button.view({ type: 'button', onClick: Message.Copy() }, ['Copy capability text'], h),
+          h.div([h.Id('clipboard-status'), h.AriaLive('polite')], [
+            Text.view({ as: 'p', color: model.clipboard === 'Copied' ? 'green' : model.clipboard.startsWith('Clipboard failed:') ? 'red' : 'gray' }, [model.clipboard], h),
+          ]),
+        ], h),
+      ]),
+    ], h),
+    Card.view({ size: '2', variant: 'classic' }, [
+      h.div([h.Id('capability-scroll')], [
+        Flex.view({ direction: 'column', align: 'start', gap: '2' }, [
+          Heading.view({ as: 'h2', size: '3' }, ['Scroll'], h),
+          Button.view({ type: 'button', variant: 'soft', onClick: Message.Scroll() }, ['Scroll to target'], h),
+          h.div([h.Id('scroll-status'), h.AriaLive('polite')], [
+            Text.view({ as: 'p', color: model.scroll === 'Scrolled to target' ? 'green' : model.scroll.startsWith('Scroll failed:') ? 'red' : 'gray' }, [model.scroll], h),
+          ]),
+          h.div([h.Id('scroll-target')], [Text.view({ as: 'p', weight: 'medium' }, ['Scroll target'], h)]),
+        ], h),
+      ]),
+    ], h),
+    Card.view({ size: '2', variant: 'classic' }, [
+      h.div([h.Id('capability-resize')], [
+        Flex.view({ direction: 'column', align: 'start', gap: '2' }, [
+          Heading.view({ as: 'h2', size: '3' }, ['Resize'], h),
+          h.div([h.Id('resize-box'), h.OnMount(resizeMount()), h.Class('capability-resize-box')], ['Resize this owned element']),
+          h.div([h.Id('resize-value'), h.AriaLive('polite')], [
+            Text.view({ as: 'p', color: model.resize === 'Waiting for size' ? 'gray' : model.resize.startsWith('Resize') ? 'red' : 'green' }, [model.resize], h),
+          ]),
+        ], h),
+      ]),
+    ], h),
   ])),
 })

@@ -63,7 +63,10 @@ export function frameworkChunking(pagesDir: string): Plugin {
   }
   const isAppSharedModule = (id: string): boolean => {
     const resolvedId = modulePath(id)
-    return existsSync(resolvedId) && !isInside(resolvedId, pagesRoot) && !isFrameworkPath(resolvedId)
+    return existsSync(resolvedId) &&
+      !isInside(resolvedId, pagesRoot) &&
+      !(appRoot !== undefined && isInside(resolvedId, appRoot)) &&
+      !isFrameworkPath(resolvedId)
   }
 
   return {

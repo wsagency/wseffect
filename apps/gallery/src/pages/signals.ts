@@ -2,7 +2,7 @@ import { Schema } from 'effect'
 import { Mount, Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
 import { signalSubscription } from '@wsagency/wseffect-app'
-import { Heading } from '@wsagency/wseffect-themes'
+import { Button, Heading, Text } from '@wsagency/wseffect-themes'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 const Signal = Schema.Struct({ count: Schema.Number })
 const SignalOutcomeSchema = Schema.Union([
@@ -18,15 +18,14 @@ export const Message = defineMessageUnion({
 type Model = typeof Model.Type
 type Message = typeof Message.Type
 
-const signalStream = signalSubscription({
-  schema: Signal,
-  transport: { _tag: 'EventSource', url: '/__gallery/capabilities/signals' },
-  backoff: { delaysMs: [10_000], jitter: 0 },
-  toMessage: (outcome): Message => Message.SignalOutcomeReceived({ outcome }),
-})
 const signalMount: Mount.MountAction<Message> = {
   name: 'GalleryCapabilitySignals',
-  f: () => signalStream.dependenciesToStream({}, () => ({})),
+  f: () => signalSubscription({
+    schema: Signal,
+    transport: { _tag: 'EventSource', url: '/__gallery/capabilities/signals' },
+    backoff: { delaysMs: [10_000], jitter: 0 },
+    toMessage: (outcome): Message => Message.SignalOutcomeReceived({ outcome }),
+  }).dependenciesToStream({}, () => ({})),
 }
 
 export const page = galleryPageContract.definePage({
@@ -39,10 +38,17 @@ export const page = galleryPageContract.definePage({
       ? { model: { ...model, count: outcome.onlyIfMissing && model.count !== 0 ? model.count : outcome.value.count, status: 'Signal patch applied' } }
       : { model: { ...model, status: outcome._tag === 'RejectedSignalPatch' ? `Rejected signal: ${outcome.reason}` : `Signal transport: ${outcome.reason}` } },
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.Class('capability-stack')], [
     Heading.view({ as: 'h1' }, ['Signals'], h),
-    h.p([h.Id('signal-count')], [String(model.count)]),
-    h.p([h.Id('signal-status')], [model.status]),
-    ...(model.connected ? [h.div([h.OnMount(signalMount)], [])] : [h.button([h.OnClick(Message.Connect())], ['Connect to local signal stream'])]),
+    h.div([h.Id('signal-count'), h.Class('rt-Text rt-r-size-6 rt-r-weight-bold')], [String(model.count)]),
+    h.div([h.Id('signal-status'), h.AriaLive('polite')], [
+      Text.view({
+        as: 'p',
+        color: model.status === 'Signal patch applied' ? 'green' : model.status.startsWith('Rejected') || model.status.startsWith('Signal transport') ? 'red' : 'gray',
+      }, [model.status], h),
+    ]),
+    ...(model.connected
+      ? [h.div([h.OnMount(signalMount)], [])]
+      : [Button.view({ type: 'button', onClick: Message.Connect() }, ['Connect to local signal stream'], h)]),
   ])),
 })

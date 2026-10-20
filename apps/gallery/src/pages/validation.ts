@@ -1,8 +1,9 @@
 import { Effect, Schema } from 'effect'
-import { Command, Submodel } from 'foldkit'
+import * as Stream from 'effect/Stream'
+import { Command, Mount, Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
 import { projectConstraintValidity, type ValidationResult } from '@wsagency/wseffect-app'
-import { Heading } from '@wsagency/wseffect-themes'
+import { Button, Flex, Heading, Text, TextField } from '@wsagency/wseffect-themes'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 
 export const Model = Schema.Struct({ name: Schema.String, result: Schema.String })
@@ -14,15 +15,26 @@ export const Message = defineMessageUnion({
 type Model = typeof Model.Type
 type Message = typeof Message.Type
 
-const project = (result: ValidationResult): Command.Command<Message, never> => ({
+const project = (result: ValidationResult, reportedResult?: string): Command.Command<Message, never> => ({
   name: 'ProjectNativeValidation',
   effect: Effect.sync(() => {
     const control = typeof document === 'undefined' ? null : document.getElementById('validation-name')
     if (!(control instanceof HTMLInputElement)) return Message.ValidationProjected({ result: 'Invalid control' })
-    const projected = projectConstraintValidity(control, 'validation-error', result)
+    const projected = projectConstraintValidity(control, 'name-error', result)
     if (projected._tag === 'Failure') return Message.ValidationProjected({ result: 'Invalid control' })
-    return Message.ValidationProjected({ result: result._tag === 'Valid' ? 'Valid' : result.message })
+    return Message.ValidationProjected({
+      result: reportedResult ?? (result._tag === 'Valid' ? 'Valid' : result.message),
+    })
   }),
+})
+const validationMount = (model: Model): Mount.MountAction<Message> => ({
+  name: 'GalleryValidationProjection',
+  f: () => Stream.fromEffect(project(
+    model.result === 'Not validated' || model.result === 'Valid'
+      ? { _tag: 'Valid' }
+      : { _tag: 'Invalid', message: model.result },
+    model.result,
+  ).effect),
 })
 
 export const page = galleryPageContract.definePage({
@@ -30,23 +42,50 @@ export const page = galleryPageContract.definePage({
   Message,
   init: () => ({ model: { name: '', result: 'Not validated' } }),
   update: (model: Model, message: Message) => Message.match(message, {
-    NameChanged: ({ value }) => ({ model: { ...model, name: value } }),
-    Validate: () => ({
-      model,
-      commands: [project(model.name.trim() ? { _tag: 'Valid' } : { _tag: 'Invalid', message: 'Enter a name' })],
-    }),
+    NameChanged: ({ value }) => model.result === 'Not validated' || model.result === 'Valid'
+      ? { model: { ...model, name: value } }
+      : {
+          model: { ...model, name: value, result: 'Not validated' },
+          commands: [project({ _tag: 'Valid' }, 'Not validated')],
+        },
+    Validate: () => {
+      const result: ValidationResult = model.name.trim()
+        ? { _tag: 'Valid' }
+        : { _tag: 'Invalid', message: 'Enter a name' }
+      return { model, commands: [project(result)] }
+    },
     ValidationProjected: ({ result }) => ({ model: { ...model, result } }),
   }),
-  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
-    Heading.view({ as: 'h1' }, ['Native constraint validation'], h),
-    h.label([h.For('validation-name')], ['Name']),
-    h.input([
-      h.Id('validation-name'), h.Type('text'), h.Value(model.name),
-      h.OnInput((value) => Message.NameChanged({ value })),
-      ...(model.result === 'Valid' ? [h.AriaInvalid(false)] : []),
-    ]),
-    h.p([h.Id('validation-error'), h.AriaLive('polite')], [model.result === 'Valid' ? '' : model.result === 'Not validated' ? '' : model.result]),
-    h.button([h.Id('validation-submit'), h.OnClick(Message.Validate())], ['Validate']),
-    h.output([h.Id('validation-result')], [model.result]),
-  ])),
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => {
+    const invalid = model.result !== 'Not validated' && model.result !== 'Valid'
+    return h.div([h.Class('capability-stack')], [
+      Heading.view({ as: 'h1' }, ['Native constraint validation'], h),
+      Flex.view({ direction: 'column', gap: '2' }, [
+        h.div([h.Class('capability-field')], [
+          TextField.view({
+            id: 'validation-name',
+            label: 'Name',
+            type: 'text',
+            value: model.name,
+            invalid,
+            onInput: (value) => Message.NameChanged({ value }),
+            inputAttributes: [
+              h.AriaInvalid(invalid),
+              ...(invalid ? [h.AriaDescribedBy('name-error')] : []),
+              h.OnMount(validationMount(model)),
+            ],
+          }, [], h),
+        ]),
+        ...(invalid ? [h.p([h.Id('name-error'), h.AriaLive('polite')], [
+          Text.view({ as: 'span', color: 'red' }, [model.result], h),
+        ])] : []),
+        h.div([h.Id('validation-submit')], [
+          Button.view({ type: 'button', onClick: Message.Validate() }, ['Validate'], h),
+        ]),
+        h.div([h.Id('validation-result'), h.AriaLive('polite')], [
+          Text.view({ as: 'p', color: invalid ? 'red' : model.result === 'Valid' ? 'green' : 'gray' }, [model.result], h),
+        ]),
+      ], h),
+    ])
+  }),
 })

@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test'
 const root = new URL('.', import.meta.url).pathname
 const productionURL = 'http://127.0.0.1:4450'
 const developmentURL = 'http://127.0.0.1:4451'
+const capabilitiesPort = Number(process.env.WSEFFECT_CAPABILITIES_PREVIEW_PORT ?? 4452)
+const capabilitiesURL = `http://127.0.0.1:${capabilitiesPort}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -31,7 +33,7 @@ export default defineConfig({
       return {
         name: `capabilities-${name}`,
         testMatch: '**/capabilities.spec.ts',
-        use: { ...device, baseURL: 'http://127.0.0.1:4452', browserName: name },
+        use: { ...device, baseURL: capabilitiesURL, browserName: name },
       }
     }),
     {
@@ -60,8 +62,8 @@ export default defineConfig({
       timeout: 30_000,
     },
     {
-      command: `pnpm --dir ${root}apps/gallery build && GALLERY_CAPABILITY_SSE=1 pnpm --dir ${root}apps/gallery exec vite preview --host 127.0.0.1 --port 4452 --strictPort`,
-      url: 'http://127.0.0.1:4452',
+      command: `pnpm --dir ${root}apps/gallery build && GALLERY_CAPABILITY_SSE=1 pnpm --dir ${root}apps/gallery exec vite preview --host 127.0.0.1 --port ${capabilitiesPort} --strictPort`,
+      url: capabilitiesURL,
       reuseExistingServer: false,
       timeout: 120_000,
     },

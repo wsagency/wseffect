@@ -177,7 +177,7 @@ test('measureSize reports the built Gallery shell and all initial server respons
   const result = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
   assert.equal(result.shell, expectedShell)
   assert.equal(result.shellRaw, expectedShellRaw)
-  assert.deepEqual(Object.keys(result.pages).sort(), ['buttons', 'cards', 'dialog', 'dropdownMenu', 'form', 'layout', 'menus', 'sharedA', 'sharedB', 'tabs', 'textField', 'theme', 'typography', 'virtualList'])
+  assert.deepEqual(Object.keys(result.pages).sort(), ['browser', 'buttons', 'capabilities', 'cards', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
   assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
   assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')

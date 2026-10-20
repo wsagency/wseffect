@@ -8,7 +8,7 @@ describe('projectConstraintValidity', () => {
 
     expect(projectConstraintValidity(input, 'error', { _tag: 'Valid' })._tag).toBe('Success')
     expect(input.validationMessage).toBe('')
-    expect(input.getAttribute('aria-invalid')).toBeNull()
+    expect(input.getAttribute('aria-invalid')).toBe('false')
     expect(input.getAttribute('aria-describedby')).toBe('help')
 
     expect(projectConstraintValidity(input, 'error', { _tag: 'Invalid', message: 'Required' })._tag).toBe('Success')
@@ -18,7 +18,7 @@ describe('projectConstraintValidity', () => {
 
     expect(projectConstraintValidity(input, 'error', { _tag: 'Valid' })._tag).toBe('Success')
     expect(input.validationMessage).toBe('')
-    expect(input.getAttribute('aria-invalid')).toBeNull()
+    expect(input.getAttribute('aria-invalid')).toBe('false')
     expect(input.getAttribute('aria-describedby')).toBe('help')
   })
 

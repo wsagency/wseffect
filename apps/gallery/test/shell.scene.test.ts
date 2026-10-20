@@ -97,7 +97,7 @@ describe('gallery shell', () => {
       },
     }
     const contentKeys = Object.entries(pageKeysByRoute)
-      .flatMap(([path, keys]) => path === '/' || path === '/menus' ? [] : [keys[0]!])
+      .flatMap(([path, keys]) => path === '/' || path === '/menus' || path.startsWith('/capabilities/') ? [] : [keys[0]!])
     const contentMounts = contentKeys.map((key) => {
       const attribute = prefetchOnVisible<Pages, typeof KitMessage.Type>(kit, key)
       return [attribute.action, Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key, 'visible') })] as const

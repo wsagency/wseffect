@@ -7,16 +7,24 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "first-visit": {
-      "bytes": 156492,
-      "reason": "Themed controls and the Box surface add 36 B to initial transfer; GATE-S2 remains under its 160 KiB cap."
+      "bytes": 161697,
+      "reason": "Global red/green Theme tokens support cold capability routes; first visit remains below 163,840 B and capability modules stay lazy."
     },
     "speculative-prefetch": {
       "bytes": 28911,
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
+    "page:browser": {
+      "bytes": 2529,
+      "reason": "New lazy browser-capability demo; module remains outside the initial transfer."
+    },
     "page:buttons": {
       "bytes": 355,
       "reason": "The shared themed Button shell usage reshapes the lazy buttons chunk by 35 B; page modules remain lazy."
+    },
+    "page:capabilities": {
+      "bytes": 587,
+      "reason": "New lazy capability index; page code remains outside the initial transfer."
     },
     "page:cards": {
       "bytes": 362,
@@ -34,13 +42,21 @@
       "bytes": 521,
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
+    "page:island": {
+      "bytes": 1954,
+      "reason": "New lazy Island demo; module remains outside the initial transfer."
+    },
     "page:layout": {
-      "bytes": 365,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 391,
+      "reason": "The shared color-token CSS import changes the layout page chunk; capability pages remain lazy."
     },
     "page:menus": {
       "bytes": 839,
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+    },
+    "page:persistence": {
+      "bytes": 2057,
+      "reason": "New lazy persistence demo; module remains outside the initial transfer."
     },
     "page:sharedA": {
       "bytes": 536,
@@ -49,6 +65,10 @@
     "page:sharedB": {
       "bytes": 383,
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+    },
+    "page:signals": {
+      "bytes": 2112,
+      "reason": "New lazy signals demo; module remains outside the initial transfer."
     },
     "page:tabs": {
       "bytes": 589,
@@ -65,6 +85,10 @@
     "page:typography": {
       "bytes": 344,
       "reason": "The shared themed Heading/Text shell usage reshapes the lazy typography chunk by 27 B; page modules remain lazy."
+    },
+    "page:validation": {
+      "bytes": 1154,
+      "reason": "New lazy native-validation demo; module remains outside the initial transfer."
     },
     "page:virtualList": {
       "bytes": 6030,
