@@ -137,6 +137,7 @@ describe('versioned persistence', () => {
       const secondMessages: string[] = []
       second = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => { secondMessages.push(message) })))
       await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledTimes(2))
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(secondMessages).toEqual([])
     } finally {
       await Effect.runPromise(Fiber.interrupt(first))
@@ -249,7 +250,8 @@ describe('versioned persistence', () => {
       await Effect.runPromise(persistence.save({ count: 3 }).pipe(Effect.provide(TestClock.layer())))
       sender.postMessage(duplicate)
       window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: JSON.stringify(duplicate) }))
-      await vi.waitFor(() => expect(messages).toEqual(['value:2']))
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(messages).toEqual(['value:2'])
       expect(addEventListener).not.toHaveBeenCalledWith('storage', expect.any(Function))
     } finally {
       await Effect.runPromise(Fiber.interrupt(fiber))
