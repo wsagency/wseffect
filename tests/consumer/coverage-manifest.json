@@ -604,7 +604,11 @@
     "public-surface",
     "branding"
   ],
-  "export:@wsagency/wseffect-themes:.:Box": [
+  "export:@wsagency/wseffect-app:.:breakpointSubscription": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-themes:./breakpoints:BREAKPOINTS": [
     "public-surface",
     "branding"
   ],
@@ -805,6 +809,12 @@
     "gallery-typecheck"
   ],
   "subpath:@wsagency/wseffect-themes:.": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-themes:./breakpoints": [
     "public-surface",
     "consumer-install",
     "gallery-build",
@@ -2237,6 +2247,10 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:AnyPage": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:Breakpoint": [
     "public-surface",
     "gallery-typecheck"
   ],

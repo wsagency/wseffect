@@ -5,6 +5,14 @@ import postcss from 'postcss';
 import postcssConfig from '../postcss.config.js';
 
 const root = resolve(import.meta.dirname, '..');
+const breakpointSource = await readFile(resolve(root, 'src/breakpoints.ts'), 'utf8');
+const breakpointRules = [...breakpointSource.matchAll(/\{ name: '(\w+)', minWidth: (\d+) \}/g)]
+  .map(([, name, width]) => `@custom-media --${name} (min-width: ${width}px);`)
+  .join('\n') + '\n';
+if ((breakpointSource.match(/\{ name: '\w+', minWidth: \d+ \}/g) ?? []).length !== 5) {
+  throw new Error('Expected exactly five breakpoint tokens');
+}
+await writeFile(resolve(root, 'src/styles/breakpoints.css'), breakpointRules);
 const processor = postcss(postcssConfig.plugins);
 const targets = [
   ['src/styles/index.css', 'styles.css'],

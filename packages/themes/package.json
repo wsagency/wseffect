@@ -13,6 +13,7 @@
   "files": ["dist", "LICENSE", "README.md", "CHANGELOG.md"],
   "sideEffects": ["**/*.css"],
   "exports": {
+    "./breakpoints": { "types": "./dist/breakpoints.d.ts", "default": "./dist/breakpoints.js" },
     ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
     "./components/theme": { "types": "./dist/components/theme.d.ts", "default": "./dist/components/theme.js" },
     "./components/box": { "types": "./dist/components/box.d.ts", "default": "./dist/components/box.js" },
