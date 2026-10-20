@@ -34,9 +34,6 @@
     "vite-plugin-pwa": "2.0.0",
     "@wsagency/wseffect-themes": "workspace:*"
   },
-  "peerDependenciesMeta": {
-    "@wsagency/wseffect-themes": { "optional": true }
-  },
   "devDependencies": {
     "@wsagency/wseffect-themes": "workspace:*",
     "@foldkit/ui": "0.168.0",

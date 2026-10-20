@@ -3,6 +3,7 @@ import * as Exit from 'effect/Exit'
 import * as SchemaParser from 'effect/SchemaParser'
 import type * as Schema from 'effect/Schema'
 
+/** `local-wins` never applies remote values; timestamp arbitration is explicit in the other policy. */
 export type ConflictPolicy = 'last-writer-wins-by-timestamp' | 'local-wins'
 export type PersistenceFailure = {
   readonly _tag: 'PersistenceFailure'
@@ -41,11 +42,19 @@ function isEnvelope(value: unknown): value is Envelope {
 
 export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   let localWrittenAt = -Infinity
+  let lastWrittenIdentity: string | undefined
+  let lastIncomingIdentity: string | undefined
   let debounceGeneration = 0
   const listeners = new Set<Queue.Queue<M, Cause.Done>>()
+  const pendingRestoreFailures: M[] = []
   const emit = (message: M) => { for (const listener of listeners) Queue.offerUnsafe(listener, message) }
   const failure = (operation: PersistenceFailure['operation'], reason: string) =>
     config.toFailureMessage({ _tag: 'PersistenceFailure', operation, reason })
+  const restoreFailure = (operation: 'Restore' | 'Migrate', reason: string) => {
+    const message = failure(operation, reason)
+    if (listeners.size === 0) pendingRestoreFailures.push(message)
+    else emit(message)
+  }
 
   const decodeData = (value: unknown): A | undefined => {
     const decoded = SchemaParser.decodeUnknownExit(config.schema)(value)
@@ -54,20 +63,19 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   const decodeEnvelope = (raw: string): Envelope | undefined => {
     let parsed: unknown
     try { parsed = JSON.parse(raw) } catch { return undefined }
-    if (!isEnvelope(parsed) || decodeData(parsed.data) === undefined) return undefined
-    return parsed
+    return isEnvelope(parsed) ? parsed : undefined
   }
 
   const restore: Effect.Effect<A> = Effect.sync(() => {
     let raw: string | null
     try { raw = localStorage.getItem(config.key) } catch (cause) {
-      emit(failure('Restore', String(cause)))
+      restoreFailure('Restore', String(cause))
       return config.defaultValue
     }
     if (raw === null) return config.defaultValue
     const envelope = decodeEnvelope(raw)
     if (envelope === undefined) {
-      emit(failure('Restore', 'Malformed or schema-invalid envelope'))
+      restoreFailure('Restore', 'Malformed envelope')
       return config.defaultValue
     }
     let data: A | undefined
@@ -75,17 +83,18 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
     else {
       const migrated = config.migrate(envelope.version, envelope.data)
       if (Result.isFailure(migrated)) {
-        emit(failure('Migrate', 'Unsupported stored version'))
+        restoreFailure('Migrate', 'Unsupported stored version')
       } else {
         data = decodeData(migrated.success)
-        if (data === undefined) emit(failure('Migrate', 'Migrated value failed current schema'))
+        if (data === undefined) restoreFailure('Migrate', 'Migrated value failed current schema')
       }
     }
     if (data === undefined) {
-      if (envelope.version === config.version) emit(failure('Restore', 'Stored value failed current schema'))
+      if (envelope.version === config.version) restoreFailure('Restore', 'Stored value failed current schema')
       return config.defaultValue
     }
     localWrittenAt = envelope.writtenAt
+    lastWrittenIdentity = JSON.stringify(envelope)
     return data
   })
 
@@ -93,8 +102,10 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
     const writtenAt = yield* Effect.clockWith((clock) => clock.currentTimeMillis)
     const envelope = { version: config.version, writtenAt, data: value }
     try {
-      localStorage.setItem(config.key, JSON.stringify(envelope))
+      const serialized = JSON.stringify(envelope)
+      localStorage.setItem(config.key, serialized)
       localWrittenAt = writtenAt
+      lastWrittenIdentity = serialized
       if (typeof BroadcastChannel !== 'undefined') {
         const channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
         channel.postMessage(envelope)
@@ -115,12 +126,17 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
     yield* Effect.acquireRelease(
       Effect.sync(() => {
         listeners.add(queue)
+        for (const pending of pendingRestoreFailures) Queue.offerUnsafe(queue, pending)
+        pendingRestoreFailures.length = 0
         const applyIncoming = (input: unknown) => {
           if (!isEnvelope(input)) { emit(failure('Sync', 'Malformed remote envelope')); return }
           const envelope = input
           if (envelope.version !== config.version) { emit(failure('Sync', 'Foreign remote version')); return }
           const data = decodeData(envelope.data)
           if (data === undefined) { emit(failure('Sync', 'Remote value failed current schema')); return }
+          const identity = JSON.stringify(envelope)
+          if (identity === lastIncomingIdentity || identity === lastWrittenIdentity) return
+          lastIncomingIdentity = identity
           const wins = config.conflictPolicy === 'last-writer-wins-by-timestamp' && envelope.writtenAt > localWrittenAt
           if (wins) {
             localWrittenAt = envelope.writtenAt
@@ -137,8 +153,7 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
         if (typeof BroadcastChannel !== 'undefined') {
           channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
           channel.addEventListener('message', (event: MessageEvent<unknown>) => applyIncoming(event.data))
-        }
-        if (typeof window !== 'undefined') {
+        } else if (typeof window !== 'undefined') {
           // WebKit delays cross-document storage events until this document accesses localStorage.
           try { window.localStorage.getItem(config.key) } catch {}
           window.addEventListener('storage', storage)

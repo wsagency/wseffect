@@ -17,7 +17,13 @@ function breakpointStream<Message>(toMessage: (value: Breakpoint) => Message): S
   return Stream.callback<Message>((queue) => Effect.gen(function*() {
     yield* Effect.acquireRelease(
       Effect.sync(() => {
-        const emit = () => Queue.offerUnsafe(queue, toMessage(currentBreakpoint()))
+        let lastEmitted: Breakpoint | undefined
+        const emit = () => {
+          const current = currentBreakpoint()
+          if (current === lastEmitted) return
+          lastEmitted = current
+          Queue.offerUnsafe(queue, toMessage(current))
+        }
         const queries = BREAKPOINTS.map(({ minWidth }) => window.matchMedia(`(min-width: ${minWidth}px)`))
         for (const query of queries) query.addEventListener('change', emit)
         emit()

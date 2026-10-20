@@ -1,6 +1,6 @@
 import { Effect, Fiber, Result, Schema, Stream } from 'effect'
 import { TestClock } from 'effect/testing'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { persist, type PersistConfig } from '../src/persistence.js'
 
 const schema = Schema.Struct({ count: Schema.Number })
@@ -10,6 +10,15 @@ const config = (overrides: Partial<PersistConfig<{ count: number }, string>> = {
   toMessage: (value: { count: number }) => `value:${value.count}`,
   toFailureMessage: (failure: { _tag: 'PersistenceFailure'; operation: 'Restore' | 'Save' | 'Migrate' | 'Sync'; reason: string }) => `failure:${failure.operation}`,
   ...overrides,
+})
+let broadcastChannelDescriptor: PropertyDescriptor | undefined
+beforeEach(() => {
+  broadcastChannelDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+  Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: undefined })
+})
+afterEach(() => {
+  if (broadcastChannelDescriptor === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+  else Object.defineProperty(globalThis, 'BroadcastChannel', broadcastChannelDescriptor)
 })
 
 describe('versioned persistence', () => {
@@ -38,10 +47,10 @@ describe('versioned persistence', () => {
     }
   })
   it('migrates a different version and validates the migrated value', async () => {
-    localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 1, data: { count: 9 } }))
+    localStorage.setItem('counter', JSON.stringify({ version: 0, writtenAt: 1, data: { legacyCount: 9 } }))
     const migrate = vi.fn((version: number, data: unknown) => {
-      if (version !== 0 || data === null || typeof data !== 'object' || !('count' in data) || typeof data.count !== 'number') return Result.fail(data)
-      return Result.succeed({ count: data.count + 1 })
+      if (version !== 0 || data === null || typeof data !== 'object' || !('legacyCount' in data) || typeof data.legacyCount !== 'number') return Result.fail(data)
+      return Result.succeed({ count: data.legacyCount + 1 })
     })
     const persistence = persist(config({ migrate }))
     expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 10 })
@@ -112,6 +121,29 @@ describe('versioned persistence', () => {
     }
   })
 
+  it('delivers a restore failure once to the first subscriber after restore', async () => {
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 1, data: { count: 'invalid' } }))
+    const persistence = persist(config({ toFailureMessage: () => 'failure:Restore' }))
+    expect(await Effect.runPromise(persistence.restore)).toEqual({ count: 0 })
+
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+    const firstMessages: string[] = []
+    const first = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => { firstMessages.push(message) })))
+    let second: Fiber.Fiber<void, never> | undefined
+    try {
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function)))
+      await vi.waitFor(() => expect(firstMessages).toEqual(['failure:Restore']))
+
+      const secondMessages: string[] = []
+      second = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => { secondMessages.push(message) })))
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledTimes(2))
+      expect(secondMessages).toEqual([])
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(first))
+      if (second !== undefined) await Effect.runPromise(Fiber.interrupt(second))
+      addEventListener.mockRestore()
+    }
+  })
   it('reports foreign storage data and rejects incoming data that fails its schema', async () => {
     const failures: string[] = []
     const persistence = persist(config({
@@ -184,6 +216,48 @@ describe('versioned persistence', () => {
         await Effect.runPromise(Fiber.interrupt(fiber))
         addEventListener.mockRestore()
       }
+    }
+  })
+  it('applies a duplicate envelope once across transports and a lower-timestamp local save', async () => {
+    const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+    const channels = new Set<FakeBroadcastChannel>()
+    class FakeBroadcastChannel extends EventTarget {
+      constructor() {
+        super()
+        channels.add(this)
+      }
+      postMessage(data: unknown) {
+        for (const channel of channels) {
+          if (channel !== this) channel.dispatchEvent(new MessageEvent('message', { data }))
+        }
+      }
+      close() { channels.delete(this) }
+    }
+    Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: FakeBroadcastChannel })
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 10, data: { count: 1 } }))
+    const persistence = persist(config())
+    await Effect.runPromise(persistence.restore)
+    const messages: string[] = []
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+    const fiber = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => { messages.push(message) })))
+    const duplicate = { version: 1, writtenAt: 20, data: { count: 2 } }
+    const sender = new FakeBroadcastChannel()
+    try {
+      await vi.waitFor(() => expect(channels.size).toBe(2))
+      sender.postMessage(duplicate)
+      await vi.waitFor(() => expect(messages).toEqual(['value:2']))
+      await Effect.runPromise(persistence.save({ count: 3 }).pipe(Effect.provide(TestClock.layer())))
+      sender.postMessage(duplicate)
+      window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: JSON.stringify(duplicate) }))
+      await vi.waitFor(() => expect(messages).toEqual(['value:2']))
+      expect(addEventListener).not.toHaveBeenCalledWith('storage', expect.any(Function))
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      sender.close()
+      channels.clear()
+      addEventListener.mockRestore()
+      if (originalChannel === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+      else Object.defineProperty(globalThis, 'BroadcastChannel', originalChannel)
     }
   })
 })
