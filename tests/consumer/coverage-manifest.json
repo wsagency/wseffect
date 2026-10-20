@@ -499,6 +499,14 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:.:LocaleService": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:makeLocale": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:.:messageSchema": [
     "public-surface",
     "branding"
@@ -2321,6 +2329,10 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:LoaderSubscriptionsConfig": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:Locale": [
     "public-surface",
     "gallery-typecheck"
   ],
