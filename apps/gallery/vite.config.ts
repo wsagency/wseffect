@@ -1,4 +1,23 @@
 import { primaryPages } from './src/primaryPages.js'
+import type { Plugin, PreviewServer, ViteDevServer } from 'vite'
+
+const serveCapabilitySignals = (server: ViteDevServer | PreviewServer) => {
+  server.middlewares.use((request, response, next) => {
+    if (process.env.GALLERY_CAPABILITY_SSE !== '1' || request.url !== '/__gallery/capabilities/signals') return next()
+    response.statusCode = 200
+    response.setHeader('Content-Type', 'text/event-stream')
+    response.setHeader('Cache-Control', 'no-cache, no-transform')
+    response.setHeader('Connection', 'keep-alive')
+    response.write('event: datastar-patch-signals\ndata: signals {"count":7}\n\n')
+  })
+}
+
+const capabilitySignalEndpoint: Plugin = {
+  name: 'gallery-capability-signal-endpoint',
+  configureServer: serveCapabilitySignals,
+  configurePreviewServer: serveCapabilitySignals,
+}
+
 import { defineConfig } from 'vite'
 import { wseffect } from '@wsagency/wseffect-app/vite'
 
@@ -21,5 +40,5 @@ export default defineConfig({
   plugins: [wseffect({
     primaryPages,
     pwa: { manifest },
-  })],
+  }), capabilitySignalEndpoint],
 })
