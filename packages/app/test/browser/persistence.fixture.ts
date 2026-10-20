@@ -49,7 +49,7 @@ function signalOnSubscribeListeners(key: string): () => void {
   return restore
 }
 
-const Stored = Schema.Struct({ value: Schema.String })
+const Stored = Schema.Struct({ value: Schema.NumberFromString })
 
 Object.assign(window, {
   startPersistence(key: string) {
@@ -57,22 +57,19 @@ Object.assign(window, {
       key,
       version: 1,
       schema: Stored,
-      defaultValue: { value: '' },
+      defaultValue: { value: 0 },
       conflictPolicy: 'last-writer-wins-by-timestamp' as const,
-      migrate: (_version: number, data: unknown) => {
-        const decoded = Schema.decodeUnknownOption(Stored)(data)
-        return decoded._tag === 'Some' ? Result.succeed(decoded.value) : Result.fail(data)
-      },
+      migrate: () => Result.fail('unsupported'),
       debounceMs: 25,
-      toMessage: (value: { value: string }) => value,
-      toFailureMessage: (_failure: { _tag: 'PersistenceFailure'; operation: 'Restore' | 'Save' | 'Migrate' | 'Sync'; reason: string }) => ({ value: 'failure' }),
+      toMessage: (value: { value: number }) => value,
+      toFailureMessage: (_failure: { _tag: 'PersistenceFailure'; operation: 'Restore' | 'Save' | 'Migrate' | 'Sync'; reason: string }) => ({ value: -1 }),
     })
     const restoreReadinessHooks = signalOnSubscribeListeners(key)
     const fiber = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => {
       window.dispatchEvent(new CustomEvent('persist-message', { detail: message }))
     })))
     return {
-      save: (value: string) => Effect.runPromise(persistence.save({ value })),
+      save: (value: number) => Effect.runPromise(persistence.save({ value })),
       restore: () => Effect.runPromise(persistence.restore),
       stop: () => {
         restoreReadinessHooks()

@@ -85,8 +85,9 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
       if (Result.isFailure(migrated)) {
         restoreFailure('Migrate', 'Unsupported stored version')
       } else {
-        data = decodeData(migrated.success)
-        if (data === undefined) restoreFailure('Migrate', 'Migrated value failed current schema')
+        const encoded = SchemaParser.encodeUnknownExit(config.schema)(migrated.success)
+        if (Exit.isSuccess(encoded)) data = migrated.success
+        else restoreFailure('Migrate', 'Migrated value failed current schema')
       }
     }
     if (data === undefined) {
@@ -99,8 +100,13 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
   })
 
   const save = (value: A): Effect.Effect<void> => Effect.gen(function*() {
+    const encoded = SchemaParser.encodeUnknownExit(config.schema)(value)
+    if (Exit.isFailure(encoded)) {
+      emit(failure('Save', String(encoded.cause)))
+      return
+    }
     const writtenAt = yield* Effect.clockWith((clock) => clock.currentTimeMillis)
-    const envelope = { version: config.version, writtenAt, data: value }
+    const envelope = { version: config.version, writtenAt, data: encoded.value }
     try {
       const serialized = JSON.stringify(envelope)
       localStorage.setItem(config.key, serialized)
