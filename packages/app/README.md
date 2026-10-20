@@ -92,6 +92,7 @@ const savePreferences = (model: Model) => preferences.save(model.preferences)
 ```
 
 `persist<A, M>` returns `Persistence<A, M>`: `restore` is an `Effect<A>`, `save` and `saveDebounced` write a value, and `subscribe` is a `Stream<M>`. Restore failures return the configured default and are delivered once to the first subscriber; save, migration, and sync failures use `toFailureMessage`. The conflict policy is required. `local-wins` is strict: remote values are never applied to the Model. Persistence uses origin-local storage and is not secure storage; do not store secrets or treat it as an access-control boundary.
+
 The envelope's `data` is stored in the supplied Schema codec's encoded form, so that encoded side must be JSON-compatible. Restore and sync decode that stored payload. `migrate(storedVersion, data)` receives the raw payload from the old envelope and must return the current decoded value; persistence validates that value against the current codec before restoring it.
 
 ### Theme breakpoints
