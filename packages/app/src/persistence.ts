@@ -106,13 +106,20 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
       localStorage.setItem(config.key, serialized)
       localWrittenAt = writtenAt
       lastWrittenIdentity = serialized
-      if (typeof BroadcastChannel !== 'undefined') {
-        const channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
-        channel.postMessage(envelope)
-        channel.close()
-      }
     } catch (cause) {
       emit(failure('Save', String(cause)))
+      return
+    }
+    if (typeof BroadcastChannel !== 'undefined') {
+      let channel: BroadcastChannel | undefined
+      try {
+        channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
+        channel.postMessage(envelope)
+      } catch {
+        // localStorage is authoritative; BroadcastChannel is best-effort.
+      } finally {
+        channel?.close()
+      }
     }
   })
 
@@ -150,13 +157,19 @@ export function persist<A, M>(config: PersistConfig<A, M>): Persistence<A, M> {
           if (incoming === undefined) { emit(failure('Sync', 'Malformed storage event')); return }
           applyIncoming(incoming)
         }
-        if (typeof BroadcastChannel !== 'undefined') {
-          channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
-          channel.addEventListener('message', (event: MessageEvent<unknown>) => applyIncoming(event.data))
-        } else if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined') {
           // WebKit delays cross-document storage events until this document accesses localStorage.
           try { window.localStorage.getItem(config.key) } catch {}
           window.addEventListener('storage', storage)
+        }
+        if (typeof BroadcastChannel !== 'undefined') {
+          try {
+            channel = new BroadcastChannel(`wseffect:persist:${config.key}`)
+            channel.addEventListener('message', (event: MessageEvent<unknown>) => applyIncoming(event.data))
+          } catch {
+            channel?.close()
+            channel = undefined
+          }
         }
         return () => {
           listeners.delete(queue)

@@ -219,6 +219,62 @@ describe('versioned persistence', () => {
       }
     }
   })
+  it('falls back to storage sync when BroadcastChannel construction throws', async () => {
+    const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+    class BrokenBroadcastChannel {
+      constructor() { throw new Error('BroadcastChannel unavailable') }
+    }
+    Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: BrokenBroadcastChannel })
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 1, data: { count: 0 } }))
+    const persistence = persist(config())
+    const messages: string[] = []
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+    const fiber = Effect.runFork(Stream.runForEach(persistence.subscribe, (message) => Effect.sync(() => { messages.push(message) })))
+    try {
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function)))
+      window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: JSON.stringify({ version: 1, writtenAt: 2, data: { count: 1 } }) }))
+      await vi.waitFor(() => expect(messages).toEqual(['value:1']))
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      addEventListener.mockRestore()
+      if (originalChannel === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+      else Object.defineProperty(globalThis, 'BroadcastChannel', originalChannel)
+    }
+  })
+
+  it('ignores postMessage errors and receives the authoritative storage write', async () => {
+    const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
+    class BrokenBroadcastChannel extends EventTarget {
+      postMessage() { throw new Error('BroadcastChannel postMessage failed') }
+      close() {}
+    }
+    Object.defineProperty(globalThis, 'BroadcastChannel', { configurable: true, value: BrokenBroadcastChannel })
+    localStorage.setItem('counter', JSON.stringify({ version: 1, writtenAt: 1, data: { count: 0 } }))
+    const failures: string[] = []
+    const persistenceConfig = config({
+      toFailureMessage: (failure) => { failures.push(failure.operation); return `failure:${failure.operation}` },
+    })
+    const receiver = persist(persistenceConfig)
+    const sender = persist(persistenceConfig)
+    await Effect.runPromise(receiver.restore)
+    const messages: string[] = []
+    const addEventListener = vi.spyOn(window, 'addEventListener')
+    const fiber = Effect.runFork(Stream.runForEach(receiver.subscribe, (message) => Effect.sync(() => { messages.push(message) })))
+    try {
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function)))
+      await Effect.runPromise(sender.save({ count: 2 }))
+      const envelope = localStorage.getItem('counter')!
+      window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: envelope }))
+      await vi.waitFor(() => expect(messages).toEqual(['value:2']))
+      expect(failures).not.toContain('Save')
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      addEventListener.mockRestore()
+      if (originalChannel === undefined) Reflect.deleteProperty(globalThis, 'BroadcastChannel')
+      else Object.defineProperty(globalThis, 'BroadcastChannel', originalChannel)
+    }
+  })
+
   it('applies a duplicate envelope once across transports and a lower-timestamp local save', async () => {
     const originalChannel = Object.getOwnPropertyDescriptor(globalThis, 'BroadcastChannel')
     const channels = new Set<FakeBroadcastChannel>()
@@ -245,6 +301,7 @@ describe('versioned persistence', () => {
     const sender = new FakeBroadcastChannel()
     try {
       await vi.waitFor(() => expect(channels.size).toBe(2))
+      await vi.waitFor(() => expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function)))
       sender.postMessage(duplicate)
       await vi.waitFor(() => expect(messages).toEqual(['value:2']))
       await Effect.runPromise(persistence.save({ count: 3 }).pipe(Effect.provide(TestClock.layer())))
@@ -252,7 +309,7 @@ describe('versioned persistence', () => {
       window.dispatchEvent(new StorageEvent('storage', { key: 'counter', newValue: JSON.stringify(duplicate) }))
       await new Promise((resolve) => setTimeout(resolve, 0))
       expect(messages).toEqual(['value:2'])
-      expect(addEventListener).not.toHaveBeenCalledWith('storage', expect.any(Function))
+      expect(addEventListener).toHaveBeenCalledWith('storage', expect.any(Function))
     } finally {
       await Effect.runPromise(Fiber.interrupt(fiber))
       sender.close()
