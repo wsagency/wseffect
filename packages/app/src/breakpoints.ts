@@ -1,6 +1,6 @@
 import { Effect, Queue, Stream } from 'effect'
 import { Subscription } from 'foldkit'
-import type { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
+import { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
 
 export type Breakpoint = 'initial' | typeof BREAKPOINTS[number]['name']
 
@@ -15,7 +15,6 @@ function currentBreakpoint(breakpoints: typeof BREAKPOINTS): Breakpoint {
 
 function breakpointStream<Message>(toMessage: (value: Breakpoint) => Message): Stream.Stream<Message> {
   return Stream.callback<Message>((queue) => Effect.gen(function*() {
-    const { BREAKPOINTS } = yield* Effect.promise(() => import('@wsagency/wseffect-themes/breakpoints'))
     yield* Effect.acquireRelease(
       Effect.sync(() => {
         let lastEmitted: Breakpoint | undefined
