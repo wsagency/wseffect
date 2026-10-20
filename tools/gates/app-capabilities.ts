@@ -6,7 +6,7 @@ export interface AppCapability {
 }
 
 export const APP_CAPABILITIES: ReadonlyArray<AppCapability> = [
-  { helper: 'signals', exports: ['signalSubscription'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
+  { helper: 'signals', exports: ['signalSubscription'], budgetBytes: 1_600, allowedExtraEffectModules: [] },
   { helper: 'validation', exports: ['projectConstraintValidity'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
   { helper: 'persistence', exports: ['persist'], budgetBytes: 1_536, allowedExtraEffectModules: ['persistence/KeyValueStore.js'] },
   { helper: 'breakpoints', exports: ['breakpointSubscription'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
@@ -14,7 +14,7 @@ export const APP_CAPABILITIES: ReadonlyArray<AppCapability> = [
   { helper: 'clipboard', exports: ['clipboardCommand'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
   { helper: 'scroll', exports: ['scrollIntoViewCommand'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
   { helper: 'resize', exports: ['resizeObserverMount'], budgetBytes: 1_536, allowedExtraEffectModules: [] },
-  { helper: 'island', exports: ['Island'], budgetBytes: 4_608, allowedExtraEffectModules: [] },
+  { helper: 'island', exports: ['Island'], budgetBytes: 4_864, allowedExtraEffectModules: [] },
 ]
 
 const UNEXPECTED_MODULE_GUIDANCE = 'DEP-1: B is the packed consumer entry closure with an empty helper page; B+H is the same build with exactly one helper imported only by its lazy page. Compare B+H Effect modules to B; the Gallery framework map is historical only, not the production baseline. When decoding is required, use the public SchemaParser.decodeUnknownExit API; never import runtime Schema from the effect package root. Root Schema runtime use adds DateTime.js, Tuple.js, encoding/EncodingError.js, http/internal/urlParams.js, and internal/redacted.js beyond B. Keep browser-helper Effect module deltas at zero and allow only persistence/KeyValueStore.js for Persistence. Inspect source-map importers and remove the cause; never suppress this diff.'

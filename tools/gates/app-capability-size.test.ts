@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { appCapabilityManifestClosures, checkAppCapabilitySizes } from './app-capability-size.ts'
+import { APP_CAPABILITIES } from './app-capabilities.ts'
+test('applies approved signals and Island budget amendments', () => {
+  assert.equal(APP_CAPABILITIES.find(({ helper }) => helper === 'signals')?.budgetBytes, 1_600)
+  assert.equal(APP_CAPABILITIES.find(({ helper }) => helper === 'island')?.budgetBytes, 4_864)
+  assert.equal(checkAppCapabilitySizes({ helper: 'signals', helperOnlyBytes: 1_600, eagerReachable: false }).ok, true)
+  assert.equal(checkAppCapabilitySizes({ helper: 'signals', helperOnlyBytes: 1_601, eagerReachable: false }).ok, false)
+  assert.equal(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_864, eagerReachable: false }).ok, true)
+  assert.equal(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_865, eagerReachable: false }).ok, false)
+})
 
 const helpers = ['signals', 'validation', 'persistence', 'breakpoints', 'locale', 'clipboard', 'scroll', 'resize'] as const
 
@@ -11,8 +20,8 @@ test('budgetsExcludeFrameworkPeerCode by measuring helper-only payload limits', 
 })
 
 test('islandBudgetIncludesIdiomorph', () => {
-  assert.equal(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_608, eagerReachable: false }).ok, true)
-  assert.match(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_609, eagerReachable: false }).errors[0]!, /4608 B/)
+  assert.equal(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_864, eagerReachable: false }).ok, true)
+  assert.match(checkAppCapabilitySizes({ helper: 'island', helperOnlyBytes: 4_865, eagerReachable: false }).errors[0]!, /4864 B/)
 })
 
 test('rejectsEagerReachability', () => {

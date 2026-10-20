@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { createServer } from 'node:net'
 import { cp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { checkTreeShaking } from './check-tree-shaking.ts'
@@ -38,6 +38,43 @@ export async function findFreePreviewPort(): Promise<number> {
   })
   return promise
 }
+function processOutput(error: unknown, key: 'stdout' | 'stderr'): string {
+  if (!error || typeof error !== 'object') return ''
+  const output = key === 'stdout' && 'stdout' in error ? error.stdout : key === 'stderr' && 'stderr' in error ? error.stderr : undefined
+  return typeof output === 'string' ? output : Buffer.isBuffer(output) ? output.toString() : ''
+}
+
+function isPreviewPortCollision(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : ''
+  return /\bEADDRINUSE\b|port \d+ is already in use/i.test(`${message}\n${processOutput(error, 'stdout')}\n${processOutput(error, 'stderr')}`)
+}
+
+export async function runWithPreviewPortRetry(runAtPort: (port: number) => void, initialPort?: string): Promise<void> {
+  let port = initialPort ? Number(initialPort) : await findFreePreviewPort()
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      runAtPort(port)
+      return
+    } catch (error) {
+      if (attempt === 2 || !isPreviewPortCollision(error)) throw error
+      port = await findFreePreviewPort()
+    }
+  }
+}
+
+function runPlaywrightAtPort(args: ReadonlyArray<string>, cwd: string, env: NodeJS.ProcessEnv): void {
+  const result = spawnSync('pnpm', [...args], { cwd, env, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 })
+  process.stdout.write(result.stdout ?? '')
+  process.stderr.write(result.stderr ?? '')
+  if (result.error) throw Object.assign(result.error, { stdout: result.stdout, stderr: result.stderr })
+  if (result.status !== 0) {
+    throw Object.assign(new Error(`packed consumer Playwright exited with status ${result.status ?? result.signal}`), {
+      stdout: result.stdout,
+      stderr: result.stderr,
+    })
+  }
+}
+
 function run(command: string, args: ReadonlyArray<string>, cwd: string, env: NodeJS.ProcessEnv = process.env): void {
   execFileSync(command, [...args], { cwd, env, stdio: 'inherit' })
 }
@@ -210,12 +247,15 @@ async function main(): Promise<void> {
 
     const e2eFiles = (await filesUnder(resolve(root, 'e2e'), '.spec.ts'))
       .filter((path) => !path.endsWith('/buildId.spec.ts') && !path.endsWith('/chunks.spec.ts') && !path.endsWith('/devReload.spec.ts'))
-    const previewPort = process.env.WSEFFECT_CONSUMER_PREVIEW_PORT ?? String(await findFreePreviewPort())
-    run('pnpm', ['exec', 'playwright', 'test', ...e2eFiles.map((path) => relative(root, path)), '--config', 'playwright.packed.config.ts', '--project=chromium'], root, packedBuildEnvironment({
-      ...process.env,
-      GALLERY_PACKED: '1',
-      WSEFFECT_CONSUMER_PREVIEW_PORT: previewPort,
-    }))
+    await runWithPreviewPortRetry((previewPort) => runPlaywrightAtPort(
+      ['exec', 'playwright', 'test', ...e2eFiles.map((path) => relative(root, path)), '--config', 'playwright.packed.config.ts', '--project=chromium'],
+      root,
+      packedBuildEnvironment({
+        ...process.env,
+        GALLERY_PACKED: '1',
+        WSEFFECT_CONSUMER_PREVIEW_PORT: String(previewPort),
+      }),
+    ), process.env.WSEFFECT_CONSUMER_PREVIEW_PORT)
     passedChecks.push('playwright')
 
     const publicSurface = [

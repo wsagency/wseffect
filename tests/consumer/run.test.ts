@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createServer } from 'node:net'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { findFreePreviewPort, findNewTarballName, packageDirectory, packedBuildEnvironment } from './run.ts'
+import { findFreePreviewPort, findNewTarballName, packageDirectory, packedBuildEnvironment, runWithPreviewPortRetry } from './run.ts'
 import { checkBranding } from './check-branding.ts'
 import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { checkTreeShaking } from './check-tree-shaking.ts'
@@ -22,6 +22,27 @@ test('packed consumer preview port is available to bind', async () => {
   const closed = Promise.withResolvers<void>()
   server.close((error) => error ? closed.reject(error) : closed.resolve())
   await closed.promise
+})
+test('packed consumer retries an occupied preview port with a new one', async () => {
+  const collision = Object.assign(new Error('preview startup failed'), { stderr: Buffer.from('Error: Port 4450 is already in use') })
+  const attempts: number[] = []
+  await runWithPreviewPortRetry((port) => {
+    attempts.push(port)
+    if (attempts.length === 1) throw collision
+  }, '4450')
+  assert.deepEqual(attempts.length, 2)
+  assert.equal(attempts[0], 4450)
+  assert.notEqual(attempts[1], 4450)
+})
+
+test('packed consumer stops preview retries after three collisions', async () => {
+  const collision = Object.assign(new Error('listen failed'), { stderr: Buffer.from('EADDRINUSE') })
+  let attempts = 0
+  await assert.rejects(runWithPreviewPortRetry(() => {
+    attempts += 1
+    throw collision
+  }, '4450'), (error) => error === collision)
+  assert.equal(attempts, 3)
 })
 test('packed tarballs are sourced from the matching local package directory', () => {
   assert.equal(packageDirectory('/consumer-workspace', 'app'), resolve('/consumer-workspace/packages/app'))
@@ -55,7 +76,7 @@ test('REPO-2 checks every exported view adapter and component factory', () => {
   const missingBrand = (name: string) => [{ path: `dist/${name}.js`, source: `export const ${name} = () => {}` }]
   assert.notDeepEqual(checkBranding(missingBrand('viewPage')), [])
   assert.notDeepEqual(checkBranding(missingBrand('embed')), [])
-  assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from \"foldkit\"; export const create = () => defineView(() => {})' }]), [])
+  assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from "foldkit"; export const create = () => defineView(() => {})' }]), [])
   assert.deepEqual(checkBranding([{ path: 'dist/other.js', source: 'export const create = () => ({})' }]), [])
 })
 
