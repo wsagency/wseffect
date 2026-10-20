@@ -56,11 +56,13 @@ test('hover prefetch and navigation of a prefetched link request a page chunk on
   expect(buttons.count()).toBe(1)
 
   const cards = observeChunk(page, 'cards')
-  await page.goto('/')
-  await page.locator('#link-cards').scrollIntoViewIfNeeded()
+  await page.goto('/menus')
+  await expect(page.locator('#content-link-cards')).toBeVisible()
+  await expect(page.locator('#content-link-cards')).not.toBeInViewport()
+  await page.locator('#content-link-cards').scrollIntoViewIfNeeded()
   await cards.response
   await expect(page.locator('#loading-cards')).toHaveCount(0)
-  await page.locator('#link-cards').click()
+  await page.locator('#content-link-cards').click()
   await expect(page.getByRole('heading', { name: 'Cards', exact: true })).toBeVisible()
   await expect(page.locator('#loading-cards')).toHaveCount(0)
   expect(cards.count()).toBe(1)

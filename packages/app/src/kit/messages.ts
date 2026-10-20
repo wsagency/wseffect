@@ -11,6 +11,9 @@ export const PwaEvent = defineTaggedUnion({
   ChangedOnlineStatus: { isOnline: Schema.Boolean },
 })
 export type PwaEvent = typeof PwaEvent.Type
+export type PrefetchSource = 'intent' | 'visible'
+const PrefetchSourceSchema = Schema.Literals(['intent', 'visible'])
+const OptionalPrefetchSourceSchema = Schema.optional(PrefetchSourceSchema)
 
 export type KitMessageFields<Pages extends Record<string, AnyPage>> = {
   readonly EnteredRoute: { readonly keys: Schema.Codec<ReadonlyArray<keyof Pages & string>, unknown> }
@@ -22,7 +25,10 @@ export type KitMessageFields<Pages extends Record<string, AnyPage>> = {
   }
   readonly ClickedRetryPage: { readonly key: Schema.Codec<keyof Pages & string, unknown> }
   readonly ClickedReloadPage: { readonly key: Schema.Codec<keyof Pages & string, unknown> }
-  readonly RequestedPrefetch: { readonly key: Schema.Codec<keyof Pages & string, unknown> }
+  readonly RequestedPrefetch: {
+    readonly key: Schema.Codec<keyof Pages & string, unknown>
+    readonly source: typeof OptionalPrefetchSourceSchema
+  }
   readonly CompletedPrefetch: { readonly key: Schema.Codec<keyof Pages & string, unknown>; readonly isLoaded: typeof Schema.Boolean }
   readonly GotPwaEvent: { readonly event: typeof PwaEvent }
   readonly NewVersionAvailable: { readonly buildId: typeof Schema.String }
@@ -55,7 +61,7 @@ export function kitMessageFields<Pages extends Record<string, AnyPage>>(
     FailedPageModule: { key: PageKeySchema, cause: FailureCauseSchema, reason: Schema.String },
     ClickedRetryPage: { key: PageKeySchema },
     ClickedReloadPage: { key: PageKeySchema },
-    RequestedPrefetch: { key: PageKeySchema },
+    RequestedPrefetch: { key: PageKeySchema, source: OptionalPrefetchSourceSchema },
     CompletedPrefetch: { key: PageKeySchema, isLoaded: Schema.Boolean },
     GotPwaEvent: { event: PwaEvent },
     NewVersionAvailable: { buildId: Schema.String },

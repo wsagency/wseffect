@@ -129,6 +129,8 @@
 
 - **Issue:** Lane D measured 197,334 B on the first visit, including 45,621 B of viewport prefetch and 16,900 B of non-primary theme CSS wrongly precached. Counting all received bytes together obscures mandatory startup transfer and allows eager prefetch to compete with the first render.
 - **Amendment:** GATE-S2 counts mandatory first-visit traffic, classifies speculative non-primary/non-current-route page assets through the Vite build manifest, and reports those bytes separately under GATE-S4 (≤65,536 B). APP-13 defers viewport imports until first-render idle (`requestIdleCallback`, with `setTimeout` fallback) and caps concurrent prefetches at 2. PWA-3 precaches only HTML, manifest/icons, entry/framework, primary-page chunks and their CSS; non-primary page CSS is runtime-cached only. The plan adds tests for idle scheduling/concurrency, manifest-based byte classification, and exact precache/runtime-cache membership.
+
+- **APP-13 amendment:** Persistent Gallery navigation remains intent-only; viewport prefetch mounts belong to the below-fold “More pages” links after the long menus page. Visible imports require a usable `requestIdleCallback` deadline, wait until 300 ms after `pointerdown` or `keydown`, and are neither started nor continued while a route module is loading. The two-load concurrency cap remains. Coverage verifies visible prefetch on the content link and that `CompletedPrefetch` does not re-execute the active page view.
 ## APP-23: Keep page-only dependencies out of the framework chunk
 
 - **Issue:** The original framework group classified every module under `node_modules` as framework code. This eagerly included page-only `@foldkit/ui` components and their Floating UI dependencies, defeating page lazy loading.

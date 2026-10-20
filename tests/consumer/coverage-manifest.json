@@ -463,6 +463,10 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-app:.:isUserInputCooldownActive": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-app:.:kitMessageFields": [
     "public-surface",
     "branding"
@@ -545,6 +549,10 @@
     "branding"
   ],
   "export:@wsagency/wseffect-app:.:versionPollSubscription": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-app:.:setRouteLoadInFlight": [
     "public-surface",
     "branding"
   ],
@@ -2389,6 +2397,18 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-app:.:PageViewMessages": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:PrefetchSource": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:isUserInputCooldownActive": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-app:.:setRouteLoadInFlight": [
     "public-surface",
     "gallery-typecheck"
   ],

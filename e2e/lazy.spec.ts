@@ -14,5 +14,6 @@ test('the gallery root does not request any lazy page chunk', async ({ page }) =
   await page.setViewportSize({ width: 320, height: 100 })
   await page.goto('/')
   await expect(page.locator('#date-shell')).toBeVisible()
+  await page.waitForTimeout(350)
   expect(chunks).toEqual([])
 })

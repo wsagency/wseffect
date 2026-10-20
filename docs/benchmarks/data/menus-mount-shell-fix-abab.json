@@ -1,0 +1,380 @@
+{
+  "label": "shell-view-fix",
+  "comparison": "current main 38b2fd4 vs shell view fix",
+  "generatedAt": "2026-10-20T02:47:28.324Z",
+  "node": "v24.21.0",
+  "chromium": "156.0.8078.4",
+  "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+  "rate": 4,
+  "blocks": 5,
+  "order": [
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate",
+    "baseline",
+    "candidate"
+  ],
+  "loadStart": [
+    16.49,
+    17.89,
+    18.94
+  ],
+  "loadEnd": [
+    16.75,
+    17.83,
+    18.89
+  ],
+  "medians": {
+    "baseline": {
+      "eventTimingMs": 140,
+      "traceScriptingMs": 95.426
+    },
+    "candidate": {
+      "eventTimingMs": 32,
+      "traceScriptingMs": 10.6985
+    }
+  },
+  "aaBands": {
+    "eventTimingMs": {
+      "baseline": 24,
+      "candidate": 8
+    },
+    "traceScriptingMs": {
+      "baseline": 15.294999999999987,
+      "candidate": 3.683
+    }
+  },
+  "noiseScreen": {
+    "eventTimingMs": {
+      "winner": "candidate",
+      "gap": 108,
+      "threshold": 24
+    },
+    "traceScriptingMs": {
+      "winner": "candidate",
+      "gap": 84.7275,
+      "threshold": 15.294999999999987
+    }
+  },
+  "samples": {
+    "baseline": [
+      {
+        "eventTimingMs": 136,
+        "traceScriptingMs": 91.582,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.49,
+          17.89,
+          18.94
+        ],
+        "loadAfter": [
+          16.49,
+          17.89,
+          18.94
+        ]
+      },
+      {
+        "eventTimingMs": 136,
+        "traceScriptingMs": 91.138,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.77,
+          17.93,
+          18.95
+        ],
+        "loadAfter": [
+          16.77,
+          17.93,
+          18.95
+        ]
+      },
+      {
+        "eventTimingMs": 144,
+        "traceScriptingMs": 102.882,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.77,
+          17.93,
+          18.95
+        ],
+        "loadAfter": [
+          16.77,
+          17.93,
+          18.95
+        ]
+      },
+      {
+        "eventTimingMs": 136,
+        "traceScriptingMs": 92.569,
+        "animationFrames": 1,
+        "loadBefore": [
+          15.83,
+          17.71,
+          18.87
+        ],
+        "loadAfter": [
+          15.83,
+          17.71,
+          18.87
+        ]
+      },
+      {
+        "eventTimingMs": 160,
+        "traceScriptingMs": 103.397,
+        "animationFrames": 1,
+        "loadBefore": [
+          15.83,
+          17.71,
+          18.87
+        ],
+        "loadAfter": [
+          15.83,
+          17.71,
+          18.87
+        ]
+      },
+      {
+        "eventTimingMs": 136,
+        "traceScriptingMs": 89.816,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.16,
+          17.75,
+          18.88
+        ],
+        "loadAfter": [
+          16.16,
+          17.75,
+          18.88
+        ]
+      },
+      {
+        "eventTimingMs": 136,
+        "traceScriptingMs": 94.308,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.16,
+          17.75,
+          18.88
+        ],
+        "loadAfter": [
+          16.16,
+          17.75,
+          18.88
+        ]
+      },
+      {
+        "eventTimingMs": 152,
+        "traceScriptingMs": 109.603,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.47,
+          17.79,
+          18.89
+        ],
+        "loadAfter": [
+          16.47,
+          17.79,
+          18.89
+        ]
+      },
+      {
+        "eventTimingMs": 144,
+        "traceScriptingMs": 96.544,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.47,
+          17.79,
+          18.89
+        ],
+        "loadAfter": [
+          16.75,
+          17.83,
+          18.89
+        ]
+      },
+      {
+        "eventTimingMs": 144,
+        "traceScriptingMs": 104.74,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.75,
+          17.83,
+          18.89
+        ],
+        "loadAfter": [
+          16.75,
+          17.83,
+          18.89
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 11.011,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.49,
+          17.89,
+          18.94
+        ],
+        "loadAfter": [
+          16.77,
+          17.93,
+          18.95
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 10.11,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.77,
+          17.93,
+          18.95
+        ],
+        "loadAfter": [
+          16.77,
+          17.93,
+          18.95
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 11.797,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.77,
+          17.93,
+          18.95
+        ],
+        "loadAfter": [
+          15.83,
+          17.71,
+          18.87
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 11.314,
+        "animationFrames": 1,
+        "loadBefore": [
+          15.83,
+          17.71,
+          18.87
+        ],
+        "loadAfter": [
+          15.83,
+          17.71,
+          18.87
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 9.858,
+        "animationFrames": 1,
+        "loadBefore": [
+          15.83,
+          17.71,
+          18.87
+        ],
+        "loadAfter": [
+          16.16,
+          17.75,
+          18.88
+        ]
+      },
+      {
+        "eventTimingMs": 40,
+        "traceScriptingMs": 12.676,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.16,
+          17.75,
+          18.88
+        ],
+        "loadAfter": [
+          16.16,
+          17.75,
+          18.88
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 9.395,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.16,
+          17.75,
+          18.88
+        ],
+        "loadAfter": [
+          16.47,
+          17.79,
+          18.89
+        ]
+      },
+      {
+        "eventTimingMs": 40,
+        "traceScriptingMs": 13.078,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.47,
+          17.79,
+          18.89
+        ],
+        "loadAfter": [
+          16.47,
+          17.79,
+          18.89
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 10.386,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.75,
+          17.83,
+          18.89
+        ],
+        "loadAfter": [
+          16.75,
+          17.83,
+          18.89
+        ]
+      },
+      {
+        "eventTimingMs": 32,
+        "traceScriptingMs": 9.552,
+        "animationFrames": 1,
+        "loadBefore": [
+          16.75,
+          17.83,
+          18.89
+        ],
+        "loadAfter": [
+          16.75,
+          17.83,
+          18.89
+        ]
+      }
+    ]
+  }
+}

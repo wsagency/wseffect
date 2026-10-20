@@ -64,6 +64,8 @@ describe('kit page views', () => {
     }, Scene.given(ready),
     Scene.Subscription.emit(KitMessage.EnteredRoute({ keys: ['alpha'] })),
     Scene.tap(() => expect(executions).toBe(1)),
+    Scene.Subscription.emit(KitMessage.CompletedPrefetch({ key: 'beta', isLoaded: true })),
+    Scene.tap(() => expect(executions).toBe(1)),
     Scene.tap(() => { inputs = { revision: 'two' } }),
     Scene.Subscription.emit(KitMessage.EnteredRoute({ keys: ['alpha'] })),
     Scene.tap(() => expect(executions).toBe(2)))
@@ -112,9 +114,9 @@ describe('prefetch intent attributes', () => {
       h.div([attribute], ['Visible page'])
     Scene.scene({ update: binding.update, view }, Scene.given(alphaInitial()),
       Scene.Mount.expectHas(action),
-      Scene.Mount.resolve(action, binding.messages.requestedPrefetch('alpha')),
-      Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
-      Scene.Command.resolve(binding.commands.LoadPageForPrefetch({ key: 'alpha' }), KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+      Scene.Mount.resolve(action, binding.messages.requestedPrefetch('alpha', 'visible')),
+      Scene.Command.expectExact(binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' })),
+      Scene.Command.resolve(binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' }), KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
   })
   it('waits for browser idle after visibility before requesting prefetch', async () => {
     const { binding } = makeKitFixture()
@@ -131,9 +133,9 @@ describe('prefetch intent attributes', () => {
       observe() {}
       disconnect() {}
     }
-    let idleCallback: (() => void) | undefined
+    let idleCallback: ((deadline: { readonly timeRemaining: () => number; readonly didTimeout: boolean }) => void) | undefined
     vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
-    vi.stubGlobal('requestIdleCallback', (callback: () => void) => {
+    vi.stubGlobal('requestIdleCallback', (callback: (deadline: { readonly timeRemaining: () => number; readonly didTimeout: boolean }) => void) => {
       idleCallback = callback
       return 1
     })
@@ -148,10 +150,88 @@ describe('prefetch intent attributes', () => {
       void result.then(() => { completed = true })
       await Promise.resolve()
       expect(completed).toBe(false)
-      idleCallback!()
-      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha')))
+      idleCallback!({ timeRemaining: () => 50, didTimeout: false })
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha', 'visible')))
     } finally {
       vi.unstubAllGlobals()
+    }
+  })
+  it('retries visible prefetch when the idle deadline is insufficient', async () => {
+    const { binding } = makeKitFixture()
+    const attribute = prefetchOnVisible<FixturePages, FixtureMessage>(binding, 'alpha')
+    if (attribute._tag !== 'OnMount') throw new Error('Expected a mount attribute')
+
+    let makeVisible: (() => void) | undefined
+    const observerReady = Promise.withResolvers<void>()
+    class TestIntersectionObserver {
+      constructor(callback: (entries: Array<{ readonly isIntersecting: boolean }>) => void) {
+        makeVisible = () => callback([{ isIntersecting: true }])
+        observerReady.resolve()
+      }
+      observe() {}
+      disconnect() {}
+    }
+    const idleCallbacks: Array<(deadline: { readonly timeRemaining: () => number; readonly didTimeout: boolean }) => void> = []
+    vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
+    vi.stubGlobal('requestIdleCallback', (callback: typeof idleCallbacks[number]) => {
+      idleCallbacks.push(callback)
+      return idleCallbacks.length
+    })
+    vi.stubGlobal('cancelIdleCallback', vi.fn())
+
+    try {
+      const result = Effect.runPromise(Stream.runHead(attribute.action.f(document.createElement('div'), Stream.empty)))
+      await observerReady.promise
+      makeVisible!()
+      expect(idleCallbacks).toHaveLength(1)
+      idleCallbacks[0]!({ timeRemaining: () => 0, didTimeout: false })
+      expect(idleCallbacks).toHaveLength(2)
+      idleCallbacks[1]!({ timeRemaining: () => 10, didTimeout: false })
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha', 'visible')))
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+  it.each(['pointerdown', 'keydown'] as const)('defers visible prefetch for 300ms after %s', async (eventName) => {
+    const { binding } = makeKitFixture()
+    const attribute = prefetchOnVisible<FixturePages, FixtureMessage>(binding, 'alpha')
+    if (attribute._tag !== 'OnMount') throw new Error('Expected a mount attribute')
+
+    let makeVisible: (() => void) | undefined
+    const observerReady = Promise.withResolvers<void>()
+    class TestIntersectionObserver {
+      constructor(callback: (entries: Array<{ readonly isIntersecting: boolean }>) => void) {
+        makeVisible = () => callback([{ isIntersecting: true }])
+        observerReady.resolve()
+      }
+      observe() {}
+      disconnect() {}
+    }
+    const idleCallbacks: Array<(deadline: { readonly timeRemaining: () => number; readonly didTimeout: boolean }) => void> = []
+    vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
+    vi.stubGlobal('requestIdleCallback', (callback: typeof idleCallbacks[number]) => {
+      idleCallbacks.push(callback)
+      return idleCallbacks.length
+    })
+    vi.stubGlobal('cancelIdleCallback', vi.fn())
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
+
+    try {
+      const result = Effect.runPromise(Stream.runHead(attribute.action.f(document.createElement('div'), Stream.empty)))
+      await observerReady.promise
+      makeVisible!()
+      expect(idleCallbacks).toHaveLength(1)
+      document.dispatchEvent(new Event(eventName))
+      idleCallbacks[0]!({ timeRemaining: () => 50, didTimeout: false })
+      await vi.advanceTimersByTimeAsync(299)
+      expect(idleCallbacks).toHaveLength(1)
+      await vi.advanceTimersByTimeAsync(1)
+      expect(idleCallbacks).toHaveLength(2)
+      idleCallbacks[1]!({ timeRemaining: () => 50, didTimeout: false })
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha', 'visible')))
+    } finally {
+      vi.unstubAllGlobals()
+      vi.useRealTimers()
     }
   })
   it('uses a timer fallback when requestIdleCallback is unavailable', async () => {
@@ -175,7 +255,7 @@ describe('prefetch intent attributes', () => {
     try {
       const result = Effect.runPromise(Stream.runHead(attribute.action.f(document.createElement('div'), Stream.empty)))
       await observerReady.promise
-      vi.useFakeTimers()
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
       const timersBeforeVisibility = vi.getTimerCount()
       makeVisible!()
       expect(vi.getTimerCount()).toBe(timersBeforeVisibility + 1)
@@ -184,7 +264,7 @@ describe('prefetch intent attributes', () => {
       await Promise.resolve()
       expect(completed).toBe(false)
       await vi.runAllTimersAsync()
-      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha')))
+      await expect(result).resolves.toEqual(Option.some(binding.messages.requestedPrefetch('alpha', 'visible')))
     } finally {
       vi.unstubAllGlobals()
       vi.useRealTimers()
@@ -203,16 +283,16 @@ describe('prefetch intent attributes', () => {
       h.div([firstAttribute], ['First visible page'])
     Scene.scene({ update: first.binding.update, view: firstView }, Scene.given(first.alphaInitial()),
       Scene.Mount.expectHas(firstAttribute.action),
-      Scene.Mount.resolve(firstAttribute.action, first.binding.messages.requestedPrefetch('alpha')),
-      Scene.Command.expectExact(first.binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
-      Scene.Command.resolve(first.binding.commands.LoadPageForPrefetch({ key: 'alpha' }), first.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+      Scene.Mount.resolve(firstAttribute.action, first.binding.messages.requestedPrefetch('alpha', 'visible')),
+      Scene.Command.expectExact(first.binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' })),
+      Scene.Command.resolve(first.binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' }), first.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
 
     const secondView = (_state: Parameters<typeof second.binding.view>[0], h: Parameters<typeof second.binding.view>[2]) =>
       h.div([secondAttribute], ['Second visible page'])
     Scene.scene({ update: second.binding.update, view: secondView }, Scene.given(second.alphaInitial()),
       Scene.Mount.expectHas(secondAttribute.action),
-      Scene.Mount.resolve(secondAttribute.action, second.binding.messages.requestedPrefetch('alpha')),
-      Scene.Command.expectExact(second.binding.commands.LoadPageForPrefetch({ key: 'alpha' })),
-      Scene.Command.resolve(second.binding.commands.LoadPageForPrefetch({ key: 'alpha' }), second.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
+      Scene.Mount.resolve(secondAttribute.action, second.binding.messages.requestedPrefetch('alpha', 'visible')),
+      Scene.Command.expectExact(second.binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' })),
+      Scene.Command.resolve(second.binding.commands.LoadPageForPrefetch({ key: 'alpha', source: 'visible' }), second.KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: true })))
   })
 })

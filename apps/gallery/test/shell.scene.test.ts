@@ -2,30 +2,20 @@ import * as Scene from 'foldkit/scene'
 import { Context } from 'effect'
 import { describe, expect, it, vi } from 'vitest'
 import { Message as MenusPageMessage, page as menusPage, Menu } from '../src/pages/menus.js'
-import { BUILD_ID } from '@wsagency/wseffect-app'
+import { BUILD_ID, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { KitMessage, kit, pages } from '../src/pages.gen.js'
+import type { Pages } from '../src/pages.gen.js'
 import { pageKeysByRoute } from '../src/routes.js'
 import { Message, createInitialModel, update, view } from '../src/shell.js'
 
-const visiblePageKeys = [...new Set(Object.entries(pageKeysByRoute)
-  .flatMap(([path, keys]) => path === '/' ? [] : keys))]
-const prefetchMountResolvers = visiblePageKeys.map((key) => [
-  { name: 'PrefetchOnVisible', args: { key } },
-  Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) }),
-] as const)
-const prefetchCommandResolvers = pages.keys.map((key) => [
-  kit.commands.LoadPageForPrefetch({ key }),
-  KitMessage.CompletedPrefetch({ key, isLoaded: true }),
-] as const)
 
 describe('gallery shell', () => {
-  it('renders the build ID and performance hooks in the shell', () => {
+  it('renders shell performance hooks without adding a prefetch mount to persistent navigation', () => {
     Scene.scene({ update, view }, Scene.given(createInitialModel()),
-      Scene.Mount.resolveAll(...prefetchMountResolvers),
-      Scene.Command.resolveAll(...prefetchCommandResolvers),
       Scene.expect(Scene.selector('[data-perf="shared-date"]')).toExist(),
       Scene.expect(Scene.selector('[data-perf="nav-cold"]')).toHaveAttr('href', '/menus'),
       Scene.expect(Scene.selector('[data-perf="nav-prefetch"]')).toHaveAttr('href', '/dialog'),
+      Scene.expect(Scene.selector('#more-pages')).toBeAbsent(),
       Scene.expect(Scene.selector('#build-id')).toHaveText(BUILD_ID))
   })
 
@@ -35,7 +25,7 @@ describe('gallery shell', () => {
       __beginRender: (registry: object) => void
       __clearRuntime: () => void
       __createBoundaryRegistry: () => object
-      __htmlBuilder: <Message>() => Parameters<typeof view>[1]
+      __htmlBuilder: () => Parameters<typeof view>[1]
       __requireDispatch: () => (message: unknown) => void
       __setRuntime: (dispatch: (message: unknown) => void, context: Context.Context<never>, registry: object) => void
     }
@@ -46,7 +36,7 @@ describe('gallery shell', () => {
       htmlRuntime.__beginRender(boundaryRegistry)
       htmlRuntime.__setRuntime(dispatch, runtimeContext, boundaryRegistry)
       try {
-        return view(model, htmlRuntime.__htmlBuilder<Message>())
+        return view(model, htmlRuntime.__htmlBuilder())
       } finally {
         htmlRuntime.__clearRuntime()
       }
@@ -95,4 +85,32 @@ describe('gallery shell', () => {
       embedSpy.mockRestore()
     }
 })
+  it('shows viewport-prefetch links after the menus page content', () => {
+    pages.registry.register('menus', menusPage)
+    const initial = createInitialModel(['menus'])
+    const menuModel = menusPage.init().model
+    const ready = {
+      ...initial,
+      kit: {
+        ...initial.kit,
+        slots: { ...initial.kit.slots, menus: { _tag: 'Ready' as const, model: menuModel } },
+      },
+    }
+    const contentKeys = Object.entries(pageKeysByRoute)
+      .flatMap(([path, keys]) => path === '/' || path === '/menus' ? [] : [keys[0]!])
+    const contentMounts = contentKeys.map((key) => {
+      const attribute = prefetchOnVisible<Pages, typeof KitMessage.Type>(kit, key)
+      return [attribute.action, Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key, 'visible') })] as const
+    })
+    const prefetchCommands = contentKeys.map((key) => [
+      kit.commands.LoadPageForPrefetch({ key, source: 'visible' }),
+      KitMessage.CompletedPrefetch({ key, isLoaded: true }),
+    ] as const)
+    Scene.scene({ update, view }, Scene.given(ready),
+      Scene.Mount.resolveAll(...contentMounts),
+      Scene.Command.resolveAll(...prefetchCommands),
+      Scene.expect(Scene.selector('#more-pages')).toExist(),
+      Scene.expect(Scene.selector('#content-link-cards')).toHaveAttr('href', '/cards'))
+  })
+
 })
