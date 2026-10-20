@@ -1,6 +1,5 @@
 import { Effect, Option, Schema } from 'effect'
-import { Command } from 'foldkit'
-import * as Mount from 'foldkit/mount'
+import { Command, Mount } from 'foldkit'
 import * as Navigation from 'foldkit/navigation'
 import { defineTaggedUnion } from 'foldkit/schema'
 import type { HtmlBuilder } from 'foldkit/html'
@@ -11,10 +10,11 @@ import { Box, Flex, Heading, Text } from '@wsagency/wseffect-themes'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
-import { pageKeysByRoute, pageKeysForRoute } from './routes.js'
 import { BUILD_ID, initKit, kitStateSchema, prefetchOnVisible } from '@wsagency/wseffect-app'
 import { KitMessage, kit, pages } from './pages.gen.js'
 import type { Pages } from './pages.gen.js'
+import { pageKeysByRoute, pageKeysForRoute } from './routes.js'
+import type { GalleryPageKey } from './routes.js'
 
 export const Model = Schema.Struct({
   date: Schema.String,
@@ -83,7 +83,7 @@ export const applyPageOutMessage = (model: Model, message: PageOutMessageType): 
     ChangedThemeSetting: ({ setting, value }) => updateThemeSetting(model, setting, value),
   })
 
-export function createInitialModel(activeKeys: ReadonlyArray<keyof Pages & string> = []): Model {
+export function createInitialModel(activeKeys: ReadonlyArray<GalleryPageKey> = []): Model {
   return {
     date: '2026-10-19',
     datePicker: {},
@@ -138,12 +138,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => {
   const routeLinks = Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
     if (path === '/') return []
     const key = keys[0]!
-    const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key) })
-    const visiblePrefetches = keys.map((pageKey) => {
-      const attribute = prefetchOnVisible<Pages, KitMessage>(kit, pageKey)
-      if (attribute._tag !== 'OnMount') throw new Error('Expected an OnMount attribute')
-      return h.OnMount(Mount.mapMessage(attribute.action, (message) => Message.GotKitMessage({ message })))
-    })
+    const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key, 'intent') })
     const isActive = keys.some((pageKey) => model.kit.activeKeys.includes(pageKey))
     return [h.a([
       h.Id(path === '/shared' ? 'link-shared' : `link-${key}`),
@@ -154,9 +149,25 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => {
       ...(isActive ? [h.DataAttribute('active', '')] : []),
       h.OnMouseEnter(prefetch),
       h.OnFocus(prefetch),
-      ...visiblePrefetches,
     ], [path.slice(1)])]
   })
+  const morePageLinks = model.kit.slots.menus._tag === 'Ready'
+    ? Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
+      if (path === '/' || path === '/menus') return []
+      const key = keys[0]!
+      const attribute = prefetchOnVisible<Pages, typeof KitMessage.Type>(kit, key)
+      const visiblePrefetch = {
+        ...attribute,
+        action: Mount.mapMessage(attribute.action, (message) => Message.GotKitMessage({ message })),
+      }
+      return [h.a([
+        h.Id(`content-link-${key}`),
+        h.Href(path),
+        h.Class('gallery-content-link'),
+        visiblePrefetch,
+      ], [path.slice(1)])]
+    })
+    : []
   const activePages = model.kit.activeKeys.map((key) => h.submodel({
     slotId: `page-${key}`,
     model: model.kit,
@@ -195,6 +206,10 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => {
           h.main([h.Class('gallery-page-content')], activePages.length > 0
             ? [Box.view({ p: '4' }, activePages, h)]
             : []),
+          ...(morePageLinks.length > 0 ? [h.nav([h.Id('more-pages'), h.AriaLabel('More gallery pages'), h.Class('gallery-more-pages')], [
+            Heading.view({ as: 'h2', size: '3', weight: 'medium' }, ['More pages'], h),
+            Flex.view({ wrap: 'wrap', gap: '2' }, morePageLinks, h),
+          ])] : []),
           h.footer([], [kit.bannerView
             ? h.submodel({ slotId: 'pwa-banner', model: model.kit, view: kit.bannerView, toParentMessage: (message) => Message.GotKitMessage({ message }) })
             : null]),

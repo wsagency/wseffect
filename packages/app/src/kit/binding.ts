@@ -12,8 +12,10 @@ import type { KitMessageMatcher } from './update.js'
 import type { KitPageViewInputs } from '../view/page.js'
 import { bannerView } from '../view/banner.js'
 import { viewPage } from '../view/page.js'
+import { isUserInputCooldownActive, setRouteLoadInFlight } from '../view/prefetch.js'
 import { ServiceWorker, ServiceWorkerUpdateError } from '../pwa/serviceWorker.js'
 import { PwaEvent } from './messages.js'
+import type { PrefetchSource } from './messages.js'
 
 
 function messageConstructor<Message>(union: object, tag: string, payload: unknown): Message {
@@ -41,7 +43,7 @@ export interface KitBinding<Pages extends Record<string, AnyPage>, KitMessage ex
     KitState<Pages>, KitMessage, OutMessageOf<Pages[keyof Pages]>, ServicesOf<Pages[keyof Pages]>
   >
   readonly messages: {
-    readonly requestedPrefetch: (key: keyof Pages & string) => KitMessage
+    readonly requestedPrefetch: (key: keyof Pages & string, source?: PrefetchSource) => KitMessage
     readonly requestedPrefetchSchema: Schema.Codec<KitMessage, unknown>
     readonly clickedRetryPage: (key: keyof Pages & string) => KitMessage
     readonly clickedReloadPage: (key: keyof Pages & string) => KitMessage
@@ -67,6 +69,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
     ? Schema.Literals(pages.keys as readonly [Key, ...Key[]])
     : Schema.String
   const prefetchSemaphore = Semaphore.makeUnsafe(2)
+  let routeLoadInFlight = false
   const failedPage = (key: string, cause: string, reason: string) =>
     messageConstructor<KitMessage>(union, 'FailedPageModule', { key, cause, reason })
   const completedPrefetch = (key: string, isLoaded: boolean) =>
@@ -84,10 +87,16 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
   const completedApply = () => messageConstructor<KitMessage>(union, 'CompletedApplyUpdate', {})
   const failedApply = (reason: string) => messageConstructor<KitMessage>(union, 'FailedApplyUpdate', { reason })
   const LoadPageForPrefetch = Command.define('LoadPageForPrefetch', {
-    args: { key: keySchema },
+    args: { key: keySchema, source: Schema.optional(Schema.Literals(['intent', 'visible'])) },
     messages: [messageDefinition<KitMessage>(union, 'CompletedPrefetch')],
-    execute: ({ key }) => Effect.catch(
-      Effect.as(prefetchSemaphore.withPermits(1)(ensure(pages, key)), completedPrefetch(key, true)),
+    execute: ({ key, source }) => Effect.catch(
+      prefetchSemaphore.withPermits(1)(Effect.suspend(() => {
+        const isSpeculative = source === 'visible'
+        if (isSpeculative && (routeLoadInFlight || isUserInputCooldownActive(messages))) {
+          return Effect.succeed(completedPrefetch(key, false))
+        }
+        return Effect.as(ensure(pages, key), completedPrefetch(key, true))
+      })),
       () => Effect.succeed(completedPrefetch(key, false)),
     ),
   })
@@ -139,7 +148,8 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
     ),
   ])) as { readonly [Key in keyof Pages]: (message: MessageOf<Pages[Key]>) => KitMessage }
   const messages = {
-    requestedPrefetch: (key: Key) => messageConstructor<KitMessage>(union, 'RequestedPrefetch', { key }),
+    requestedPrefetch: (key: Key, source: PrefetchSource = 'intent') =>
+      messageConstructor<KitMessage>(union, 'RequestedPrefetch', { key, source }),
     requestedPrefetchSchema: messageDefinition<KitMessage>(union, 'RequestedPrefetch'),
     clickedRetryPage: (key: Key) => messageConstructor<KitMessage>(union, 'ClickedRetryPage', { key }),
     clickedReloadPage: (key: Key) => messageConstructor<KitMessage>(union, 'ClickedReloadPage', { key }),
@@ -158,7 +168,7 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
     onLoaded: (key) => messageConstructor<KitMessage>(union, 'LoadedPageModule', { key }),
     onFailure: (key, error) => classifyLoadFailure(key, loadFailureReason(error)),
   })
-  const update = makeKitUpdate({
+  const updateFromMessage = makeKitUpdate({
     pages,
     KitMessage: union as unknown as KitMessageMatcher<KitMessage>,
     pageMessageTags: config.pageMessageTags,
@@ -166,9 +176,21 @@ export function bindKit<Pages extends Record<string, AnyPage>, KitMessage extend
     commands: {
       LoadPageForPrefetch,
       ReloadDocument,
-      makePrefetch: (key) => LoadPageForPrefetch({ key }) as unknown as Command.Command<KitMessage>,
+      makePrefetch: (key, source) => LoadPageForPrefetch({
+        key,
+        ...(source === 'visible' ? { source } : {}),
+      }) as unknown as Command.Command<KitMessage>,
       reload: () => ReloadDocument() as unknown as Command.Command<KitMessage>,
     },
   })
+  const update = (state: KitState<Pages>, message: KitMessage) => {
+    const result = updateFromMessage(state, message)
+    routeLoadInFlight = result.model.activeKeys.some((key) => {
+      const slot = result.model.slots[key]
+      return slot._tag === 'Loading' || slot._tag === 'Dehydrated'
+    })
+    setRouteLoadInFlight(messages, routeLoadInFlight)
+    return result
+  }
   return { pages, toParentMessage, update, subscriptions, commands, messages, view, bannerView: updateBanner }
 }

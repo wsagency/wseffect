@@ -1,4 +1,4 @@
-import { Option } from 'effect'
+import { Effect, Option } from 'effect'
 import { Command, expectNoOutMessage, expectOutMessage, given, message, model, story } from 'foldkit/story'
 import { describe, expect, it } from 'vitest'
 import { alphaPage, AlphaInit, AlphaUpdateCommand, Message as AlphaMessage } from './fixtures/pages/alpha.js'
@@ -58,6 +58,28 @@ describe('kit update', () => {
     story(binding.update, given(alphaInitial()), message(KitMessage.RequestedPrefetch({ key: 'alpha' })),
       Command.resolve(binding.commands.LoadPageForPrefetch, KitMessage.CompletedPrefetch({ key: 'alpha', isLoaded: false })),
       model((next) => expect(next.slots.alpha._tag).toBe('Idle')))
+  })
+  it('does not start visible prefetch while a route page is loading', () => {
+    const { binding, KitMessage, alphaInitial } = makeKitFixture()
+    story(binding.update, given(alphaInitial()),
+      message(KitMessage.EnteredRoute({ keys: ['alpha'] })),
+      model((next) => expect(next.slots.alpha._tag).toBe('Loading')),
+      message(KitMessage.RequestedPrefetch({ key: 'beta', source: 'visible' })),
+      Command.expectNone(),
+      model((next) => {
+        expect(next.slots.alpha._tag).toBe('Loading')
+        expect(next.slots.beta._tag).toBe('Idle')
+      }))
+  })
+  it('does not start a queued visible prefetch command while a route load is active', async () => {
+    const { binding, KitMessage, alphaInitial } = makeKitFixture()
+    binding.update(alphaInitial(), KitMessage.EnteredRoute({ keys: ['alpha'] }))
+    const completed = await Effect.runPromise(binding.commands.LoadPageForPrefetch({
+      key: 'beta',
+      source: 'visible',
+    }).effect as Effect.Effect<unknown, unknown, never>)
+    expect(completed).toEqual(KitMessage.CompletedPrefetch({ key: 'beta', isLoaded: false }))
+    expect(Option.isNone(binding.pages.registry.get('beta'))).toBe(true)
   })
 
   it('activates an Available page in the route update without a loading step', () => {

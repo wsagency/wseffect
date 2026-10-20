@@ -114,7 +114,7 @@ export interface KitMessageMatcher<Message> {
 export interface KitUpdateCommands<Message> {
   readonly LoadPageForPrefetch: Command.CommandDefinition
   readonly ReloadDocument: Command.CommandDefinition
-  readonly makePrefetch: (key: string) => Command.Command<Message>
+  readonly makePrefetch: (key: string, source: 'intent' | 'visible') => Command.Command<Message>
   readonly reload: () => Command.Command<Message>
 }
 
@@ -165,8 +165,15 @@ export function makeKitUpdate<Pages extends Record<string, AnyPage>, KitMessage 
         return { model: { ...state, slots: { ...state.slots, [key]: { _tag: 'Failed', cause, reason } } } }
       },
       RequestedPrefetch: (payload) => {
-        const { key } = payload as { readonly key: keyof Pages & string }
-        return state.slots[key]._tag === 'Idle' ? { model: state, commands: [config.commands.makePrefetch(key)] } : { model: state }
+        const { key, source } = payload as { readonly key: keyof Pages & string; readonly source?: 'intent' | 'visible' }
+        const prefetchIsSpeculative = (source ?? 'intent') === 'visible'
+        const routeLoadInFlight = state.activeKeys.some((pageKey) => {
+          const slot = state.slots[pageKey]
+          return slot._tag === 'Loading' || slot._tag === 'Dehydrated'
+        })
+        return state.slots[key]._tag === 'Idle' && !(prefetchIsSpeculative && routeLoadInFlight)
+          ? { model: state, commands: [config.commands.makePrefetch(key, source ?? 'intent')] }
+          : { model: state }
       },
       CompletedPrefetch: (payload) => {
         const { key, isLoaded } = payload as { readonly key: keyof Pages & string; readonly isLoaded: boolean }

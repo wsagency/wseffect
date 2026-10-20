@@ -19,17 +19,10 @@ test('Gallery prefetches page links when they enter the viewport', { timeout: 60
     const browser = await chromium.launch()
     try {
       const page = await browser.newPage()
-      await page.setViewportSize({ width: 320, height: 180 })
-      await page.goto(new URL('/virtual-list', baseUrl).href)
-      await page.waitForFunction((key) => {
-        const messages = (window as Window & {
-          __wseffectMessages?: ReadonlyArray<{ _tag?: string; message?: { _tag?: string; key?: string } }>
-        }).__wseffectMessages ?? []
-        return messages.some((message) =>
-          message._tag === 'GotKitMessage'
-          && message.message?._tag === 'RequestedPrefetch'
-          && message.message.key === key)
-      }, 'layout', { timeout: 20_000 })
+      await page.setViewportSize({ width: 320, height: 90 })
+      await page.goto(new URL('/menus', baseUrl).href)
+      await page.getByRole('heading', { name: 'Menus performance' }).waitFor()
+      await page.locator('#content-link-layout').waitFor()
 
       const prefetchedBeforeScroll = await page.evaluate(() => {
         const messages = (window as Window & {
@@ -40,13 +33,32 @@ test('Gallery prefetches page links when they enter the viewport', { timeout: 60
             ? [message.message.key]
             : [])
       })
-      assert.ok(prefetchedBeforeScroll.includes('layout'))
+      assert.ok(!prefetchedBeforeScroll.includes('layout'), 'the off-screen layout link waits for scrolling')
       assert.ok(!prefetchedBeforeScroll.includes('form'), 'the off-screen form link waits for scrolling')
-      const pageLinks = page.locator('#gallery-page-links')
-      assert.ok(await pageLinks.evaluate((element) => element.scrollWidth > element.clientWidth), 'the narrow gallery nav has a horizontal scroll range')
-      await pageLinks.evaluate((element) => {
-        element.scrollLeft = element.scrollWidth
+
+      await page.locator('#content-link-layout').scrollIntoViewIfNeeded()
+      await page.waitForFunction((key) => {
+        const messages = (window as Window & {
+          __wseffectMessages?: ReadonlyArray<{ _tag?: string; message?: { _tag?: string; key?: string } }>
+        }).__wseffectMessages ?? []
+        return messages.some((message) =>
+          message._tag === 'GotKitMessage'
+          && message.message?._tag === 'RequestedPrefetch'
+          && message.message.key === key)
+      }, 'layout', { timeout: 20_000 })
+
+      const prefetchedAfterLayoutScroll = await page.evaluate(() => {
+        const messages = (window as Window & {
+          __wseffectMessages?: ReadonlyArray<{ _tag?: string; message?: { _tag?: string; key?: string } }>
+        }).__wseffectMessages ?? []
+        return messages.flatMap((message) =>
+          message._tag === 'GotKitMessage' && message.message?._tag === 'RequestedPrefetch' && message.message.key
+            ? [message.message.key]
+            : [])
       })
+      assert.ok(!prefetchedAfterLayoutScroll.includes('form'), 'the off-screen form link still waits for scrolling')
+
+      await page.locator('#content-link-form').scrollIntoViewIfNeeded()
       await page.waitForFunction((key) => {
         const messages = (window as Window & {
           __wseffectMessages?: ReadonlyArray<{ _tag?: string; message?: { _tag?: string; key?: string } }>
