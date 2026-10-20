@@ -1,7 +1,7 @@
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import { pageKeysForRoute } from '../src/routes.js'
-import { page as signalsPage } from '../src/pages/signals.js'
+import { page as signalsPage, Message as SignalsMessage } from '../src/pages/signals.js'
 import { page as validationPage, Message as ValidationMessage } from '../src/pages/validation.js'
 import { page as persistencePage, Message as PersistenceMessage } from '../src/pages/persistence.js'
 import { page as browserPage, Message as BrowserMessage } from '../src/pages/browser.js'
@@ -29,6 +29,17 @@ describe('Gallery app capability demos', () => {
       Scene.given(initial.model),
       Scene.expect(Scene.selector('#signal-count')).toHaveText('0'),
       Scene.expect(Scene.selector('#signal-status')).toHaveText('Waiting for a signal'),
+    )
+  })
+  it('onlyIfMissingPreservesZeroSignalCount', () => {
+    const initial = signalsPage.init()
+    Scene.scene(
+      { update: signalsPage.update, view: (model, h) => signalsPage.view(model, inputs, h) },
+      Scene.given(initial.model),
+      Scene.Subscription.emit(SignalsMessage.SignalOutcomeReceived({
+        outcome: { _tag: 'SignalPatch', value: { count: 5 }, onlyIfMissing: true },
+      })),
+      Scene.expect(Scene.selector('#signal-count')).toHaveText('0'),
     )
   })
 

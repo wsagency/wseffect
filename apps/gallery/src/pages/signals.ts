@@ -37,7 +37,7 @@ export const page = galleryPageContract.definePage({
   update: (model: Model, message: Message) => Message.match(message, {
     Connect: () => ({ model: { ...model, connected: true, status: 'Connecting to local EventSource' } }),
     SignalOutcomeReceived: ({ outcome }) => outcome._tag === 'SignalPatch'
-      ? { model: { ...model, count: outcome.onlyIfMissing && model.count !== 0 ? model.count : outcome.value.count, status: 'Signal patch applied' } }
+      ? { model: { ...model, count: outcome.onlyIfMissing ? model.count : outcome.value.count, status: 'Signal patch applied' } }
       : { model: { ...model, status: outcome._tag === 'RejectedSignalPatch' ? `Rejected signal: ${outcome.reason}` : `Signal transport: ${outcome.reason}` } },
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([h.Class('capability-stack')], [
