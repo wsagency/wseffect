@@ -104,6 +104,10 @@ export interface Locale {
   readonly plural: (value: number, options?: Intl.PluralRulesOptions) => Intl.LDMLPluralRule
 }
 export function makeLocale(locale: string): Locale
+export class LocaleService extends Context.Service<LocaleService, Locale>()('wseffect/Locale') {
+  static layer(locale: string): Layer.Layer<LocaleService>
+}
+
 
 // clipboard.ts / scroll.ts
 export type BrowserCommandResult = { readonly _tag: 'Succeeded' } | { readonly _tag: 'Failed'; readonly reason: string }
@@ -136,7 +140,7 @@ The Themes-owned breakpoint source is `packages/themes/src/breakpoints.ts`, expo
 | `packages/app/src/validation.ts` | Native validity + ARIA projection from caller-owned result. |
 | `packages/app/src/persistence.ts` | Schema envelope, migration, storage, debounce, conflict resolution and scoped cross-tab sync. |
 | `packages/app/src/breakpoints.ts` | Initial + matchMedia breakpoint Subscription using Themes tokens. |
-| `packages/app/src/locale.ts` | Locale-explicit Intl facade and ≤64-entry deterministic LRU per instance. |
+| `packages/app/src/locale.ts` | Locale service Layer plus locale-explicit Intl facade and ≤64-entry deterministic LRU per service. |
 | `packages/app/src/clipboard.ts`, `scroll.ts` | Independent typed browser Commands. |
 | `packages/app/src/resize.ts` | Scope-owned ResizeObserver Mount with frame coalescing/deduplication. |
 | `packages/app/src/island.ts` | Lazy explicit island component and root-fenced Idiomorph adapter. |
@@ -218,13 +222,13 @@ The Themes-owned breakpoint source is `packages/themes/src/breakpoints.ts`, expo
 - Create: `packages/app/test/locale.test.ts`
 
 **Interfaces:**
-- Consumes: frozen `Locale`, `makeLocale(locale: string): Locale`.
-- Produces: explicit-locale number/dateTime/relativeTime/plural formatter facade.
+- Consumes: frozen `Locale`, `makeLocale(locale: string): Locale`, and `LocaleService extends Context.Service<LocaleService, Locale>()('wseffect/Locale')` with `static layer(locale: string): Layer.Layer<LocaleService>`.
+- Produces: explicit-locale number/dateTime/relativeTime/plural formatter facade, available both as pure `makeLocale` constructor and scoped `LocaleService` Layer; changing locale constructs a new Layer/service.
 
-- [ ] **Step 1: Write failing tests** `reusesFormatterForRepeatedNormalizedOptions`, `normalizesDistinctOptionKeys`, `evictsLeastRecentlyUsedAtCapacity`, `isolatesFormatterCacheBetweenLocales`, and `doesNotGrowBeyond64ForCallerOptions`; assert locale is passed to every native `Intl.*Format` constructor and output does not depend on machine default locale.
+- [ ] **Step 1: Write failing tests** `reusesFormatterForRepeatedNormalizedOptions`, `normalizesDistinctOptionKeys`, `evictsLeastRecentlyUsedAtCapacity`, `isolatesFormatterCacheBetweenLocales`, `localeServiceLayersIsolateCachesAndLocale`, and `doesNotGrowBeyond64ForCallerOptions`; assert locale is passed to every native `Intl.*Format` constructor and output does not depend on machine default locale. The Layer test builds two locale Layers, verifies each service keeps its own locale/cache, then provides a newly built Layer after locale change and observes the new locale.
 - [ ] **Step 2: Run `pnpm --filter @wsagency/wseffect-app exec vitest run test/locale.test.ts`;** expected: FAIL before implementation.
-- [ ] **Step 3: Implement `makeLocale`** with deterministic LRU capacity 64 per Locale instance; canonicalize option keys and cache formatter instances, not arbitrary unbounded keys; pass the explicit locale for every constructor.
-- [ ] **Step 4: Run `pnpm --filter @wsagency/wseffect-app exec vitest run test/locale.test.ts`;** expected: PASS including cache eviction/isolation.
+- [ ] **Step 3: Implement `makeLocale`** with deterministic LRU capacity 64 per Locale instance; canonicalize option keys and cache formatter instances, not arbitrary unbounded keys; pass the explicit locale for every constructor. Implement `LocaleService` as a Context service whose static `layer(locale)` provides `makeLocale(locale)`; callers change locale by providing a newly constructed Layer.
+- [ ] **Step 4: Run `pnpm --filter @wsagency/wseffect-app exec vitest run test/locale.test.ts`;** expected: PASS including cache eviction, cache isolation, and Layer-level locale isolation/change.
 - [ ] **Step 5: Commit** `git add packages/app/src/locale.ts packages/app/src/index.ts packages/app/test/locale.test.ts && git commit -m "feat(app): add bounded locale formatter service"`.
 
 ### Task P3: Shared breakpoint tokens and Subscription
