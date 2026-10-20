@@ -20,6 +20,7 @@ export function resizeObserverMount<M>(toMessage: (result: ResizeResult) => M): 
         const frameHost = globalThis as FrameHost
         let active = true
         let frame: number | undefined
+        let frameKind: 'animationFrame' | 'timeout' | undefined
         let nextWidth: number | undefined
         let nextHeight: number | undefined
         let lastWidth: number | undefined
@@ -27,6 +28,7 @@ export function resizeObserverMount<M>(toMessage: (result: ResizeResult) => M): 
         let observer: ResizeObserver | undefined
         const flush = () => {
           frame = undefined
+          frameKind = undefined
           if (!active || nextWidth === undefined || nextHeight === undefined) return
           const width = nextWidth
           const height = nextHeight
@@ -43,9 +45,13 @@ export function resizeObserverMount<M>(toMessage: (result: ResizeResult) => M): 
           nextWidth = entry.contentRect.width
           nextHeight = entry.contentRect.height
           if (frame === undefined) {
-            frame = frameHost.requestAnimationFrame === undefined
-              ? setTimeout(flush, 0) as unknown as number
-              : frameHost.requestAnimationFrame(flush)
+            if (frameHost.requestAnimationFrame === undefined) {
+              frameKind = 'timeout'
+              frame = setTimeout(flush, 0) as unknown as number
+            } else {
+              frameKind = 'animationFrame'
+              frame = frameHost.requestAnimationFrame(flush)
+            }
           }
         }
         try {
@@ -59,8 +65,8 @@ export function resizeObserverMount<M>(toMessage: (result: ResizeResult) => M): 
           (ownedObserver) => Effect.sync(() => {
             active = false
             if (frame !== undefined) {
-              if (frameHost.cancelAnimationFrame !== undefined) frameHost.cancelAnimationFrame(frame)
-              else clearTimeout(frame)
+              if (frameKind === 'timeout') clearTimeout(frame)
+              else frameHost.cancelAnimationFrame?.(frame)
             }
             ownedObserver?.disconnect()
           }),

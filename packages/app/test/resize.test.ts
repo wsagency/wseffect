@@ -81,6 +81,26 @@ describe('resizeObserverMount', () => {
     expect(toMessage).not.toHaveBeenCalled()
   })
 
+  it('cancelsTimeoutWithClearTimeoutWhenAnimationFramesAreUnavailable', async () => {
+    disconnected = 0
+    const clearTimeout = vi.fn()
+    const cancelAnimationFrame = vi.fn()
+    const setTimeout = vi.fn(() => 77)
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver)
+    const fiber = Effect.runFork(Stream.runHead(resizeObserverMount(toResult).f(makeElement(), Stream.empty)))
+    await vi.waitFor(() => expect(observerCallback).toBeDefined())
+    vi.stubGlobal('requestAnimationFrame', undefined)
+    vi.stubGlobal('cancelAnimationFrame', cancelAnimationFrame)
+    vi.stubGlobal('setTimeout', setTimeout)
+    vi.stubGlobal('clearTimeout', clearTimeout)
+    observerCallback?.([{ contentRect: { width: 1, height: 2 } }])
+    await Effect.runPromise(Fiber.interrupt(fiber))
+    expect(setTimeout).toHaveBeenCalledOnce()
+    expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 0)
+    expect(clearTimeout).toHaveBeenCalledOnce()
+    expect(clearTimeout).toHaveBeenCalledWith(77)
+    expect(cancelAnimationFrame).not.toHaveBeenCalled()
+  })
   it('reportsUnsupportedAndObserverFailureAsTypedOutcomes', async () => {
     vi.stubGlobal('ResizeObserver', undefined)
     expect(await begin(makeElement())).toMatchObject({ _tag: 'Some', value: { _tag: 'ResizeUnavailable' } })

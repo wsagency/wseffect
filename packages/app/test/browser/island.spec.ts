@@ -41,6 +41,10 @@ test('preflightsRejectedPatchesWithoutDocumentMutationAcrossBrowsers', async ({ 
 test('appliesDescendantPatchesAndPreservesFocusedSelection', async ({ page }) => {
   await page.goto(`${baseUrl}/packages/app/test/browser/island.html`)
   const result = await page.evaluate(async () => {
+    const runPatches = window.prepareIslandPatches([
+      { _tag: 'InnerHtml', selector: '#form', html: '<input id="field" value="updated">' },
+      { _tag: 'OuterHtml', selector: '#field', html: '<input id="field" value="server-again">' },
+    ])
     const root = document.getElementById('island')
     if (root === null) throw new Error('Missing island root')
     root.innerHTML = '<section id="form"><input id="field" value="server"></section>'
@@ -49,10 +53,7 @@ test('appliesDescendantPatchesAndPreservesFocusedSelection', async ({ page }) =>
     input.value = 'typed by user'
     input.focus()
     input.setSelectionRange(3, 8)
-    const messages = await window.applyIslandPatches([
-      { _tag: 'InnerHtml', selector: '#form', html: '<input id="field" value="updated">' },
-      { _tag: 'OuterHtml', selector: '#field', html: '<input id="field" value="server-again">' },
-    ])
+    const messages = await runPatches()
     const current = root.querySelector<HTMLInputElement>('#field')
     return {
       messages,
@@ -66,4 +67,18 @@ test('appliesDescendantPatchesAndPreservesFocusedSelection', async ({ page }) =>
     messages: [{ _tag: 'Applied' }, { _tag: 'Applied' }],
     value: 'typed by user', focused: true, start: 3, end: 8,
   })
+})
+
+test('preservesPatchedDomAcrossParentRendersWithSameAndChangedIslandHtml', async ({ page }) => {
+  await page.goto(`${baseUrl}/packages/app/test/browser/island.html`)
+  await expect(page.locator('#patched')).toHaveText('patched')
+
+  await page.locator('#rerender-same').click()
+  await expect(page.locator('#revision')).toHaveText('1')
+  await expect(page.locator('#patched')).toHaveText('patched')
+
+  await page.locator('#rerender-changed').click()
+  await expect(page.locator('#revision')).toHaveText('2')
+  await expect(page.locator('#patched')).toHaveText('patched')
+  await expect(page.locator('#changed-html')).toHaveCount(0)
 })

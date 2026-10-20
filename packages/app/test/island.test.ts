@@ -1,21 +1,29 @@
 import { Effect, Fiber, Stream } from 'effect'
+import { Idiomorph } from 'idiomorph'
 import { Mount } from 'foldkit'
 import type { HtmlBuilder } from 'foldkit/html'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Island, type IslandPatch, type IslandResult } from '../src/index.js'
 
-function islandAction(patches: Stream.Stream<IslandPatch>) {
+vi.mock('idiomorph', () => ({ Idiomorph: { morph: vi.fn() } }))
+
+beforeEach(async () => {
+  const actual = await vi.importActual<typeof import('idiomorph')>('idiomorph')
+  vi.mocked(Idiomorph.morph).mockReset().mockImplementation(actual.Idiomorph.morph)
+})
+
+function islandAction(patches: Stream.Stream<IslandPatch>, html = '<section id="inside"><p>initial</p></section>') {
   let action: Mount.MountAction<IslandResult> | undefined
+  const attachMount = (attributes: ReadonlyArray<{ readonly _tag: string; readonly action?: Mount.MountAction<IslandResult> }>) => {
+    action = attributes.find((attribute) => attribute._tag === 'OnMount')?.action
+    return action
+  }
   const builder = {
     Id: (value: string) => ({ _tag: 'Id', value }),
-    InnerHTML: (value: string) => ({ _tag: 'InnerHTML', value }),
     OnMount: (value: Mount.MountAction<IslandResult>) => ({ _tag: 'OnMount', action: value }),
-    div: (attributes: ReadonlyArray<{ readonly _tag: string; readonly action?: Mount.MountAction<IslandResult> }>) => {
-      action = attributes.find((attribute) => attribute._tag === 'OnMount')?.action
-      return action
-    },
+    keyed: (_tag: string) => (_key: PropertyKey, attributes: ReadonlyArray<{ readonly _tag: string; readonly action?: Mount.MountAction<IslandResult> }>) => attachMount(attributes),
   }
-  Island({ id: 'island', html: '<section id="inside"><p>initial</p></section>', patches, toMessage: (result) => result }, builder as unknown as HtmlBuilder<IslandResult>)
+  Island({ id: 'island', html, patches, toMessage: (result) => result }, builder as unknown as HtmlBuilder<IslandResult>)
   if (action === undefined) throw new Error('Island did not attach its mount')
   return action
 }
@@ -55,19 +63,45 @@ describe('Island', () => {
     await rejectionSnapshot({ _tag: 'OuterHtml', selector: '#outside', html: '<p>bad</p>' }, 'TargetOutsideIsland')
   })
 
+  it('rollsBackInnerHtmlMorphFailureWithoutChangingTheDocument', async () => {
+    const root = installIsland()
+    const before = document.documentElement.outerHTML
+    vi.mocked(Idiomorph.morph).mockImplementation(async (target) => {
+      if (target instanceof Element) target.replaceChildren(document.createElement('div'))
+      throw new Error('partial inner morph')
+    })
+    const results = await apply(root, [{ _tag: 'InnerHtml', selector: '#inside', html: '<p>next</p>' }])
+    expect(document.documentElement.outerHTML).toBe(before)
+    expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
+  })
+
+  it('rollsBackOuterHtmlMorphFailureWithoutChangingTheDocument', async () => {
+    const root = installIsland()
+    const before = document.documentElement.outerHTML
+    vi.mocked(Idiomorph.morph).mockImplementation(async (target) => {
+      if (target.parentNode !== null) target.parentNode.replaceChild(document.createElement('article'), target)
+      throw new Error('partial outer morph')
+    })
+    const results = await apply(root, [{ _tag: 'OuterHtml', selector: '#inside', html: '<article>next</article>' }])
+    expect(document.documentElement.outerHTML).toBe(before)
+    expect(results).toEqual([{ _tag: 'RejectedIslandPatch', reason: 'MorphFailed' }])
+  })
+
   it('rejectsSiblingInsertionWithoutInIslandParent', async () => {
     await rejectionSnapshot({ _tag: 'OuterHtml', selector: '#outside', html: '<p id="new">sibling</p>' }, 'TargetOutsideIsland')
   })
 
   it('preservesActiveInputValueFocusAndSelection', async () => {
     const root = installIsland()
-    root.innerHTML = '<section id="form"><input id="field" value="server"></section>'
+    const patch: IslandPatch = { _tag: 'InnerHtml', selector: '#form', html: '<input id="field" value="updated">' }
+    const action = islandAction(Stream.make(patch), '<section id="form"><input id="field" value="server"></section>')
+    const updates = action.f(root, Stream.empty)
     const input = root.querySelector<HTMLInputElement>('#field')
     if (input === null) throw new Error('missing test input')
     input.value = 'typed by user'
     input.focus()
     input.setSelectionRange(3, 8)
-    await apply(root, [{ _tag: 'InnerHtml', selector: '#form', html: '<input id="field" value="updated">' }])
+    await Effect.runPromise(Stream.runCollect(updates))
     const current = root.querySelector<HTMLInputElement>('#field')
     expect(current?.value).toBe('typed by user')
     expect(document.activeElement).toBe(current)
