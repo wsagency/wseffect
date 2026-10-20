@@ -16,6 +16,27 @@ test('fixed build IDs rename only the entry and changed page, leaving app-shared
   try {
     const source = (await readFile(tabsPath)).toString()
     fixture.build({ outDir: first, buildId: 'd3a1234' })
+    const initialAssets = resolve(first, 'assets')
+    const eagerSourceMaps = (await readdir(initialAssets))
+      .filter((name) => /^(?:index|framework|app-shared)-.*\.js\.map$/.test(name))
+    const eagerMaps = await Promise.all(eagerSourceMaps.map(async (name) =>
+      JSON.parse(await readFile(resolve(initialAssets, name), 'utf8')) as {
+        sources: ReadonlyArray<string>
+        names: ReadonlyArray<string>
+      },
+    ))
+    const eagerNames = eagerMaps.flatMap((sourceMap) => sourceMap.names)
+    assert.equal(
+      eagerMaps.some((sourceMap) => sourceMap.sources.some((source) => source.endsWith('packages/themes/dist/breakpoints.js'))),
+      false,
+      'the shared breakpoint tokens must stay out of the eager closure when used only by the lazy browser page',
+    )
+    assert.equal(eagerSourceMaps.length > 0, true)
+    assert.equal(
+      eagerNames.some((name) => /^(?:signalSubscription|projectConstraintValidity|persist|breakpointSubscription|makeLocale|clipboardCommand|scrollIntoViewCommand|resizeObserverMount|Island)$/.test(name)),
+      false,
+      'the initial HTML, framework and app-shared module closure must not contain lazy capability helpers',
+    )
     const changedSource = source.replace("'Overview panel.'", "'Overview panel changed.'")
     assert.notEqual(changedSource, source)
     await writeFile(tabsPath, changedSource)

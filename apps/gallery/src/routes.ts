@@ -14,6 +14,12 @@ export const pageKeysByRoute = {
   '/virtual-list': ['virtualList'],
   '/form': ['form'],
   '/menus': ['menus'],
+  '/capabilities': ['capabilities'],
+  '/capabilities/signals': ['signals'],
+  '/capabilities/validation': ['validation'],
+  '/capabilities/persistence': ['persistence'],
+  '/capabilities/browser': ['browser'],
+  '/capabilities/island': ['island'],
 } as const
 
 export type GalleryRoute = keyof typeof pageKeysByRoute

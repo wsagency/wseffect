@@ -63,7 +63,10 @@ export function frameworkChunking(pagesDir: string): Plugin {
   }
   const isAppSharedModule = (id: string): boolean => {
     const resolvedId = modulePath(id)
-    return existsSync(resolvedId) && !isInside(resolvedId, pagesRoot) && !isFrameworkPath(resolvedId)
+    return existsSync(resolvedId) &&
+      !isInside(resolvedId, pagesRoot) &&
+      !(appRoot !== undefined && isInside(resolvedId, appRoot)) &&
+      !isFrameworkPath(resolvedId)
   }
 
   return {
@@ -180,7 +183,12 @@ export function frameworkChunking(pagesDir: string): Plugin {
       const pageReachable = reachableFrom(pageRoots)
       const entryReachable = reachableFrom(entryRoots, true)
       for (const id of pageReachable) {
-        if (entryReachable.has(id) && isAppSharedModule(id)) appShared.add(id)
+        if (!entryReachable.has(id) || !isAppSharedModule(id)) continue
+        const hasDirectEntryImporter = this.getModuleInfo(id)?.importers.some((importer) =>
+          entryReachable.has(importer) && !isAppModule(importer) && !isInside(modulePath(importer), pagesRoot),
+        ) ?? false
+        // App barrels re-export page-only helpers; don't promote their dependencies into the eager shared chunk.
+        if (hasDirectEntryImporter) appShared.add(id)
       }
     },
   }

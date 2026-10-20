@@ -1,6 +1,7 @@
 # Changelog
 ## Unreleased
 
+- Document the standalone app capabilities, their platform and lifecycle caveats, the measured helper budgets, and Foldkit's typed `Route.query(Schema)` pattern.
 - Keep generated page-registry imports isolated behind `@wsagency/wseffect-app/runtime` so lazy capability helpers remain in their lazy chunks.
 - Retry navigation loads that overlap failed page prefetches, and group shared dependencies in a stable app chunk.
 - Exclude registry page chunks from modulepreload lists to prevent duplicate WebKit requests while retaining shared chunk and CSS preloads.

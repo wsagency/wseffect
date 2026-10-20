@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test'
 const root = new URL('.', import.meta.url).pathname
 const productionURL = 'http://127.0.0.1:4450'
 const developmentURL = 'http://127.0.0.1:4451'
+const capabilitiesPort = Number(process.env.WSEFFECT_CAPABILITIES_PREVIEW_PORT ?? 4452)
+const capabilitiesURL = `http://127.0.0.1:${capabilitiesPort}`
 
 export default defineConfig({
   testDir: './e2e',
@@ -19,10 +21,19 @@ export default defineConfig({
         : name === 'firefox' ? devices['Desktop Firefox'] : devices['Desktop Safari']
       return {
         name,
-        testIgnore: '**/devReload.spec.ts',
-        // Playwright exposes service-worker controls only for Chromium; skip those cases on Firefox/WebKit.
+        testIgnore: ['**/devReload.spec.ts', '**/capabilities.spec.ts'],
         ...(name === 'chromium' ? {} : { grepInvert: /PWA service-worker/ }),
         use: { ...device, baseURL: productionURL },
+      }
+    }),
+    ...(['chromium', 'firefox', 'webkit'] as const).map((name) => {
+      const device = name === 'chromium'
+        ? devices['Desktop Chrome']
+        : name === 'firefox' ? devices['Desktop Firefox'] : devices['Desktop Safari']
+      return {
+        name: `capabilities-${name}`,
+        testMatch: '**/capabilities.spec.ts',
+        use: { ...device, baseURL: capabilitiesURL, browserName: name },
       }
     }),
     {
@@ -49,6 +60,12 @@ export default defineConfig({
       url: developmentURL,
       reuseExistingServer: false,
       timeout: 30_000,
+    },
+    {
+      command: `pnpm --dir ${root}apps/gallery build && GALLERY_CAPABILITY_SSE=1 pnpm --dir ${root}apps/gallery exec vite preview --host 127.0.0.1 --port ${capabilitiesPort} --strictPort`,
+      url: capabilitiesURL,
+      reuseExistingServer: false,
+      timeout: 120_000,
     },
   ],
 })

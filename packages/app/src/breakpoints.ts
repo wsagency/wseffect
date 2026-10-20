@@ -4,10 +4,10 @@ import { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
 
 export type Breakpoint = 'initial' | typeof BREAKPOINTS[number]['name']
 
-function currentBreakpoint(): Breakpoint {
+function currentBreakpoint(breakpoints: typeof BREAKPOINTS): Breakpoint {
   if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return 'initial'
   let current: Breakpoint = 'initial'
-  for (const breakpoint of BREAKPOINTS) {
+  for (const breakpoint of breakpoints) {
     if (window.matchMedia(`(min-width: ${breakpoint.minWidth}px)`).matches) current = breakpoint.name
   }
   return current
@@ -19,7 +19,7 @@ function breakpointStream<Message>(toMessage: (value: Breakpoint) => Message): S
       Effect.sync(() => {
         let lastEmitted: Breakpoint | undefined
         const emit = () => {
-          const current = currentBreakpoint()
+          const current = currentBreakpoint(BREAKPOINTS)
           if (current === lastEmitted) return
           lastEmitted = current
           Queue.offerUnsafe(queue, toMessage(current))

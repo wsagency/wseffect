@@ -136,7 +136,7 @@ const pageInputs = (model: Model): PageInputs => ({
 
 export const view = (model: Model, h: HtmlBuilder<Message>) => {
   const routeLinks = Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
-    if (path === '/') return []
+    if (path === '/' || path.startsWith('/capabilities/')) return []
     const key = keys[0]!
     const prefetch = Message.GotKitMessage({ message: kit.messages.requestedPrefetch(key, 'intent') })
     const isActive = keys.some((pageKey) => model.kit.activeKeys.includes(pageKey))
@@ -153,7 +153,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => {
   })
   const morePageLinks = model.kit.slots.menus._tag === 'Ready'
     ? Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {
-      if (path === '/' || path === '/menus') return []
+      if (path === '/' || path === '/menus' || path.startsWith('/capabilities/')) return []
       const key = keys[0]!
       const attribute = prefetchOnVisible<Pages, typeof KitMessage.Type>(kit, key)
       const visiblePrefetch = {

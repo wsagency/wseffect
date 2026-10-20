@@ -446,7 +446,7 @@ export async function runHarnessSelfTest(
   const client = await page.context().newCDPSession(page)
   try {
     await client.send('Emulation.setCPUThrottlingRate', { rate: 1 })
-    await page.setContent('<button id="slow">50 ms handler</button><button id="fast">5 ms handler</button><button id="frame">rAF render</button>')
+    await page.setContent('<button id="slow">60 ms handler</button><button id="fast">5 ms handler</button><button id="frame">rAF render</button>')
     await page.evaluate(() => {
       const target = window as Window & {
         __selfTestTrusted?: boolean
@@ -461,7 +461,7 @@ export async function runHarnessSelfTest(
         }
         target.__selfTestHandlerMs = performance.now() - start
       }
-      document.querySelector('#slow')!.addEventListener('click', (event) => busyWait(50, event))
+      document.querySelector('#slow')!.addEventListener('click', (event) => busyWait(60, event))
       document.querySelector('#fast')!.addEventListener('click', (event) => busyWait(5, event))
       document.querySelector('#frame')!.addEventListener('click', () => requestAnimationFrame(() => {
         const deadline = performance.now() + 25
@@ -472,9 +472,9 @@ export async function runHarnessSelfTest(
     })
 
     const eventTiming: SelfTestEventTiming[] = []
-    for (const expectedHandlerMs of [50, 5]) {
+    for (const expectedHandlerMs of [60, 5]) {
       await installEventTimingObserver(page)
-      await page.locator(expectedHandlerMs === 50 ? '#slow' : '#fast').click()
+      await page.locator(expectedHandlerMs === 60 ? '#slow' : '#fast').click()
       const entries = await eventEntries(page)
       const result = await page.evaluate(() => {
         const target = window as Window & {
@@ -493,8 +493,8 @@ export async function runHarnessSelfTest(
         qualifiedEntries: entries.length,
       }
       eventTiming.push(measured)
-      if (expectedHandlerMs === 50 && (measured.handlerMs < 50 || measured.eventMs < 50 || measured.qualifiedEntries === 0)) {
-        throw new Error(`50 ms self-test click was not captured by Event Timing: ${JSON.stringify(measured)}`)
+      if (expectedHandlerMs === 60 && (measured.handlerMs < 60 || measured.eventMs < 50 || measured.qualifiedEntries === 0)) {
+        throw new Error(`60 ms self-test click was not captured by Event Timing: ${JSON.stringify(measured)}`)
       }
       if (expectedHandlerMs === 5 && measured.handlerMs >= 16) {
         throw new Error(`5 ms self-test handler exceeded the 16 ms limit: ${JSON.stringify(measured)}`)

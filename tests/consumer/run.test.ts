@@ -52,8 +52,10 @@ test('tarball discovery ignores files already present before packing', () => {
   assert.equal(findNewTarballName(new Set(['old.tgz', 'note.txt']), ['old.tgz', 'new.tgz']), 'new.tgz')
   assert.equal(findNewTarballName(new Set(['old.tgz']), ['old.tgz']), undefined)
 })
-test('packed builds use a deterministic build ID without requiring a Git checkout', () => {
-  assert.equal(packedBuildEnvironment({}).WSEFFECT_BUILD_ID, 'd5c0ffee')
+test('packed builds use a deterministic build ID and enable the local capability stream', () => {
+  const env = packedBuildEnvironment({})
+  assert.equal(env.WSEFFECT_BUILD_ID, 'd5c0ffee')
+  assert.equal(env.GALLERY_CAPABILITY_SSE, '1')
 })
 
 test('UP-8 requires the README block to match byte-for-byte', () => {
