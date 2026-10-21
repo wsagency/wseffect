@@ -1,8 +1,10 @@
+import { Effect, Fiber, Stream } from 'effect'
 import type { HtmlBuilder } from 'foldkit/html'
 import * as VirtualList from '@foldkit/ui/virtualList'
 import * as Scene from 'foldkit/scene'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import * as DataTable from '../src/components/data-table.js'
+import { makeDataTableMounts } from '../src/components/data-table.mount.js'
 
 type Row = { id: string; label: string }
 const originalRows: ReadonlyArray<Row> = [
@@ -159,5 +161,29 @@ describe('DataTable row view cache reuse', () => {
         expect(renderCount.get('c')).toBe(1)
       }),
     )
+  })
+  it('disposes render cache on table lifetime cleanup', async () => {
+    const cache = new Map([['data-table-cleanup', {}]])
+    const observe = makeDataTableMounts(DataTable.Message, cache).observeDataTable({
+      id: 'data-table-cleanup-virtual-list',
+      tableId: 'data-table-cleanup',
+    })
+    const observed = vi.fn()
+    class ResizeObserverStub {
+      constructor(_callback: ResizeObserverCallback) {}
+      observe = observed
+      disconnect = vi.fn()
+    }
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+    const element = document.createElement('div')
+    const fiber = Effect.runFork(Stream.runDrain(observe.f(element, Stream.make('Live'))))
+    try {
+      await vi.waitFor(() => expect(observed).toHaveBeenCalledOnce())
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      expect(cache.has('data-table-cleanup')).toBe(false)
+    } finally {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      vi.unstubAllGlobals()
+    }
   })
 })

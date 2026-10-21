@@ -1,13 +1,12 @@
-import { Effect, Option, Queue, Schema, Stream } from 'effect'
+import { Option, Schema } from 'effect'
 import * as VirtualList from '@foldkit/ui/virtualList'
 import { Command, Update } from 'foldkit'
-import * as Render from 'foldkit/render'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import { createLazy } from 'foldkit/html'
-import * as Mount from 'foldkit/mount'
 import { defineMessageUnion } from 'foldkit/message'
 import { brandViewResult } from 'foldkit/brand'
 import type { Column, Config } from './data-table.props.js'
+import { makeDataTableMounts } from './data-table.mount.js'
  
 export type { Column, Config } from './data-table.props.js'
  
@@ -44,64 +43,10 @@ export const OutMessage = defineMessageUnion({
 export type OutMessage = typeof OutMessage.Type
  
 const tableStates = new Map<string, TableState<unknown>>()
-const observeDataTable = Mount.defineStream('ObserveDataTable', {
-  args: { id: Schema.String, tableId: Schema.String },
-  messages: [Message],
-  execute: ({ element, tableId, viewStateChanges }) => viewStateChanges.pipe(Stream.switchMap(viewState => {
-    if (viewState !== 'Live' || !(element instanceof HTMLElement)) return Stream.never
-    return Stream.callback(queue => Effect.acquireRelease(Effect.sync(() => {
-      const emitResize = () => Queue.offerUnsafe(queue, Message.VirtualList({ message: VirtualList.Message.ResizedContainer({
-        containerWidth: element.clientWidth,
-        containerHeight: element.clientHeight,
-      }) }))
-      const emitScroll = () => Queue.offerUnsafe(queue, Message.VirtualList({ message: VirtualList.Message.ObservedContainerScroll({
-        scrollTop: element.scrollTop,
-        scrollHeight: element.scrollHeight,
-        containerHeight: element.clientHeight,
-        anchor: { _tag: 'None' },
-      }) }))
-      const resizeObserver = new ResizeObserver(emitResize)
-      element.addEventListener('scroll', emitScroll, { passive: true })
-      resizeObserver.observe(element)
-      emitResize()
-      return () => {
-        resizeObserver.disconnect()
-        element.removeEventListener('scroll', emitScroll)
-        tableStates.delete(tableId)
-      }
-    }), cleanup => Effect.sync(cleanup)).pipe(Effect.flatMap(() => Effect.never)))
-  })),
-})
-const scrollToRow = Command.define('ScrollDataTableRow', {
-  messages: [VirtualList.Message],
-  args: { containerId: Schema.String, rowIndex: Schema.Number, rowHeight: Schema.Number, rowId: Schema.NullOr(Schema.String), scrollTop: Schema.Number, columnIndex: Schema.Number, shouldFocus: Schema.Boolean },
-  execute: ({ containerId, rowIndex, rowHeight, rowId, scrollTop, columnIndex, shouldFocus }) => Effect.gen(function* () {
-    yield* Render.afterCommit
-    const container = document.getElementById(containerId)
-    if (!(container instanceof HTMLElement)) return VirtualList.Message.ObservedContainerScroll({
-      scrollTop: 0,
-      scrollHeight: 0,
-      containerHeight: 0,
-      anchor: { _tag: 'None' },
-    })
-    container.scrollTop = scrollTop
-    if (shouldFocus && rowId !== null) {
-      const row = Array.from(container.querySelectorAll<HTMLTableRowElement>('tr[data-virtual-list-item-key]'))
-        .find(candidate => candidate.dataset.virtualListItemKey === rowId)
-      row?.cells.item(columnIndex)?.focus()
-    }
-    return VirtualList.Message.ObservedContainerScroll({
-      scrollTop: container.scrollTop,
-      scrollHeight: container.scrollHeight,
-      containerHeight: container.clientHeight,
-      anchor: rowId === null
-        ? { _tag: 'None' }
-        : { _tag: 'Row', key: rowId, index: rowIndex, viewportOffset: rowIndex * rowHeight - scrollTop },
-    })
-  }),
-})
+const { observeDataTable, scrollToRow } = makeDataTableMounts(Message, tableStates)
 const FIXED_VIEWPORT_HEIGHT = 360
 const selectionColumnId = '$selection'
+const sortValueCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 type RowCacheEntry = ReturnType<typeof createLazy>
 type TableState<Row> = {
   rows: ReadonlyArray<Row>
@@ -167,7 +112,7 @@ function computeOrder<Row>(config: Config<Row>, state: TableState<Row>, filter: 
   ids.sort((leftId, rightId) => {
     const left = state.sortValuesById.get(leftId)?.[columnIndex] ?? ''
     const right = state.sortValuesById.get(rightId)?.[columnIndex] ?? ''
-    const comparison = left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
+    const comparison = sortValueCollator.compare(left, right)
     return (sort.direction === 'ascending' ? comparison : -comparison) || state.sourceOrdinalById.get(leftId)! - state.sourceOrdinalById.get(rightId)!
   })
   return ids
