@@ -3864,4 +3864,23 @@
   "type:@wsagency/wseffect-themes:./css/radio.css:default": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./css/radio-group.css:default": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./css/radio-cards.css:default": ["public-surface", "gallery-typecheck"]
+  ,
+  "css:@wsagency/wseffect-themes:dist/styles/css/switch.css": ["public-surface", "gallery-typecheck"],
+  "css:@wsagency/wseffect-themes:dist/styles/css/switch.layer.css": ["public-surface", "gallery-typecheck"],
+  "css:@wsagency/wseffect-themes:dist/styles/css/segmented-control.css": ["public-surface", "gallery-typecheck"],
+  "css:@wsagency/wseffect-themes:dist/styles/css/segmented-control.layer.css": ["public-surface", "gallery-typecheck"],
+  "export:@wsagency/wseffect-themes:./components/switch:Props": ["public-surface", "gallery-typecheck"],
+  "export:@wsagency/wseffect-themes:./components/switch:view": ["public-surface", "gallery-typecheck"],
+  "export:@wsagency/wseffect-themes:./components/segmented-control:Props": ["public-surface", "gallery-typecheck"],
+  "export:@wsagency/wseffect-themes:./components/segmented-control:create": ["public-surface", "gallery-typecheck"],
+  "subpath:@wsagency/wseffect-themes:./components/switch": ["public-surface", "gallery-typecheck"],
+  "subpath:@wsagency/wseffect-themes:./components/segmented-control": ["public-surface", "gallery-typecheck"],
+  "subpath:@wsagency/wseffect-themes:./css/switch.css": ["public-surface", "gallery-typecheck"],
+  "subpath:@wsagency/wseffect-themes:./css/segmented-control.css": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./components/switch:Props": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./components/switch:view": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./components/segmented-control:Props": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./components/segmented-control:create": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./css/switch.css:default": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./css/segmented-control.css:default": ["public-surface", "gallery-typecheck"]
 }
