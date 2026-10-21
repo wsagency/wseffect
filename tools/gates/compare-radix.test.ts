@@ -22,24 +22,24 @@ test('noise screen requires the absolute median gap to exceed the A/A band', () 
 test('reads the pinned radix fixture commit from its committed source metadata', () => {
   assert.equal(readRadixFixtureCommit(join(process.cwd(), 'bench/radix2solid/library-source.json')), '383676172abb84b4a1d2e54a087d290437ee8848')
 })
-test('setting changes work for both select hooks and wrapped button hooks', async () => {
+test('theme control changes use trusted key events for native selects and wrapped buttons', async () => {
   const selectCalls: string[] = []
   const selectPage = {
     locator: () => ({
       evaluate: async () => true,
-      selectOption: async (value: string) => { selectCalls.push(`select:${value}`) },
+      press: async (key: string) => { selectCalls.push(`select-key:${key}`) },
     }),
   }
-  await applySettingChange(selectPage as never, 'theme-accent', 'Accent color', 'crimson')
-  assert.deepEqual(selectCalls, ['select:crimson'])
+  await applySettingChange(selectPage as never, 'theme-accent', 'Accent color')
+  assert.deepEqual(selectCalls, ['select-key:ArrowDown'])
 
   const buttonCalls: string[] = []
   const buttonPage = {
     locator: () => ({
       evaluate: async () => false,
-      getByRole: (_role: string, options: { name: string }) => ({ click: async () => { buttonCalls.push(`button:${options.name}`) } }),
+      getByRole: (_role: string, options: { name: string }) => ({ press: async (key: string) => { buttonCalls.push(`button:${options.name}:${key}`) } }),
     }),
   }
-  await applySettingChange(buttonPage as never, 'theme-appearance', 'Appearance', 'dark')
-  assert.deepEqual(buttonCalls, ['button:Appearance'])
+  await applySettingChange(buttonPage as never, 'theme-appearance', 'Appearance')
+  assert.deepEqual(buttonCalls, ['button:Appearance:Space'])
 })

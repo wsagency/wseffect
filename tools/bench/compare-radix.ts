@@ -46,11 +46,11 @@ export function noiseScreen(wseffectMedian: number, radixMedian: number, aaBand:
   if (gap <= aaBand) return '—'
   return wseffectMedian < radixMedian ? 'wseffect' : 'radix2solid'
 }
-export async function applySettingChange(page: Page, hook: string, buttonName: string, selectValue: string): Promise<void> {
+export async function applySettingChange(page: Page, hook: string, buttonName: string): Promise<void> {
   const target = page.locator(`[data-perf="${hook}"]`)
   const isSelect = await target.evaluate((element) => element.tagName === 'SELECT')
-  if (isSelect) await target.selectOption(selectValue)
-  else await target.getByRole('button', { name: buttonName }).click()
+  if (isSelect) await target.press('ArrowDown')
+  else await target.getByRole('button', { name: buttonName }).press('Space')
 }
 
 async function resetThemeState(page: Page): Promise<void> {
@@ -82,8 +82,8 @@ export function readRadixFixtureCommit(metadataPath: string): string {
 }
 
 const EXTRA_SCENARIOS: readonly PerfScenario[] = [
-  customScenario('theme-appearance', '/theme', 'theme-appearance', async (page) => applySettingChange(page, 'theme-appearance', 'Appearance', 'dark'), resetThemeState),
-  customScenario('theme-accent', '/theme', 'theme-accent', async (page) => applySettingChange(page, 'theme-accent', 'Accent color', 'crimson'), resetThemeState),
+  customScenario('theme-appearance', '/theme', 'theme-appearance', async (page) => applySettingChange(page, 'theme-appearance', 'Appearance'), resetThemeState, 'keydown'),
+  customScenario('theme-accent', '/theme', 'theme-accent', async (page) => applySettingChange(page, 'theme-accent', 'Accent color'), resetThemeState, 'keydown'),
   customScenario('shared-date', '/shared', 'shared-date', async (page) => page.locator('[data-perf="shared-date"]').press('ArrowUp'), async (page) => page.locator('[data-perf="shared-date"]').fill('2026-01-01'), 'keydown'),
   customScenario('dialog-open', '/dialog', 'dialog-open', async (page) => page.getByRole('button', { name: 'Open dialog' }).click(), async (page) => page.getByRole('button', { name: 'Open dialog' }).click()),
   customScenario('dropdown-open', '/dropdown-menu', 'dropdown-open', async (page) => page.getByRole('button', { name: 'Actions' }).press('ArrowDown'), async (page) => page.getByRole('button', { name: 'Actions' }).press('Escape'), 'keydown'),
@@ -156,7 +156,7 @@ async function run(): Promise<void> {
       cpu: cpus()[0]?.model ?? 'unknown',
       hostname: hostname(),
       loadStart: startLoad,
-      measuredCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim(),
+      measuredCommit: execFileSync('git', ['rev-parse', 'origin/main'], { cwd: ROOT, encoding: 'utf8' }).trim(),
       radixFixtureCommit,
       throttleSelfTest: browserSelfTest,
       method: 'Five ABAB blocks: each block runs wseffect, radix2solid, wseffect, radix2solid (10 sessions per app/scenario/rate). A/A: 10 adjacent same-app pairs (20 sessions per app/scenario/rate), collected in alternating app order. Event Timing via PerformanceObserver; trace scripting via the shared CDP timeline runner. Each session includes before/after host load averages. Noise-screen band is max of the apps\' nearest-rank p95 adjacent-pair absolute deltas; winner only when absolute medians gap exceeds band.',
