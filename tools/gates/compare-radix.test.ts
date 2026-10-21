@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry } from '../bench/compare-radix.ts'
+import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark } from '../bench/compare-radix.ts'
 
 test('median handles odd and even sample counts without mutating input', () => {
   const values = [9, 1, 5, 3]
@@ -54,4 +54,9 @@ test('retries only the transient self-test rAF boundary failure', async () => {
   assert.equal(result.retries, 1)
   assert.equal(result.report, report)
   assert.equal(attempts, 2)
+})
+test('resets an open dialog through Escape rather than clicking behind its overlay', async () => {
+  const keys: string[] = []
+  await resetDialogForBenchmark({ keyboard: { press: async (key: string) => { keys.push(key) } } } as never)
+  assert.deepEqual(keys, ['Escape'])
 })
