@@ -129,12 +129,6 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
         pointer.preventDefault()
         Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'pointer', point: { x: pointer.clientX, y: pointer.clientY } } })
       }
-      const onKeyDown = (event: Event) => {
-        const key = event as KeyboardEvent
-        if (key.key !== 'ContextMenu' && !(key.key === 'F10' && key.shiftKey)) return
-        key.preventDefault()
-        Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' } })
-      }
       const onPointerDown = (event: Event) => {
         const pointer = event as PointerEvent
         if (pointer.pointerType === 'touch') Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'touch', point: { x: pointer.clientX, y: pointer.clientY } } })
@@ -145,15 +139,12 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       }
       const onPointerUp = () => Queue.offerUnsafe(queue, Menu.Message.IgnoredMouseClick())
       element.addEventListener('contextmenu', onContextMenu)
-      element.addEventListener('keydown', onKeyDown)
       element.addEventListener('pointerdown', onPointerDown)
       element.addEventListener('pointermove', onPointerMove)
       element.addEventListener('pointerup', onPointerUp)
       element.addEventListener('pointercancel', onPointerUp)
       yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
         element.removeEventListener('contextmenu', onContextMenu)
-        element.removeEventListener('keydown', onKeyDown)
-        element.removeEventListener('pointerdown', onPointerDown)
         element.removeEventListener('pointermove', onPointerMove)
         element.removeEventListener('pointerup', onPointerUp)
         element.removeEventListener('pointercancel', onPointerUp)
@@ -184,7 +175,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
           panel.style.left = `${x}px`
           panel.style.top = `${y}px`
           Queue.offerUnsafe(queue, Menu.Message.CompletedAnchorMenu())
-          if (model.invocation?.invocation === 'keyboard') panel.querySelector<HTMLElement>('[data-active="true"]')?.focus()
+          if (model.invocation?.invocation === 'keyboard') panel.querySelector<HTMLElement>('[data-active]')?.focus()
         })
       }
       const stopAutoUpdate = autoUpdate(virtualReference, panel, position)
@@ -203,30 +194,38 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
     return h.div([
       h.Id(config.sourceId),
       h.Attribute('data-context-source-token', config.sourceToken),
+      h.Attribute('tabindex', '0'),
+      h.OnKeyDownSelfPreventDefault((key, modifiers) =>
+        key === 'ContextMenu' || (key === 'F10' && modifiers.shiftKey)
+          ? Option.some({ _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' } })
+          : Option.none()),
       h.OnMount(sourceMount(config)),
       h.OnUnmount({ _tag: 'SourceUnmounted', token: config.sourceToken }),
     ], [
       h.span([], [config.id]),
       model.isOpen ? h.div([
         h.Id(`${config.id}-items`), h.Role('menu'), h.Attribute('tabindex', '-1'), h.OnMount(anchorMount(model, config)),
-        h.OnKeyDownPreventDefault(key => {
-          if (key === 'Escape') return Option.some(Menu.Message.Closed())
+        h.OnKeyDownFocus((key, modifiers) => {
+          const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value : fallbackActive ?? -1
+          if (key === 'Escape') return Option.some({ focusSelector: `#${config.sourceId}`, message: Menu.Message.Closed() })
           if (key === 'ArrowDown' || key === 'ArrowUp') {
-            const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value : fallbackActive ?? -1
             const direction = key === 'ArrowDown' ? 1 : -1
             for (let step = 1; step <= items.length; step += 1) {
               const index = (active + direction * step + items.length * 2) % items.length
               const item = items[index]
-              if (item !== undefined && !isSeparator(item) && !item.isDisabled) return Option.some(Menu.Message.ActivatedItem({ index, activationTrigger: 'Keyboard' }))
+              if (item !== undefined && !isSeparator(item) && !item.isDisabled) {
+                return Option.some({ focusSelector: `#${config.id}-item-${index}`, message: Menu.Message.ActivatedItem({ index, activationTrigger: 'Keyboard' }) })
+              }
             }
           }
-          if (key.length === 1) {
-            const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value : fallbackActive ?? -1
+          if (key.length === 1 && !modifiers.ctrlKey && !modifiers.altKey && !modifiers.metaKey) {
             const search = key.toLowerCase()
             for (let step = 1; step <= items.length; step += 1) {
               const index = (active + step + items.length) % items.length
               const item = items[index]
-              if (item !== undefined && !isSeparator(item) && !item.isDisabled && item.textValue.toLowerCase().startsWith(search)) return Option.some(Menu.Message.Searched({ key, maybeTargetIndex: Option.some(index) }))
+              if (item !== undefined && !isSeparator(item) && !item.isDisabled && item.textValue.toLowerCase().startsWith(search)) {
+                return Option.some({ focusSelector: `#${config.id}-item-${index}`, message: Menu.Message.Searched({ key, maybeTargetIndex: Option.some(index) }) })
+              }
             }
           }
           return Option.none()
@@ -235,9 +234,12 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
         if (isSeparator(item)) return h.div([h.Id(`${config.id}-separator-${item.id}`), h.Role('separator')], [])
         const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value === index : fallbackActive === index
         return h.div([
-          h.Id(`${config.id}-item-${index}`), h.Role('menuitem'),
+          h.Id(`${config.id}-item-${index}`), h.Role('menuitem'), h.Attribute('tabindex', '-1'),
           h.AriaDisabled(item.isDisabled), ...(active ? [h.Attribute('data-active', '')] : []),
-          ...(item.isDisabled ? [] : [h.OnClick(Menu.Message.SelectedItem({ index, item: item.value }))]),
+          ...(item.isDisabled ? [] : [
+            h.OnClick(Menu.Message.SelectedItem({ index, item: item.value })),
+            h.OnKeyDownPreventDefault(key => key === 'Enter' || key === ' ' ? Option.some(Menu.Message.SelectedItem({ index, item: item.value })) : Option.none()),
+          ]),
         ], [item.content])
       })) : null,
     ])
