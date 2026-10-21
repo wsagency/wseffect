@@ -7,17 +7,8 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import type * as Mount from 'foldkit/mount'
 import type * as Update from 'foldkit/update'
 
-export type ContextMenuItem<Value extends string> = {
-  value: Value
-  textValue: string
-  isDisabled: boolean
-  content: Html
-}
-export type ContextMenuGroup<Value extends string> = {
-  id: string
-  label: Html
-  items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator>
-}
+export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
+export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }
 export type ContextMenuSeparator = { kind: 'separator'; id: string }
 export type ContextMenuConfig<Value extends string> = {
   id: string
@@ -50,6 +41,9 @@ export type ContextMenuOutMessage<Value extends string> = Menu.OutMessage<Value>
 export type ContextMenuBundle<Value extends string> = {
   init(config: ContextMenuConfig<Value>): ContextMenuModel
   update(model: ContextMenuModel, message: ContextMenuMessage): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
+  selectItem(model: ContextMenuModel, item: Value, index: number): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
+  open(model: ContextMenuModel): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
+  close(model: ContextMenuModel): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
   view(model: ContextMenuModel, config: ContextMenuConfig<Value>, h: HtmlBuilder<ContextMenuMessage>): Html
 }
 
@@ -70,12 +64,14 @@ const FocusSource = Command.define('FocusSource', {
 const isSeparator = <Value extends string>(item: ContextMenuItem<Value> | ContextMenuSeparator): item is ContextMenuSeparator => 'kind' in item
 const flatten = <Value extends string>(items: ContextMenuConfig<Value>['items']): ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> =>
   items.flatMap(item => 'items' in item ? item.items : [item])
-const firstEnabled = <Value extends string>(items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator>): number | undefined =>
-  items.findIndex(item => !isSeparator(item) && !item.isDisabled) < 0 ? undefined : items.findIndex(item => !isSeparator(item) && !item.isDisabled)
+const firstEnabled = <Value extends string>(items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator>): number | undefined => {
+  const index = items.findIndex(item => !isSeparator(item) && !item.isDisabled)
+  return index < 0 ? undefined : index
+}
 const mappedCommands = (commands: ReadonlyArray<Command.Command<Menu.Message>> | undefined): ReadonlyArray<Command.Command<ContextMenuMessage>> =>
   Command.mapMessages(commands ?? [], message => message)
-const filteredCommands = (commands: ReadonlyArray<Command.Command<ContextMenuMessage>>, retainFocusItems = false): ReadonlyArray<Command.Command<ContextMenuMessage>> =>
-  commands.filter(command => command.name !== 'FocusButton' && (retainFocusItems || command.name !== 'FocusItems'))
+const filteredCommands = (commands: ReadonlyArray<Command.Command<ContextMenuMessage>>): ReadonlyArray<Command.Command<ContextMenuMessage>> =>
+  commands.filter(command => command.name !== 'FocusButton' && command.name !== 'FocusItems')
 
 export function createContextMenu<Value extends string>(): ContextMenuBundle<Value> {
   const menu = Menu.create<Value>()
@@ -96,10 +92,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       if (message.invocation.sourceId === '' || message.invocation.sourceToken === '') return { model }
       const version = model.longPressVersion + 1
       if (message.invocation.invocation === 'touch') {
-        return {
-          model: { ...model, invocation: message.invocation, longPressVersion: version },
-          commands: [LongPress({ version, delay: 600 })],
-        }
+        return { model: { ...model, invocation: message.invocation, longPressVersion: version }, commands: [LongPress({ version, delay: 600 })] }
       }
       const opened = menu.update(model, Menu.Message.Opened({ maybeActiveItemIndex: Option.none() }))
       return { ...opened, model: { ...opened.model, invocation: message.invocation, longPressVersion: version }, commands: filteredCommands(mappedCommands(opened.commands)) }
@@ -212,7 +205,6 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       h.Attribute('data-context-source-token', config.sourceToken),
       h.OnMount(sourceMount(config)),
       h.OnUnmount({ _tag: 'SourceUnmounted', token: config.sourceToken }),
-      
     ], [
       h.span([], [config.id]),
       model.isOpen ? h.div([
@@ -250,5 +242,11 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       })) : null,
     ])
   }
-  return { init, update, view }
+  const selectItem = (model: ContextMenuModel, item: Value, index: number) => update(model, Menu.Message.SelectedItem({ item, index }))
+  const open = (model: ContextMenuModel) => {
+    const result = menu.open(model)
+    return { ...result, model: { ...result.model, invocation: model.invocation, longPressVersion: model.longPressVersion }, commands: filteredCommands(mappedCommands(result.commands)) }
+  }
+  const close = (model: ContextMenuModel) => update(model, Menu.Message.Closed())
+  return { init, update, view, selectItem, open, close }
 }

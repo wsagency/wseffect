@@ -1,4 +1,3 @@
-import type * as Update from 'foldkit/update'
 import * as Option from 'effect/Option'
 import * as Listbox from '@foldkit/ui/listbox'
 import type { Html, HtmlBuilder } from 'foldkit/html'
@@ -23,14 +22,17 @@ export type SelectConfig<Value extends string> = {
   position: 'popper' | 'item-aligned'
   isModal: false
 }
+type UpstreamBundle<Value extends string> = Listbox.Bundle<SelectItem<Value>, Value>
 export const SelectModel = Listbox.Model
 export type SelectModel = Listbox.Model
 export type SelectMessage = Listbox.Message
 export const SelectMessage = Listbox.Message
-export type SelectOutMessage<Value extends string> = Listbox.OutMessage<Value>
 export type SelectBundle<Value extends string> = {
   init(config: SelectConfig<Value>): SelectModel
-  update(model: SelectModel, message: SelectMessage): Update.ReturnWithOutMessage<SelectModel, SelectMessage, SelectOutMessage<Value>>
+  update: UpstreamBundle<Value>['update']
+  selectItem(model: SelectModel, item: Value): ReturnType<UpstreamBundle<Value>['update']>
+  open(model: SelectModel): ReturnType<UpstreamBundle<Value>['update']>
+  close(model: SelectModel): ReturnType<UpstreamBundle<Value>['update']>
   view(model: SelectModel, config: SelectConfig<Value>, h: HtmlBuilder<SelectMessage>): Html
 }
 
@@ -134,5 +136,5 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
       ], [item.content])
     }))
   }
-  return { init, update, view }
+  return { init, update, view, selectItem: listbox.selectItem, open: listbox.open, close: listbox.close }
 }
