@@ -6,5 +6,18 @@ import * as ScrollArea from '../src/components/scroll-area.js'
 const Message = defineMessageUnion({ Tick: {} })
 type Message = typeof Message.Type
 const update = (model: Readonly<Record<string, never>>, _message: Message) => ({ model })
-const view = (_model: Readonly<Record<string, never>>, h: HtmlBuilder<Message>) => ScrollArea.view({ scrollbars: 'vertical' }, ['scroll content'], h)
-describe('themed ScrollArea', () => it('matches native scroll structure and classes', () => Scene.scene({ update, view }, Scene.given({}), Scene.expect(Scene.selector('.rt-ScrollAreaRoot')).toHaveClass('rt-r-size-1'), Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveAttr('tabindex', '0'), Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveStyle('overflow-y', 'auto'), Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveStyle('overflow-x', 'hidden'), Scene.expect(Scene.selector('.rt-ScrollAreaViewportFocusRing')).toExist(), Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).not.toExist(), Scene.expect(Scene.text('scroll content')).toExist())))
+const view = (_model: Readonly<Record<string, never>>, h: HtmlBuilder<Message>) => ScrollArea.view({ size: '2', radius: 'full', scrollbars: 'vertical', m: '2' }, ['scroll content'], h)
+describe('themed ScrollArea', () => it('wires size, radius, and scrollbars to the pinned structure', () => Scene.scene(
+  { update, view }, Scene.given({}),
+  Scene.expect(Scene.selector('.rt-ScrollAreaRoot')).toHaveAttr('class', 'rt-ScrollAreaRoot rt-r-m-2'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveAttr('tabindex', '0'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveStyle('overflow-y', 'auto'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewport')).toHaveStyle('overflow-x', 'hidden'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewportFocusRing')).toExist(),
+  Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).toHaveAttr('class', 'rt-ScrollAreaScrollbar rt-r-size-2'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).toHaveAttr('data-orientation', 'vertical'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).toHaveAttr('data-radius', 'full'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar[data-orientation="horizontal"]')).not.toExist(),
+  Scene.expect(Scene.selector('.rt-ScrollAreaCorner')).not.toExist(),
+  Scene.expect(Scene.text('scroll content')).toExist(),
+)))

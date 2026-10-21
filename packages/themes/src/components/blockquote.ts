@@ -18,9 +18,8 @@ export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | s
   const weight = responsiveClasses(weightProp, props.weight)
   const wrap = responsiveClasses(wrapProp, props.wrap)
   const margin = marginClasses(props)
-  const attrs: Attribute<Message>[] = [h.Class(['rt-Text', 'rt-Blockquote', ...size.classes, ...weight.classes, ...wrap.classes, ...(props.truncate ? ['rt-truncate'] : []), ...margin.classes].join(' '))]
+  const attrs: Attribute<Message>[] = [h.Class(['rt-Text', 'rt-Blockquote', ...size.classes, ...weight.classes, ...wrap.classes, ...(props.truncate ? ['rt-truncate'] : []), ...margin.classes, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' '))]
   if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
-  if (props.highContrast) attrs.push(h.Class('rt-high-contrast'))
   const style = { ...size.style, ...weight.style, ...wrap.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.blockquote(attrs, children), 'wseffect/Blockquote')

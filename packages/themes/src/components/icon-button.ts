@@ -20,11 +20,12 @@ export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray
   const margin = marginClasses(props)
   const responsive = typeof size !== 'string'
   const baseClass = responsive ? ['rt-reset', 'rt-BaseButton', ...responsiveClasses(sizeProp, size).classes, variantClasses[variant], 'rt-IconButton', ...(props.highContrast ? ['rt-high-contrast'] : []), ...(props.loading ? ['rt-loading'] : [])].join(' ') : classes[`${size}:${variant}:${props.highContrast === true}:${props.loading === true}` as keyof typeof classes]
+  const isDisabled = props.disabled ?? props.loading ?? false
   const attributes: Attribute<Message>[] = [h.Class([baseClass, ...margin.classes].join(' '))]
   if (props['aria-label'] !== undefined) attributes.push(h.AriaLabel(props['aria-label']))
   if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
   if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
   if (Object.keys(margin.style).length) attributes.push(h.Style(margin.style))
   const spinner = h.span([h.Class('rt-Spinner rt-r-size-2'), h.AriaHidden(true)], Array.from({ length: 8 }, () => h.span([h.Class('rt-SpinnerLeaf')], [])))
-  return brandViewResult(ButtonUi.view({ onClick: props.onClick, isDisabled: props.disabled ?? props.loading, type: props.type, toView: ({ button }) => h.button([...button, ...attributes], [h.span([h.Class('rt-ButtonContent'), h.Style({ display: 'contents' })], children), ...(props.loading ? [spinner] : [])]) }, h), 'wseffect/IconButton')
+  return brandViewResult(ButtonUi.view({ onClick: props.onClick, isDisabled, type: props.type, toView: ({ button }) => h.button([...button, ...attributes, ...(isDisabled ? [h.Attribute('disabled', '')] : [])], [h.span([h.Class('rt-ButtonContent'), h.Style({ display: 'contents' })], children), ...(props.loading ? [spinner] : [])]) }, h), 'wseffect/IconButton')
 }

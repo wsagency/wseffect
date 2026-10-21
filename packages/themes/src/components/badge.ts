@@ -15,7 +15,7 @@ export type ViewProps = typeof Props.Type
 export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
   const size = responsiveClasses(sizeProp, props.size ?? '1')
   const margin = marginClasses(props)
-  const attrs: Attribute<Message>[] = [h.Class(['rt-Badge', ...size.classes, variantClasses[props.variant ?? 'soft'], ...margin.classes].join(' '))]
+  const attrs: Attribute<Message>[] = [h.Class(['rt-Badge', ...size.classes, variantClasses[props.variant ?? 'soft'], ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
   if (props.role !== undefined) attrs.push(h.Role(props.role))
   if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
   if (props.radius !== undefined) attrs.push(h.DataAttribute('radius', props.radius))
