@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { join, resolve } from 'node:path'
@@ -36,10 +37,35 @@ const brotliBytes = (contents: Buffer) => brotliCompressSync(contents, {
 
 test('GATE-S1 rejects a shell over 120 KiB and accepts the exact limit', () => {
   const initial = baseline({ shell: { bytes: 122_880, reason: '' }, 'first-visit': { bytes: 1, reason: '' }, 'speculative-prefetch': { bytes: 1, reason: '' } })
-  assert.deepEqual(compareSize(report(122_880), initial, initial).failures, [])
-  assert.deepEqual(compareSize(report(122_881), initial, initial).failures, [
-    'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision',
-  ])
+  assert.equal(compareSize(report(122_880), initial, initial).failures.some((failure) => failure.startsWith('GATE-S1:')), false)
+  assert.ok(compareSize(report(122_881), initial, initial).failures.some((failure) =>
+    failure === 'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision'))
+})
+const APPROVED_BUD1_BASE_SHELL = 98_871
+
+test('BUD-1 pins the immutable approved size artifact by path and hash', () => {
+  const artifact = execFileSync('git', ['show', '200a6a5:bench/baselines/size.json'], { encoding: 'utf8' })
+  assert.equal(createHash('sha256').update(artifact).digest('hex'), '83592a2dc3173c744ceeca56ab9394a1c703e87b82bd8540c216561256ebe9eb')
+  assert.equal(JSON.parse(artifact).entries.shell.bytes, APPROVED_BUD1_BASE_SHELL)
+})
+
+test('entry plus framework Brotli-q11 delta is at most 1,024 B against the pinned base artifact', () => {
+  const base = baseline({ shell: { bytes: APPROVED_BUD1_BASE_SHELL, reason: '' } })
+  const withinLimit = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_024), base, base)
+  const overLimit = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_025), base, base)
+  assert.equal(withinLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')), false)
+  assert.ok(overLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')))
+})
+
+test('editing size.json cannot bypass the immutable base-artifact cap', () => {
+  const base = baseline({ shell: { bytes: APPROVED_BUD1_BASE_SHELL, reason: '' } })
+  const editedCandidate = baseline({
+    shell: { bytes: 1_000_000, reason: 'attempted shell budget override' },
+  })
+  const result = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_025), base, editedCandidate)
+  assert.ok(result.failures.includes(
+    'GATE-BUD-1: entry + framework grew 1,025 B over the approved 200a6a5 artifact (98,871 → 99,896 B); hard cap is 1,024 B',
+  ))
 })
 
 test('GATE-S2 rejects first-visit transfer over 160 KiB and accepts the exact limit', () => {

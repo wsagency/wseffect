@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
@@ -47,9 +48,34 @@ const SHELL_LIMIT = 122_880
 const FIRST_VISIT_LIMIT = 163_840
 const SPECULATIVE_PREFETCH_LIMIT = 65_536
 const GROWTH_LIMIT = 0.02
+const BUD1_BASE_COMMIT = '200a6a5'
+const BUD1_BASE_ARTIFACT = 'bench/baselines/size.json'
+const BUD1_BASE_SHA256 = '83592a2dc3173c744ceeca56ab9394a1c703e87b82bd8540c216561256ebe9eb'
+const BUD1_DELTA_LIMIT = 1_024
 const BROWSER_PORT_START = 4500
 const BROWSER_PORT_END = 4599
 const IDLE_MILLISECONDS = 1_000
+
+let cachedBUD1BaseShellBytes: number | undefined
+
+function approvedBUD1BaseShellBytes(): number {
+  if (cachedBUD1BaseShellBytes !== undefined) return cachedBUD1BaseShellBytes
+  const artifact = execFileSync('git', ['show', `${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT}`], {
+    cwd: ROOT,
+    encoding: 'utf8',
+  })
+  const sha256 = createHash('sha256').update(artifact).digest('hex')
+  if (sha256 !== BUD1_BASE_SHA256) {
+    throw new Error(`approved BUD-1 base artifact ${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT} has unexpected SHA-256 ${sha256}`)
+  }
+  const baseline = JSON.parse(artifact) as SizeBaseline
+  const shell = baseline.entries.shell
+  if (baseline.unit !== 'B' || baseline.compression !== 'brotli-q11' || shell === undefined || shell.bytes <= 0) {
+    throw new Error(`approved BUD-1 base artifact ${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT} has invalid shell metadata`)
+  }
+  cachedBUD1BaseShellBytes = shell.bytes
+  return shell.bytes
+}
 
 function brotliBytes(contents: Buffer): number {
   return brotliCompressSync(contents, {
@@ -363,6 +389,13 @@ export function compareSize(
   }
   if (report.speculativePrefetch.bytes > SPECULATIVE_PREFETCH_LIMIT) {
     failures.push(`GATE-S4: speculative-prefetch ${report.speculativePrefetch.bytes} B exceeds 65,536 B`)
+  }
+  const approvedBaseShellBytes = approvedBUD1BaseShellBytes()
+  const shellDelta = report.shell - approvedBaseShellBytes
+  if (shellDelta > BUD1_DELTA_LIMIT) {
+    failures.push(
+      `GATE-BUD-1: entry + framework grew ${shellDelta.toLocaleString('en-US')} B over the approved ${BUD1_BASE_COMMIT} artifact (${approvedBaseShellBytes.toLocaleString('en-US')} → ${report.shell.toLocaleString('en-US')} B); hard cap is ${BUD1_DELTA_LIMIT.toLocaleString('en-US')} B`,
+    )
   }
 
   const current = artifactSizes(report)
