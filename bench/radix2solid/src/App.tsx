@@ -18,6 +18,26 @@ const pages = {
   'virtual-list': lazy(() => import('./pages/virtual-list')),
   form: lazy(() => import('./pages/form')),
   menus: lazy(() => import('./pages/menus')),
+  accessibility: lazy(() => import('./pages/sp2')),
+  'layout-extra': lazy(() => import('./pages/sp2')),
+  avatar: lazy(() => import('./pages/sp2')),
+  feedback: lazy(() => import('./pages/sp2')),
+  'typography-extra': lazy(() => import('./pages/sp2')),
+  'icon-button': lazy(() => import('./pages/sp2')),
+  links: lazy(() => import('./pages/sp2')),
+  'scroll-area': lazy(() => import('./pages/sp2')),
+  data: lazy(() => import('./pages/sp2')),
+  'forms-extra': lazy(() => import('./pages/sp2')),
+  select: lazy(() => import('./pages/sp2')),
+  'range-slider': lazy(() => import('./pages/sp2')),
+  'tab-nav': lazy(() => import('./pages/sp2')),
+  'alert-dialog': lazy(() => import('./pages/sp2')),
+  popover: lazy(() => import('./pages/sp2')),
+  'hover-card': lazy(() => import('./pages/sp2')),
+  tooltip: lazy(() => import('./pages/sp2')),
+  'context-menu': lazy(() => import('./pages/sp2')),
+  'theme-panel': lazy(() => import('./pages/sp2')),
+  'data-table': lazy(() => import('./pages/sp2')),
 } satisfies Record<string, Component<AppPageProps>>
 
 type Route = keyof typeof pages | 'home'
@@ -36,6 +56,26 @@ const links: ReadonlyArray<{ readonly id: string; readonly href: string; readonl
   { id: 'virtualList', href: '/virtual-list', label: 'Virtual list', route: 'virtual-list' },
   { id: 'form', href: '/form', label: 'Form', route: 'form' },
   { id: 'menus', href: '/menus', label: 'Menus', route: 'menus' },
+  { id: 'accessibility', href: '/accessibility', label: 'Accessibility', route: 'accessibility' },
+  { id: 'layoutExtra', href: '/layout-extra', label: 'Layout extra', route: 'layout-extra' },
+  { id: 'avatar', href: '/avatar', label: 'Avatar', route: 'avatar' },
+  { id: 'feedback', href: '/feedback', label: 'Feedback', route: 'feedback' },
+  { id: 'typographyExtra', href: '/typography-extra', label: 'Typography extra', route: 'typography-extra' },
+  { id: 'iconButton', href: '/icon-button', label: 'Icon button', route: 'icon-button' },
+  { id: 'links', href: '/links', label: 'Links', route: 'links' },
+  { id: 'scrollArea', href: '/scroll-area', label: 'Scroll area', route: 'scroll-area' },
+  { id: 'data', href: '/data', label: 'Data', route: 'data' },
+  { id: 'formsExtra', href: '/forms-extra', label: 'Forms extra', route: 'forms-extra' },
+  { id: 'select', href: '/select', label: 'Select', route: 'select' },
+  { id: 'rangeSlider', href: '/range-slider', label: 'Range slider', route: 'range-slider' },
+  { id: 'tabNav', href: '/tab-nav', label: 'Tab navigation', route: 'tab-nav' },
+  { id: 'alertDialog', href: '/alert-dialog', label: 'Alert dialog', route: 'alert-dialog' },
+  { id: 'popover', href: '/popover', label: 'Popover', route: 'popover' },
+  { id: 'hoverCard', href: '/hover-card', label: 'Hover card', route: 'hover-card' },
+  { id: 'tooltip', href: '/tooltip', label: 'Tooltip', route: 'tooltip' },
+  { id: 'contextMenu', href: '/context-menu', label: 'Context menu', route: 'context-menu' },
+  { id: 'themePanel', href: '/theme-panel', label: 'Theme panel', route: 'theme-panel' },
+  { id: 'dataTable', href: '/data-table', label: 'Data table', route: 'data-table' },
 ]
 
 function routeForPath(pathname: string): Route {
@@ -52,7 +92,7 @@ export default function App() {
   const [route, setRoute] = createSignal<Route>(routeForPath(window.location.pathname))
   const [sharedDate, setSharedDate] = createSignal('2026-01-01')
   const [sharedNote, setSharedNote] = createSignal<string | undefined>()
-  const [appearance, setAppearance] = createSignal<Appearance>('light')
+  const [appearance, setAppearance] = createSignal<Appearance>(new URLSearchParams(window.location.search).get('appearance') === 'dark' ? 'dark' : 'light')
   const [accent, setAccent] = createSignal<Accent>('indigo')
   const [gray, setGray] = createSignal<Gray>('gray')
   const [radius, setRadius] = createSignal<Radius>('medium')

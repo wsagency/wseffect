@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
-import { spawn, type ChildProcess } from 'node:child_process'
+import { readFileSync } from 'node:fs'
 import { createServer } from 'node:net'
+import { spawn, type ChildProcess } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -117,5 +118,33 @@ test('renders the shared and comparison performance hooks on their routes', { ti
     await browser?.close()
     await stopServer(server)
   }
+})
+test('every new Gallery capture has a paired Solid route', () => {
+  const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as {
+    families: Array<{ family: string; route: string; components: Array<{ id: string; size: boolean }>; captures: Array<{ id: string; component: string; theme: string; state: string; props: Record<string, unknown> }> }>
+  }
+  const app = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../src/App.tsx'), 'utf8')
+  for (const family of matrix.families) {
+    assert.match(app, new RegExp(`['"]?${family.route}['"]?\\s*:`), `missing lazy route ${family.route}`)
+    assert.ok(family.components.every(component => family.captures.some(capture => capture.component === component.id)), `${family.family} component has no captures`)
+    assert.ok(family.captures.every(capture => capture.id.startsWith(`${family.family}/`) && capture.component.length > 0 && capture.state !== undefined), `${family.family} capture identity/state incomplete`)
+    assert.ok(family.components.filter(component => component.size).every(component => family.captures.filter(capture => capture.component === component.id && capture.state === 'default').every(capture => capture.props.size === '2')), `${family.family} size must be 2 where available`)
+  }
+  const captures = matrix.families.flatMap(family => family.captures)
+  assert.equal(matrix.families.length, 20)
+  assert.ok(captures.length >= 200)
+  assert.equal(new Set(captures.map(capture => capture.id)).size, captures.length)
+  assert.ok(matrix.families.every(family => new Set(family.captures.map(capture => capture.theme)).size === 2))
+  assert.equal(new Set(matrix.families.map(family => family.family)).size, matrix.families.length)
+})
+
+test('bench source pin and content hashes are unchanged', () => {
+  const source = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../library-source.json'), 'utf8')) as {
+    commit: string
+    packedTarballs: Record<string, { contentSha256: string }>
+  }
+  assert.equal(source.commit, '383676172abb84b4a1d2e54a087d290437ee8848')
+  assert.equal(source.packedTarballs['@wsagency/radix2solid-primitives']?.contentSha256, '85b6e8e9b3ba3a541efe51081cbf81cfc720eb2d5367274469ed6276876f5965')
+  assert.equal(source.packedTarballs['@wsagency/radix2solid-themes']?.contentSha256, '13d22458b0feef9e4c0c70541683d95e02017bfea991f714a24c9a05b39ccde0')
 })
 
