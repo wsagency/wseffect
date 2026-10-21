@@ -18,7 +18,8 @@
     "gate:size": "node tools/gates/size.ts",
     "gate:perf": "node tools/gates/perf.ts",
     "perf:noise": "pnpm exec node tools/gates/perf.ts --app apps/gallery --self-test --write-noise --reason 'Dedicated perf runner noise-floor measurement'",
-    "gate:report": "node tools/gates/report.ts"
+    "gate:report": "node tools/gates/report.ts",
+    "bench:compare": "node tools/bench/compare-radix.ts"
   },
   "devDependencies": {
     "@effect/platform-browser": "4.0.5",
