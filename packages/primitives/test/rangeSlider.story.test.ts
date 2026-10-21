@@ -57,6 +57,22 @@ it('keyboard commands respect thumb-specific bounds', () => {
   expect(resultValue(page, 'high')).toBe(65)
 })
 
+it('snaps to the effective minimum step grid and preserves exact per-thumb boundaries', () => {
+  const bounded: RangeSlider.Config = {
+    min: 5, max: 30, step: 3, orientation: 'horizontal',
+    thumbs: [
+      { id: 'low', value: 8, min: 8, max: 14 },
+      { id: 'high', value: 20, min: 18, max: 28 },
+    ],
+  }
+  const stepped = RangeSlider.update(RangeSlider.init(bounded), bounded, { _tag: 'Step', id: 'low', delta: 1 })
+  expect(resultValue(stepped, 'low')).toBe(11)
+  const lowerBoundary = RangeSlider.update(RangeSlider.init(bounded), bounded, { _tag: 'SetBoundary', id: 'high', boundary: 'min' })
+  expect(resultValue(lowerBoundary, 'high')).toBe(18)
+  const upperBoundary = RangeSlider.update(RangeSlider.init(bounded), bounded, { _tag: 'SetBoundary', id: 'high', boundary: 'max' })
+  expect(resultValue(upperBoundary, 'high')).toBe(28)
+})
+
 it('drag lifecycle emits changed values, commits, and cancels to its start', () => {
   const started = RangeSlider.update(RangeSlider.init(config), config, { _tag: 'DragStart', id: 'low' })
   expect(started.model.dragStartValues).toEqual(config.thumbs)

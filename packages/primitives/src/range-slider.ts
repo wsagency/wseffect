@@ -72,7 +72,9 @@ export const update = (model: Model, config: Config, message: Message): Update.R
         : message._tag === 'Page'
           ? thumb.value + message.direction * bounds.step * 10
           : thumb.value + message.delta * bounds.step
-      const value = Math.max(bounds.min, Math.min(bounds.max, Math.round(next / bounds.step) * bounds.step))
+      const value = message._tag === 'SetBoundary'
+        ? next
+        : Math.max(bounds.min, Math.min(bounds.max, bounds.min + Math.round((next - bounds.min) / bounds.step) * bounds.step))
       const thumbs = config.thumbs.map((item, itemIndex) => itemIndex === index ? { ...item, value } : item)
       return { model: { ...model, activeThumbId: message.id }, outMessage: valuesChanged(thumbs) }
     }

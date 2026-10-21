@@ -41,6 +41,29 @@ it('typeahead skips disabled options and separators', () => {
     Scene.expect(Scene.selector('#choice-option-two')).toHaveAttr('data-active', 'true'),
   )
 })
+
+it('arrow navigation skips disabled options between enabled items', () => {
+  const arrowConfig: Select.SelectConfig<'one' | 'two' | 'three'> = {
+    ...config,
+    selectedValue: Option.some('one'),
+    items: [
+      { value: 'one', textValue: 'One', isDisabled: false, content: null },
+      { value: 'two', textValue: 'Two', isDisabled: true, content: null },
+      { value: 'three', textValue: 'Three', isDisabled: false, content: null },
+    ],
+  }
+  const arrowBundle = Select.createSelect<'one' | 'two' | 'three'>()
+  const arrowModel = arrowBundle.update(arrowBundle.init(arrowConfig), Listbox.Message.Opened({ maybeActiveItemIndex: Option.some(0) })).model
+  const arrowUpdate = (model: Select.SelectModel, message: Select.SelectMessage) => arrowBundle.update(model, message)
+  const arrowRender = (model: Select.SelectModel, h: HtmlBuilder<Select.SelectMessage>) => arrowBundle.view(model, arrowConfig, h)
+  Scene.scene(
+    { update: arrowUpdate, view: arrowRender },
+    Scene.given(arrowModel),
+    Scene.keydown(Scene.role('listbox', { name: 'choice' }), 'ArrowDown'),
+    Scene.Command.resolve(Listbox.ScrollIntoView, Listbox.Message.CompletedScrollIntoView()),
+    Scene.expect(Scene.selector('#choice-option-three')).toHaveAttr('data-active', 'true'),
+  )
+})
 it('uses the upstream Listbox renderer for popper positioning', () => {
   Scene.scene(
     { update, view: renderPopper },
