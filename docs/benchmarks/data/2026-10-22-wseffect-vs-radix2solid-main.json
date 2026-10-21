@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-10-21T22:11:01.761Z",
+  "measuredCommit": "200a6a5fcb86f23846e490faddf07c3e67e2e313",
+  "radixFixtureCommit": "383676172abb84b4a1d2e54a087d290437ee8848",
+  "node": "v24.21.0",
+  "pnpm": "11.5.0",
+  "chromium": "156.0.8078.4",
+  "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+  "throttleSelfTestRatio": 4.020,
+  "sessionsPerApp": 10,
+  "blocks": 5,
+  "aaPairs": 10,
+  "loadStart": [4.01, 4.14, 4.43],
+  "loadEnd": [4.87, 4.98, 5.08],
+  "measuredLoadRange": [[3.55, 7.23], [4.62, 5.80], [4.65, 5.37]],
+  "note": "This is a recovered summary of medians, A/A bands, noise screens, and size classifications. The run's original raw-session JSON was no longer present after the required repository check; raw per-session and per-app A/A samples are unavailable in this artifact.",
+  "size": {
+    "wseffect": {"shell": 72582, "shellRaw": 259654, "firstVisit": {"bytes": 160104, "requests": 16}, "speculativePrefetch": {"bytes": 0, "requests": 0}, "stylesCss": 41520, "pages": {"browser": 2600, "buttons": 344, "capabilities": 586, "cards": 331, "dialog": 612, "dropdownMenu": 651, "form": 522, "island": 1895, "layout": 388, "menus": 744, "persistence": 2115, "sharedA": 537, "sharedB": 382, "signals": 2121, "tabs": 593, "textField": 353, "theme": 1105, "typography": 329, "validation": 1205, "virtualList": 6101}},
+    "radix2solid": {"shell": 33205, "shellRaw": 100037, "firstVisit": {"bytes": 87006, "requests": 8}, "speculativePrefetch": {"bytes": 0, "requests": 0}, "stylesCss": 50595, "pages": {"buttons": 282, "cards": 230, "dialog": 2349, "dropdown-menu": 373, "form": 147, "layout": 1338, "menus": 149, "shared-a": 150, "shared": 416, "tabs": 1808, "text-field": 326, "theme": 642, "typography": 255, "virtual-list": 153}}
+  },
+  "results": {
+    "1x": {
+      "vl-cell": {"wseffect": [16, 2.1905], "radix2solid": [16, 0.418], "bands": [0, 3.039], "noiseScreen": ["—", "—"]},
+      "vl-filter": {"wseffect": [16, 2.3055], "radix2solid": [16, 4.98], "bands": [8, 6.443], "noiseScreen": ["—", "—"]},
+      "vl-sort": {"wseffect": [20, 2.609], "radix2solid": [16, 1.9145], "bands": [8, 6.529], "noiseScreen": ["—", "—"]},
+      "vl-select": {"wseffect": [16, 2.035], "radix2solid": [16, 0.1765], "bands": [0, 2.176], "noiseScreen": ["—", "—"]},
+      "form-field": {"wseffect": [16, 1.814], "radix2solid": [16, 0.5105], "bands": [0, 1.24], "noiseScreen": ["—", "radix2solid"]},
+      "menus-tick": {"wseffect": [16, 1.6635], "radix2solid": [16, 0.2615], "bands": [40, 6.601], "noiseScreen": ["—", "—"]},
+      "theme-appearance": {"wseffect": [24, 2.074], "radix2solid": [16, 2.366], "bands": [16, 2.438], "noiseScreen": ["—", "—"]},
+      "theme-accent": {"wseffect": [24, 2.1695], "radix2solid": [16, 1.8465], "bands": [16, 1.955], "noiseScreen": ["—", "—"]},
+      "shared-date": {"wseffect": [16, 1.3955], "radix2solid": [16, 0.2295], "bands": [8, 0.976], "noiseScreen": ["—", "radix2solid"]},
+      "dialog-open": {"wseffect": [24, 4.9725], "radix2solid": [16, 3.9375], "bands": [0, 0.9], "noiseScreen": ["radix2solid", "radix2solid"]},
+      "dropdown-open": {"wseffect": [16, 6.627], "radix2solid": [16, 7.3215], "bands": [16, 2.605], "noiseScreen": ["—", "—"]},
+      "nav-cold": {"wseffect": [16, 2.218], "radix2solid": [16, 1.7915], "bands": [0, 0.319], "noiseScreen": ["—", "radix2solid"]},
+      "nav-prefetch": {"wseffect": [16, 2.1165], "radix2solid": [16, 1.8545], "bands": [0, 0.522], "noiseScreen": ["—", "—"]}
+    },
+    "4x": {
+      "vl-cell": {"wseffect": [16, 8.319], "radix2solid": [16, 1.805], "bands": [0, 3.327], "noiseScreen": ["—", "radix2solid"]},
+      "vl-filter": {"wseffect": [32, 25.762], "radix2solid": [28, 20.645], "bands": [8, 10.038], "noiseScreen": ["—", "—"]},
+      "vl-sort": {"wseffect": [32, 22.8255], "radix2solid": [24, 7.935], "bands": [8, 5.758], "noiseScreen": ["—", "radix2solid"]},
+      "vl-select": {"wseffect": [24, 7.4355], "radix2solid": [16, 0.794], "bands": [8, 1.708], "noiseScreen": ["—", "radix2solid"]},
+      "form-field": {"wseffect": [16, 5.628], "radix2solid": [16, 2.106], "bands": [8, 2.167], "noiseScreen": ["—", "radix2solid"]},
+      "menus-tick": {"wseffect": [16, 5.7215], "radix2solid": [16, 1.0385], "bands": [0, 1.711], "noiseScreen": ["—", "radix2solid"]},
+      "theme-appearance": {"wseffect": [24, 8.203], "radix2solid": [16, 9.9055], "bands": [8, 1.502], "noiseScreen": ["—", "wseffect"]},
+      "theme-accent": {"wseffect": [24, 8.652], "radix2solid": [16, 7.764], "bands": [16, 8.353], "noiseScreen": ["—", "—"]},
+      "shared-date": {"wseffect": [16, 4.2575], "radix2solid": [20, 0.777], "bands": [16, 4.469], "noiseScreen": ["—", "—"]},
+      "dialog-open": {"wseffect": [32, 19.1375], "radix2solid": [24, 16.433], "bands": [16, 6.566], "noiseScreen": ["—", "—"]},
+      "dropdown-open": {"wseffect": [32, 19.6095], "radix2solid": [40, 31.674], "bands": [8, 30.69], "noiseScreen": ["—", "—"]},
+      "nav-cold": {"wseffect": [24, 8.019], "radix2solid": [16, 7.888], "bands": [8, 4.367], "noiseScreen": ["—", "—"]},
+      "nav-prefetch": {"wseffect": [24, 7.9755], "radix2solid": [16, 7.6875], "bands": [0, 5.431], "noiseScreen": ["radix2solid", "—"]}
+    }
+  }
+}
