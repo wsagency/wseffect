@@ -166,22 +166,39 @@ test('size gate uses the candidate baseline when merge-base lookup is unavailabl
 
 test('GATE-S3 rejects unexplained growth against merge-base and accepts only an updated candidate baseline', () => {
   const previous = baseline({
-    shell: { bytes: 100, reason: '' },
-    'first-visit': { bytes: 100, reason: '' },
-    'speculative-prefetch': { bytes: 100, reason: '' },
-    'page:form': { bytes: 100, reason: '' },
-    'styles.css': { bytes: 100, reason: '' },
+    shell: { bytes: 10_000, reason: '' },
+    'first-visit': { bytes: 10_000, reason: '' },
+    'speculative-prefetch': { bytes: 10_000, reason: '' },
+    'page:form': { bytes: 10_000, reason: '' },
+    'styles.css': { bytes: 10_000, reason: '' },
   })
-  const current = report(103, 103, { form: 103 }, 103)
+  const current = report(10_201, 10_201, { form: 10_201 }, 10_201)
   const failures = compareSize(current, previous, previous).failures
   assert.deepEqual(failures.map((failure) => failure.match(/^GATE-S3: (.+?) /)?.[1]).sort(), [
     'first-visit', 'page:form', 'shell', 'styles.css',
   ])
 
   const explained = baseline(Object.fromEntries(
-    Object.entries(previous.entries).map(([id, _entry]) => [id, { bytes: 103, reason: 'expected gallery increase' }]),
+    Object.entries(previous.entries).map(([id, _entry]) => [id, { bytes: 10_201, reason: 'expected gallery increase' }]),
   ))
   assert.deepEqual(compareSize(current, previous, explained).failures, [])
+})
+
+test('GATE-S3 tolerates growth up to max(2%, 64 B) per artifact', () => {
+  const fails = (previousBytes: number, currentBytes: number, id: string) => {
+    const initial = baseline({
+      shell: { bytes: 1, reason: '' },
+      'first-visit': { bytes: 1, reason: '' },
+      'speculative-prefetch': { bytes: 1, reason: '' },
+      [id]: { bytes: previousBytes, reason: '' },
+    })
+    const current = report(1, 0, { [id.slice('page:'.length)]: currentBytes })
+    return compareSize(current, initial, initial).failures.some((failure) => failure.startsWith(`GATE-S3: ${id} `))
+  }
+
+  assert.equal(fails(353, 382, 'page:textField'), false)
+  assert.equal(fails(353, 420, 'page:textField'), true)
+  assert.equal(fails(10_000, 10_250, 'page:persistence'), true)
 })
 
 test('GATE-S3 rejects current artifacts missing from the candidate baseline', () => {

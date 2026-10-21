@@ -218,3 +218,10 @@
 
 - The comparator accepts a global ≤2-per-channel delta as compositor/encoder noise between apps rendering identical CSS, in addition to the 1 px symmetric edge tolerance (≤20 per channel on edge pixels from the union of both images' edge masks). A uniform ≤2-level shift is visually insignificant; any larger delta counts as changed.
 - **Cost if wrong:** a ≤2-level systematic colour shift could pass unnoticed.
+
+## SP2 GATE-S3 sub-kilobyte growth amendment
+
+- GATE-S3 now rejects a page/artifact only when growth exceeds `max(2%, 64 B)` against the previous or candidate baseline. Content-hashed import filenames can shift Brotli sizes by tens of bytes across sub-kilobyte pages with identical normalized code; with roughly 20 SP2 pages, a strict 2% threshold would create systematic false failures.
+- GATE-S1/S2/S4 absolute budgets and the independent BUD-1 shell cap are unchanged.
+- Refresh `page:persistence` to 2,119 B with reason `7f22e9a persist schema-encoded values (encode on save/migration)`.
+- **Cost if wrong:** up to 64 B of real growth per tiny chunk can pass without a reason.

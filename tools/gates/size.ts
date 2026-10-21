@@ -47,6 +47,7 @@ const SHELL_LIMIT = 122_880
 const FIRST_VISIT_LIMIT = 163_840
 const SPECULATIVE_PREFETCH_LIMIT = 65_536
 const GROWTH_LIMIT = 0.02
+const GROWTH_ABSOLUTE_LIMIT = 64
 const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
 const BUD1_BASE_ARTIFACT = 'bench/baselines/sp2-shell-base.json'
 const BUD1_DELTA_LIMIT = 1_024
@@ -416,16 +417,18 @@ export function compareSize(
     if (previous === undefined || previous.bytes <= 0) {
       if (candidate.reason.trim() === '') {
         failures.push(`GATE-S3: ${id} was added without a baseline reason`)
-      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+      } else if (bytes - candidate.bytes > Math.max(candidate.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)) {
         failures.push(`GATE-S3: ${id} ${bytes} B exceeds its candidate baseline ${candidate.bytes} B`)
       }
       continue
     }
-    const growth = (bytes - previous.bytes) / previous.bytes
-    if (growth > GROWTH_LIMIT) {
+    const growthBytes = bytes - previous.bytes
+    const maxGrowthBytes = Math.max(previous.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)
+    const growth = growthBytes / previous.bytes
+    if (growthBytes > maxGrowthBytes) {
       if (candidate.bytes === previous.bytes || candidate.reason.trim() === '') {
         failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); update its bytes and reason in size.json`)
-      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+      } else if (bytes - candidate.bytes > Math.max(candidate.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)) {
         failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); candidate baseline ${candidate.bytes} B is too small`)
       }
     }
