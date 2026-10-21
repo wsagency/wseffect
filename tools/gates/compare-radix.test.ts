@@ -55,8 +55,8 @@ test('retries only the transient self-test rAF boundary failure', async () => {
   assert.equal(result.report, report)
   assert.equal(attempts, 2)
 })
-test('resets an open dialog through Escape rather than clicking behind its overlay', async () => {
-  const keys: string[] = []
-  await resetDialogForBenchmark({ keyboard: { press: async (key: string) => { keys.push(key) } } } as never)
-  assert.deepEqual(keys, ['Escape'])
+test('resets an open dialog by reloading the route after warmup', async () => {
+  const reloads: string[] = []
+  await resetDialogForBenchmark({ reload: async (options: { waitUntil: string }) => { reloads.push(options.waitUntil) } } as never)
+  assert.deepEqual(reloads, ['networkidle'])
 })

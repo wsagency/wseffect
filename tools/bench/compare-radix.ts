@@ -58,7 +58,7 @@ async function resetThemeState(page: Page): Promise<void> {
   await page.reload({ waitUntil: 'networkidle' })
 }
 export async function resetDialogForBenchmark(page: Page): Promise<void> {
-  await page.keyboard.press('Escape')
+  await page.reload({ waitUntil: 'networkidle' })
 }
 
 function customScenario(
