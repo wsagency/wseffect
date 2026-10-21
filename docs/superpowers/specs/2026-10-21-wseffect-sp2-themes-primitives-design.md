@@ -1,6 +1,6 @@
 # wseffect Themes and primitives (sub-project #2): design specification
 
-Status: **Draft for director review.** This spec defines the implementation contract; implementation planning follows director approval. No behavior outside this scope is authorized. Evidence and timings below support decisions and are not production performance claims.
+Status: **Approved by the project director on 2026-10-21 (approval delegated by the user)**. This spec defines the implementation contract; implementation planning follows this approval. No behavior outside this scope is authorized. Evidence and timings below support decisions and are not production performance claims.
 
 ## 1. Goal and priorities
 
