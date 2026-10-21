@@ -35,13 +35,15 @@ const order = [...index.matchAll(/^@import '\.\/([\w-]+)\.css';/gm)]
 const dependencies = {
   button: ['spinner'],
   'dropdown-menu': ['scroll-area', 'button'],
-  dialog: ['heading', 'text', 'button', 'flex']
+  dialog: ['heading', 'text', 'button', 'flex'],
+  select: ['dropdown-menu']
 };
-targets.push(
+await Promise.all([
+  ...targets,
   ['src/css-components/index.css', 'css/common.css', common.map(name => `@import './${name}.css';`).join('\n')],
   ['src/css-components/index.css', 'css/utilities.css', `@import './shared.css';\n@import '../styles/utilities/index.css';`]
-);
-for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control']) {
+]);
+for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area']) {
   const included = new Set();
   const include = component => {
     if (included.has(component)) return;
