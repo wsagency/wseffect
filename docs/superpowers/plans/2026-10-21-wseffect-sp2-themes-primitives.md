@@ -68,7 +68,7 @@ export type SelectItem<Value extends string> = { value: Value; textValue: string
 export type SelectGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<SelectItem<Value> | SelectSeparator> }
 export type SelectSeparator = { kind: 'separator'; id: string }
 export type SelectOption<Value extends string> = { value: Value; label: Html }
-export type SelectConfig<Value extends string> = { id: string; selectedValue: SelectOption<Value>; items: ReadonlyArray<SelectItem<Value> | SelectGroup<Value> | SelectSeparator>; position: 'popper' | 'item-aligned'; isModal: false }
+export type SelectConfig<Value extends string> = { id: string; selectedValue: Option.Option<Value>; items: ReadonlyArray<SelectItem<Value> | SelectGroup<Value> | SelectSeparator>; position: 'popper' | 'item-aligned'; isModal: false }
 export type SelectModel = Listbox.Model
 export type SelectMessage = Listbox.Message
 export type SelectOutMessage<Value extends string> = Listbox.OutMessage<Value>
@@ -86,7 +86,8 @@ export type ContextMenuGroup<Value extends string> = { id: string; label: Html; 
 export type ContextMenuSeparator = { kind: 'separator'; id: string }
 export type ContextMenuConfig<Value extends string> = { id: string; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuGroup<Value> | ContextMenuSeparator>; longPressMs: 600; sourceId: string; sourceToken: string; toItem(item: Value): Html }
 export type ContextMenuInvocation = { sourceId: string; sourceToken: string; invocation: 'pointer' | 'keyboard' | 'touch'; point?: { x: number; y: number } }
-export type ContextMenuModel = Menu.Model & { invocation: ContextMenuInvocation | null; longPressVersion: number }
+export const ContextMenuModelSchema = Schema.Struct({ ...Menu.Model.fields, invocation: Schema.NullOr(Schema.Struct({ sourceId: Schema.String, sourceToken: Schema.String, invocation: Schema.Literals(['pointer', 'keyboard', 'touch']), point: Schema.optional(Schema.Struct({ x: Schema.Number, y: Schema.Number })) })), longPressVersion: Schema.Number })
+export type ContextMenuModel = typeof ContextMenuModelSchema.Type
 export type ContextMenuMessage = Menu.Message | { _tag: 'OpenedAt'; invocation: ContextMenuInvocation } | { _tag: 'LongPressExpired'; version: number } | { _tag: 'SourceUnmounted'; token: string }
 export type ContextMenuCommand = { _tag: 'FocusSource'; sourceId: string; sourceToken: string }
 export type ContextMenuOutMessage<Value extends string> = Menu.OutMessage<Value>
@@ -489,4 +490,6 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 - Ruling: CSS lanes add their own `src/css-components/<component>.css` files and report them; Task 4A.2 alone edits `css-components/index.css` and `scripts/build-css.js` fixed target list before 4A.1 imports, and packed output asserts every CSS subpath — why — one manifest owner prevents colliding integration edits and missing package outputs — cost if wrong — race-prone manifest and silently omitted CSS exports.
 - Ruling: BUD-1 `tools/gates/size.ts` and `.test.ts` belong to Task 4A.4 and compare entry+framework Brotli-q11 bytes against immutable approved wseffect main commit `200a6a5` (spec approval; contains `bench/baselines/size.json`), hard failing above +1,024 B independent of mutable size baselines — why — page-size baselines cannot grant shell-budget exceptions — cost if wrong — an editable baseline can mask shell growth.
 - Ruling: every component task's named execution-counter test proves unrelated updates re-execute zero memoized views and one changed memo argument re-executes exactly one affected view; DataTable additionally checks same-ID row-record invalidation — why — reuse correctness is required per component, not inferred from one representative example — cost if wrong — hidden work or stale view reuse escapes broad coverage.
+- Ruling: `SelectConfig.selectedValue` is `Option.Option<Value>` to represent no selection, matching Effect's Option contract and the optional selected value expected by Listbox; cost if wrong — empty selections cannot be represented and consumers must fabricate a value.
+- Ruling: `ContextMenuModel` is derived from `ContextMenuModelSchema`, a `Schema.Struct` extension of `Menu.Model.fields` with invocation and long-press version fields; do not express the Schema-backed model as a TypeScript intersection — cost if wrong — the model may not encode/decode through the page-model codec.
 - Ruling: bench/radix2solid `scripts/*.test.ts` use `node --test`, not Vitest — why — use the package's existing test runner — cost if wrong — the planned contract/visual tests cannot run.
