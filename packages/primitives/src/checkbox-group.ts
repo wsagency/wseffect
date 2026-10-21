@@ -11,13 +11,16 @@ export type Props<Value extends string, Message> = {
 }
 
 export const view = <Value extends string, Message>(props: Props<Value, Message>, h: HtmlBuilder<Message>): Html =>
-  h.div([], [
-    h.span([], [props.label]),
+  h.div([h.Id(props.id), h.Role('group'), h.AriaLabelledBy(`${props.id}-label`)], [
+    h.span([h.Id(`${props.id}-label`)], [props.label]),
     ...props.options.map((option) => h.label([], [
       h.input([
+        h.Type('checkbox'),
         h.Checked(props.selected.has(option.value)),
+        h.AriaChecked(props.selected.has(option.value)),
         h.Disabled(props.isDisabled === true || option.isDisabled),
-        h.OnChange((_value) => props.toggleMessage(option.value, !props.selected.has(option.value))),
+        h.AriaDisabled(props.isDisabled === true || option.isDisabled),
+        h.OnChange(() => props.toggleMessage(option.value, !props.selected.has(option.value))),
       ]),
       option.label,
     ])),
