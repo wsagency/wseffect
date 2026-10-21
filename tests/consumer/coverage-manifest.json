@@ -3811,8 +3811,6 @@
   "export:@wsagency/wseffect-themes:./components/data-table:Model": ["public-surface"],
   "export:@wsagency/wseffect-themes:./components/data-table:Message": ["public-surface"],
   "export:@wsagency/wseffect-themes:./components/data-table:OutMessage": ["public-surface"],
-  "export:@wsagency/wseffect-themes:./components/data-table:Column": ["public-surface"],
-  "export:@wsagency/wseffect-themes:./components/data-table:Config": ["public-surface"],
   "export:@wsagency/wseffect-themes:.:DataTable": ["public-surface"],
   "subpath:@wsagency/wseffect-themes:./components/data-table": ["public-surface"],
   "subpath:@wsagency/wseffect-themes:./css/data-table.css": ["public-surface"],
@@ -3826,5 +3824,15 @@
   "type:@wsagency/wseffect-themes:./components/data-table:Config": ["public-surface"],
   "type:@wsagency/wseffect-themes:.:DataTable": ["public-surface"],
   "type:@wsagency/wseffect-themes:./css/data-table.css:default": ["public-surface"],
-  "type:@wsagency/wseffect-themes:./css/data-table.layer.css:default": ["public-surface"]
+  "type:@wsagency/wseffect-themes:./css/data-table.layer.css:default": ["public-surface"],
+  "export:@wsagency/wseffect-themes:./components/data-table:init": ["public-surface"],
+  "export:@wsagency/wseffect-themes:./components/data-table:update": ["public-surface"],
+  "export:@wsagency/wseffect-themes:./components/data-table:view": ["public-surface"],
+  "subpath:@wsagency/wseffect-themes:./styles/css/data-table.css": ["public-surface"],
+  "subpath:@wsagency/wseffect-themes:./styles/css/data-table.layer.css": ["public-surface"],
+  "type:@wsagency/wseffect-themes:./components/data-table:init": ["public-surface"],
+  "type:@wsagency/wseffect-themes:./components/data-table:update": ["public-surface"],
+  "type:@wsagency/wseffect-themes:./components/data-table:view": ["public-surface"],
+  "type:@wsagency/wseffect-themes:./styles/css/data-table.css:default": ["public-surface"],
+  "type:@wsagency/wseffect-themes:./styles/css/data-table.layer.css:default": ["public-surface"]
 }
