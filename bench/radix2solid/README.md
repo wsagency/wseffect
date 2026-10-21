@@ -10,3 +10,4 @@ node bench/radix2solid/scripts/prepare-library.ts --verify
 ```
 
 The app follows the gallery routes and exposes the same `data-perf` hooks for virtual-list, form, and menus scenarios. Development and preview use an available port by default; set `RADIX2SOLID_DEV_PORT` or `RADIX2SOLID_PREVIEW_PORT` to reserve a specific port.
+SP2 visual captures use `sp2-capture-matrix.json` as the shared Gallery/Solid pairing contract. Run `pnpm --dir bench/radix2solid run capture:sp2` to capture the Solid baseline into `$WSEFFECT_SCRATCH_DIR/captures` (or the system temp fallback). After the Gallery routes are integrated, run `pnpm --dir bench/radix2solid run compare-sp2 -- --gallery-url=http://127.0.0.1:4173`; the command captures both sides and writes a reporting-only numeric comparison artifact beside the screenshots. Set `RADIX2SOLID_PREVIEW_PORT` if the default Solid preview port 4178 is occupied.

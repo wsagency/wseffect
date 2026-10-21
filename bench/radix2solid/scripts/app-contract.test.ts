@@ -121,13 +121,19 @@ test('renders the shared and comparison performance hooks on their routes', { ti
 })
 test('every new Gallery capture has a paired Solid route', () => {
   const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as {
-    families: Array<{ family: string; route: string; captures: Array<{ id: string }> }>
+    families: Array<{ family: string; route: string; captures: Array<{ id: string; theme: string; props: Record<string, unknown> }> }>
   }
   const app = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../src/App.tsx'), 'utf8')
   for (const family of matrix.families) {
     assert.match(app, new RegExp(`['"]?${family.route}['"]?\\s*:`), `missing lazy route ${family.route}`)
     assert.ok(family.captures.length > 0, `${family.family} has no captures`)
+    assert.ok(family.captures.every(capture => capture.id.startsWith(`${family.family}/`) && capture.props.size === 2), `${family.family} capture IDs/size props do not match`)
   }
+  const captures = matrix.families.flatMap(family => family.captures)
+  assert.equal(matrix.families.length, 20)
+  assert.equal(captures.length, 58)
+  assert.equal(new Set(captures.map(capture => capture.id)).size, captures.length)
+  assert.ok(matrix.families.every(family => new Set(family.captures.map(capture => capture.theme)).size === 2))
   assert.equal(new Set(matrix.families.map(family => family.family)).size, matrix.families.length)
 })
 
