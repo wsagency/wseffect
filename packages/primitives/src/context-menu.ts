@@ -240,6 +240,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
           ...(item.isDisabled ? [] : [
             h.OnClick(Menu.Message.SelectedItem({ index, item: item.value })),
             h.OnKeyDownPreventDefault(key => key === 'Enter' || key === ' ' ? Option.some(Menu.Message.SelectedItem({ index, item: item.value })) : Option.none()),
+            h.OnFocus(Menu.Message.CompletedFocusButton()),
           ]),
         ], [item.content])
       })) : null,
