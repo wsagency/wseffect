@@ -1,7 +1,9 @@
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import assert from 'node:assert/strict'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
+import { tmpdir } from 'node:os'
 import { test } from 'node:test'
-import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark, pressBenchmarkButton, resetDropdownForBenchmark } from '../bench/compare-radix.ts'
+import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark, pressBenchmarkButton, resetDropdownForBenchmark, benchmarkOutputPath, writeReportAtomically } from '../bench/compare-radix.ts'
 
 test('median handles odd and even sample counts without mutating input', () => {
   const values = [9, 1, 5, 3]
@@ -75,4 +77,28 @@ test('resets an open dropdown by reloading the route after warmup', async () => 
   const reloads: string[] = []
   await resetDropdownForBenchmark({ reload: async (options: { waitUntil: string }) => { reloads.push(options.waitUntil) } } as never)
   assert.deepEqual(reloads, ['networkidle'])
+})
+test('writes benchmark JSON atomically beneath docs/benchmarks/data using the supplied local date', () => {
+  const root = mkdtempSync(join(tmpdir(), 'wseffect-bench-output-'))
+  try {
+    const path = benchmarkOutputPath(root, new Date(2026, 9, 22))
+    assert.equal(path, join(root, 'docs/benchmarks/data/2026-10-22-wseffect-vs-radix2solid-main.json'))
+    const report = { marker: 'atomic-write-test' }
+    writeReportAtomically(path, report)
+    assert.deepEqual(JSON.parse(readFileSync(path, 'utf8')), report)
+    assert.deepEqual(readdirSync(dirname(path)), [basename(path)])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+test('retries invalid trace captures during the throttle self-test', async () => {
+  let attempts = 0
+  const report = { eventTiming: [], cpuThrottle: { iterations: 1, unthrottledMs: 1, throttledMs: 4, ratio: 4 }, animationFrameCount: 1 }
+  const result = await runHarnessSelfTestWithRafRetry(async () => {
+    attempts += 1
+    if (attempts === 1) throw Object.assign(new Error('trace measurement window did not contain click input'), { name: 'InvalidTraceError' })
+    return report as never
+  })
+  assert.equal(result.retries, 1)
+  assert.equal(result.report, report)
 })
