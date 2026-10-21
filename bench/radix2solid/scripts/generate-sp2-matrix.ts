@@ -91,7 +91,7 @@ const matrix = {
   source: { repository: 'https://github.com/wsagency/radix2solid.git', commit: PIN, extraction: 'packages/themes/src/components/*.props.ts' },
   viewport: { width: 1280, height: 800, deviceScaleFactor: 1 },
   browser: 'playwright.chromium (repository-pinned revision)',
-  reducedMotion: 'reduce', font: 'Inter', animationClock: 'fixed at document start; animations disabled',
+  reducedMotion: 'reduce', font: { family: 'Noto Sans', face: 'SP2 Capture Noto Sans', file: 'fixtures/fonts/NotoSans-Regular.ttf', license: 'fixtures/fonts/OFL.txt', weight: 400 }, animationClock: 'fixed at document start; animations disabled',
   fixtures: { 'sp2-data-table': Array.from({ length: 10 }, (_, index) => ({ id: `row-${index + 1}`, name: `Record ${String(index + 1).padStart(2, '0')}`, status: index % 2 === 0 ? 'Active' : 'Pending' })) },
   families: generatedFamilies,
 }

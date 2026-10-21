@@ -2,9 +2,16 @@ export type PixelImage = { width: number; height: number; data: Uint8Array }
 export type SemanticPair = { id: string; state: string; props: unknown; theme?: string }
 export type PixelComparison = { accepted: boolean; changedPixels: number; changedPercent: number; largestRegionPixels: number; largestRegionPercent: number }
 
-function equalPixel(a: PixelImage, b: PixelImage, pixel: number): boolean {
+const PIXEL_NOISE_DELTA = 2
+const EDGE_ANTIALIAS_DELTA = 20
+
+function withinChannelDelta(a: PixelImage, b: PixelImage, pixel: number, delta: number): boolean {
   const offset = pixel * 4
-  return Math.abs(a.data[offset]! - b.data[offset]!) <= 20 && Math.abs(a.data[offset + 1]! - b.data[offset + 1]!) <= 20 && Math.abs(a.data[offset + 2]! - b.data[offset + 2]!) <= 20
+  return Math.abs(a.data[offset]! - b.data[offset]!) <= delta && Math.abs(a.data[offset + 1]! - b.data[offset + 1]!) <= delta && Math.abs(a.data[offset + 2]! - b.data[offset + 2]!) <= delta
+}
+
+function equalPixel(a: PixelImage, b: PixelImage, pixel: number): boolean {
+  return withinChannelDelta(a, b, pixel, PIXEL_NOISE_DELTA)
 }
 
 function isEdge(image: PixelImage, x: number, y: number): boolean {
@@ -23,19 +30,19 @@ export function comparePixels(left: PixelImage, right: PixelImage): PixelCompari
   if (left.width !== right.width || left.height !== right.height || left.data.length !== right.data.length) throw new Error('capture dimensions do not match')
   const { width, height } = left
   const total = width * height
+  const edgeMask = new Uint8Array(total)
+  for (let pixel = 0; pixel < total; pixel += 1) {
+    const x = pixel % width
+    const y = Math.floor(pixel / width)
+    if (isEdge(left, x, y) || isEdge(right, x, y)) edgeMask[pixel] = 1
+  }
   const changed = new Uint8Array(total)
   let changedPixels = 0
   for (let pixel = 0; pixel < total; pixel += 1) {
     if (equalPixel(left, right, pixel)) continue
-    const x = pixel % width
-    const y = Math.floor(pixel / width)
-    let edge = false
-    for (let dy = -1; dy <= 1 && !edge; dy += 1) for (let dx = -1; dx <= 1 && !edge; dx += 1) {
-      const nx = x + dx
-      const ny = y + dy
-      if (nx >= 0 && nx < width && ny >= 0 && ny < height && isEdge(left, nx, ny)) edge = true
-    }
-    if (!edge) { changed[pixel] = 1; changedPixels += 1 }
+    if (edgeMask[pixel] && withinChannelDelta(left, right, pixel, EDGE_ANTIALIAS_DELTA)) continue
+    changed[pixel] = 1
+    changedPixels += 1
   }
   const visited = new Uint8Array(total)
   let largestRegionPixels = 0

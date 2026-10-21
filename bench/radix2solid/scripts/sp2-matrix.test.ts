@@ -8,7 +8,7 @@ type Capture = { id: string; component: string; theme: 'light' | 'dark'; state: 
 type Slot = { prop: string; values: ReadonlyArray<string>; sourceProps: string }
 type Component = { id: string; sourceProps: string | null; domainProps: string[]; size: boolean; variantSlots: Slot[]; visualReference?: string; fixtureId: string | null; defaultProps: Record<string, unknown>; interactive: string | null }
 type Family = { family: string; components: Component[]; captures: Capture[] }
-const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as { source: { commit: string }; fixtures: Record<string, Array<{ id: string; name: string; status: string }>>; families: Family[] }
+const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as { source: { commit: string }; font: { family: string; face: string; file: string; license: string; weight: number }; fixtures: Record<string, Array<{ id: string; name: string; status: string }>>; families: Family[] }
 const EXPECTED: Record<string, ReadonlyArray<string>> = {
   accessibility: ['AccessibleIcon', 'VisuallyHidden'],
   'layout-extra': ['AspectRatio', 'Container', 'Inset', 'Section'],
@@ -69,4 +69,16 @@ test('DataTable explicitly pairs with R2S Table using identical sample data', ()
   assert.equal(dataTable.fixtureId, reference.fixtureId)
   assert.deepEqual(matrix.fixtures[dataTable.fixtureId!], matrix.fixtures[reference.fixtureId!])
   assert.ok(table.captures.some(capture => capture.component === 'DataTable' && capture.props.rows === 10 && capture.props.fixtureId === dataTable.fixtureId))
+})
+test('matrix records the vendored deterministic capture font and its license', () => {
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+  assert.deepEqual(matrix.font, {
+    family: 'Noto Sans',
+    face: 'SP2 Capture Noto Sans',
+    file: 'fixtures/fonts/NotoSans-Regular.ttf',
+    license: 'fixtures/fonts/OFL.txt',
+    weight: 400,
+  })
+  assert.ok(readFileSync(resolve(root, matrix.font.file)).byteLength > 0)
+  assert.match(readFileSync(resolve(root, matrix.font.license), 'utf8'), /SIL OPEN FONT LICENSE Version 1\.1/)
 })

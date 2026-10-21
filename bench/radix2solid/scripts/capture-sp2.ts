@@ -16,12 +16,34 @@ type CaptureResult = {
   sourceHashes: { radix2solidThemes: string | undefined; radix2solidPrimitives: string | undefined; solidScreenshot: string; galleryScreenshot: string | undefined }
 }
 type Family = { family: string; route: string; captures: Capture[] }
+type CaptureFont = { family: string; face: string; file: string; license: string; weight: number }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const librarySource = JSON.parse(await readFile(resolve(root, 'library-source.json'), 'utf8')) as {
   commit: string
   packedTarballs: Record<string, { contentSha256: string }>
 }
-const matrix = JSON.parse(await readFile(resolve(root, 'sp2-capture-matrix.json'), 'utf8')) as { families: Family[]; viewport: { width: number; height: number; deviceScaleFactor: number }; font: string }
+const matrix = JSON.parse(await readFile(resolve(root, 'sp2-capture-matrix.json'), 'utf8')) as {
+  families: Family[]; viewport: { width: number; height: number; deviceScaleFactor: number }; font: CaptureFont
+}
+const fontData = (await readFile(resolve(root, matrix.font.file))).toString('base64')
+const fontFamily = JSON.stringify(matrix.font.face)
+const fontStylesheet = `
+@font-face {
+  font-family: ${fontFamily};
+  font-style: normal;
+  font-weight: ${matrix.font.weight};
+  font-display: block;
+  src: url("data:font/ttf;base64,${fontData}") format("truetype");
+}
+:root, .rt-Theme {
+  --default-font-family: ${fontFamily}, sans-serif;
+  --heading-font-family: ${fontFamily}, sans-serif;
+  --code-font-family: ${fontFamily}, monospace;
+  --strong-font-family: ${fontFamily}, sans-serif;
+  --em-font-family: ${fontFamily}, sans-serif;
+  --quote-font-family: ${fontFamily}, sans-serif;
+}
+`
 const args = process.argv.slice(2)
 const galleryBase = args.find(arg => arg.startsWith('--gallery-url='))?.slice('--gallery-url='.length).replace(/\/$/, '')
 const comparing = args.includes('--compare')
@@ -63,6 +85,14 @@ async function decodePng(page: Page, path: string): Promise<PixelImage> {
     return { width: canvas.width, height: canvas.height, data: new Uint8Array(context.getImageData(0, 0, canvas.width, canvas.height).data) }
   }, base64)
 }
+async function loadCaptureFont(page: Page): Promise<void> {
+  await page.addStyleTag({ content: fontStylesheet })
+  const result = await page.evaluate(async family => {
+    const faces = await document.fonts.load(`400 16px "${family}"`, 'Radix2Solid capture font 0123456789')
+    return { loaded: faces.some(face => face.family === family && face.status === 'loaded'), count: faces.length }
+  }, matrix.font.face)
+  assert.ok(result.count > 0 && result.loaded, `vendored ${matrix.font.family} did not load as ${matrix.font.face}`)
+}
 
 validatePairs(matrix.families.flatMap(family => family.captures))
 await mkdir(captureDir, { recursive: true })
@@ -86,6 +116,7 @@ try {
     const params = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
     const url = `${solidBase}/${family.route}?${params}`
     await page.goto(url, { waitUntil: 'networkidle' })
+    await loadCaptureFont(page)
     await page.locator(`[data-sp2-family="${family.family}"]`).waitFor()
     await page.locator(`[data-sp2-component="${capture.component}"]`).waitFor()
     if (capture.state === 'keyboard-focus' || capture.state === 'range-keyboard-focus') {
@@ -106,6 +137,7 @@ try {
       const galleryParams = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
       const galleryUrl = `${galleryBase}/${family.route}?${galleryParams}`
       await galleryPage.goto(galleryUrl, { waitUntil: 'networkidle' })
+      await loadCaptureFont(galleryPage)
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
       const pairedGalleryPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.gallery.png`)
       galleryPath = pairedGalleryPath

@@ -12,7 +12,13 @@
   },
   "browser": "playwright.chromium (repository-pinned revision)",
   "reducedMotion": "reduce",
-  "font": "Inter",
+  "font": {
+    "family": "Noto Sans",
+    "face": "SP2 Capture Noto Sans",
+    "file": "fixtures/fonts/NotoSans-Regular.ttf",
+    "license": "fixtures/fonts/OFL.txt",
+    "weight": 400
+  },
   "animationClock": "fixed at document start; animations disabled",
   "fixtures": {
     "sp2-data-table": [
