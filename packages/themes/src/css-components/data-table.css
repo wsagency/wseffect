@@ -1,0 +1,37 @@
+.wse-data-table__scroll {
+  position: relative;
+  width: 100%;
+  overscroll-behavior: contain;
+}
+
+.wse-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.wse-data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-panel, white);
+}
+
+.wse-data-table th,
+.wse-data-table td {
+  padding: var(--space-2, 8px);
+  border-bottom: 1px solid var(--gray-a6, #d9d9d9);
+  text-align: start;
+}
+
+.wse-data-table [data-virtual-list-spacer] > td {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+
+.wse-data-table [role='gridcell']:focus,
+.wse-data-table [role='columnheader']:focus {
+  outline: 2px solid var(--accent-8, #3e63dd);
+  outline-offset: -2px;
+}
