@@ -1,21 +1,133 @@
-# Upstream CSS
+# Upstream CSS provenance
 
-The Radix Themes CSS and its PostCSS pipeline are copied from [`wsagency/radix2solid`](https://github.com/wsagency/radix2solid) commit `383676172abb84b4a1d2e54a087d290437ee8848` (public `main`, rc.3).
+The CSS files listed below are copied verbatim from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port). The corresponding files are under `src/css-components/` in this package; `_internal/base-button.css` is the transitive import required by `icon-button.css`. No upstream TypeScript or Solid implementation is copied.
 
-Copied paths:
+## Exhaustive R2S source-file list
 
-- `packages/themes/src/styles/**` → `src/styles/**`
-- `packages/themes/src/components/*.css` → `src/css-components/*.css`
-- `packages/themes/src/components/_internal/*.css` → `src/css-components/_internal/*.css`
-- `packages/themes/postcss.config.js` → `postcss.config.js`
-- `packages/themes/postcss-breakpoints.js` → `postcss-breakpoints.js`
-- `packages/themes/postcss-whitespace.js` → `postcss-whitespace.js`
-- `packages/themes/scripts/build-css.js` → `scripts/build-css.js`
+- `packages/themes/src/components/avatar.css`
+- `packages/themes/src/components/badge.css`
+- `packages/themes/src/components/blockquote.css`
+- `packages/themes/src/components/callout.css`
+- `packages/themes/src/components/code.css`
+- `packages/themes/src/components/container.css`
+- `packages/themes/src/components/data-list.css`
+- `packages/themes/src/components/em.css`
+- `packages/themes/src/components/icon-button.css`
+- `packages/themes/src/components/inset.css`
+- `packages/themes/src/components/kbd.css`
+- `packages/themes/src/components/link.css`
+- `packages/themes/src/components/progress.css`
+- `packages/themes/src/components/quote.css`
+- `packages/themes/src/components/reset.css`
+- `packages/themes/src/components/scroll-area.css`
+- `packages/themes/src/components/section.css`
+- `packages/themes/src/components/separator.css`
+- `packages/themes/src/components/skeleton.css`
+- `packages/themes/src/components/spinner.css`
+- `packages/themes/src/components/strong.css`
+- `packages/themes/src/components/table.css`
+- `packages/themes/src/components/theme-panel.css`
+- `packages/themes/src/components/_internal/base-button.css` (transitive import of `icon-button.css`)
 
-Local changes: component CSS lives in `src/css-components` and its index is limited to the foundation component closure. The layout CSS index excludes non-foundation Section and Container. The build script emits only the foundation component CSS and its spinner, scroll-area, heading and text dependencies, and produces each `.layer.css` sibling in `@layer radix`. CSS output order is retained from the pinned source.
+The imported closure is self-contained in this list: `icon-button.css` imports `_internal/base-button.css`; `table.css` uses the ScrollArea classes supplied by `scroll-area.css`. The build pipeline processes these source CSS files without adding them to the eager application stylesheet.
 
-The local `src/css-components/_adapters/menu.css` adapts only the pinned menu highlight selectors from `[data-highlighted]` to Foldkit Menu's `[data-active]`. Foldkit 0.168.0's `Menu.ItemConfig` exposes only `className` and `content`, so a themed `itemToConfig` cannot supply `data-highlighted` without changing the upstream API.
+## Verbatim upstream license and attribution notices
 
-The generated `css/dropdown-menu.css` and `css/dialog.css` include the Button CSS dependency because their themed trigger and close controls use the same `rt-Button` sizing, padding and variant rules as Radix Themes Buttons. Dialog also depends on Flex CSS for the close-control alignment row.
+### Radix2Solid
 
-The themed Dialog, DropdownMenu and Tabs views retain the pinned upstream semantic aliases `rt-DialogContent`, `rt-DialogOverlay`, `rt-DialogScroll`, `rt-DialogScrollPadding`, `rt-DropdownMenuContent`, `rt-DropdownMenuItem`, `rt-DropdownMenuViewport`, `rt-TabsRoot`, `rt-TabsList`, `rt-TabsTrigger`, `rt-TabsTriggerInner` and `rt-TabsTriggerInnerHidden`. Their verbatim source excerpts and provenance are in `test/fixtures/radix2solid-383676172-markup.txt`; `test/distribution.test.ts` reads that fixture and requires each allowlisted alias to appear there and in local component source. Every other literal emitted `rt-*` class must have a selector in the generated stylesheet.
+MIT License
+
+Copyright (c) 2026 Radix2Solid contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+This repository adapts and reuses the software below. Their original MIT licenses and copyright notices are retained unchanged. This is an independent, unofficial native Solid 2 port; it is not affiliated with or endorsed by Radix, WorkOS or Modulz, and the MIT licenses do not grant rights to their names, logos or trademarks.
+
+### Radix Themes (radix-ui/themes)
+
+MIT License
+
+Copyright (c) 2023 WorkOS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+### Radix Colors (radix-ui/colors repository)
+
+MIT License
+
+Copyright (c) 2021-2022 Modulz
+Copyright (c) 2022-Present WorkOS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+### Radix Colors, as published in @radix-ui/colors 3.0.0
+
+MIT License
+
+Copyright (c) 2021 Radix
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -65,4 +65,12 @@ describe('Themes CSS distribution', () => {
     expect(output).toBe(source)
   })
 
+
+  it('copies reset and component CSS import closure', async () => {
+    const source = resolve(packageRoot, 'src/css-components')
+    for (const file of ['reset.css', 'data-list.css', 'table.css', 'icon-button.css', '_internal/base-button.css']) {
+      expect((await stat(resolve(source, file))).isFile(), file).toBe(true)
+    }
+    expect(await readFile(resolve(source, 'icon-button.css'), 'utf8')).toContain("@import './_internal/base-button.css';")
+  })
 })
