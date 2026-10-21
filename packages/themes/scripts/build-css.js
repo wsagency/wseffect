@@ -41,7 +41,7 @@ targets.push(
   ['src/css-components/index.css', 'css/common.css', common.map(name => `@import './${name}.css';`).join('\n')],
   ['src/css-components/index.css', 'css/utilities.css', `@import './shared.css';\n@import '../styles/utilities/index.css';`]
 );
-for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'checkbox', 'checkbox-group', 'checkbox-cards']) {
+for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards']) {
   const included = new Set();
   const include = component => {
     if (included.has(component)) return;
