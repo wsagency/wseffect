@@ -195,6 +195,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       h.Id(config.sourceId),
       h.Attribute('data-context-source-token', config.sourceToken),
       h.Attribute('tabindex', '0'),
+      h.OnFocus(Menu.Message.CompletedFocusButton()),
       h.OnKeyDownSelfPreventDefault((key, modifiers) =>
         key === 'ContextMenu' || (key === 'F10' && modifiers.shiftKey)
           ? Option.some({ _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' } })
