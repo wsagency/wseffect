@@ -4,12 +4,12 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs'] as const
+const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'data-table'] as const
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',
   './layout.css', './layout/tokens.css', './layout/components.css', './layout/utilities.css',
   './css/common.css', './css/utilities.css',
-  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area'].map(name => `./css/${name}.css`),
+  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'data-table'].map(name => `./css/${name}.css`),
 ]
 
 describe('themes distribution', () => {
