@@ -12,7 +12,7 @@ type Model = { alert: AlertDialog.Model }
 const update = (model: Model, _message: Message) => ({ model })
 const view = (model: Model, h: HtmlBuilder<Message>) => AlertDialog.embed(h, {
   slotId: 'alert-dialog', model: model.alert, toParentMessage: () => Message.Tick(),
-  title: 'Delete item?', description: 'This cannot be undone.', cancelLabel: 'Cancel', actionLabel: 'Delete',
+  title: 'Delete item?', description: 'This cannot be undone.', cancelLabel: 'Cancel',
 })
 
 describe('themed AlertDialog', () => {

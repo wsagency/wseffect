@@ -8,7 +8,7 @@ export { Model, Message, OutMessage, update, open, close, titleId, descriptionId
 import { init as initDialog } from '@foldkit/ui/dialog'
 export const init = (config: UiDialog.InitConfig): UiDialog.Model => initDialog({
   ...config,
-  focusSelector: config.focusSelector ?? `#${config.id}-cancel`,
+  focusSelector: `#${config.id}-cancel`,
 })
 
 export type EmbedConfig<ParentMessage> = Readonly<{
@@ -18,7 +18,6 @@ export type EmbedConfig<ParentMessage> = Readonly<{
   title: string
   description?: string
   cancelLabel: string
-  actionLabel: string
   content?: ReadonlyArray<Html | string>
 }>
 
@@ -26,7 +25,6 @@ type ViewInputs = Readonly<{
   title: string
   description?: string
   cancelLabel: string
-  actionLabel: string
   content: ReadonlyArray<Html | string>
 }>
 
@@ -53,7 +51,6 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
           ...inputs.content,
           h.div([h.Class('rt-Flex rt-r-jc-end')], [
             h.button([...render.closeButton, ...render.initialFocus, h.Id(`${model.id}-cancel`), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-soft rt-Button')], [inputs.cancelLabel]),
-            h.button([h.Type('button'), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button')], [inputs.actionLabel]),
           ]),
         ]),
       ]),
@@ -74,7 +71,6 @@ export const embed = <ParentMessage>(h: HtmlBuilder<ParentMessage>, config: Embe
     title: config.title,
     description: config.description,
     cancelLabel: config.cancelLabel,
-    actionLabel: config.actionLabel,
     content: config.content ?? [],
   },
   toParentMessage: config.toParentMessage,

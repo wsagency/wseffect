@@ -12,7 +12,7 @@ const update = (model: Model, message: Message) => ({ model: message._tag === 'R
 const lazy = createLazy()
 const renderAlert = vi.fn((title: string, h: HtmlBuilder<Message>) => AlertDialog.embed(h, {
   slotId: 'alert', model: UiDialog.open(AlertDialog.init({ id: 'alert' })).model, toParentMessage: () => Message.Tick(),
-  title, cancelLabel: 'Cancel', actionLabel: 'Delete',
+  title, cancelLabel: 'Cancel',
 }))
 const view = (model: Model, h: HtmlBuilder<Message>) => h.div([], [
   lazy(renderAlert, [model.title, h]),
