@@ -181,6 +181,31 @@ importers:
         specifier: 2.0.0
         version: 2.0.0(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))(workbox-build@7.4.1(@types/babel__core@7.20.5))(workbox-window@7.4.1)
 
+  packages/primitives:
+    dependencies:
+      '@effect/platform-browser':
+        specifier: 4.0.5
+        version: 4.0.5(effect@4.0.5)
+      '@floating-ui/dom':
+        specifier: 1.8.0
+        version: 1.8.0
+      '@foldkit/ui':
+        specifier: 0.168.0
+        version: 0.168.0(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))
+      effect:
+        specifier: 4.0.5
+        version: 4.0.5
+      foldkit:
+        specifier: 0.168.0
+        version: 0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5)
+    devDependencies:
+      '@foldkit/vite-plugin':
+        specifier: 0.27.1
+        version: 0.27.1(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))(redis@6.3.0)(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))
+      oxlint:
+        specifier: 1.85.0
+        version: 1.85.0
+
   packages/themes:
     dependencies:
       '@effect/platform-browser':

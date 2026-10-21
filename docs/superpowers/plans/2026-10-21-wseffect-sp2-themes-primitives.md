@@ -72,14 +72,12 @@ export type SelectConfig<Value extends string> = { id: string; selectedValue: Op
 export type SelectModel = Listbox.Model
 export type SelectMessage = Listbox.Message
 export type SelectOutMessage<Value extends string> = Listbox.OutMessage<Value>
-export type SelectBundle<Value extends string> = {
+export type SelectBundle<Value extends string> = Pick<Listbox.Bundle<SelectItem<Value>, Value>, 'update' | 'selectItem' | 'open' | 'close'> & {
   init(config: SelectConfig<Value>): SelectModel
-  update(model: SelectModel, message: SelectMessage): Update.ReturnWithOutMessage<SelectModel, SelectMessage, SelectOutMessage<Value>>
   view(model: SelectModel, config: SelectConfig<Value>, h: HtmlBuilder<SelectMessage>): Html
 }
 export declare function createSelect<Value extends string>(): SelectBundle<Value>
-// createSelect<Value>() constructs Listbox.create<SelectItem<Value>, Value>() inside its generic implementation; the resulting bundle supplies init/update/view.
-
+// createSelect<Value>() constructs Listbox.create<SelectItem<Value>, Value>() inside its generic implementation; preserve Listbox's helper methods as well as the adapter init/update/view.
 // /context-menu: reuses Menu model/update/query state but owns local renderer/anchor/invocation mapping
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
 export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }
@@ -91,14 +89,12 @@ export type ContextMenuModel = typeof ContextMenuModelSchema.Type
 export type ContextMenuMessage = Menu.Message | { _tag: 'OpenedAt'; invocation: ContextMenuInvocation } | { _tag: 'LongPressExpired'; version: number } | { _tag: 'SourceUnmounted'; token: string }
 export type ContextMenuCommand = { _tag: 'FocusSource'; sourceId: string; sourceToken: string }
 export type ContextMenuOutMessage<Value extends string> = Menu.OutMessage<Value>
-export type ContextMenuBundle<Value extends string> = {
+export type ContextMenuBundle<Value extends string> = Pick<Menu.Bundle<Value>, 'update' | 'selectItem' | 'open' | 'close'> & {
   init(config: ContextMenuConfig<Value>): ContextMenuModel
-  update(model: ContextMenuModel, message: ContextMenuMessage): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
   view(model: ContextMenuModel, config: ContextMenuConfig<Value>, h: HtmlBuilder<ContextMenuMessage>): Html
 }
 export declare function createContextMenu<Value extends string>(): ContextMenuBundle<Value>
-// createContextMenu<Value>() constructs Menu.create<Value>() inside its generic implementation; the resulting bundle supplies init/update/view.
-// /range-slider
+// createContextMenu<Value>() constructs Menu.create<Value>() inside its generic implementation; preserve Menu's helper methods as well as the adapter init/update/view.
 namespace RangeSlider {
   type Thumb = { id: string; value: number; min?: number; max?: number; step?: number }
   type Config = { min: number; max: number; step: number; orientation: 'horizontal' | 'vertical'; thumbs: ReadonlyArray<Thumb>; isDisabled?: boolean }
@@ -168,10 +164,10 @@ Each task commits independently after its focused tests and relevant package `ty
 
 **Files:** Create `packages/primitives/{package.json,README.md,CHANGELOG.md}`, `tsconfig.json`, `tsconfig.build.json`, `vitest.config.ts`, `src/index.ts` and six public subpath modules; modify root `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `scripts/primitives-package.test.ts`, primitive tests and this plan's Frozen Interfaces section. Package exports six named subpaths, each points to `dist/<subpath>.js` and `.d.ts`; README License paragraph names retained notices per LIC-3.
 
-**Interfaces:** Freeze all public signatures above before lane work starts. `REPO-1` manifest has `"sideEffects": false`, exact `foldkit`/`@foldkit/ui` 0.168.0 peers, Effect peer `^4.0.5`, direct `@floating-ui/dom` 1.8.0 used only by ContextMenu. Validate `Update.Return`/`Update.ReturnWithOutMessage`, Mount, HtmlBuilder, fold/embed, and Brand APIs against foundation declarations; compile `frozen-signatures.test.ts` to reject invalid Html/message/return types, Listbox/Menu Model/Message arity and untyped factory callsites.
+**Interfaces:** Freeze all public signatures above before lane work starts. `REPO-1` manifest has `"sideEffects": false`, exact `foldkit`/`@foldkit/ui` 0.168.0 peers, Effect and `@effect/platform-browser` peers `^4.0.5`, direct `@floating-ui/dom` 1.8.0 used only by ContextMenu. Validate `Update.Return`/`Update.ReturnWithOutMessage`, Mount, HtmlBuilder, fold/embed, and Brand APIs against foundation declarations; compile `frozen-signatures.test.ts` to reject invalid Html/message/return types, Listbox/Menu Model/Message arity and untyped factory callsites.
 
 - [ ] **Step 1: Write failing package and signature contract tests.** Create `scripts/primitives-package.test.ts` tests `package manifest exposes six ESM subpaths` and `package peers and sideEffects match REPO-1`, plus `packages/themes/test/frozen-signatures.test.ts` using `expectTypeOf`/`@ts-expect-error` for all frozen function contracts and the HtmlBuilder child union; `packages/themes/tsconfig.json` includes `test/**/*.ts`, so run `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes typecheck`. Expected: package test fails because package does not exist, and compiler-check fails on intentionally invalid signature assertions.
-- [ ] **Step 2: Create package skeleton.** Add exact manifest/subpath export map, scripts/configs, empty typed subpath modules, and workspace wiring. Rerun `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes typecheck`; expected: package tests pass and the contract test typechecks.
+- [ ] **Step 2: Create package skeleton.** Add exact manifest/subpath export map, scripts/configs, empty typed subpath modules, and workspace wiring. The frozen-signature test imports generated declarations from `packages/primitives/dist`; build primitives before Themes typecheck so export-map declarations are available without adding a runtime dependency solely for type tests. Rerun `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes typecheck`; expected: package tests pass and the contract test typechecks.
 - [ ] **Step 3: Write the failing branding test.** Add `packages/primitives/test/identity.test.ts` › `build brands exported views at the library boundary`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/identity.test.ts`. Expected: FAIL because the package does not yet run the identity transform.
 - [ ] **Step 4: Implement build identity.** Add build pipeline/brand transform by matching the existing Themes pattern; test packed output imports `foldkit/brand` and callers do not brand manually.
 - [ ] **Step 5: Verify.** Run `pnpm install --lockfile-only`, `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/identity.test.ts`, `pnpm --filter @wsagency/wseffect-primitives typecheck`, `pnpm --filter @wsagency/wseffect-primitives lint` and `pnpm --filter @wsagency/wseffect-primitives build`; expected named identity test passes and typecheck/lint/build exit 0.
