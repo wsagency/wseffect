@@ -1,4 +1,4 @@
-import { Schema } from 'effect'
+import { Effect, Schema } from 'effect'
 import { expect, it } from 'vitest'
 import * as TooltipGroup from '../src/tooltip-group.js'
 
@@ -26,6 +26,17 @@ it('stale expiry version cannot close newer skip window', () => {
   expect(stale.expiryVersion).toBe(2)
 })
 
+it('TooltipClosed schedules a delay that expires the current skip window', async () => {
+  const closed = TooltipGroup.update(TooltipGroup.init(), { _tag: 'TooltipClosed', now: 1200 })
+  expect(closed.model).toEqual({ isSkipping: true, expiryVersion: 1 })
+  const command = closed.commands?.[0]
+  expect(command?.name).toBe('TooltipGroupSkipDelay')
+  if (command === undefined) throw new Error('TooltipClosed should schedule SkipDelay')
+  const expiredMessage = await Effect.runPromise(command.effect)
+  expect(expiredMessage).toEqual({ _tag: 'SkipExpired', version: 1 })
+  const expired = TooltipGroup.update(closed.model, expiredMessage)
+  expect(expired.model).toEqual({ isSkipping: false, expiryVersion: 1 })
+})
 it('Model and Message schemas round-trip through the APP-8 page-model codec', () => {
   const model = TooltipGroup.init()
   const encoded = Schema.encodeSync(TooltipGroup.Model)(model)

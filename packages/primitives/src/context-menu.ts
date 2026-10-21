@@ -175,7 +175,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       const virtualReference: VirtualElement = {
         getBoundingClientRect: () => point === undefined
           ? source.getBoundingClientRect()
-          : ({ x: point.x, y: point.y, left: point.x, top: point.y, right: point.x, bottom: point.y, width: 0, height: 0, toJSON: () => ({}) }),
+          : new DOMRect(point.x, point.y, 0, 0),
         contextElement: source,
       }
       const position = () => {
