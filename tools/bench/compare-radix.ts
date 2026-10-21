@@ -52,6 +52,9 @@ export async function applySettingChange(page: Page, hook: string, buttonName: s
   if (isSelect) await target.press('ArrowDown')
   else await target.getByRole('button', { name: buttonName }).press('Space')
 }
+export async function pressBenchmarkButton(page: Page, hook: string, key: string): Promise<void> {
+  await page.locator(`[data-perf="${hook}"]`).getByRole('button').press(key)
+}
 
 async function resetThemeState(page: Page): Promise<void> {
   await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
@@ -107,7 +110,7 @@ const EXTRA_SCENARIOS: readonly PerfScenario[] = [
   customScenario('theme-accent', '/theme', 'theme-accent', async (page) => applySettingChange(page, 'theme-accent', 'Accent color'), resetThemeState, 'keydown'),
   customScenario('shared-date', '/shared', 'shared-date', async (page) => page.locator('[data-perf="shared-date"]').press('ArrowUp'), async (page) => page.locator('[data-perf="shared-date"]').fill('2026-01-01'), 'keydown'),
   customScenario('dialog-open', '/dialog', 'dialog-open', async (page) => page.getByRole('button', { name: 'Open dialog' }).click(), resetDialogForBenchmark),
-  customScenario('dropdown-open', '/dropdown-menu', 'dropdown-open', async (page) => page.getByRole('button', { name: 'Actions' }).press('ArrowDown'), async (page) => page.getByRole('button', { name: 'Actions' }).press('Escape'), 'keydown'),
+  customScenario('dropdown-open', '/dropdown-menu', 'dropdown-open', async (page) => pressBenchmarkButton(page, 'dropdown-open', 'ArrowDown'), async (page) => pressBenchmarkButton(page, 'dropdown-open', 'Escape'), 'keydown'),
   customScenario('nav-cold', '/virtual-list', 'nav-cold', async (page) => page.locator('[data-perf="nav-cold"]').click(), async (page) => page.goto(new URL('/virtual-list', page.url()).href, { waitUntil: 'networkidle' }), 'click', async (page) => page.locator('main').waitFor({ state: 'visible' })),
   customScenario('nav-prefetch', '/virtual-list', 'nav-prefetch', async (page) => page.locator('[data-perf="nav-prefetch"]').click(), async (page) => page.goto(new URL('/virtual-list', page.url()).href, { waitUntil: 'networkidle' }), 'click', async (page) => { await page.locator('[data-perf="nav-prefetch"]').hover(); await page.waitForTimeout(500) }),
 ]

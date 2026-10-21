@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark } from '../bench/compare-radix.ts'
+import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark, pressBenchmarkButton } from '../bench/compare-radix.ts'
 
 test('median handles odd and even sample counts without mutating input', () => {
   const values = [9, 1, 5, 3]
@@ -59,4 +59,15 @@ test('resets an open dialog by reloading the route after warmup', async () => {
   const reloads: string[] = []
   await resetDialogForBenchmark({ reload: async (options: { waitUntil: string }) => { reloads.push(options.waitUntil) } } as never)
   assert.deepEqual(reloads, ['networkidle'])
+})
+test('presses the matched dropdown control inside its benchmark hook', async () => {
+  const calls: string[] = []
+  const page = {
+    locator: (selector: string) => {
+      assert.equal(selector, '[data-perf="dropdown-open"]')
+      return { getByRole: (role: string) => ({ press: async (key: string) => { calls.push(`${role}:${key}`) } }) }
+    },
+  }
+  await pressBenchmarkButton(page as never, 'dropdown-open', 'ArrowDown')
+  assert.deepEqual(calls, ['button:ArrowDown'])
 })
