@@ -1,9 +1,9 @@
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { hostname, loadavg, cpus } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { chromium, type Browser } from '@playwright/test'
+import { chromium, type Browser, type Page } from '@playwright/test'
 import { preview } from 'vite'
 import { measureSize, type SizeReport } from '../gates/size.ts'
 import { runHarnessSelfTest, runScenario, SCENARIOS } from '../gates/perf.ts'
@@ -46,6 +46,17 @@ export function noiseScreen(wseffectMedian: number, radixMedian: number, aaBand:
   if (gap <= aaBand) return '—'
   return wseffectMedian < radixMedian ? 'wseffect' : 'radix2solid'
 }
+export async function applySettingChange(page: Page, hook: string, buttonName: string, selectValue: string): Promise<void> {
+  const target = page.locator(`[data-perf="${hook}"]`)
+  const isSelect = await target.evaluate((element) => element.tagName === 'SELECT')
+  if (isSelect) await target.selectOption(selectValue)
+  else await target.getByRole('button', { name: buttonName }).click()
+}
+
+async function resetThemeState(page: Page): Promise<void> {
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
+  await page.reload({ waitUntil: 'networkidle' })
+}
 
 function customScenario(
   id: string,
@@ -62,10 +73,17 @@ function customScenario(
     warmup, reset, act,
   } as unknown as PerfScenario
 }
+export function readRadixFixtureCommit(metadataPath: string): string {
+  const metadata: unknown = JSON.parse(readFileSync(metadataPath, 'utf8'))
+  if (metadata === null || typeof metadata !== 'object' || !('commit' in metadata) || typeof metadata.commit !== 'string') {
+    throw new Error(`radix fixture metadata has no commit string: ${metadataPath}`)
+  }
+  return metadata.commit
+}
 
 const EXTRA_SCENARIOS: readonly PerfScenario[] = [
-  customScenario('theme-appearance', '/theme', 'theme-appearance', async (page) => page.locator('[data-perf="theme-appearance"]').press('ArrowDown'), async (page) => page.locator('[data-perf="theme-appearance"]').selectOption('light'), 'keydown'),
-  customScenario('theme-accent', '/theme', 'theme-accent', async (page) => page.locator('[data-perf="theme-accent"]').press('ArrowDown'), async (page) => page.locator('[data-perf="theme-accent"]').selectOption('blue'), 'keydown'),
+  customScenario('theme-appearance', '/theme', 'theme-appearance', async (page) => applySettingChange(page, 'theme-appearance', 'Appearance', 'dark'), resetThemeState),
+  customScenario('theme-accent', '/theme', 'theme-accent', async (page) => applySettingChange(page, 'theme-accent', 'Accent color', 'crimson'), resetThemeState),
   customScenario('shared-date', '/shared', 'shared-date', async (page) => page.locator('[data-perf="shared-date"]').press('ArrowUp'), async (page) => page.locator('[data-perf="shared-date"]').fill('2026-01-01'), 'keydown'),
   customScenario('dialog-open', '/dialog', 'dialog-open', async (page) => page.getByRole('button', { name: 'Open dialog' }).click(), async (page) => page.getByRole('button', { name: 'Open dialog' }).click()),
   customScenario('dropdown-open', '/dropdown-menu', 'dropdown-open', async (page) => page.getByRole('button', { name: 'Actions' }).press('ArrowDown'), async (page) => page.getByRole('button', { name: 'Actions' }).press('Escape'), 'keydown'),
@@ -129,8 +147,7 @@ async function run(): Promise<void> {
   try {
     wseffect = await buildAndServe(WSEFFECT_APP, 'wseffect')
     radix2solid = await buildAndServe(RADIX2SOLID_APP, 'radix2solid')
-    const radixFixtureCommit = execFileSync('git', ['-C', RADIX2SOLID_APP, 'rev-parse', 'HEAD'], { cwd: ROOT, encoding: 'utf8' }).trim()
-    if (radixFixtureCommit !== RADIX_COMMIT) throw new Error(`radix2solid fixture is ${radixFixtureCommit}, expected ${RADIX_COMMIT}`)
+    const radixFixtureCommit = readRadixFixtureCommit(join(RADIX2SOLID_APP, 'library-source.json'))
     const report: Record<string, unknown> = {
       generatedAt: new Date().toISOString(),
       node: process.version,
