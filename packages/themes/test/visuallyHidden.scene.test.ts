@@ -10,5 +10,6 @@ const view = (_model: Readonly<Record<string, never>>, h: HtmlBuilder<Message>) 
 describe('themed VisuallyHidden', () => {
   it('hides visually but remains exposed', () => Scene.scene({ update, view }, Scene.given({}),
     Scene.expect(Scene.text('Help text')).toExist(),
-    Scene.expect(Scene.selector('.rt-VisuallyHidden')).toExist()))
+    Scene.expect(Scene.selector('span')).toHaveStyle('position', 'absolute'),
+    Scene.expect(Scene.selector('span')).toHaveStyle('clip', 'rect(0, 0, 0, 0)')))
 })

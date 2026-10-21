@@ -71,6 +71,8 @@ describe('themes distribution', () => {
       'rt-DialogContent', 'rt-DialogOverlay', 'rt-DialogScroll', 'rt-DialogScrollPadding',
       'rt-DropdownMenuContent', 'rt-DropdownMenuItem', 'rt-DropdownMenuViewport',
       'rt-TabsList', 'rt-TabsRoot', 'rt-TabsTrigger', 'rt-TabsTriggerInner', 'rt-TabsTriggerInnerHidden',
+      // Callout.Text is structural; pinned callout.css has no selector for it.
+      'rt-CalloutText',
     ] as const
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
