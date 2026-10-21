@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from '@playwright/test'
 import { preview } from 'vite'
 import { measureSize, type SizeReport } from '../gates/size.ts'
-import { runHarnessSelfTest, runScenario, SCENARIOS } from '../gates/perf.ts'
+import { runHarnessSelfTest, runScenario, SCENARIOS, type HarnessSelfTestReport } from '../gates/perf.ts'
 import type { PerfScenario } from '../gates/scenarios.ts'
 import { primaryPages } from '../../apps/gallery/src/primaryPages.ts'
 
@@ -80,6 +80,24 @@ export function readRadixFixtureCommit(metadataPath: string): string {
   }
   return metadata.commit
 }
+export interface HarnessSelfTestRun {
+  readonly report: HarnessSelfTestReport
+  readonly retries: number
+}
+
+export async function runHarnessSelfTestWithRafRetry(
+  runSelfTest: () => Promise<HarnessSelfTestReport> = runHarnessSelfTest,
+): Promise<HarnessSelfTestRun> {
+  let retries = 0
+  while (true) {
+    try {
+      return { report: await runSelfTest(), retries }
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.includes('self-test trace did not include rAF script work') || retries === 2) throw error
+      retries += 1
+    }
+  }
+}
 
 const EXTRA_SCENARIOS: readonly PerfScenario[] = [
   customScenario('theme-appearance', '/theme', 'theme-appearance', async (page) => applySettingChange(page, 'theme-appearance', 'Appearance'), resetThemeState, 'keydown'),
@@ -140,7 +158,8 @@ function summarizeSamples(samples: readonly Sample[]) {
 
 async function run(): Promise<void> {
   const startLoad = loadavg()
-  const browserSelfTest = await runHarnessSelfTest()
+  const selfTest = await runHarnessSelfTestWithRafRetry()
+  const browserSelfTest = selfTest.report
   const browser = await chromium.launch()
   let wseffect: ServedApp | undefined
   let radix2solid: ServedApp | undefined
@@ -159,6 +178,7 @@ async function run(): Promise<void> {
       measuredCommit: execFileSync('git', ['rev-parse', 'origin/main'], { cwd: ROOT, encoding: 'utf8' }).trim(),
       radixFixtureCommit,
       throttleSelfTest: browserSelfTest,
+      throttleSelfTestRetries: selfTest.retries,
       method: 'Five ABAB blocks: each block runs wseffect, radix2solid, wseffect, radix2solid (10 sessions per app/scenario/rate). A/A: 10 adjacent same-app pairs (20 sessions per app/scenario/rate), collected in alternating app order. Event Timing via PerformanceObserver; trace scripting via the shared CDP timeline runner. Each session includes before/after host load averages. Noise-screen band is max of the apps\' nearest-rank p95 adjacent-pair absolute deltas; winner only when absolute medians gap exceeds band.',
       scenarios: ALL_SCENARIOS.map(({ id, route, hook }) => ({ id, route, hook })),
       size: { wseffect: wseffect.size, radix2solid: radix2solid.size },
