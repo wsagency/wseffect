@@ -47,8 +47,9 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
   if (manifest.repository?.url !== 'git+https://git.wsagency.io/ws-agency/wseffect.git' || !manifest.repository.directory) {
     fail('repository must identify the wseffect repository and package directory')
   }
-  if (!manifest.files?.length || manifest.files.some((file) => !allowedFiles.has(file))) {
-    fail('files must contain only dist, LICENSE, README.md, and CHANGELOG.md')
+  if (!manifest.files?.length || manifest.files.some((file) =>
+    !allowedFiles.has(file) && !(path.replaceAll('\\', '/').startsWith('packages/themes/') && file === 'UPSTREAM.md'))) {
+    fail('files must contain only dist, LICENSE, README.md, and CHANGELOG.md (plus UPSTREAM.md for Themes)')
   }
   if (!manifest.exports || Object.values(manifest.exports).some((entry) =>
     !entry || typeof entry !== 'object' || !('types' in entry) || !('default' in entry))) {
