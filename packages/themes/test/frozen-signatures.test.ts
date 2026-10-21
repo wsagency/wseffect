@@ -7,6 +7,8 @@ import * as Option from 'effect/Option'
 import type { Props as CheckboxGroupProps } from '../../primitives/dist/checkbox-group.js'
 import type { SelectBundle, SelectConfig, SelectModel } from '../../primitives/dist/select.js'
 import type { ContextMenuBundle, ContextMenuModel } from '../../primitives/dist/context-menu.js'
+import type * as Mount from 'foldkit/mount'
+import type { mountSelectPosition } from '../../primitives/dist/select-position.js'
 
 interface Item<Value extends string> { value: Value; label: string }
 type Message = { readonly _tag: 'Changed' }
@@ -58,4 +60,8 @@ type _ToggleMessageFactory = Assert<IsFunction<CheckboxProps['toggleMessage']>>
 it('compiles the frozen Listbox and Menu bundle contracts', () => {
   expectTypeOf<SelectSurface['init']>().returns.toEqualTypeOf<SelectModel>()
   expectTypeOf<ContextMenuSurface['init']>().returns.toEqualTypeOf<ContextMenuModel>()
+})
+
+it('keeps SelectPosition as a message-free mount action', () => {
+  expectTypeOf<typeof mountSelectPosition>().returns.toEqualTypeOf<Mount.MountAction<never>>()
 })
