@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from '@playwright/test'
 import { comparePixels, validatePairs, type PixelComparison, type PixelImage } from './compare-sp2.ts'
 
-type Capture = { id: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown> }
+type Capture = { id: string; component: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown> }
 type CaptureResult = {
   id: string; family: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown>
   solidPath: string; galleryPath: string | undefined; comparison: PixelComparison | undefined
@@ -83,11 +83,19 @@ try {
       style.textContent = '*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important;caret-color:transparent!important}'
       document.head.appendChild(style)
     }, { theme: capture.theme })
-    const url = `${solidBase}/${family.route}?appearance=${capture.theme}&capture=${encodeURIComponent(capture.id)}`
+    const params = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
+    const url = `${solidBase}/${family.route}?${params}`
     await page.goto(url, { waitUntil: 'networkidle' })
     await page.locator(`[data-sp2-family="${family.family}"]`).waitFor()
-    if (capture.state === 'keyboard-focus') await page.locator('[data-capture-focus="true"]').focus()
-    if (capture.state === 'hover') await page.locator('[data-capture-focus="true"]').hover()
+    await page.locator(`[data-sp2-component="${capture.component}"]`).waitFor()
+    if (capture.state === 'keyboard-focus' || capture.state === 'range-keyboard-focus') {
+      const target = capture.component === 'Slider' ? '[role="slider"]' : capture.component === 'RadioGroup' ? '[role="radio"]' : capture.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
+      await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).first().focus()
+    }
+    if (capture.state === 'hover') {
+      const target = capture.component === 'HoverCard' ? 'a[href="#profile"]' : 'button'
+      await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).hover()
+    }
     await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
     const solidPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.solid.png`)
     await page.screenshot({ path: solidPath, fullPage: false, animations: 'disabled' })
@@ -95,8 +103,8 @@ try {
     let comparison: PixelComparison | undefined
     if (galleryBase) {
       const galleryPage = await context.newPage()
-      await galleryPage.addInitScript(({ theme }) => { document.documentElement.dataset.appearance = theme }, { theme: capture.theme })
-      const galleryUrl = `${galleryBase}/${family.route}?appearance=${capture.theme}&capture=${encodeURIComponent(capture.id)}`
+      const galleryParams = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
+      const galleryUrl = `${galleryBase}/${family.route}?${galleryParams}`
       await galleryPage.goto(galleryUrl, { waitUntil: 'networkidle' })
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
       const pairedGalleryPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.gallery.png`)

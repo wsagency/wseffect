@@ -121,17 +121,18 @@ test('renders the shared and comparison performance hooks on their routes', { ti
 })
 test('every new Gallery capture has a paired Solid route', () => {
   const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as {
-    families: Array<{ family: string; route: string; captures: Array<{ id: string; theme: string; props: Record<string, unknown> }> }>
+    families: Array<{ family: string; route: string; components: Array<{ id: string; size: boolean }>; captures: Array<{ id: string; component: string; theme: string; state: string; props: Record<string, unknown> }> }>
   }
   const app = readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../src/App.tsx'), 'utf8')
   for (const family of matrix.families) {
     assert.match(app, new RegExp(`['"]?${family.route}['"]?\\s*:`), `missing lazy route ${family.route}`)
-    assert.ok(family.captures.length > 0, `${family.family} has no captures`)
-    assert.ok(family.captures.every(capture => capture.id.startsWith(`${family.family}/`) && capture.props.size === 2), `${family.family} capture IDs/size props do not match`)
+    assert.ok(family.components.every(component => family.captures.some(capture => capture.component === component.id)), `${family.family} component has no captures`)
+    assert.ok(family.captures.every(capture => capture.id.startsWith(`${family.family}/`) && capture.component.length > 0 && capture.state !== undefined), `${family.family} capture identity/state incomplete`)
+    assert.ok(family.components.filter(component => component.size).every(component => family.captures.filter(capture => capture.component === component.id && capture.state === 'default').every(capture => capture.props.size === '2')), `${family.family} size must be 2 where available`)
   }
   const captures = matrix.families.flatMap(family => family.captures)
   assert.equal(matrix.families.length, 20)
-  assert.equal(captures.length, 58)
+  assert.ok(captures.length >= 200)
   assert.equal(new Set(captures.map(capture => capture.id)).size, captures.length)
   assert.ok(matrix.families.every(family => new Set(family.captures.map(capture => capture.theme)).size === 2))
   assert.equal(new Set(matrix.families.map(family => family.family)).size, matrix.families.length)
