@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import test from 'node:test'
-import { attributeShell, classifyRequestTable, compareSize, measureSize, withMergeBaseFallback } from './size.ts'
+import { attributeShell, classifyRequestTable, compareSize, measureSize, parseBUD1ShellBase, withMergeBaseFallback } from './size.ts'
 
 const baseline = (entries: Record<string, { bytes: number; reason: string }> = {}) => ({
   unit: 'B' as const,
@@ -41,30 +40,47 @@ test('GATE-S1 rejects a shell over 120 KiB and accepts the exact limit', () => {
   assert.ok(compareSize(report(122_881), initial, initial).failures.some((failure) =>
     failure === 'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision'))
 })
-const APPROVED_BUD1_BASE_SHELL = 98_871
+const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
+const BUD1_BASE_PATH = resolve(process.cwd(), 'bench/baselines/sp2-shell-base.json')
+const BUD1_BASE_ARTIFACT = JSON.parse(readFileSync(BUD1_BASE_PATH, 'utf8')) as {
+  commit: string
+  entryBytes: number
+  frameworkBytes: number
+  totalBytes: number
+  method: string
+  measuredAt: string
+}
 
-test('BUD-1 pins the immutable approved size artifact by path and hash', () => {
-  const artifact = execFileSync('git', ['show', '200a6a5:bench/baselines/size.json'], { encoding: 'utf8' })
-  assert.equal(createHash('sha256').update(artifact).digest('hex'), '83592a2dc3173c744ceeca56ab9394a1c703e87b82bd8540c216561256ebe9eb')
-  assert.equal(JSON.parse(artifact).entries.shell.bytes, APPROVED_BUD1_BASE_SHELL)
+test('BUD-1 base records entry and framework bytes from the pinned base commit build', () => {
+  assert.equal(BUD1_BASE_ARTIFACT.commit, BUD1_BASE_COMMIT)
+  assert.ok(BUD1_BASE_ARTIFACT.entryBytes > 0)
+  assert.ok(BUD1_BASE_ARTIFACT.frameworkBytes > 0)
+  assert.equal(BUD1_BASE_ARTIFACT.totalBytes, BUD1_BASE_ARTIFACT.entryBytes + BUD1_BASE_ARTIFACT.frameworkBytes)
+  assert.match(BUD1_BASE_ARTIFACT.method, /brotli-q11/i)
+  assert.ok(Number.isFinite(Date.parse(BUD1_BASE_ARTIFACT.measuredAt)))
 })
 
-test('entry plus framework Brotli-q11 delta is at most 1,024 B against the pinned base artifact', () => {
-  const base = baseline({ shell: { bytes: APPROVED_BUD1_BASE_SHELL, reason: '' } })
-  const withinLimit = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_024), base, base)
-  const overLimit = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_025), base, base)
+test('BUD-1 rejects a shell-base artifact for a different commit', () => {
+  const mismatched = { ...BUD1_BASE_ARTIFACT, commit: 'ffffffffffffffffffffffffffffffffffffffff' }
+  assert.throws(() => parseBUD1ShellBase(JSON.stringify(mismatched)), /does not match pinned commit/)
+})
+
+test('entry plus framework Brotli-q11 delta is at most 1,024 B against the measured base build', () => {
+  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
+  const withinLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_024), base, base)
+  const overLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, base)
   assert.equal(withinLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')), false)
   assert.ok(overLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')))
 })
 
-test('editing size.json cannot bypass the immutable base-artifact cap', () => {
-  const base = baseline({ shell: { bytes: APPROVED_BUD1_BASE_SHELL, reason: '' } })
+test('editing size.json cannot bypass the immutable measured shell base cap', () => {
+  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
   const editedCandidate = baseline({
     shell: { bytes: 1_000_000, reason: 'attempted shell budget override' },
   })
-  const result = compareSize(report(APPROVED_BUD1_BASE_SHELL + 1_025), base, editedCandidate)
-  assert.ok(result.failures.includes(
-    'GATE-BUD-1: entry + framework grew 1,025 B over the approved 200a6a5 artifact (98,871 → 99,896 B); hard cap is 1,024 B',
+  const result = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, editedCandidate)
+  assert.ok(result.failures.some((failure) =>
+    failure.startsWith('GATE-BUD-1:') && failure.includes(`(${BUD1_BASE_ARTIFACT.totalBytes.toLocaleString('en-US')} → ${(BUD1_BASE_ARTIFACT.totalBytes + 1_025).toLocaleString('en-US')} B)`),
   ))
 })
 

@@ -208,3 +208,8 @@
 
 - **Ruling:** DT-4: Foldkit 0.168.0 `VirtualList.view` hard-codes a `<ul role=list>` container and `<li>` spacers, which is invalid inside `<tbody>`. DataTable reuses VirtualList's Schema Model/init/update/commands/helpers and renders a local native-table view (scroll container, sticky thead, spacer `<tr>`s, keyed rows). Locally implemented pieces are only those not exported. Cost if wrong: a small local windowing surface to maintain until upstream supports element overrides.
 - **Task 4A.5 addition:** Add a sixth upstream proposal for VirtualList container/spacer element overrides, e.g. `containerElement`/`spacerElement` view inputs; actual upstream PRs remain subject to the existing maintainer-engagement gate.
+
+## SP2 BUD-1 measured shell baseline amendment
+
+- Replace the stale `200a6a5:bench/baselines/size.json` shell value with `bench/baselines/sp2-shell-base.json`, measured by building the pinned commit in a temporary worktree and measuring entry + framework with the size gate's Brotli-q11 method: entry 5,444 B, framework 67,138 B, total 72,582 B. The artifact is keyed to full commit `200a6a5fcb86f23846e490faddf07c3e67e2e313`; missing or mismatched base artifacts fail the gate.
+- Leave `bench/baselines/size.json` unchanged; its stale shell value does not govern BUD-1, which independently caps shell growth at +1,024 B.

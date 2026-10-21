@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path'
@@ -48,9 +47,8 @@ const SHELL_LIMIT = 122_880
 const FIRST_VISIT_LIMIT = 163_840
 const SPECULATIVE_PREFETCH_LIMIT = 65_536
 const GROWTH_LIMIT = 0.02
-const BUD1_BASE_COMMIT = '200a6a5'
-const BUD1_BASE_ARTIFACT = 'bench/baselines/size.json'
-const BUD1_BASE_SHA256 = '83592a2dc3173c744ceeca56ab9394a1c703e87b82bd8540c216561256ebe9eb'
+const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
+const BUD1_BASE_ARTIFACT = 'bench/baselines/sp2-shell-base.json'
 const BUD1_DELTA_LIMIT = 1_024
 const BROWSER_PORT_START = 4500
 const BROWSER_PORT_END = 4599
@@ -58,23 +56,32 @@ const IDLE_MILLISECONDS = 1_000
 
 let cachedBUD1BaseShellBytes: number | undefined
 
+export function parseBUD1ShellBase(artifact: string): number {
+  const baseline = JSON.parse(artifact) as {
+    commit?: unknown
+    entryBytes?: unknown
+    frameworkBytes?: unknown
+    totalBytes?: unknown
+  }
+  if (baseline.commit !== BUD1_BASE_COMMIT) {
+    throw new Error(`BUD-1 shell base commit ${String(baseline.commit)} does not match pinned commit ${BUD1_BASE_COMMIT}`)
+  }
+  if (
+    typeof baseline.entryBytes !== 'number' || !Number.isInteger(baseline.entryBytes) || baseline.entryBytes <= 0 ||
+    typeof baseline.frameworkBytes !== 'number' || !Number.isInteger(baseline.frameworkBytes) || baseline.frameworkBytes <= 0 ||
+    typeof baseline.totalBytes !== 'number' || !Number.isInteger(baseline.totalBytes) ||
+    baseline.totalBytes !== baseline.entryBytes + baseline.frameworkBytes
+  ) {
+    throw new Error(`BUD-1 shell base artifact ${BUD1_BASE_ARTIFACT} has invalid byte counts`)
+  }
+  return baseline.totalBytes
+}
+
 function approvedBUD1BaseShellBytes(): number {
   if (cachedBUD1BaseShellBytes !== undefined) return cachedBUD1BaseShellBytes
-  const artifact = execFileSync('git', ['show', `${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT}`], {
-    cwd: ROOT,
-    encoding: 'utf8',
-  })
-  const sha256 = createHash('sha256').update(artifact).digest('hex')
-  if (sha256 !== BUD1_BASE_SHA256) {
-    throw new Error(`approved BUD-1 base artifact ${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT} has unexpected SHA-256 ${sha256}`)
-  }
-  const baseline = JSON.parse(artifact) as SizeBaseline
-  const shell = baseline.entries.shell
-  if (baseline.unit !== 'B' || baseline.compression !== 'brotli-q11' || shell === undefined || shell.bytes <= 0) {
-    throw new Error(`approved BUD-1 base artifact ${BUD1_BASE_COMMIT}:${BUD1_BASE_ARTIFACT} has invalid shell metadata`)
-  }
-  cachedBUD1BaseShellBytes = shell.bytes
-  return shell.bytes
+  const artifact = readFileSync(join(ROOT, BUD1_BASE_ARTIFACT), 'utf8')
+  cachedBUD1BaseShellBytes = parseBUD1ShellBase(artifact)
+  return cachedBUD1BaseShellBytes
 }
 
 function brotliBytes(contents: Buffer): number {
@@ -394,7 +401,7 @@ export function compareSize(
   const shellDelta = report.shell - approvedBaseShellBytes
   if (shellDelta > BUD1_DELTA_LIMIT) {
     failures.push(
-      `GATE-BUD-1: entry + framework grew ${shellDelta.toLocaleString('en-US')} B over the approved ${BUD1_BASE_COMMIT} artifact (${approvedBaseShellBytes.toLocaleString('en-US')} → ${report.shell.toLocaleString('en-US')} B); hard cap is ${BUD1_DELTA_LIMIT.toLocaleString('en-US')} B`,
+      `GATE-BUD-1: entry + framework grew ${shellDelta.toLocaleString('en-US')} B over the measured ${BUD1_BASE_COMMIT} build (${approvedBaseShellBytes.toLocaleString('en-US')} → ${report.shell.toLocaleString('en-US')} B); hard cap is ${BUD1_DELTA_LIMIT.toLocaleString('en-US')} B`,
     )
   }
 
