@@ -43,20 +43,20 @@ All names below are public, named ESM subpath exports unless marked CSS-only. Fo
 
 ### Public Themes names
 
-- Stateless single-view modules: `AccessibleIcon`, `VisuallyHidden`, `AspectRatio`, `Container`, `Inset`, `Section`, `Avatar`, `Badge`, `Blockquote`, `Quote`, `Em`, `Strong`, `Code`, `Kbd`, `IconButton`, `Link`, `Progress`, `Separator`, `Skeleton`, `Spinner`, `ScrollArea`, `ThemePanel`, `TabNav`. Each exports `{ Props, view }` with common view signature. `type ThemeSettings = typeof Theme.Settings.Type`; `ThemePanel.Props = { isOpen: boolean; settings: Partial<ThemeSettings>; onMessage(message: ThemePanel.Message): void }`; `ThemePanel.Message = { _tag: 'SettingsChanged'; settings: Partial<ThemeSettings> }`, so the parent owns and applies root settings.
+- Stateless single-view modules: `AccessibleIcon`, `VisuallyHidden`, `AspectRatio`, `Container`, `Inset`, `Section`, `Avatar`, `Badge`, `Blockquote`, `Quote`, `Em`, `Strong`, `Code`, `Kbd`, `IconButton`, `Link`, `Progress`, `Separator`, `Skeleton`, `Spinner`, `ScrollArea`, `ThemePanel`, `TabNav`. Each exports `{ Props, view }` with common view signature. `type ThemeSettings = typeof Theme.Settings.Type`; `ThemePanel.Props = { isOpen: boolean; settings: Partial<ThemeSettings>; toSettingsChanged(settings: Partial<ThemeSettings>): ThemePanel.Message }`; `ThemePanel.Message = { _tag: 'SettingsChanged'; settings: Partial<ThemeSettings> }`, so parent settings changes are represented as Message values rather than callbacks.
 - Compound static namespaces preserve exact part names and `Part.view(props, children, h)`: `Callout.Root`, `.Icon`, `.Text`; `Table.Root`, `.Header`, `.Body`, `.Row`, `.Cell`, `.ColumnHeaderCell`, `.RowHeaderCell`; `DataList.Root`, `.Item`, `.Label`, `.Value`. Each part has its own pinned-schema-derived `Props` type and schema; no Solid context, slots, or child cloning.
 - Stateful/reused modules: `RadioGroup`, `RadioCards`, `SegmentedControl`, `Select`, `Slider`, `AlertDialog`, `Popover`, `HoverCard`, `Tooltip`, `ContextMenu`. They expose `Model`, `Message`, `OutMessage`, `init`, `update`, `view`, `fold`, and `embed`; public types/implementation alias upstream FK 0.168.0 except Select's item-aligned mode and ContextMenu, which use the local primitive contracts below. `Select` uses upstream Listbox for `position: 'popper'`; `ContextMenu` reuses Menu model/init/update/query/selection but owns local invocation/anchor state. AlertDialog uses Dialog submodel with `role="alertdialog"`, Cancel `focusSelector`, no backdrop click. Slider uses upstream single-thumb Slider and local RangeSlider for multiple thumbs.
 - `Radio`, `Checkbox`, `CheckboxGroup`, `CheckboxCards`, `Switch`, and `TextArea` export stateless upstream/local views.
-Each stateful module exports its upstream `Model`, `Message`, `OutMessage`, `init`, `update`, and `view` types unchanged except the two local adapters. `fold<ParentModel, ParentMessage, ParentOutMessage>(config)` uses `Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage, ParentOutMessage>` and returns `Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage>`; `embed(h, config)` uses a component-specific `EmbedConfig` and `h.submodel`. Generic type parameters and any `create<Value>()` factory match the exact upstream FK 0.168.0 declaration; no new public `Bundle` alias is introduced. Local primitive Config/Model/Message/OutMessage signatures are listed below; no extra themed wrapper state.
+Each stateful module exports its upstream `Model`, `Message`, `OutMessage`, `init`, `update`, and `view` types unchanged except the two local adapters. `fold<ParentModel, ParentMessage, ParentOutMessage>(config)` uses `Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage, ParentOutMessage>` and returns `Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage>`; `embed(h, config)` uses a component-specific `EmbedConfig` and `h.submodel`. Generic type parameters and any `create<Value>()` factory match the exact upstream FK 0.168.0 declaration. Local primitive Config/Model/Message/OutMessage signatures are listed below; no extra themed wrapper state.
 - CSS-only `Reset` exports no view. No `Meter`, icons, `Portal`, `Slot`, `Slottable`, or compatibility aliases.
 
 ### Local primitive subpaths
 
 // @wsagency/wseffect-primitives/checkbox-group
 export type Option<Value extends string> = { value: Value; label: Html; isDisabled: boolean }
-export type Props<Value extends string> = { id: string; label: Html; options: ReadonlyArray<Option<Value>>; selected: ReadonlySet<Value>; isDisabled?: boolean; onToggle(value: Value, checked: boolean): void }
-export type Message<Value extends string> = { _tag: 'Toggle'; value: Value; checked: boolean }
-export function view<Value extends string>(props: Props<Value>, h: HtmlBuilder<Message<Value>>): Html
+export type Props<Value extends string, Message> = { id: string; label: Html; options: ReadonlyArray<Option<Value>>; selected: ReadonlySet<Value>; isDisabled?: boolean; toggleMessage(value: Value, isChecked: boolean): Message }
+export function view<Value extends string, Message>(props: Props<Value, Message>, h: HtmlBuilder<Message>): Html
+// The checkbox change attribute dispatches props.toggleMessage(value, isChecked); there is no void callback or separate event Message export.
 
 // /select-position: Mount-only; exported SelectPosition.mount(config): Mount.MountAction<SelectPosition.Message>
 export type SelectPositionConfig = { panelId: string; triggerId: string; selectedItemId: string; activeItemId?: string }
@@ -73,11 +73,12 @@ export type SelectModel = Listbox.Model
 export type SelectMessage = Listbox.Message
 export type SelectOutMessage<Value extends string> = Listbox.OutMessage<Value>
 export type SelectBundle<Value extends string> = {
+  init(config: SelectConfig<Value>): SelectModel
   update(model: SelectModel, message: SelectMessage): Update.ReturnWithOutMessage<SelectModel, SelectMessage, SelectOutMessage<Value>>
   view(model: SelectModel, config: SelectConfig<Value>, h: HtmlBuilder<SelectMessage>): Html
 }
 export declare function createSelect<Value extends string>(): SelectBundle<Value>
-// createSelect<Value>() constructs Listbox.create<SelectItem<Value>, Value>() inside its generic implementation.
+// createSelect<Value>() constructs Listbox.create<SelectItem<Value>, Value>() inside its generic implementation; the resulting bundle supplies init/update/view.
 
 // /context-menu: reuses Menu model/update/query state but owns local renderer/anchor/invocation mapping
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
@@ -90,11 +91,12 @@ export type ContextMenuMessage = Menu.Message | { _tag: 'OpenedAt'; invocation: 
 export type ContextMenuCommand = { _tag: 'FocusSource'; sourceId: string; sourceToken: string }
 export type ContextMenuOutMessage<Value extends string> = Menu.OutMessage<Value>
 export type ContextMenuBundle<Value extends string> = {
+  init(config: ContextMenuConfig<Value>): ContextMenuModel
   update(model: ContextMenuModel, message: ContextMenuMessage): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
   view(model: ContextMenuModel, config: ContextMenuConfig<Value>, h: HtmlBuilder<ContextMenuMessage>): Html
 }
 export declare function createContextMenu<Value extends string>(): ContextMenuBundle<Value>
-// createContextMenu<Value>() constructs Menu.create<Value>() inside its generic implementation.
+// createContextMenu<Value>() constructs Menu.create<Value>() inside its generic implementation; the resulting bundle supplies init/update/view.
 // /range-slider
 namespace RangeSlider {
   type Thumb = { id: string; value: number; min?: number; max?: number; step?: number }
@@ -114,7 +116,7 @@ namespace TooltipGroup {
 }
 ```
 
-Schema exports: `RangeSlider.Model`/`Message`, `TooltipGroup.Model`/`Message`, local `ContextMenu.Model`/`Message`, adapted `Select.Model`/`Message`, and `DataTable.Model`/`Message` are Effect Schema values with schema-derived types; retain Foldkit schemas for reused submodels and compose local state with `Schema.Struct`/`Schema.Union`/`Schema.Literal`. Prefer plain structs and `ReadonlyArray`; only use Map/Set when the exact Effect Schema supports it and an encode/decode round-trip test proves it.
+Schema exports: `RangeSlider.Model`/`Message`, `TooltipGroup.Model`/`Message`, local `ContextMenuModel`/`ContextMenuMessage`, adapted `SelectModel`/`SelectMessage`, and `DataTable.Model`/`Message` are Effect Schema values with schema-derived types; retain Foldkit schemas for reused submodels and compose local state with `Schema.Struct`/`Schema.Union`/`Schema.Literal`. Prefer plain structs and `ReadonlyArray`; only use Map/Set when the exact Effect Schema supports it and an encode/decode round-trip test proves it.
 
 ### DataTable public subpath
 
@@ -190,7 +192,7 @@ Each task commits independently after its focused tests and relevant package `ty
 #### Task 1.2: Select adapter and SelectPosition
 
 **Files:** `packages/primitives/src/select.ts`, `select-position.ts`, `test/select.story.test.ts`, `test/select.scene.test.ts`, `test/selectPosition.test.ts`.
-**Interfaces:** `Select.Config/Item/Group/Separator/Model/Message/OutMessage/init/update/view` and `SelectPosition.Config/Message/mount` above; single upstream Listbox Model reused; local renderer omits trigger Anchor and uses SelectPosition only for item-aligned placement.
+**Interfaces:** `SelectConfig<Value>`, `SelectItem<Value>`, `SelectGroup<Value>`, `SelectSeparator`, `SelectModel`, `SelectMessage`, `SelectOutMessage<Value>` and `createSelect<Value>()` returning the typed `SelectBundle<Value>` with `init/update/view`; `SelectPositionConfig`, `SelectPositionMessage`, and `mountSelectPosition` are defined above. The bundle wraps the upstream generic Listbox model and keeps the local renderer free of trigger Anchor; item-aligned placement uses SelectPosition.
 - [ ] Step 1: Add `select.story.test.ts` › `keeps value parent-owned`, `item-aligned positions active item`, `skips disabled and separator options during typeahead`, `Model and Message schemas round-trip through the APP-8 page-model codec`; `select.scene.test.ts` › `exposes labelled listbox semantics`; `selectPosition.test.ts` › `positions panel at selected item and cleans observer`. Run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/select.story.test.ts test/select.scene.test.ts test/selectPosition.test.ts`; expected fail.
 - [ ] Step 1 (reuse): Add `test/select.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/select.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement Listbox adapter, group/separator records, controlled value and custom item-aligned renderer; no local copy for popper mode.
@@ -200,7 +202,7 @@ Each task commits independently after its focused tests and relevant package `ty
 #### Task 1.3: ContextMenu and TooltipGroup
 
 **Files:** `packages/primitives/src/context-menu.ts`, `tooltip-group.ts`, `test/contextMenu.story.test.ts`, `test/contextMenu.scene.test.ts`, `test/tooltipGroup.story.test.ts`, `test/tooltipGroup.scene.test.ts`.
-**Interfaces:** `ContextMenu` and `TooltipGroup` types above. ContextMenu reuses Menu model/init/update/query/selection state; local renderer owns invocation, disabled navigation/typeahead, anchor, timing and command interception. TooltipGroup uses 700ms open delay, 300ms skip window, focus immediate.
+**Interfaces:** `createContextMenu<Value>()` returns `ContextMenuBundle<Value>` with `init/update/view`; its types are `ContextMenuConfig<Value>`, `ContextMenuModel`, `ContextMenuMessage`, and `ContextMenuOutMessage<Value>` above. It reuses Menu state while the local renderer owns invocation/anchor state and command interception. TooltipGroup uses 700ms open delay, 300ms skip window, focus immediate.
 - [ ] Step 1: ContextMenu tests `pointer opens at client point`, `keyboard opens on source and focuses first enabled`, `touch long press activates at 600ms and cancels on >8px move/release`, `all close paths filter fixed-button focus`, `does not focus a replacement source after source unmount`, `local Model and Message schemas round-trip through the APP-8 page-model codec`; Scene `menu semantics and active enabled item`. TooltipGroup tests `first hover waits 700ms`, `next tooltip opens immediately in 300ms window`, `focus opens immediately`, `stale expiry version cannot close newer skip window`, `Model and Message schemas round-trip through the APP-8 page-model codec`. Run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/contextMenu.story.test.ts test/contextMenu.scene.test.ts test/tooltipGroup.story.test.ts test/tooltipGroup.scene.test.ts`; expected fail.
 - [ ] Step 1 (reuse): Add `test/contextMenu.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/contextMenu.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement typed event/Message mapping and expiry-version state; only suppress native contextmenu after activation; maintain live source token; filter `FocusItems`, replace `FocusButton`, preserve other Menu commands; use direct Floating UI 1.8.0 and `portalToContainingRoot`, clean portal/autoUpdate.
