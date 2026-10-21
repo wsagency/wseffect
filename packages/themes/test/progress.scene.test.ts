@@ -10,4 +10,6 @@ const view = (_model: Readonly<Record<string, never>>, h: HtmlBuilder<Message>) 
 describe('themed Progress', () => {
   it('exposes progress value', () => Scene.scene({ update, view }, Scene.given({}),
     Scene.expect(Scene.selector('[role="progressbar"]')).toHaveAttr('aria-valuenow', '40')))
+  it('uses Foldkit progress state attributes', () => Scene.scene({ update, view }, Scene.given({}),
+    Scene.expect(Scene.selector('[role="progressbar"]')).toHaveAttr('data-state', 'loading')))
 })
