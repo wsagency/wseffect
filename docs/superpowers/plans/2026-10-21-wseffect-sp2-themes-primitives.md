@@ -52,37 +52,49 @@ Each stateful module exports its upstream `Model`, `Message`, `OutMessage`, `ini
 
 ### Local primitive subpaths
 
-```ts
 // @wsagency/wseffect-primitives/checkbox-group
-namespace CheckboxGroup {
-  type Option<Value extends string> = { value: Value; label: Html; isDisabled: boolean }
-  type Props<Value extends string> = { id: string; label: Html; options: ReadonlyArray<Option<Value>>; selected: ReadonlySet<Value>; isDisabled?: boolean; onToggle(value: Value, checked: boolean): void }
-  function view<Value extends string>(props: Props<Value>, h: HtmlBuilder<Message>): Html
-}
+export type Option<Value extends string> = { value: Value; label: Html; isDisabled: boolean }
+export type Props<Value extends string> = { id: string; label: Html; options: ReadonlyArray<Option<Value>>; selected: ReadonlySet<Value>; isDisabled?: boolean; onToggle(value: Value, checked: boolean): void }
+export type Message<Value extends string> = { _tag: 'Toggle'; value: Value; checked: boolean }
+export function view<Value extends string>(props: Props<Value>, h: HtmlBuilder<Message<Value>>): Html
+
 // /select-position: Mount-only; exported SelectPosition.mount(config): Mount.MountAction<SelectPosition.Message>
-namespace SelectPosition { type Config = { panelId: string; triggerId: string; selectedItemId: string; activeItemId?: string }; type Message = { _tag: 'Positioned' } | { _tag: 'PositionFailed' }; function mount(config: Config): Mount.MountAction<Message> }
+export type SelectPositionConfig = { panelId: string; triggerId: string; selectedItemId: string; activeItemId?: string }
+export type SelectPositionMessage = { _tag: 'Positioned' } | { _tag: 'PositionFailed' }
+export function mountSelectPosition(config: SelectPositionConfig): Mount.MountAction<SelectPositionMessage>
+
 // /select: adapted upstream Listbox
-namespace Select<Value extends string> {
-  type Config<Value> = { id: string; selectedValue: Option<Value>; items: ReadonlyArray<Item<Value> | Group<Value> | Separator>; position: 'popper' | 'item-aligned'; isModal: false }
-  type Item<Value> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
-  type Group<Value> = { id: string; label: Html; items: ReadonlyArray<Item<Value> | Separator> }
-  type Separator = { kind: 'separator'; id: string }
-  type Model = Listbox.Model; type Message = Listbox.Message; type OutMessage<Value extends string> = Listbox.OutMessage<Value>
-  const listbox = Listbox.create<Item<Value>, Value>(); function update(model: Model, message: Message): Update.ReturnWithOutMessage<Model, Message, OutMessage<Value>>; function view(model: Model, config: Config<Value>, h: HtmlBuilder<Message>): Html
+export type SelectItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
+export type SelectGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<SelectItem<Value> | SelectSeparator> }
+export type SelectSeparator = { kind: 'separator'; id: string }
+export type SelectOption<Value extends string> = { value: Value; label: Html }
+export type SelectConfig<Value extends string> = { id: string; selectedValue: SelectOption<Value>; items: ReadonlyArray<SelectItem<Value> | SelectGroup<Value> | SelectSeparator>; position: 'popper' | 'item-aligned'; isModal: false }
+export type SelectModel = Listbox.Model
+export type SelectMessage = Listbox.Message
+export type SelectOutMessage<Value extends string> = Listbox.OutMessage<Value>
+export type SelectBundle<Value extends string> = {
+  update(model: SelectModel, message: SelectMessage): Update.ReturnWithOutMessage<SelectModel, SelectMessage, SelectOutMessage<Value>>
+  view(model: SelectModel, config: SelectConfig<Value>, h: HtmlBuilder<SelectMessage>): Html
 }
+export declare function createSelect<Value extends string>(): SelectBundle<Value>
+// createSelect<Value>() constructs Listbox.create<SelectItem<Value>, Value>() inside its generic implementation.
+
 // /context-menu: reuses Menu model/update/query state but owns local renderer/anchor/invocation mapping
-namespace ContextMenu<Value> {
-  type Item<Value> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
-  type Group<Value> = { id: string; label: Html; items: ReadonlyArray<Item<Value> | Separator> }
-  type Separator = { kind: 'separator'; id: string }
-  type Config<Value> = { id: string; items: ReadonlyArray<Item<Value> | Group<Value> | Separator>; longPressMs: 600; sourceId: string; sourceToken: string; toItem(item: Value): Html }
-  type Invocation = { sourceId: string; sourceToken: string; invocation: 'pointer' | 'keyboard' | 'touch'; point?: { x: number; y: number } }
-  type Model = Menu.Model & { invocation: Invocation | null; longPressVersion: number }
-  type Message = Menu.Message | { _tag: 'OpenedAt'; invocation: Invocation } | { _tag: 'LongPressExpired'; version: number } | { _tag: 'SourceUnmounted'; token: string }
-  type Command = { _tag: 'FocusSource'; sourceId: string; sourceToken: string }
-  type OutMessage<Value extends string> = Menu.OutMessage<Value>
-  const menu = Menu.create<Value>(); function update(model: Model, message: Message): Update.ReturnWithOutMessage<Model, Message, OutMessage<Value>>; function view(model: Model, config: Config<Value>, h: HtmlBuilder<Message>): Html
+export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
+export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }
+export type ContextMenuSeparator = { kind: 'separator'; id: string }
+export type ContextMenuConfig<Value extends string> = { id: string; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuGroup<Value> | ContextMenuSeparator>; longPressMs: 600; sourceId: string; sourceToken: string; toItem(item: Value): Html }
+export type ContextMenuInvocation = { sourceId: string; sourceToken: string; invocation: 'pointer' | 'keyboard' | 'touch'; point?: { x: number; y: number } }
+export type ContextMenuModel = Menu.Model & { invocation: ContextMenuInvocation | null; longPressVersion: number }
+export type ContextMenuMessage = Menu.Message | { _tag: 'OpenedAt'; invocation: ContextMenuInvocation } | { _tag: 'LongPressExpired'; version: number } | { _tag: 'SourceUnmounted'; token: string }
+export type ContextMenuCommand = { _tag: 'FocusSource'; sourceId: string; sourceToken: string }
+export type ContextMenuOutMessage<Value extends string> = Menu.OutMessage<Value>
+export type ContextMenuBundle<Value extends string> = {
+  update(model: ContextMenuModel, message: ContextMenuMessage): Update.ReturnWithOutMessage<ContextMenuModel, ContextMenuMessage, ContextMenuOutMessage<Value>>
+  view(model: ContextMenuModel, config: ContextMenuConfig<Value>, h: HtmlBuilder<ContextMenuMessage>): Html
 }
+export declare function createContextMenu<Value extends string>(): ContextMenuBundle<Value>
+// createContextMenu<Value>() constructs Menu.create<Value>() inside its generic implementation.
 // /range-slider
 namespace RangeSlider {
   type Thumb = { id: string; value: number; min?: number; max?: number; step?: number }
@@ -155,8 +167,8 @@ Each task commits independently after its focused tests and relevant package `ty
 
 **Interfaces:** Freeze all public signatures above before lane work starts. `REPO-1` manifest has `"sideEffects": false`, exact `foldkit`/`@foldkit/ui` 0.168.0 peers, Effect peer `^4.0.5`, direct `@floating-ui/dom` 1.8.0 used only by ContextMenu. Validate `Update.Return`/`Update.ReturnWithOutMessage`, Mount, HtmlBuilder, fold/embed, and Brand APIs against foundation declarations; compile `frozen-signatures.test.ts` to reject invalid Html/message/return types, Listbox/Menu Model/Message arity and untyped factory callsites.
 
- - [ ] **Step 1: Write failing package and signature contract tests.** Create `scripts/primitives-package.test.ts` tests `package manifest exposes six ESM subpaths` and `package peers and sideEffects match REPO-1`, plus `packages/themes/test/frozen-signatures.test.ts` using `expectTypeOf`/`@ts-expect-error` for all frozen function contracts and the HtmlBuilder child union; run `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes exec vitest run test/frozen-signatures.test.ts`. Expected: package test fails because package does not exist, and compile-time contract fails at intentionally incorrect signatures.
-- [ ] **Step 2: Create package skeleton.** Add exact manifest/subpath export map, scripts/configs, empty typed subpath modules, and workspace wiring. Rerun `node --test scripts/primitives-package.test.ts`; expected: both named tests pass.
+- [ ] **Step 1: Write failing package and signature contract tests.** Create `scripts/primitives-package.test.ts` tests `package manifest exposes six ESM subpaths` and `package peers and sideEffects match REPO-1`, plus `packages/themes/test/frozen-signatures.test.ts` using `expectTypeOf`/`@ts-expect-error` for all frozen function contracts and the HtmlBuilder child union; `packages/themes/tsconfig.json` includes `test/**/*.ts`, so run `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes typecheck`. Expected: package test fails because package does not exist, and compiler-check fails on intentionally invalid signature assertions.
+- [ ] **Step 2: Create package skeleton.** Add exact manifest/subpath export map, scripts/configs, empty typed subpath modules, and workspace wiring. Rerun `node --test scripts/primitives-package.test.ts` and `pnpm --filter @wsagency/wseffect-themes typecheck`; expected: package tests pass and the contract test typechecks.
 - [ ] **Step 3: Write the failing branding test.** Add `packages/primitives/test/identity.test.ts` › `build brands exported views at the library boundary`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/identity.test.ts`. Expected: FAIL because the package does not yet run the identity transform.
 - [ ] **Step 4: Implement build identity.** Add build pipeline/brand transform by matching the existing Themes pattern; test packed output imports `foldkit/brand` and callers do not brand manually.
 - [ ] **Step 5: Verify.** Run `pnpm install --lockfile-only`, `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/identity.test.ts`, `pnpm --filter @wsagency/wseffect-primitives typecheck`, `pnpm --filter @wsagency/wseffect-primitives lint` and `pnpm --filter @wsagency/wseffect-primitives build`; expected named identity test passes and typecheck/lint/build exit 0.
@@ -170,6 +182,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `packages/primitives/src/checkbox-group.ts`, `range-slider.ts`, `test/checkboxGroup.test.ts`, `test/checkboxGroup.scene.test.ts`, `test/rangeSlider.story.test.ts`, `test/rangeSlider.scene.test.ts`.
 **Interfaces:** `CheckboxGroup.Option/Props/view` and `RangeSlider` types above; parent owns group selection and ordered range values; stable thumb IDs/per-thumb bounds, keyboard, drag and rollback as specified.
 - [ ] Step 1: Add `checkboxGroup.test.ts` › `emits typed toggle without owning selected values`; Scene `labelled group exposes checked state`; RangeSlider Story tests `clamps thumb between neighbors`, `Page changes ten steps`, `Escape restores pre-drag values`, `supports vertical arrow direction`, `Model and Message schemas round-trip through the APP-8 page-model codec`; Scene `one accessible slider per thumb`. Run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/checkboxGroup.test.ts test/checkboxGroup.scene.test.ts test/rangeSlider.story.test.ts test/rangeSlider.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/checkboxGroup.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/checkboxGroup.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement the controlled group and range interaction Model; no value ownership.
 - [ ] Step 3: Same command; expected 4 files pass and RangeSlider Story Message-arm coverage is 100%; `pnpm --filter @wsagency/wseffect-primitives typecheck` exits 0.
 - [ ] Step 4: Commit `feat: add checkbox group and range slider primitives`.
@@ -179,6 +192,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `packages/primitives/src/select.ts`, `select-position.ts`, `test/select.story.test.ts`, `test/select.scene.test.ts`, `test/selectPosition.test.ts`.
 **Interfaces:** `Select.Config/Item/Group/Separator/Model/Message/OutMessage/init/update/view` and `SelectPosition.Config/Message/mount` above; single upstream Listbox Model reused; local renderer omits trigger Anchor and uses SelectPosition only for item-aligned placement.
 - [ ] Step 1: Add `select.story.test.ts` › `keeps value parent-owned`, `item-aligned positions active item`, `skips disabled and separator options during typeahead`, `Model and Message schemas round-trip through the APP-8 page-model codec`; `select.scene.test.ts` › `exposes labelled listbox semantics`; `selectPosition.test.ts` › `positions panel at selected item and cleans observer`. Run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/select.story.test.ts test/select.scene.test.ts test/selectPosition.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/select.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/select.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement Listbox adapter, group/separator records, controlled value and custom item-aligned renderer; no local copy for popper mode.
 - [ ] Step 3: Same command; expected 3 files/5 tests pass and Select Story Message-arm coverage is 100%; primitive typecheck exits 0.
 - [ ] Step 4: Commit `feat: add item-aligned select adapter`.
@@ -188,6 +202,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `packages/primitives/src/context-menu.ts`, `tooltip-group.ts`, `test/contextMenu.story.test.ts`, `test/contextMenu.scene.test.ts`, `test/tooltipGroup.story.test.ts`, `test/tooltipGroup.scene.test.ts`.
 **Interfaces:** `ContextMenu` and `TooltipGroup` types above. ContextMenu reuses Menu model/init/update/query/selection state; local renderer owns invocation, disabled navigation/typeahead, anchor, timing and command interception. TooltipGroup uses 700ms open delay, 300ms skip window, focus immediate.
 - [ ] Step 1: ContextMenu tests `pointer opens at client point`, `keyboard opens on source and focuses first enabled`, `touch long press activates at 600ms and cancels on >8px move/release`, `all close paths filter fixed-button focus`, `does not focus a replacement source after source unmount`, `local Model and Message schemas round-trip through the APP-8 page-model codec`; Scene `menu semantics and active enabled item`. TooltipGroup tests `first hover waits 700ms`, `next tooltip opens immediately in 300ms window`, `focus opens immediately`, `stale expiry version cannot close newer skip window`, `Model and Message schemas round-trip through the APP-8 page-model codec`. Run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/contextMenu.story.test.ts test/contextMenu.scene.test.ts test/tooltipGroup.story.test.ts test/tooltipGroup.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/contextMenu.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-primitives exec vitest run test/contextMenu.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement typed event/Message mapping and expiry-version state; only suppress native contextmenu after activation; maintain live source token; filter `FocusItems`, replace `FocusButton`, preserve other Menu commands; use direct Floating UI 1.8.0 and `portalToContainingRoot`, clean portal/autoUpdate.
 - [ ] Step 3: Same command; expected 4 files pass and both Story files report 100% Message-arm function coverage; primitive typecheck exits 0.
 - [ ] Step 4: Commit `feat: add context menu and tooltip group primitives`.
@@ -198,6 +213,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `packages/themes/src/components/{checkbox,checkbox-group,checkbox-cards}.ts`, `.props.ts`, matching CSS and tests.
 **Interfaces:** `Checkbox` reuses controlled `FK:checkbox.view`; `CheckboxGroup.view` owns no value; `CheckboxCards` composes these and parent-owned values.
 - [ ] Step 1: Add `checkbox.scene.test.ts` › `controlled and mixed state`; `checkboxGroup.scene.test.ts` › `label and typed toggle`; `checkboxCards.scene.test.ts` › `card selection remains parent controlled`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/checkbox.scene.test.ts test/checkboxGroup.scene.test.ts test/checkboxCards.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/checkbox.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/checkbox.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement exact R2S props/schema/defaults and CSS composition; use no local model.
 - [ ] Step 3: Same command; expected 3 files pass; run `pnpm --filter @wsagency/wseffect-themes build`; expected build exits 0.
 - [ ] Step 4: Commit `feat: add checkbox themes`.
@@ -206,6 +222,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `radio`, `radio-group`, `radio-cards` modules/schemas/CSS/tests.
 **Interfaces:** preserve FK RadioGroup Model/Message/OutMessage/update; Radio, Cards and Group use the same group model/typed option IDs.
 - [ ] Step 1: Tests `radioGroup.story.test.ts` › `arrows and Home End skip disabled items`; `radio.scene.test.ts` › `uses radio item attributes`; `radioCards.scene.test.ts` › `cards retain radio semantics`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/radioGroup.story.test.ts test/radio.scene.test.ts test/radioCards.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/radio.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/radio.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement views/schema/CSS from pin using upstream update; preserve horizontal/vertical orientation and roving focus.
 - [ ] Step 3: Same command; expected 3 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add radio group themes`.
@@ -214,6 +231,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `switch`, `segmented-control` modules/schemas/CSS/tests.
 **Interfaces:** Switch uses controlled stateless FK view; Segment uses `FK:radioGroup`, single-choice radio semantics.
 - [ ] Step 1: Tests `switch.scene.test.ts` › `controlled state and Space toggle`; `segmentedControl.story.test.ts` › `arrow key selects one option`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/switch.scene.test.ts test/segmentedControl.story.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/switch.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/switch.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement pinned props/schema/class maps and semantic markup.
 - [ ] Step 3: Same command; expected 2 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add switch and segmented control themes`.
@@ -222,6 +240,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `select`, `text-area` modules/schemas/CSS/tests.
 **Interfaces:** Select popper reuses FK Listbox; item-aligned uses Lane 1 Select; TextArea uses stateless `FK:textarea.view`.
 - [ ] Step 1: Tests `select.story.test.ts` › `supports groups separators disabled and typeahead in both placements`; `select.scene.test.ts` › `has labelled listbox and selected value`; `textArea.scene.test.ts` › `uses textbox role and controlled value`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/select.story.test.ts test/select.scene.test.ts test/textArea.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/selectTheme.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/selectTheme.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement as named; keep Model parent-owned; exact Select item-aligned contract from Lane 1.
 - [ ] Step 3: Same command; expected 3 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add select and text area themes`.
@@ -230,6 +249,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `slider` module/schema/CSS and `slider.story.test.ts`, `slider.scene.test.ts`.
 **Interfaces:** single thumb uses upstream Slider unchanged; multiple thumbs use Lane 1 RangeSlider; page keys are 10 steps.
 - [ ] Step 1: Tests `slider.story.test.ts` › `page keys move ten steps` and `range slider preserves controlled ordered values`; Scene › `exposes slider names min max and orientation`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/slider.story.test.ts test/slider.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/slider.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/slider.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement one/range themed composition, without wrapper state.
 - [ ] Step 3: Same command; expected 2 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add slider themes`.
@@ -240,6 +260,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `alert-dialog`, `popover` modules/schemas/CSS/tests.
 **Interfaces:** AlertDialog uses Dialog submodel, explicit Cancel focus, role alertdialog, no backdrop click; Popover reuses FK Popover, nonmodal default.
 - [ ] Step 1: Tests `alertDialog.story.test.ts` › `initial focus is Cancel and backdrop does not dismiss`; `popover.story.test.ts` › `nonmodal default and modal option`; Scenes › `roles and accessible names`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/alertDialog.story.test.ts test/alertDialog.scene.test.ts test/popover.story.test.ts test/popover.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/alertDialog.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/alertDialog.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement with upstream submodels and themed class config; no local state.
 - [ ] Step 3: Same command; expected 4 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add alert dialog and popover themes`.
@@ -248,6 +269,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `hover-card`, `tooltip` modules/schemas/CSS/tests.
 **Interfaces:** HoverCard uses HoverIntent+Anchor (200/300ms defaults); Tooltip uses FK Tooltip and Lane 1 TooltipGroup; tooltip content never receives focus.
 - [ ] Step 1: Tests `hoverCard.story.test.ts` › `opens from pointer and focus with configured delays`; `tooltipGroup.story.test.ts` › `reflects group skip delay while focused tooltip opens immediately`; Scenes › `tooltip remains nonfocusable description`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/hoverCard.story.test.ts test/hoverCard.scene.test.ts test/tooltipGroup.story.test.ts test/tooltip.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/tooltip.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/tooltip.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement exact delay/config behavior with no local tooltip model duplication.
 - [ ] Step 3: Same command; expected 4 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add hover card and tooltip themes`.
@@ -256,6 +278,7 @@ Each task commits independently after its focused tests and relevant package `ty
 **Files:** `context-menu`, `tab-nav` modules/schemas/CSS/tests.
 **Interfaces:** ContextMenu wraps Lane 1 model; TabNav uses stateless `FK:nav.view` links and native tab order.
 - [ ] Step 1: Tests `contextMenu.story.test.ts` › `restores exact live source and filters FocusButton`; `tabNav.scene.test.ts` › `uses links with aria-current and native tab order`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/contextMenu.story.test.ts test/contextMenu.scene.test.ts test/tabNav.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/contextMenuTheme.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/contextMenuTheme.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement wrappers with exact pinned APIs and class tables.
 - [ ] Step 3: Same command; expected 3 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add context menu and tab navigation themes`.
@@ -269,6 +292,7 @@ Each task commits independently after its focused tests and relevant package `ty
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** exact R2S props; Progress uses FK Progress; no implicit live region; Skeleton/Spinner are status only when labelled.
 - [ ] Step 1: Tests `accessibleIcon.scene.test.ts` › `labels icon contents`, `visuallyHidden.scene.test.ts` › `hides visually but remains exposed`, `progress.scene.test.ts` › `exposes progress value`, `separator.scene.test.ts` › `uses separator semantics`, `skeleton.scene.test.ts` and `spinner.scene.test.ts` › `do not create implicit live regions`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/accessibleIcon.scene.test.ts test/visuallyHidden.scene.test.ts test/progress.scene.test.ts test/separator.scene.test.ts test/skeleton.scene.test.ts test/spinner.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/accessibility.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/accessibility.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement stateless views, Effect Schema and class lookup tables, copied CSS.
 - [ ] Step 3: Same command; expected 6 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add accessibility and status themes`.
@@ -280,6 +304,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** exact R2S literal/responsive props; ScrollArea uses native scrolling/keyboard semantics and shared CSS.
 - [ ] Step 1: Tests `aspectRatio.scene.test.ts` › `applies ratio`; `container.scene.test.ts` › `keeps responsive size`; `inset.scene.test.ts` › `maps inset props`; `section.scene.test.ts` › `uses section structure`; `scrollArea.scene.test.ts` › `scrolls natively`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/aspectRatio.scene.test.ts test/container.scene.test.ts test/inset.scene.test.ts test/section.scene.test.ts test/scrollArea.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/layout.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/layout.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement views and complete transitive CSS closure without importing it eagerly.
 - [ ] Step 3: Same command; expected 5 files pass; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/css.test.ts`; expected CSS import/relative paths pass.
 - [ ] Step 4: Commit `feat: add layout and scroll area themes`.
@@ -291,6 +316,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** Callout explicit part props, Text owns size (no context); ThemePanel labelled form controls emit ThemePanel.Message, root settings consumed as Messages.
 - [ ] Step 1: Tests `avatar.scene.test.ts` › `preserves image alternative semantics`, `badge.scene.test.ts` › `uses native status content`, `callout.scene.test.ts` › `composes root icon text without context`, `themePanel.story.test.ts` › `emits root setting messages`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/avatar.scene.test.ts test/badge.scene.test.ts test/callout.scene.test.ts test/themePanel.story.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/avatar.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/avatar.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement exact props/parts, no implicit live region, and class lookup tables.
 - [ ] Step 3: Same command; expected 4 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add avatar feedback and theme panel themes`.
@@ -302,6 +328,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** stateless semantic element views with exact R2S schema and defaults.
 - [ ] Step 1: Tests `blockquote.scene.test.ts`, `quote.scene.test.ts`, `em.scene.test.ts`, `strong.scene.test.ts`, `code.scene.test.ts`, `kbd.scene.test.ts`, each named `uses expected native semantic element`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/blockquote.scene.test.ts test/quote.scene.test.ts test/em.scene.test.ts test/strong.scene.test.ts test/code.scene.test.ts test/kbd.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/typography.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/typography.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement pure views, lookup tables and stylesheet closure.
 - [ ] Step 3: Same command; expected 6 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add typography themes`.
@@ -313,6 +340,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** IconButton uses FK button attributes and requires accessible name; Link is native anchor with exact R2S link props.
 - [ ] Step 1: Tests `iconButton.scene.test.ts` › `requires accessible name and keeps button semantics`; `link.scene.test.ts` › `renders native link`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/iconButton.scene.test.ts test/link.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/iconButton.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/iconButton.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement stateless/upstream-backed views.
 - [ ] Step 3: Same command; expected 2 files pass; Themes build exits 0.
 - [ ] Step 4: Commit `feat: add icon button and link themes`.
@@ -324,6 +352,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 Use the module-initialized literal lookup-table pattern from existing `packages/themes/src/components/button.ts` (`Object.freeze` tables plus `responsiveProp`/`responsiveClasses` where needed); don't build class maps per render.
 **Interfaces:** all static parts use explicit `Props`, `children: Html`, `h`; native list/table semantics. UPSTREAM records R2S pin, exhaustive source-file list, copied CSS closure and verbatim applicable copyright/license/attribution notices. Task 4A.2 owns package `files`/exports and packed record/notices inclusion.
 - [ ] Step 1: Tests `dataList.scene.test.ts` › `renders description list parts`, `table.scene.test.ts` › `renders native table structure`, `css.test.ts` › `copies reset and transitive imports`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataList.scene.test.ts test/table.scene.test.ts test/css.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/dataViews.reuse.test.ts` › `unrelated update reuses view; changed arg re-executes once`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataViews.reuse.test.ts`; assert per-view counters 0 and exactly 1.
 - [ ] Step 2: Implement parts, copy only licensed pinned CSS with imports/notices, and write exhaustive `UPSTREAM.md`; report added CSS files to the integrator, who alone updates the CSS manifest/build target list in Task 4A.2.
 - [ ] Step 3: Run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataList.scene.test.ts test/table.scene.test.ts test/css.test.ts`; expected 3 files pass; `pnpm --filter @wsagency/wseffect-themes build` exits 0.
 - [ ] Step 4: Commit `feat: add data views and record css provenance`.
@@ -335,6 +364,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 **Files:** `packages/themes/src/components/data-table.ts`, `data-table.props.ts`, CSS and `dataTable.story.test.ts`, `dataTable.scene.test.ts`.
 **Interfaces:** `DataTable.Column/Config/Model/Message/OutMessage/init/update/view` in Frozen Interfaces; all stateful Model/Message exports are Schema-backed. Native table is default; parent owns rows and selected ID set in Config; Model owns filter/sort, stable `orderedRowIds`, active cell and virtual range. `RowsChanged`, `FilterChanged` and `SortChanged` recompute order from current Config; external filter dispatches through fold. VirtualList uses row IDs. Render-layer row-view LRU keyed by DataTable `id`, max `visibleRowCount + 2 * overscanRows`, disposed by `Mount.MountAction` cleanup; test bound/eviction with view counters or test-only accessor.
  - [ ] Step 1: Tests `keeps source order for sort ties`, `updates IDs without copying row records`, `select-all and deselect-all affect visible IDs only`, `recomputes order on RowsChanged FilterChanged and SortChanged`, `folds scroll and resize messages into VirtualList.Model`, `handles observed scroll and container resize`, `programmatic scroll-to-row targets a stable key`, `grid focus recovery scrolls to its target row`, `bounds and evicts render cache while scrolling 10k rows`, `RowsChanged rerenders each changed same-ID row exactly once while unrelated rows stay reused`, `disposes render cache on table lifetime cleanup`, `filter resets virtual range`, and `execution-counter reuse: unrelated update executes 0 row views; one changed memo arg executes exactly 1 affected row view`; Scene `native table caption headers and aria-sort`; add Model/Message schema round-trip through the APP-8 page-model codec; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataTable.story.test.ts test/dataTable.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/dataTable.reuse.test.ts` › `unrelated update executes 0 row views; changed row memo arg executes exactly 1 affected view`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataTable.reuse.test.ts`; assert per-view counters exactly.
  - [ ] Step 2: Implement Schema-backed plain-data Model/Message with embedded `VirtualList.Model`; fold the full child Message/OutMessage and child Commands as in `apps/gallery/src/pages/virtualList.ts:27-40,99-116,168-192`. Update order from Config rows on the three specified messages, use `informItemsChanged` when item keys change, and send external filter input through fold. Add view row-ID rendering, child event mapping, the bounded per-id memo cache with row identity/version plus all derived cell/search inputs in its memo arguments, and Mount cleanup.
 - [ ] Step 3: Same command; expected both files pass, including bound, eviction, cleanup and schema round-trip assertions; run `pnpm --filter @wsagency/wseffect-themes typecheck && pnpm --filter @wsagency/wseffect-themes lint && pnpm --filter @wsagency/wseffect-themes build`; expected all exit 0.
 - [ ] Step 4: Commit `feat: add virtualized data table`.
@@ -344,6 +374,7 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 **Files:** DataTable module and story/scene tests only.
 **Interfaces:** Opt-in `isGrid`; focus state `{ rowId, columnId }`; roles `grid/row/columnheader/gridcell`; selection checkbox `tabindex=-1`; counts/indices include header; edge keys clamp and Tab exits.
  - [ ] Step 1: Tests `clamps arrow movement at boundaries`, `home end and ctrl home end target specified cell`, `active identity survives sort and filter`, `removed row picks nearest surviving ordinal`, `restores focus after virtual row remount`, `uses VirtualList.scrollToKey before restoring focus`, and `execution-counter reuse: unrelated grid update executes 0 view functions; one changed memo arg executes exactly 1 affected view`; Scene `grid has one tabbable cell, correct counts/indices, and a labelled non-tabbable selection checkbox toggled by Space`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataTable.grid.story.test.ts test/dataTable.grid.scene.test.ts`; expected fail.
+- [ ] Step 1 (reuse): Add `test/dataTable.grid.reuse.test.ts` › `unrelated update executes 0 grid views; changed memo arg executes exactly 1 affected view`; run `pnpm --filter @wsagency/wseffect-themes exec vitest run test/dataTable.grid.reuse.test.ts`; assert per-view counters exactly.
 - [ ] Step 2: Implement Model transitions and post-mount focus restoration; do not use `aria-activedescendant`.
 - [ ] Step 3: Same command; expected 2 files pass with all key paths, roles, exact counts/indices, Space selection and focus recovery asserted.
 - [ ] Step 4: Commit `feat: add data table grid navigation`.
@@ -382,9 +413,9 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 #### Task 4A.4: Size and performance gates
 
 **Files:** integrator-only `bench/baselines/size.json`, `bench/baselines/perf.json`, `tools/gates/size.ts`, `tools/gates/size.test.ts`, `tools/gates/perf.ts`, `tools/gates/perf.test.ts`, `apps/gallery/src/pages/perfPages.scene.test.ts`, `docs/superpowers/plans/ISSUES.md`.
-**Interfaces:** preserve old page memberships; new pages are added to `bench/baselines/size.json`. Pin approved base commit `9c57873a66bd71cb65188f2c1fa67ec5e7d73bfe`, read its immutable size artifact directly with `git show <base-commit>:<artifact-path>`, and compare entry + framework Brotli-q11 bytes with a hard ≤1,024 B delta. This gate must not read its cap from mutable `size.json`, so baseline edits cannot bypass the check. Tests pin the artifact path/hash. Proposed 4× CPU Event Timing medians: Select open/choose 1k ≤50 ms, Tooltip open/close ≤30 ms, Slider drag ≤30 ms, DataTable update/filter/sort/select 10k ≤50 ms; no measurements are claimed. CI perf acceptance remains blocked until stable host and `perf-noise.json` floors exist.
+**Interfaces:** preserve old page memberships; new pages are added to `bench/baselines/size.json`. Pin approved wseffect main commit `200a6a5` (spec approval; this commit contains `bench/baselines/size.json`), read its immutable size artifact directly with `git show 200a6a5:<artifact-path>`, and compare entry + framework Brotli-q11 bytes with a hard ≤1,024 B delta. This gate must not read its cap from mutable `size.json`, so baseline edits cannot bypass the check. Tests pin the artifact path/hash. Proposed 4× CPU Event Timing medians: Select open/choose 1k ≤50 ms, Tooltip open/close ≤30 ms, Slider drag ≤30 ms, DataTable update/filter/sort/select 10k ≤50 ms; no measurements are claimed. CI perf acceptance remains blocked until stable host and `perf-noise.json` floors exist.
 - [ ] Step 1: Add gate unit tests `sp2 scenarios wire exact page operation pairs`, `shell cap is measured in Brotli-q11`, `entry plus framework delta is at most 1,024 B vs the pinned approved base artifact`, and `updating size.json cannot bypass the base-artifact cap`; run `node --test tools/gates/perf.test.ts tools/gates/size.test.ts`; expected fail for absent scenarios/routes and cap enforcement.
-- [ ] Step 2: Wire scenarios and measured size baselines only after pages build; pin the immutable base artifact via `git show` at commit `9c57873a66bd71cb65188f2c1fa67ec5e7d73bfe`, compare entry + framework Brotli-q11 byte counts, reject any delta >1,024 B regardless of mutable `size.json` changes; add no new perf job or invented runner/noise data; mark CI perf acceptance blocked until stable host and `perf-noise.json` floors exist.
+- [ ] Step 2: Wire scenarios and measured size baselines only after pages build; pin the immutable base artifact via `git show 200a6a5:<artifact-path>` at approved wseffect main commit `200a6a5`, compare entry + framework Brotli-q11 byte counts, reject any delta >1,024 B regardless of mutable `size.json` changes; add no new perf job or invented runner/noise data; mark CI perf acceptance blocked until stable host and `perf-noise.json` floors exist.
 - [ ] Step 3: Run `pnpm gate:size`; expected all new page chunks/styles present and entry+framework delta ≤1,024 B against the pinned artifact. Run `pnpm gate:perf` only when provisioned host/noise floors exist; expected four candidate scenarios reported against ceilings. Run local repository ABAB/A-A only as directional evidence, never gate result.
 - [ ] Step 4: Commit `perf: wire sp2 size and performance scenarios`.
 
@@ -454,6 +485,6 @@ Use the module-initialized literal lookup-table pattern from existing `packages/
 - Ruling: frozen 0.168.0 view/API signatures use `HtmlBuilder<Message>`, `ReadonlyArray<Html | string>`, actual `Update.Return`/`ReturnWithOutMessage`; Listbox Model/Message and Menu Model/Message are non-generic while their typed `create` bundles bind generic values — why — package declarations dictate the public types — cost if wrong — APIs fail typecheck and themed models drift from the exact upstream contracts.
 - Ruling: DataTable embeds and folds the full Schema-backed `VirtualList.Model` and `VirtualList.Message`/OutMessage per the foundation gallery pattern; scroll/resize/programmatic scroll and Grid focus restoration are tested, with same-ID row-data invalidation in the per-id render LRU — why — the child owns virtualization lifecycle and measurements while parent owns row records — cost if wrong — broken scroll/resize, focus recovery, or stale memoized cells.
 - Ruling: CSS lanes add their own `src/css-components/<component>.css` files and report them; Task 4A.2 alone edits `css-components/index.css` and `scripts/build-css.js` fixed target list before 4A.1 imports, and packed output asserts every CSS subpath — why — one manifest owner prevents colliding integration edits and missing package outputs — cost if wrong — race-prone manifest and silently omitted CSS exports.
-- Ruling: BUD-1 `tools/gates/size.ts` and `.test.ts` belong to Task 4A.4 and compare entry+framework Brotli-q11 bytes against immutable approved base commit `383676172abb84b4a1d2e54a087d290437ee8848`, hard failing above +1,024 B independent of `size.json` — why — page-size baselines cannot grant shell-budget exceptions — cost if wrong — an editable baseline can mask shell growth.
+- Ruling: BUD-1 `tools/gates/size.ts` and `.test.ts` belong to Task 4A.4 and compare entry+framework Brotli-q11 bytes against immutable approved wseffect main commit `200a6a5` (spec approval; contains `bench/baselines/size.json`), hard failing above +1,024 B independent of mutable size baselines — why — page-size baselines cannot grant shell-budget exceptions — cost if wrong — an editable baseline can mask shell growth.
 - Ruling: every component task's named execution-counter test proves unrelated updates re-execute zero memoized views and one changed memo argument re-executes exactly one affected view; DataTable additionally checks same-ID row-record invalidation — why — reuse correctness is required per component, not inferred from one representative example — cost if wrong — hidden work or stale view reuse escapes broad coverage.
 - Ruling: bench/radix2solid `scripts/*.test.ts` use `node --test`, not Vitest — why — use the package's existing test runner — cost if wrong — the planned contract/visual tests cannot run.
