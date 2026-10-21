@@ -213,3 +213,8 @@
 
 - Replace the stale `200a6a5:bench/baselines/size.json` shell value with `bench/baselines/sp2-shell-base.json`, measured by building the pinned commit in a temporary worktree and measuring entry + framework with the size gate's Brotli-q11 method: entry 5,444 B, framework 67,138 B, total 72,582 B. The artifact is keyed to full commit `200a6a5fcb86f23846e490faddf07c3e67e2e313`; missing or mismatched base artifacts fail the gate.
 - Leave `bench/baselines/size.json` unchanged; its stale shell value does not govern BUD-1, which independently caps shell growth at +1,024 B.
+
+## SP2-TEST-6 visual comparator ruling
+
+- The comparator accepts a global ≤2-per-channel delta as compositor/encoder noise between apps rendering identical CSS, in addition to the 1 px symmetric edge tolerance (≤20 per channel on edge pixels from the union of both images' edge masks). A uniform ≤2-level shift is visually insignificant; any larger delta counts as changed.
+- **Cost if wrong:** a ≤2-level systematic colour shift could pass unnoticed.
