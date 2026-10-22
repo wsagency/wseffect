@@ -10,7 +10,11 @@ body {
 }
 
 .sp2-capture .radix-themes:where([data-is-root-theme='true']) {
-  background-color: white;
+  background-color: var(--color-background);
+}
+
+.sp2-capture[data-sp2-capture-family='tooltip'] .radix-themes:where([data-is-root-theme='true']) {
+  background-color: var(--gray-1);
 }
 
 .gallery-shell {

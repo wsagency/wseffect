@@ -102,6 +102,7 @@ describe('Gallery capture resolver', () => {
       if (component === 'AlertDialog' && state === 'open') {
         expect(target?.querySelector('dialog[open][role="alertdialog"]')).not.toBeNull()
         expect(target?.closest('.sp2-capture')).not.toBeNull()
+        expect(target?.closest('.sp2-capture')?.getAttribute('data-sp2-capture-family')).toBe(family)
         expect(target?.querySelector('button')?.getAttribute('data-state')).toBe('open')
         expect(target?.querySelector('button')?.getAttribute('data-accent-color')).toBe('')
       }

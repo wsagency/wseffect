@@ -11,6 +11,7 @@ export type CaptureView = (h: HtmlBuilder<CaptureMessage>, request: CaptureReque
 
 export function renderCaptureView(root: HTMLElement, request: CaptureRequest, view: CaptureView): void {
   root.classList.add('sp2-capture')
+  root.dataset.sp2CaptureFamily = request.family
   const settings = {
     accentColor: 'indigo',
     grayColor: 'gray',
