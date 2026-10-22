@@ -101,6 +101,12 @@ describe('Gallery capture resolver', () => {
       }
       if (component === 'AlertDialog' && state === 'open') {
         expect(target?.querySelector('dialog[open][role="alertdialog"]')).not.toBeNull()
+        expect(target?.querySelector('button')?.getAttribute('data-state')).toBe('open')
+        expect(target?.querySelector('button')?.getAttribute('data-accent-color')).toBe('')
+      }
+      if (component === 'Tooltip' && state === 'hover') {
+        expect(target?.querySelector('button')?.getAttribute('data-state')).toBe('instant-open')
+        expect(document.querySelector('[role="tooltip"]')?.getAttribute('data-state')).toBe('instant-open')
       }
       if (state === 'keyboard-focus') {
         const focusTarget = target?.querySelector<HTMLElement>(component === 'TabNav' ? 'a[href="#overview"]' : 'button')

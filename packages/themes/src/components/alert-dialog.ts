@@ -36,6 +36,7 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
     ...render.dialog,
     h.Attribute('role', 'alertdialog'),
     h.Class('rt-BaseDialog'),
+    h.Style({ color: 'var(--gray-12)' }),
   ], render.isVisible ? [
     h.div([
       h.Class('rt-BaseDialogOverlay rt-AlertDialogOverlay'),

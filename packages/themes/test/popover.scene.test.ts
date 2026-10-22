@@ -36,6 +36,7 @@ describe('themed Popover', () => {
       Scene.Mount.resolve(UiPopover.AnchorPopover, UiPopover.Message.CompletedAnchorPopover()),
       Scene.expect(Scene.selector('button')).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
       Scene.expect(Scene.selector('button')).toHaveAttr('data-accent-color', ''),
+      Scene.expect(Scene.selector('button')).toHaveAttr('data-state', 'open'),
       Scene.expect(Scene.selector('p')).not.toExist(),
     )
   })

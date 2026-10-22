@@ -29,6 +29,9 @@ export type EmbedConfig<Message> = Readonly<{
 
 const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip.Message>>((model, inputs, h) => {
   const toView = (render: RenderInfo): Html => {
+    const state = render.isVisible
+      ? model.isHovered && !model.isFocused && Duration.toMillis(model.showDelay) > 0 ? 'delayed-open' : 'instant-open'
+      : 'closed'
     const side = (inputs.anchor?.placement ?? 'top').split('-')[0]
     const arrowStyle = {
       position: 'absolute',
@@ -47,11 +50,12 @@ const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip
         ...render.trigger,
         h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
         h.DataAttribute('accent-color', ''),
+        h.DataAttribute('state', state),
         h.Type('button'),
       ], inputs.trigger),
       ...(render.isVisible ? [h.div([
         ...render.panel,
-        h.Attribute('data-state', model.isHovered && !model.isFocused && Duration.toMillis(model.showDelay) > 0 ? 'delayed-open' : 'instant-open'),
+        h.DataAttribute('state', state),
         h.Attribute('data-side', side),
         h.Class('rt-TooltipContent'),
       ], [

@@ -29,7 +29,7 @@ export const page = galleryPageContract.definePage({
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Alert dialog'], h),
-    Button.view({ onClick: Message.Open() }, ['Delete record'], h),
+    Button.view({ onClick: Message.Open(), 'data-state': model.dialog.isOpen ? 'open' : 'closed' }, ['Delete record'], h),
     AlertDialog.embed(h, {
       slotId: 'gallery-alert-dialog', model: model.dialog, toParentMessage: message => Message.DialogEvent({ message }),
       title: 'Delete record?', description: 'This action cannot be undone.', cancelLabel: 'Cancel',
@@ -40,7 +40,7 @@ export const page = galleryPageContract.definePage({
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   renderCaptureView(root, request, (h) => h.div([], [
-    Button.view({}, ['Delete record'], h),
+    Button.view({ 'data-state': request.state === 'open' ? 'open' : 'closed' }, ['Delete record'], h),
     AlertDialog.embed(h, {
       slotId: 'capture-alert-dialog',
       model: request.state === 'open' ? { ...AlertDialog.init({ id: 'capture-alert-dialog' }), isOpen: true } : AlertDialog.init({ id: 'capture-alert-dialog' }),

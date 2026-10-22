@@ -1,5 +1,5 @@
 import '@wsagency/wseffect-themes/css/tooltip.css'
-import { Option, Schema } from 'effect'
+import { Duration, Option, Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
 import * as Tooltip from '@wsagency/wseffect-themes/components/tooltip'
@@ -39,7 +39,7 @@ export const page = galleryPageContract.definePage({
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   renderCaptureView(root, request, (h) => Tooltip.embed(h, {
     slotId: 'capture-tooltip',
-    model: { ...Tooltip.init({ id: 'capture-tooltip' }), ...(request.state === 'hover' ? { isHovered: true, isOpen: true } : {}) },
+    model: { ...Tooltip.init({ id: 'capture-tooltip' }), ...(request.state === 'hover' ? { showDelay: Duration.millis(0), isHovered: true, isOpen: true } : {}) },
     toParentMessage: () => ({ _tag: 'Noop' }),
     viewInputs: { ...tooltipInputs, trigger: ['Save'], content: ['Save your changes'], anchor: { placement: 'top' } },
   }))

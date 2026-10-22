@@ -43,6 +43,7 @@ describe('themed AlertDialog', () => {
       Scene.expect(Scene.selector('.rt-BaseDialogContent h1')).toHaveAttr('class', 'rt-Heading rt-r-size-5 rt-r-lt-start rt-r-mb-3'),
       Scene.expect(Scene.selector('.rt-BaseDialogContent p')).toHaveAttr('class', 'rt-Text rt-r-size-3'),
       Scene.expect(Scene.selector('#alert-title-cancel')).toHaveAttr('data-accent-color', ''),
+      Scene.expect(Scene.selector('.rt-BaseDialog')).toHaveStyle('color', 'var(--gray-12)'),
     )
   })
   // Pinned R2S alert-dialog.tsx:22-23,31-35 exposes Cancel and Action as sibling controls in the action row.

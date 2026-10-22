@@ -40,11 +40,11 @@ describe('themed controls', () => {
     )
   })
 
-  it('dispatches Button clicks and emits accent only when supplied', () => {
+  it('dispatches Button clicks and emits the pinned default or explicit accent', () => {
     Scene.scene(
       { update, view: buttonView },
       Scene.given({ value: '', clicks: 0, ticks: 0 }),
-      Scene.expect(Scene.role('button', { name: 'Save' })).not.toHaveAttr('data-accent-color'),
+      Scene.expect(Scene.role('button', { name: 'Save' })).toHaveAttr('data-accent-color', ''),
       Scene.click(Scene.role('button', { name: 'Save' })),
       Scene.expect(Scene.text('Clicks: 1')).toExist(),
     )
@@ -60,6 +60,12 @@ describe('themed controls', () => {
       Scene.expect(Scene.role('button', { name: 'Emphasis' })).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-solid rt-Button rt-high-contrast'),
     )
   })
+  it('forwards native data-state to Button', () => Scene.scene(
+    { update, view: (_model: Model, h: HtmlBuilder<Message>) => Button.view({ 'data-state': 'open' } as Button.ViewProps<Message>, ['Open'], h) },
+    Scene.given({ value: '', clicks: 0, ticks: 0 }),
+    Scene.expect(Scene.role('button', { name: 'Open' })).toHaveAttr('data-state', 'open'),
+    Scene.expect(Scene.role('button', { name: 'Open' })).toHaveAttr('data-accent-color', ''),
+  ))
 
   it('loading and disabled buttons do not dispatch clicks', () => {
     Scene.scene(
