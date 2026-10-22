@@ -145,6 +145,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       element.addEventListener('pointercancel', onPointerUp)
       yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
         element.removeEventListener('contextmenu', onContextMenu)
+        element.removeEventListener('pointerdown', onPointerDown)
         element.removeEventListener('pointermove', onPointerMove)
         element.removeEventListener('pointerup', onPointerUp)
         element.removeEventListener('pointercancel', onPointerUp)
