@@ -200,6 +200,12 @@ const SCRIPT_TRACE_EVENTS = new Set([
 ])
 
 const HARNESS_FLUSH_START_MARK = 'wseffect-harness:flush-start'
+class InvalidTraceError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'InvalidTraceError'
+  }
+}
 
 function traceHarnessFlushStart(events: readonly TraceEvent[]): number | undefined {
   return events.find((event) => event.name === HARNESS_FLUSH_START_MARK && typeof event.ts === 'number')?.ts
@@ -223,6 +229,7 @@ function tracePresentationBoundary(
   eventTimingEnd: number | undefined,
 ): number | undefined {
   if (eventTimingEnd !== undefined) {
+    if (eventTimingEnd <= inputStart) return undefined
     let boundary: number | undefined
     for (const presentation of presentations) {
       if (presentation.ts! <= inputStart) continue
@@ -258,7 +265,7 @@ export function traceScriptingDuration(
       && event.args?.data?.type === inputEventType
       && typeof event.ts === 'number')
     .sort((left, right) => left.ts! - right.ts!)
-  if (inputs.length === 0) throw new Error(`trace did not contain a ${inputEventType} EventDispatch`)
+  if (inputs.length === 0) throw new InvalidTraceError(`trace did not contain a ${inputEventType} EventDispatch`)
 
   const presentations = events
     .filter((event) => (event.name === 'Paint' || event.name === 'Commit')
@@ -269,8 +276,13 @@ export function traceScriptingDuration(
     const eventTimingEnd = eventTimingDurationMs === undefined
       ? undefined
       : inputStart + eventTimingDurationMs * 1_000
+    const flushStart = traceHarnessFlushStart(events)
+    if (flushStart !== undefined && flushStart <= inputStart) {
+      throw new InvalidTraceError(`trace flush boundary preceded ${inputEventType} input`)
+    }
     const windowEnd = traceMeasurementBoundary(events, presentations, inputStart, eventTimingEnd)
-    if (windowEnd === undefined) throw new Error(`trace did not contain a Paint or Commit after ${inputEventType}`)
+    if (windowEnd === undefined) throw new InvalidTraceError(`trace did not contain a Paint or Commit after ${inputEventType}`)
+    if (windowEnd <= inputStart) throw new InvalidTraceError(`trace measurement window did not contain ${inputEventType} input`)
 
     const intervals = events
       .filter((event) => SCRIPT_TRACE_EVENTS.has(event.name ?? '')
@@ -282,6 +294,7 @@ export function traceScriptingDuration(
         && event.ts + event.dur > inputStart)
       .map((event) => [Math.max(event.ts!, inputStart), Math.min(event.ts! + event.dur!, windowEnd)] as const)
       .sort((left, right) => left[0] - right[0])
+    if (intervals.length === 0) throw new InvalidTraceError(`trace had no scripting intervals for ${inputEventType} input`)
 
     let total = 0
     let intervalStart = 0
@@ -296,6 +309,7 @@ export function traceScriptingDuration(
       }
     }
     total += intervalEnd - intervalStart
+    if (total <= 0) throw new InvalidTraceError(`trace scripting duration was not positive for ${inputEventType} input`)
     return total / 1_000
   })
   return Math.max(...durations)
@@ -397,7 +411,7 @@ async function traceInteraction(
     await complete
     client.off('Tracing.dataCollected', onData)
   }
-  if (traceHarnessFlushStart(events) === undefined) throw new Error('trace did not include harness flush boundary marker')
+  if (traceHarnessFlushStart(events) === undefined) throw new InvalidTraceError('trace did not include harness flush boundary marker')
   const duration = entries.length === 0 ? undefined : interactionDuration(entries)
   return {
     entries,
@@ -412,13 +426,14 @@ export async function runScenario(
   sessions = SESSIONS,
   sharedBrowser?: Browser,
   cpuThrottleRate = 4,
-): Promise<{ eventMs: number[]; eventEntryCounts: number[][]; scriptMs: number[]; animationFrameCounts: number[] }> {
+): Promise<{ eventMs: number[]; eventEntryCounts: number[][]; scriptMs: number[]; animationFrameCounts: number[]; invalidTraceAttempts: number }> {
   const ownsBrowser = sharedBrowser === undefined
   const browser = sharedBrowser ?? await chromium.launch()
   const eventMs: number[] = []
   const eventEntryCounts: number[][] = []
   const scriptMs: number[] = []
   const animationFrameCounts: number[] = []
+  let invalidTraceAttempts = 0
   try {
     for (let session = 0; session < sessions; session += 1) {
       const context = await browser.newContext()
@@ -432,8 +447,20 @@ export async function runScenario(
         await scenario.prepare(page)
         await scenario.warmup(page)
         await scenario.reset(page)
-        await installEventTimingObserver(page)
-        const result = await traceInteraction(client, page, scenario)
+        let result: Awaited<ReturnType<typeof traceInteraction>> | undefined
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          await installEventTimingObserver(page)
+          try {
+            result = await traceInteraction(client, page, scenario)
+            break
+          } catch (error) {
+            if (!(error instanceof InvalidTraceError) || attempt === 1) throw error
+            invalidTraceAttempts += 1
+            await scenario.reset(page)
+            await scenario.prepare(page)
+          }
+        }
+        if (result === undefined) throw new InvalidTraceError('trace retries did not produce a valid sample')
         scriptMs.push(result.scriptMs)
         animationFrameCounts.push(result.animationFrameCount)
         eventMs.push(interactionDuration(result.entries))
@@ -446,7 +473,7 @@ export async function runScenario(
   } finally {
     if (ownsBrowser) await browser.close()
   }
-  return { eventMs, eventEntryCounts, scriptMs, animationFrameCounts }
+  return { eventMs, eventEntryCounts, scriptMs, animationFrameCounts, invalidTraceAttempts }
 }
 export async function runHarnessSelfTest(
   { enforceThrottleRatio = true }: { readonly enforceThrottleRatio?: boolean } = {},

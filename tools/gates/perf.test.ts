@@ -418,6 +418,21 @@ test('trace window ignores Paint events before the matched input when Event Timi
   assert.equal(traceScriptingDuration(events, 'click', 40), 10)
   assert.equal(traceAnimationFrameCount(events, 'click', 40), 1)
 })
+test('rejects a trace flush boundary that precedes the matched input instead of returning zero', () => {
+  assert.throws(() => traceScriptingDuration([
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
+    { name: 'Paint', ph: 'X', ts: 130_000, dur: 2_000 },
+    { name: 'wseffect-harness:flush-start', ph: 'I', ts: 90_000 },
+  ]), /flush boundary preceded click input/)
+})
+test('ignores presentations before the matched input when deriving the ET-bound trace window', () => {
+  assert.equal(traceScriptingDuration([
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 10_000, args: { data: { type: 'click' } } },
+    { name: 'Paint', ph: 'X', ts: 90_000, dur: 2_000 },
+    { name: 'FunctionCall', ph: 'X', ts: 105_000, dur: 5_000 },
+    { name: 'wseffect-harness:flush-start', ph: 'I', ts: 130_000 },
+  ], 'click', 40), 10)
+})
 
 
 test('harness self-test observes valid slow/fast clicks and traced rAF work', { timeout: 45_000 }, async () => {

@@ -1,3 +1,5 @@
+> **Superseded by:** [2026-10-22-wseffect-vs-radix2solid-main.md](2026-10-22-wseffect-vs-radix2solid-main.md), which measures current `main` and replaces the stale comparison below.
+
 # WSEffect main vs Radix2Solid
 
 ## Scope and method
