@@ -37,8 +37,8 @@ it('typeahead skips disabled options and separators', () => {
     { update, view: render },
     Scene.given(opened),
     Scene.keydown(Scene.role('listbox', { name: 'choice' }), 't'),
-    Scene.Command.resolve(Listbox.ScrollIntoView, Listbox.Message.CompletedScrollIntoView()),
-    Scene.expect(Scene.selector('#choice-option-two')).toHaveAttr('data-active', 'true'),
+    Scene.Command.resolve(Listbox.DelayClearSearch, Listbox.Message.CompletedDelayClearSearch({ version: 1 })),
+    Scene.expect(Scene.selector('#choice-item-2')).toHaveAttr('data-active', 'true'),
   )
 })
 
@@ -60,14 +60,41 @@ it('arrow navigation skips disabled options between enabled items', () => {
     { update: arrowUpdate, view: arrowRender },
     Scene.given(arrowModel),
     Scene.keydown(Scene.role('listbox', { name: 'choice' }), 'ArrowDown'),
-    Scene.Command.resolve(Listbox.ScrollIntoView, Listbox.Message.CompletedScrollIntoView()),
-    Scene.expect(Scene.selector('#choice-option-three')).toHaveAttr('data-active', 'true'),
+    Scene.Command.resolve(Listbox.ScrollIntoView({ id: 'choice', index: 2 }), Listbox.Message.CompletedScrollIntoView()),
+    Scene.expect(Scene.selector('#choice-item-2')).toHaveAttr('data-active', 'true'),
   )
 })
 it('uses the upstream Listbox renderer for popper positioning', () => {
   Scene.scene(
     { update, view: renderPopper },
     Scene.given(popperModel),
-    Scene.expect(Scene.role('button', { name: 'choice' })).toExist(),
+    Scene.expect(Scene.role('combobox', { name: 'choice' })).toExist(),
+  )
+})
+it('keeps the default item-aligned renderer headless', () => {
+  const groupedConfig: Select.SelectConfig<'one' | 'two'> = {
+    ...config,
+    items: [{
+      id: 'group',
+      label: null,
+      items: [
+        { value: 'one', textValue: 'One', isDisabled: false, content: null },
+        { kind: 'separator', id: 'divide' },
+        { value: 'two', textValue: 'Two', isDisabled: false, content: null },
+      ],
+    }],
+  }
+  const model = bundle.update(
+    bundle.init(groupedConfig),
+    Listbox.Message.Opened({ maybeActiveItemIndex: Option.some(0) }),
+  ).model
+  Scene.scene(
+    { update, view: (current, h) => bundle.view(current, groupedConfig, h) },
+    Scene.given(model),
+    Scene.expect(Scene.selector('.rt-SelectItem')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectGroup')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectLabel')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectSeparator')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectViewport')).not.toExist(),
   )
 })

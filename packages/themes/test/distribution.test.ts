@@ -4,17 +4,18 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'data-table'] as const
+const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'data-table', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'] as const
+const viewComponentNames = componentNames.filter(name => name !== 'radio-cards')
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',
   './layout.css', './layout/tokens.css', './layout/components.css', './layout/utilities.css',
   './css/common.css', './css/utilities.css',
-  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'data-table'].map(name => `./css/${name}.css`),
+  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'data-table', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'].map(name => `./css/${name}.css`),
 ]
 
 describe('themes distribution', () => {
   it('brands every component view in the built package', async () => {
-    for (const name of componentNames) {
+    for (const name of viewComponentNames) {
       const code = await readFile(resolve(packageRoot, `dist/components/${name}.js`), 'utf8')
       expect(code, name).toContain("from 'foldkit/brand'")
     }
@@ -35,6 +36,12 @@ describe('themes distribution', () => {
       const subpath = `./tokens/colors/${color}`
       expect(packageJson.exports[subpath], color).toBeDefined()
       expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, `${color} layer`).toBeDefined()
+    }
+  })
+  it('registers form controls in the root barrel', async () => {
+    const source = await readFile(resolve(packageRoot, 'src/index.ts'), 'utf8')
+    for (const name of ['Checkbox', 'CheckboxGroup', 'CheckboxCards', 'Radio', 'RadioGroup', 'RadioCards', 'Switch', 'SegmentedControl', 'Select', 'TextArea', 'Slider']) {
+      expect(source).toContain(`export * as ${name} from`)
     }
   })
 
@@ -75,8 +82,7 @@ describe('themes distribution', () => {
       // Pinned R2S callout.css has no rt-CalloutText selector by design.
       'rt-CalloutText',
     ] as const
-    const unstyledStructuralClasses = new Set(['rt-ScrollAreaCorner', 'rt-underline-none'])
-
+    const unstyledStructuralClasses = new Set(['rt-ScrollAreaCorner', 'rt-underline-none', 'rt-SelectGroup'])
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
     const upstreamClasses = new Set([...radix2solidMarkup.matchAll(/\b(rt-[A-Za-z0-9_-]+)\b/g)].map(([, className]) => className))
@@ -85,6 +91,9 @@ describe('themes distribution', () => {
       expect(emittedClasses.has(alias), `emitted semantic alias ${alias}`).toBe(true)
     }
     const css = await readFile(resolve(packageRoot, 'dist/styles/styles.css'), 'utf8')
+    for (const structuralClass of unstyledStructuralClasses) {
+      expect(emittedClasses.has(structuralClass), `emitted structural alias ${structuralClass}`).toBe(true)
+    }
     for (const className of emittedClasses) {
       if (!semanticAliases.includes(className as typeof semanticAliases[number]) && !unstyledStructuralClasses.has(className)) {
         expect(css, `.${className}`).toContain(`.${className}`)
