@@ -26,7 +26,21 @@ describe('AlertDialog wrapper', () => {
       Story.given({ alert: AlertDialog.init({ id: 'alert', focusSelector: '#alert-cancel' }) }),
       Story.message(send(AlertDialog.Message.RequestedOpen())),
       Story.Command.resolve(UiDialog.ShowDialog, AlertDialog.Message.SucceededShowDialog()),
-      Story.model(model => expect(model.alert.isOpen).toBe(true)),
+      Story.model(model => {
+        expect(model.alert.isOpen).toBe(true)
+        expect(model.alert.maybeFocusSelector).toEqual(Option.some('#alert-cancel'))
+      }),
+    )
+  })
+  it('closes on RequestedClose', () => {
+    Story.story(
+      update,
+      Story.given({ alert: AlertDialog.init({ id: 'alert', focusSelector: '#alert-cancel' }) }),
+      Story.message(send(AlertDialog.Message.RequestedOpen())),
+      Story.Command.resolve(UiDialog.ShowDialog, AlertDialog.Message.SucceededShowDialog()),
+      Story.message(send(UiDialog.Message.RequestedClose())),
+      Story.Command.resolve(UiDialog.CloseDialog, UiDialog.Message.CompletedCloseDialog()),
+      Story.model(model => expect(model.alert.isOpen).toBe(false)),
     )
   })
 })

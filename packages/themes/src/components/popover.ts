@@ -41,7 +41,7 @@ const view = defineView<UiPopover.Model, UiPopover.Message, ViewInputs<UiPopover
     ] : []),
   ])
   return brandViewResult(UiPopover.view(model, {
-    anchor: { portal: true, ...inputs.anchor },
+    anchor: { portal: true, gap: 8, ...inputs.anchor },
     toView,
     isDisabled: inputs.isDisabled,
     focusSelector: inputs.focusSelector,

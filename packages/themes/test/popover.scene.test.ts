@@ -19,6 +19,7 @@ describe('themed Popover', () => {
     const popover = UiPopover.open(Popover.init({ id: 'details' })).model
     Scene.scene(
       { update, view }, Scene.given({ popover }),
+      Scene.Mount.expectHas(UiPopover.AnchorPopover({ buttonId: 'details-button', anchor: { portal: true, gap: 8 }, arrowId: UiPopover.arrowId('details') })),
       Scene.Mount.resolve(UiPopover.AnchorPopover, UiPopover.Message.CompletedAnchorPopover()),
       Scene.expect(Scene.role('button', { name: 'Details' })).toExist(),
       Scene.expect(Scene.selector('.rt-PopoverContent')).toExist(),

@@ -18,7 +18,9 @@ describe('TabNav', () => {
     const view = (_model: null, h: HtmlBuilder<never>) => TabNav.view(props, [], h)
     Scene.scene(
       { update, view }, Scene.given(null),
-      Scene.expect(Scene.role('navigation', { name: 'Project sections' })).toExist(),
+      Scene.expect(Scene.selector('nav.rt-TabsRoot')).toExist(),
+      Scene.expect(Scene.selector('.rt-TabsList')).toExist(),
+      Scene.expect(Scene.selector('a[href="/activity"]')).toHaveAttr('data-active', ''),
       Scene.expect(Scene.role('link')).toExist(),
       Scene.expect(Scene.selector('a[href="/overview"]')).toHaveAttr('href', '/overview'),
       Scene.expect(Scene.selector('a[href="/activity"]')).toHaveAttr('aria-current', 'page'),

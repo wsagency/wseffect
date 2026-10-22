@@ -36,14 +36,15 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
     h.Class('rt-BaseDialog'),
   ], render.isVisible ? [
     h.div([
-      h.Class('rt-BaseDialogOverlay'),
+      h.Class('rt-BaseDialogOverlay rt-DialogOverlay'),
       h.DataAttribute('state', 'open'),
     ], []),
-    h.div([h.Class('rt-BaseDialogScroll')], [
-      h.div([h.Class('rt-BaseDialogScrollPadding rt-r-align-center')], [
+    h.div([h.Class('rt-BaseDialogScroll rt-DialogScroll')], [
+      h.div([h.Class('rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center')], [
         h.div([
           ...render.panel,
-          h.Class('rt-BaseDialogContent rt-r-size-3 rt-r-max-w'),
+          h.Class('rt-BaseDialogContent rt-DialogContent rt-r-size-3 rt-r-max-w'),
+          h.DataAttribute('state', 'open'),
           h.Style({ '--max-width': '600px' }),
         ], [
           h.h2([...render.title, h.Class('rt-Heading rt-r-size-5 rt-r-mb-3')], [inputs.title]),

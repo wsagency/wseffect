@@ -11,18 +11,20 @@ type Model = { tooltip: Tooltip.Model }
 const update = (model: Model, _message: Message) => ({ model })
 const view = (model: Model, h: HtmlBuilder<Message>) => Tooltip.embed(h, {
   slotId: 'tooltip', model: model.tooltip, toParentMessage: () => Message.Tick(),
-  viewInputs: { trigger: ['Save'], content: ['Save changes'] },
+  viewInputs: { trigger: ['Save'], content: ['Save changes'], anchor: { placement: 'bottom-start' } },
 })
 
 describe('themed Tooltip', () => {
-  it('remains a nonfocusable tooltip description', () => {
+  it('preserves the pinned Arrow state and FK Anchor side attributes', () => {
     const tooltip = UiTooltip.update(Tooltip.init({ id: 'save' }), UiTooltip.Message.FocusedTrigger()).model
     Scene.scene(
       { update, view }, Scene.given({ tooltip }),
       Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
       Scene.expect(Scene.role('tooltip')).toExist(),
-      Scene.expect(Scene.text('Save changes')).toExist(),
-      Scene.expect(Scene.selector('[role="tooltip"]')).not.toHaveAttr('tabindex'),
+      Scene.expect(Scene.selector('.rt-TooltipArrow')).toExist(),
+      Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-state', 'instant-open'),
+      Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-side', 'bottom'),
     )
   })
+
 })

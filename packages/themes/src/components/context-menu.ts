@@ -39,20 +39,9 @@ export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{
 
 export const create = <Value extends string>(): Bundle<Value> => {
   const contextMenu = LocalContextMenu.createContextMenu<Value>()
-  const view = defineView<Model, Message, Config<Value>>((model, config, h) => {
-    const themedItems = config.items.map(item => {
-      if ('items' in item) return {
-        ...item,
-        items: item.items.map(child => 'kind' in child ? child : {
-          ...child,
-          content: h.div([h.Class('rt-BaseMenuItem')], [child.content]),
-        }),
-      }
-      if ('kind' in item) return item
-      return { ...item, content: h.div([h.Class('rt-BaseMenuItem')], [item.content]) }
-    })
-    return brandViewResult(contextMenu.view(model, { ...config, items: themedItems }, h), 'wseffect/ContextMenu')
-  })
+  const view = defineView<Model, Message, Config<Value>>((model, config, h) =>
+    brandViewResult(contextMenu.view(model, config, h), 'wseffect/ContextMenu')
+  )
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(
     config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Config<Value>, Message, OutMessage<Value>, ParentOutMessage>, 'update'>,
   ): Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage> => Update.foldChild({ ...config, update: contextMenu.update })

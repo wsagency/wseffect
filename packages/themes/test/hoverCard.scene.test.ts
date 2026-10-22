@@ -18,6 +18,7 @@ describe('themed HoverCard', () => {
     const hover = { ...HoverCard.init(), isOpen: true }
     Scene.scene(
       { update, view }, Scene.given({ hover }),
+      Scene.Mount.expectHas({ name: 'AnchorHoverCard', args: { buttonId: 'person-trigger', anchor: { portal: true, gap: 8 } } }),
       Scene.Mount.resolve({ name: 'AnchorHoverCard' }, HoverCard.Message.CompletedWaitBeforeClosing({ version: -1 })),
       Scene.expect(Scene.role('button', { name: 'Ada Lovelace' })).toExist(),
       Scene.expect(Scene.selector('.rt-HoverCardContent')).toExist(),

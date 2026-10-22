@@ -32,17 +32,22 @@ export const view = <Message>(props: Props, _children: ReadonlyArray<Html | stri
   const sizeClasses = props.size === undefined ? ['rt-r-size-2'] : responsiveClasses(sizeProp, props.size).classes
   const wrapClasses = props.wrap === undefined ? [] : responsiveClasses(wrapProp, props.wrap).classes
   const justifyClasses = props.justify === undefined ? [] : responsiveClasses(justifyProp, props.justify).classes
-  const listClass = ['rt-reset', 'rt-BaseTabList', ...sizeClasses, ...wrapClasses, ...justifyClasses, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')
+  const listClass = ['rt-reset', 'rt-BaseTabList', 'rt-TabsList', ...sizeClasses, ...wrapClasses, ...justifyClasses, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')
   const rendered = UiNav.view({
     items: props.items.map(item => item.value),
     ariaLabel: props.ariaLabel,
     toHref: value => itemByValue.get(value)?.href ?? '',
     isItemCurrent: value => value === props.currentValue,
-    toView: render => h.nav([...render.nav, ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)])], [
+    toView: render => h.nav([...render.nav, h.Class('rt-TabsRoot'), ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)])], [
       h.div([h.Class(listClass)], render.items.map(item => {
         const data = itemByValue.get(item.value)
         const label = data?.label ?? item.value
-        return h.div([h.Class('rt-TabNavItem')], [h.a([...item.link, h.Class(itemClass)], [
+        const isCurrent = item.value === props.currentValue
+        return h.div([h.Class('rt-TabNavItem')], [h.a([
+          ...item.link,
+          h.Class(itemClass),
+          ...(isCurrent ? [h.DataAttribute('active', '')] : []),
+        ], [
           h.span([h.Class('rt-BaseTabListTriggerInner')], [label]),
           h.span([h.Class('rt-BaseTabListTriggerInnerHidden')], [label]),
         ])])

@@ -8,7 +8,8 @@ import type { RenderInfo } from '@foldkit/ui/hoverIntent'
 import { AnchorHoverCard } from './hover-card-anchor.js'
 
 export { Model, Message, OutMessage, update, close } from '@foldkit/ui/hoverIntent'
-export const init = UiHoverIntent.init
+export const init = (config?: Parameters<typeof UiHoverIntent.init>[0]): UiHoverIntent.Model =>
+  UiHoverIntent.init({ openDelay: 200, closeDelay: 150, ...config })
 
 
 export type ViewInputs<Message> = Readonly<{
@@ -36,7 +37,7 @@ const view = defineView<UiHoverIntent.Model, UiHoverIntent.Message, ViewInputs<U
       ...render.panel,
       h.Id(`${inputs.id}-panel`),
       h.Class('rt-PopperContent rt-HoverCardContent rt-r-size-2'),
-      h.OnMount(AnchorHoverCard({ buttonId: `${inputs.id}-trigger`, anchor: { portal: true, ...inputs.anchor } })),
+      h.OnMount(AnchorHoverCard({ buttonId: `${inputs.id}-trigger`, anchor: { portal: true, gap: 8, ...inputs.anchor } })),
     ], inputs.content)] : []),
   ])
   return brandViewResult(UiHoverIntent.view(model, { toView }, h), 'wseffect/HoverCard')

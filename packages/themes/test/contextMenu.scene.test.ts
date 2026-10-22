@@ -9,7 +9,8 @@ const config: ContextMenu.Config<'edit' | 'delete'> = {
   id: 'actions', sourceId: 'source', sourceToken: 'live-source-token', longPressMs: 600,
   items: [
     { value: 'edit', textValue: 'Edit', isDisabled: false, content: null },
-    { value: 'delete', textValue: 'Delete', isDisabled: false, content: null },
+    { kind: 'separator', id: 'main-separator' },
+    { id: 'more-actions', label: null, items: [{ value: 'delete', textValue: 'Delete', isDisabled: false, content: null }] },
   ],
   toItem: () => null,
 }
@@ -40,6 +41,20 @@ describe('themed ContextMenu', () => {
       Scene.Command.resolve(focusReturnCommand, Menu.Message.CompletedFocusButton()),
       Scene.expect(Scene.role('menu')).not.toExist(),
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
+    )
+  })
+  it('renders themed content, item, group, and separator classes', () => {
+    Scene.scene<ContextMenu.Model, ContextMenu.Message, ContextMenu.OutMessage<'edit' | 'delete'>>(
+      { update, view },
+      Scene.given(contextMenu.init(config)),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.focus(Scene.selector('#source')),
+      Scene.keydown(Scene.selector('#source'), 'ContextMenu'),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent'),
+      Scene.expect(Scene.selector('.rt-BaseMenuItem')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
+      Scene.expect(Scene.selector('.rt-BaseMenuGroup')).toHaveAttr('class', 'rt-BaseMenuGroup rt-ContextMenuGroup'),
+      Scene.expect(Scene.selector('.rt-BaseMenuSeparator')).toHaveAttr('class', 'rt-BaseMenuSeparator rt-ContextMenuSeparator'),
     )
   })
 

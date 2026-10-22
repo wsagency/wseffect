@@ -5,7 +5,12 @@ import { describe, expect, it } from 'vitest'
 import * as HoverCard from '../src/components/hover-card.js'
 
 describe('HoverCard wrapper', () => {
-  it('opens from pointer and focus with configured delays', () => {
+  it('uses the pinned open delay and the wrapper close delay by default', () => {
+    const model = HoverCard.init()
+    expect(Duration.toMillis(model.openDelay)).toBe(200)
+    expect(Duration.toMillis(model.closeDelay)).toBe(150)
+  })
+  it('opens from pointer and focus with explicitly configured delays', () => {
     const model = HoverCard.init({ openDelay: 200, closeDelay: 300 })
     expect(Duration.toMillis(model.openDelay)).toBe(200)
     expect(Duration.toMillis(model.closeDelay)).toBe(300)
