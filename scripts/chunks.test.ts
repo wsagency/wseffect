@@ -8,7 +8,7 @@ async function assetNames(directory: string): Promise<ReadonlyArray<string>> {
   return (await readdir(resolve(directory, 'assets'))).filter((name) => name.endsWith('.js')).sort()
 }
 
-test('fixed build IDs rename only the entry and changed page, leaving app-shared and other pages stable', async () => {
+test('fixed build IDs rename the entry, changed page, and capture loader while shared assets stay stable', async () => {
   const fixture = await createGalleryBuildFixture()
   const tabsPath = resolve(fixture.pagesDir, 'tabs.ts')
   const first = resolve(fixture.rootDir, 'builds/first')
@@ -45,8 +45,8 @@ test('fixed build IDs rename only the entry and changed page, leaving app-shared
     const after = new Set(await assetNames(second))
     const removed = [...before].filter((name) => !after.has(name))
     const added = [...after].filter((name) => !before.has(name))
-    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['index', 'tabs'])
-    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['index', 'tabs'])
+    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['capture', 'index', 'tabs'])
+    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['capture', 'index', 'tabs'])
     const oldEntry = removed.find((name) => /^index-[^/]+\.js$/.test(name))
     const newEntry = added.find((name) => /^index-[^/]+\.js$/.test(name))
     const oldTabs = removed.find((name) => /^tabs-[^/]+\.js$/.test(name))
@@ -57,9 +57,14 @@ test('fixed build IDs rename only the entry and changed page, leaving app-shared
     assert.deepEqual(await readFile(resolve(first, 'assets', appShared)), await readFile(resolve(second, 'assets', appShared)))
     assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(newTabs), true)
     assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldTabs), false)
+    const oldCapture = removed.find((name) => /^capture-[^/]+\.js$/.test(name))
+    const newCapture = added.find((name) => /^capture-[^/]+\.js$/.test(name))
+    assert.ok(oldCapture && newCapture)
+    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(newTabs), true)
+    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(oldTabs), false)
     assert.deepEqual(
-      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-')),
-      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-')),
+      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-') && !name.startsWith('capture-')),
+      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-') && !name.startsWith('capture-')),
     )
   } finally {
     await fixture.cleanup()

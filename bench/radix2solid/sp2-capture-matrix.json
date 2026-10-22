@@ -1,0 +1,3304 @@
+{
+  "schemaVersion": 2,
+  "source": {
+    "repository": "https://github.com/wsagency/radix2solid.git",
+    "commit": "383676172abb84b4a1d2e54a087d290437ee8848",
+    "extraction": "packages/themes/src/components/*.props.ts"
+  },
+  "viewport": {
+    "width": 1280,
+    "height": 800,
+    "deviceScaleFactor": 1
+  },
+  "browser": "playwright.chromium (repository-pinned revision)",
+  "reducedMotion": "reduce",
+  "font": {
+    "family": "Noto Sans",
+    "face": "SP2 Capture Noto Sans",
+    "file": "fixtures/fonts/NotoSans-Regular.ttf",
+    "license": "fixtures/fonts/OFL.txt",
+    "weight": 400
+  },
+  "animationClock": "fixed at document start; animations disabled",
+  "fixtures": {
+    "sp2-data-table": [
+      {
+        "id": "row-1",
+        "name": "Record 01",
+        "status": "Active"
+      },
+      {
+        "id": "row-2",
+        "name": "Record 02",
+        "status": "Pending"
+      },
+      {
+        "id": "row-3",
+        "name": "Record 03",
+        "status": "Active"
+      },
+      {
+        "id": "row-4",
+        "name": "Record 04",
+        "status": "Pending"
+      },
+      {
+        "id": "row-5",
+        "name": "Record 05",
+        "status": "Active"
+      },
+      {
+        "id": "row-6",
+        "name": "Record 06",
+        "status": "Pending"
+      },
+      {
+        "id": "row-7",
+        "name": "Record 07",
+        "status": "Active"
+      },
+      {
+        "id": "row-8",
+        "name": "Record 08",
+        "status": "Pending"
+      },
+      {
+        "id": "row-9",
+        "name": "Record 09",
+        "status": "Active"
+      },
+      {
+        "id": "row-10",
+        "name": "Record 10",
+        "status": "Pending"
+      }
+    ]
+  },
+  "families": [
+    {
+      "family": "accessibility",
+      "route": "accessibility",
+      "components": [
+        {
+          "id": "AccessibleIcon",
+          "sourceProps": null,
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "VisuallyHidden",
+          "sourceProps": null,
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "accessibility/AccessibleIcon/default/light",
+          "component": "AccessibleIcon",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "accessibility/AccessibleIcon/default/dark",
+          "component": "AccessibleIcon",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "accessibility/VisuallyHidden/default/light",
+          "component": "VisuallyHidden",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "accessibility/VisuallyHidden/default/dark",
+          "component": "VisuallyHidden",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        }
+      ]
+    },
+    {
+      "family": "layout-extra",
+      "route": "layout-extra",
+      "components": [
+        {
+          "id": "AspectRatio",
+          "sourceProps": null,
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Container",
+          "sourceProps": "container.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Inset",
+          "sourceProps": "inset.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Section",
+          "sourceProps": "section.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "layout-extra/AspectRatio/default/light",
+          "component": "AspectRatio",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "layout-extra/AspectRatio/default/dark",
+          "component": "AspectRatio",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "layout-extra/Container/default/light",
+          "component": "Container",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "layout-extra/Container/default/dark",
+          "component": "Container",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "layout-extra/Inset/default/light",
+          "component": "Inset",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "layout-extra/Inset/default/dark",
+          "component": "Inset",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "layout-extra/Section/default/light",
+          "component": "Section",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "layout-extra/Section/default/dark",
+          "component": "Section",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        }
+      ]
+    },
+    {
+      "family": "avatar",
+      "route": "avatar",
+      "components": [
+        {
+          "id": "Avatar",
+          "sourceProps": "avatar.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "solid",
+                "soft"
+              ],
+              "sourceProps": "avatar.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "solid"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "avatar/Avatar/default/light",
+          "component": "Avatar",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "avatar/Avatar/variant-variant-solid/light",
+          "component": "Avatar",
+          "theme": "light",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "avatar/Avatar/variant-variant-soft/light",
+          "component": "Avatar",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "avatar/Avatar/default/dark",
+          "component": "Avatar",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "avatar/Avatar/variant-variant-solid/dark",
+          "component": "Avatar",
+          "theme": "dark",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "avatar/Avatar/variant-variant-soft/dark",
+          "component": "Avatar",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        }
+      ]
+    },
+    {
+      "family": "feedback",
+      "route": "feedback",
+      "components": [
+        {
+          "id": "Badge",
+          "sourceProps": "badge.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "solid",
+                "soft",
+                "surface",
+                "outline"
+              ],
+              "sourceProps": "badge.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Callout",
+          "sourceProps": "callout.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "soft",
+                "surface",
+                "outline"
+              ],
+              "sourceProps": "callout.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Progress",
+          "sourceProps": "progress.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "progress.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Separator",
+          "sourceProps": "separator.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Skeleton",
+          "sourceProps": "skeleton.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Spinner",
+          "sourceProps": "spinner.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "feedback/Badge/default/light",
+          "component": "Badge",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-solid/light",
+          "component": "Badge",
+          "theme": "light",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-soft/light",
+          "component": "Badge",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-surface/light",
+          "component": "Badge",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-outline/light",
+          "component": "Badge",
+          "theme": "light",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "feedback/Badge/default/dark",
+          "component": "Badge",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-solid/dark",
+          "component": "Badge",
+          "theme": "dark",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-soft/dark",
+          "component": "Badge",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-surface/dark",
+          "component": "Badge",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Badge/variant-variant-outline/dark",
+          "component": "Badge",
+          "theme": "dark",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "feedback/Callout/default/light",
+          "component": "Callout",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-soft/light",
+          "component": "Callout",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-surface/light",
+          "component": "Callout",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-outline/light",
+          "component": "Callout",
+          "theme": "light",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "feedback/Callout/default/dark",
+          "component": "Callout",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-soft/dark",
+          "component": "Callout",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-surface/dark",
+          "component": "Callout",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Callout/variant-variant-outline/dark",
+          "component": "Callout",
+          "theme": "dark",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "feedback/Progress/default/light",
+          "component": "Progress",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-classic/light",
+          "component": "Progress",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-surface/light",
+          "component": "Progress",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-soft/light",
+          "component": "Progress",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Progress/default/dark",
+          "component": "Progress",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-classic/dark",
+          "component": "Progress",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-surface/dark",
+          "component": "Progress",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "feedback/Progress/variant-variant-soft/dark",
+          "component": "Progress",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "feedback/Separator/default/light",
+          "component": "Separator",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "feedback/Separator/default/dark",
+          "component": "Separator",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "feedback/Skeleton/default/light",
+          "component": "Skeleton",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "feedback/Skeleton/default/dark",
+          "component": "Skeleton",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "feedback/Spinner/default/light",
+          "component": "Spinner",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "feedback/Spinner/default/dark",
+          "component": "Spinner",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        }
+      ]
+    },
+    {
+      "family": "typography-extra",
+      "route": "typography-extra",
+      "components": [
+        {
+          "id": "Blockquote",
+          "sourceProps": "blockquote.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Quote",
+          "sourceProps": "quote.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Em",
+          "sourceProps": "em.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Strong",
+          "sourceProps": "strong.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Code",
+          "sourceProps": "code.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "solid",
+                "soft",
+                "outline",
+                "ghost"
+              ],
+              "sourceProps": "code.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "solid"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Kbd",
+          "sourceProps": "kbd.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "soft"
+              ],
+              "sourceProps": "kbd.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "classic"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "typography-extra/Blockquote/default/light",
+          "component": "Blockquote",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "typography-extra/Blockquote/default/dark",
+          "component": "Blockquote",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "typography-extra/Quote/default/light",
+          "component": "Quote",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Quote/default/dark",
+          "component": "Quote",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Em/default/light",
+          "component": "Em",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Em/default/dark",
+          "component": "Em",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Strong/default/light",
+          "component": "Strong",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Strong/default/dark",
+          "component": "Strong",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "typography-extra/Code/default/light",
+          "component": "Code",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-solid/light",
+          "component": "Code",
+          "theme": "light",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-soft/light",
+          "component": "Code",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-outline/light",
+          "component": "Code",
+          "theme": "light",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-ghost/light",
+          "component": "Code",
+          "theme": "light",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost"
+          }
+        },
+        {
+          "id": "typography-extra/Code/default/dark",
+          "component": "Code",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-solid/dark",
+          "component": "Code",
+          "theme": "dark",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-soft/dark",
+          "component": "Code",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-outline/dark",
+          "component": "Code",
+          "theme": "dark",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "typography-extra/Code/variant-variant-ghost/dark",
+          "component": "Code",
+          "theme": "dark",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/default/light",
+          "component": "Kbd",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/variant-variant-classic/light",
+          "component": "Kbd",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/variant-variant-soft/light",
+          "component": "Kbd",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/default/dark",
+          "component": "Kbd",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/variant-variant-classic/dark",
+          "component": "Kbd",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "typography-extra/Kbd/variant-variant-soft/dark",
+          "component": "Kbd",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        }
+      ]
+    },
+    {
+      "family": "icon-button",
+      "route": "icon-button",
+      "components": [
+        {
+          "id": "IconButton",
+          "sourceProps": "icon-button.props.ts",
+          "domainProps": [
+            "_internal/base-button.props.ts"
+          ],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "solid",
+                "soft",
+                "surface",
+                "outline",
+                "ghost-offset",
+                "ghost"
+              ],
+              "sourceProps": "_internal/base-button.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": "keyboard-focus",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "icon-button/IconButton/default/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-classic/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-solid/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-soft/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-surface/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-outline/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-ghost-offset/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-ghost-offset",
+          "props": {
+            "size": "2",
+            "variant": "ghost-offset"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-ghost/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/keyboard-focus/light",
+          "component": "IconButton",
+          "theme": "light",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        },
+        {
+          "id": "icon-button/IconButton/default/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-classic/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-solid/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-solid",
+          "props": {
+            "size": "2",
+            "variant": "solid"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-soft/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-surface/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-outline/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-outline",
+          "props": {
+            "size": "2",
+            "variant": "outline"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-ghost-offset/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-ghost-offset",
+          "props": {
+            "size": "2",
+            "variant": "ghost-offset"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/variant-variant-ghost/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost"
+          }
+        },
+        {
+          "id": "icon-button/IconButton/keyboard-focus/dark",
+          "component": "IconButton",
+          "theme": "dark",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "links",
+      "route": "links",
+      "components": [
+        {
+          "id": "Link",
+          "sourceProps": "link.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "links/Link/default/light",
+          "component": "Link",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "links/Link/default/dark",
+          "component": "Link",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        }
+      ]
+    },
+    {
+      "family": "scroll-area",
+      "route": "scroll-area",
+      "components": [
+        {
+          "id": "ScrollArea",
+          "sourceProps": "scroll-area.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "scroll-area/ScrollArea/default/light",
+          "component": "ScrollArea",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "scroll-area/ScrollArea/default/dark",
+          "component": "ScrollArea",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        }
+      ]
+    },
+    {
+      "family": "data",
+      "route": "data",
+      "components": [
+        {
+          "id": "Table",
+          "sourceProps": "table.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "surface",
+                "ghost"
+              ],
+              "sourceProps": "table.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": "sp2-data-table"
+        },
+        {
+          "id": "DataList",
+          "sourceProps": "data-list.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "data/Table/default/light",
+          "component": "Table",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/Table/variant-variant-surface/light",
+          "component": "Table",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/Table/variant-variant-ghost/light",
+          "component": "Table",
+          "theme": "light",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/Table/default/dark",
+          "component": "Table",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/Table/variant-variant-surface/dark",
+          "component": "Table",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/Table/variant-variant-ghost/dark",
+          "component": "Table",
+          "theme": "dark",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data/DataList/default/light",
+          "component": "DataList",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "data/DataList/default/dark",
+          "component": "DataList",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        }
+      ]
+    },
+    {
+      "family": "forms-extra",
+      "route": "forms-extra",
+      "components": [
+        {
+          "id": "Checkbox",
+          "sourceProps": "checkbox.props.ts",
+          "domainProps": [
+            "_internal/base-checkbox.props.ts"
+          ],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "_internal/base-checkbox.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "CheckboxGroup",
+          "sourceProps": "checkbox-group.props.ts",
+          "domainProps": [
+            "_internal/base-checkbox.props.ts"
+          ],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "_internal/base-checkbox.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "CheckboxCards",
+          "sourceProps": "checkbox-cards.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "surface",
+                "classic"
+              ],
+              "sourceProps": "checkbox-cards.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Radio",
+          "sourceProps": "radio.props.ts",
+          "domainProps": [
+            "_internal/base-radio.props.ts"
+          ],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "_internal/base-radio.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "RadioGroup",
+          "sourceProps": "radio-group.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "radio-group.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": "keyboard-focus",
+          "fixtureId": null
+        },
+        {
+          "id": "RadioCards",
+          "sourceProps": "radio-cards.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "surface",
+                "classic"
+              ],
+              "sourceProps": "radio-cards.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "Switch",
+          "sourceProps": "switch.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "switch.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "SegmentedControl",
+          "sourceProps": "segmented-control.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "surface",
+                "classic"
+              ],
+              "sourceProps": "segmented-control.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        },
+        {
+          "id": "TextArea",
+          "sourceProps": "text-area.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "text-area.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "forms-extra/Checkbox/default/light",
+          "component": "Checkbox",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-classic/light",
+          "component": "Checkbox",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-surface/light",
+          "component": "Checkbox",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-soft/light",
+          "component": "Checkbox",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/default/dark",
+          "component": "Checkbox",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-classic/dark",
+          "component": "Checkbox",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-surface/dark",
+          "component": "Checkbox",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Checkbox/variant-variant-soft/dark",
+          "component": "Checkbox",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/default/light",
+          "component": "CheckboxGroup",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-classic/light",
+          "component": "CheckboxGroup",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-surface/light",
+          "component": "CheckboxGroup",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-soft/light",
+          "component": "CheckboxGroup",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/default/dark",
+          "component": "CheckboxGroup",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-classic/dark",
+          "component": "CheckboxGroup",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-surface/dark",
+          "component": "CheckboxGroup",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxGroup/variant-variant-soft/dark",
+          "component": "CheckboxGroup",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/default/light",
+          "component": "CheckboxCards",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/variant-variant-surface/light",
+          "component": "CheckboxCards",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/variant-variant-classic/light",
+          "component": "CheckboxCards",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/default/dark",
+          "component": "CheckboxCards",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/variant-variant-surface/dark",
+          "component": "CheckboxCards",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/CheckboxCards/variant-variant-classic/dark",
+          "component": "CheckboxCards",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/default/light",
+          "component": "Radio",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-classic/light",
+          "component": "Radio",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-surface/light",
+          "component": "Radio",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-soft/light",
+          "component": "Radio",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/default/dark",
+          "component": "Radio",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-classic/dark",
+          "component": "Radio",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-surface/dark",
+          "component": "Radio",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Radio/variant-variant-soft/dark",
+          "component": "Radio",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/default/light",
+          "component": "RadioGroup",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-classic/light",
+          "component": "RadioGroup",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-surface/light",
+          "component": "RadioGroup",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-soft/light",
+          "component": "RadioGroup",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/keyboard-focus/light",
+          "component": "RadioGroup",
+          "theme": "light",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/default/dark",
+          "component": "RadioGroup",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-classic/dark",
+          "component": "RadioGroup",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-surface/dark",
+          "component": "RadioGroup",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/variant-variant-soft/dark",
+          "component": "RadioGroup",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/RadioGroup/keyboard-focus/dark",
+          "component": "RadioGroup",
+          "theme": "dark",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/default/light",
+          "component": "RadioCards",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/variant-variant-surface/light",
+          "component": "RadioCards",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/variant-variant-classic/light",
+          "component": "RadioCards",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/default/dark",
+          "component": "RadioCards",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/variant-variant-surface/dark",
+          "component": "RadioCards",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/RadioCards/variant-variant-classic/dark",
+          "component": "RadioCards",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/default/light",
+          "component": "Switch",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-classic/light",
+          "component": "Switch",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-surface/light",
+          "component": "Switch",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-soft/light",
+          "component": "Switch",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/default/dark",
+          "component": "Switch",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-classic/dark",
+          "component": "Switch",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-surface/dark",
+          "component": "Switch",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/Switch/variant-variant-soft/dark",
+          "component": "Switch",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/default/light",
+          "component": "SegmentedControl",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/variant-variant-surface/light",
+          "component": "SegmentedControl",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/variant-variant-classic/light",
+          "component": "SegmentedControl",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/default/dark",
+          "component": "SegmentedControl",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/variant-variant-surface/dark",
+          "component": "SegmentedControl",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/SegmentedControl/variant-variant-classic/dark",
+          "component": "SegmentedControl",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/default/light",
+          "component": "TextArea",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-classic/light",
+          "component": "TextArea",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-surface/light",
+          "component": "TextArea",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-soft/light",
+          "component": "TextArea",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/default/dark",
+          "component": "TextArea",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-classic/dark",
+          "component": "TextArea",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-surface/dark",
+          "component": "TextArea",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "forms-extra/TextArea/variant-variant-soft/dark",
+          "component": "TextArea",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        }
+      ]
+    },
+    {
+      "family": "select",
+      "route": "select",
+      "components": [
+        {
+          "id": "Select",
+          "sourceProps": "select.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "triggerVariant",
+              "values": [
+                "classic",
+                "surface",
+                "soft",
+                "ghost-offset",
+                "ghost"
+              ],
+              "sourceProps": "select.props.ts"
+            },
+            {
+              "prop": "contentVariant",
+              "values": [
+                "solid",
+                "soft"
+              ],
+              "sourceProps": "select.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          },
+          "interactive": "open",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "select/Select/default/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-classic/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-triggerVariant-classic",
+          "props": {
+            "size": "2",
+            "triggerVariant": "classic",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-surface/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-triggerVariant-surface",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-soft/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-triggerVariant-soft",
+          "props": {
+            "size": "2",
+            "triggerVariant": "soft",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-ghost-offset/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-triggerVariant-ghost-offset",
+          "props": {
+            "size": "2",
+            "triggerVariant": "ghost-offset",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-ghost/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-triggerVariant-ghost",
+          "props": {
+            "size": "2",
+            "triggerVariant": "ghost",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-contentVariant-solid/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-contentVariant-solid",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-contentVariant-soft/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "variant-contentVariant-soft",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "soft"
+          }
+        },
+        {
+          "id": "select/Select/open/light",
+          "component": "Select",
+          "theme": "light",
+          "state": "open",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid",
+            "open": true
+          }
+        },
+        {
+          "id": "select/Select/default/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-classic/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-triggerVariant-classic",
+          "props": {
+            "size": "2",
+            "triggerVariant": "classic",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-surface/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-triggerVariant-surface",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-soft/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-triggerVariant-soft",
+          "props": {
+            "size": "2",
+            "triggerVariant": "soft",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-ghost-offset/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-triggerVariant-ghost-offset",
+          "props": {
+            "size": "2",
+            "triggerVariant": "ghost-offset",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-triggerVariant-ghost/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-triggerVariant-ghost",
+          "props": {
+            "size": "2",
+            "triggerVariant": "ghost",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-contentVariant-solid/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-contentVariant-solid",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "select/Select/variant-contentVariant-soft/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "variant-contentVariant-soft",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "soft"
+          }
+        },
+        {
+          "id": "select/Select/open/dark",
+          "component": "Select",
+          "theme": "dark",
+          "state": "open",
+          "props": {
+            "size": "2",
+            "triggerVariant": "surface",
+            "contentVariant": "solid",
+            "open": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "range-slider",
+      "route": "range-slider",
+      "components": [
+        {
+          "id": "Slider",
+          "sourceProps": "slider.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "classic",
+                "surface",
+                "soft"
+              ],
+              "sourceProps": "slider.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": "keyboard-focus",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "range-slider/Slider/default/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-classic/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-surface/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-soft/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "range-slider/Slider/keyboard-focus/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        },
+        {
+          "id": "range-slider/Slider/range-keyboard-focus/light",
+          "component": "Slider",
+          "theme": "light",
+          "state": "range-keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true,
+            "value": [
+              25,
+              70
+            ]
+          }
+        },
+        {
+          "id": "range-slider/Slider/default/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-classic/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "variant-variant-classic",
+          "props": {
+            "size": "2",
+            "variant": "classic"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-surface/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface"
+          }
+        },
+        {
+          "id": "range-slider/Slider/variant-variant-soft/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "variant-variant-soft",
+          "props": {
+            "size": "2",
+            "variant": "soft"
+          }
+        },
+        {
+          "id": "range-slider/Slider/keyboard-focus/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true
+          }
+        },
+        {
+          "id": "range-slider/Slider/range-keyboard-focus/dark",
+          "component": "Slider",
+          "theme": "dark",
+          "state": "range-keyboard-focus",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "focused": true,
+            "value": [
+              25,
+              70
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "family": "tab-nav",
+      "route": "tab-nav",
+      "components": [
+        {
+          "id": "TabNav",
+          "sourceProps": "tab-nav.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": "keyboard-focus",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "tab-nav/TabNav/default/light",
+          "component": "TabNav",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "tab-nav/TabNav/keyboard-focus/light",
+          "component": "TabNav",
+          "theme": "light",
+          "state": "keyboard-focus",
+          "props": {
+            "focused": true
+          }
+        },
+        {
+          "id": "tab-nav/TabNav/default/dark",
+          "component": "TabNav",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "tab-nav/TabNav/keyboard-focus/dark",
+          "component": "TabNav",
+          "theme": "dark",
+          "state": "keyboard-focus",
+          "props": {
+            "focused": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "alert-dialog",
+      "route": "alert-dialog",
+      "components": [
+        {
+          "id": "AlertDialog",
+          "sourceProps": "alert-dialog.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": "open",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "alert-dialog/AlertDialog/default/light",
+          "component": "AlertDialog",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "alert-dialog/AlertDialog/open/light",
+          "component": "AlertDialog",
+          "theme": "light",
+          "state": "open",
+          "props": {
+            "open": true
+          }
+        },
+        {
+          "id": "alert-dialog/AlertDialog/default/dark",
+          "component": "AlertDialog",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "alert-dialog/AlertDialog/open/dark",
+          "component": "AlertDialog",
+          "theme": "dark",
+          "state": "open",
+          "props": {
+            "open": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "popover",
+      "route": "popover",
+      "components": [
+        {
+          "id": "Popover",
+          "sourceProps": "popover.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": "open",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "popover/Popover/default/light",
+          "component": "Popover",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "popover/Popover/open/light",
+          "component": "Popover",
+          "theme": "light",
+          "state": "open",
+          "props": {
+            "size": "2",
+            "open": true
+          }
+        },
+        {
+          "id": "popover/Popover/default/dark",
+          "component": "Popover",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "popover/Popover/open/dark",
+          "component": "Popover",
+          "theme": "dark",
+          "state": "open",
+          "props": {
+            "size": "2",
+            "open": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "hover-card",
+      "route": "hover-card",
+      "components": [
+        {
+          "id": "HoverCard",
+          "sourceProps": "hover-card.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [],
+          "defaultProps": {
+            "size": "2"
+          },
+          "interactive": "hover",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "hover-card/HoverCard/default/light",
+          "component": "HoverCard",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "hover-card/HoverCard/hover/light",
+          "component": "HoverCard",
+          "theme": "light",
+          "state": "hover",
+          "props": {
+            "size": "2",
+            "hovered": true
+          }
+        },
+        {
+          "id": "hover-card/HoverCard/default/dark",
+          "component": "HoverCard",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2"
+          }
+        },
+        {
+          "id": "hover-card/HoverCard/hover/dark",
+          "component": "HoverCard",
+          "theme": "dark",
+          "state": "hover",
+          "props": {
+            "size": "2",
+            "hovered": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "tooltip",
+      "route": "tooltip",
+      "components": [
+        {
+          "id": "Tooltip",
+          "sourceProps": "tooltip.props.ts",
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": "hover",
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "tooltip/Tooltip/default/light",
+          "component": "Tooltip",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "tooltip/Tooltip/hover/light",
+          "component": "Tooltip",
+          "theme": "light",
+          "state": "hover",
+          "props": {
+            "hovered": true
+          }
+        },
+        {
+          "id": "tooltip/Tooltip/default/dark",
+          "component": "Tooltip",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "tooltip/Tooltip/hover/dark",
+          "component": "Tooltip",
+          "theme": "dark",
+          "state": "hover",
+          "props": {
+            "hovered": true
+          }
+        }
+      ]
+    },
+    {
+      "family": "context-menu",
+      "route": "context-menu",
+      "components": [
+        {
+          "id": "ContextMenu",
+          "sourceProps": "context-menu.props.ts",
+          "domainProps": [
+            "_internal/base-menu.props.ts"
+          ],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "contentVariant",
+              "values": [
+                "solid",
+                "soft"
+              ],
+              "sourceProps": "_internal/base-menu.props.ts"
+            }
+          ],
+          "defaultProps": {
+            "size": "2",
+            "contentVariant": "solid"
+          },
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "context-menu/ContextMenu/default/light",
+          "component": "ContextMenu",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "context-menu/ContextMenu/variant-contentVariant-solid/light",
+          "component": "ContextMenu",
+          "theme": "light",
+          "state": "variant-contentVariant-solid",
+          "props": {
+            "size": "2",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "context-menu/ContextMenu/variant-contentVariant-soft/light",
+          "component": "ContextMenu",
+          "theme": "light",
+          "state": "variant-contentVariant-soft",
+          "props": {
+            "size": "2",
+            "contentVariant": "soft"
+          }
+        },
+        {
+          "id": "context-menu/ContextMenu/default/dark",
+          "component": "ContextMenu",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "context-menu/ContextMenu/variant-contentVariant-solid/dark",
+          "component": "ContextMenu",
+          "theme": "dark",
+          "state": "variant-contentVariant-solid",
+          "props": {
+            "size": "2",
+            "contentVariant": "solid"
+          }
+        },
+        {
+          "id": "context-menu/ContextMenu/variant-contentVariant-soft/dark",
+          "component": "ContextMenu",
+          "theme": "dark",
+          "state": "variant-contentVariant-soft",
+          "props": {
+            "size": "2",
+            "contentVariant": "soft"
+          }
+        }
+      ]
+    },
+    {
+      "family": "theme-panel",
+      "route": "theme-panel",
+      "components": [
+        {
+          "id": "ThemePanel",
+          "sourceProps": null,
+          "domainProps": [],
+          "size": false,
+          "variantSlots": [],
+          "defaultProps": {},
+          "interactive": null,
+          "fixtureId": null
+        }
+      ],
+      "captures": [
+        {
+          "id": "theme-panel/ThemePanel/default/light",
+          "component": "ThemePanel",
+          "theme": "light",
+          "state": "default",
+          "props": {}
+        },
+        {
+          "id": "theme-panel/ThemePanel/default/dark",
+          "component": "ThemePanel",
+          "theme": "dark",
+          "state": "default",
+          "props": {}
+        }
+      ]
+    },
+    {
+      "family": "data-table",
+      "route": "data-table",
+      "components": [
+        {
+          "id": "DataTable",
+          "sourceProps": "table.props.ts",
+          "domainProps": [],
+          "size": true,
+          "variantSlots": [
+            {
+              "prop": "variant",
+              "values": [
+                "surface",
+                "ghost"
+              ],
+              "sourceProps": "table.props.ts"
+            }
+          ],
+          "visualReference": "Table",
+          "defaultProps": {
+            "size": "2",
+            "variant": "surface"
+          },
+          "interactive": null,
+          "fixtureId": "sp2-data-table"
+        }
+      ],
+      "captures": [
+        {
+          "id": "data-table/DataTable/default/light",
+          "component": "DataTable",
+          "theme": "light",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data-table/DataTable/variant-variant-surface/light",
+          "component": "DataTable",
+          "theme": "light",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data-table/DataTable/variant-variant-ghost/light",
+          "component": "DataTable",
+          "theme": "light",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data-table/DataTable/default/dark",
+          "component": "DataTable",
+          "theme": "dark",
+          "state": "default",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data-table/DataTable/variant-variant-surface/dark",
+          "component": "DataTable",
+          "theme": "dark",
+          "state": "variant-variant-surface",
+          "props": {
+            "size": "2",
+            "variant": "surface",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        },
+        {
+          "id": "data-table/DataTable/variant-variant-ghost/dark",
+          "component": "DataTable",
+          "theme": "dark",
+          "state": "variant-variant-ghost",
+          "props": {
+            "size": "2",
+            "variant": "ghost",
+            "fixtureId": "sp2-data-table",
+            "rows": 10
+          }
+        }
+      ]
+    }
+  ]
+}

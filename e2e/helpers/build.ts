@@ -45,6 +45,11 @@ export async function createGalleryBuildFixture(): Promise<GalleryBuildFixture> 
   try {
     await mkdir(resolve(rootDir, 'apps'), { recursive: true })
     await mkdir(packagesDir, { recursive: true })
+    await mkdir(resolve(rootDir, 'bench/radix2solid'), { recursive: true })
+    await cp(
+      resolve(workspaceDir, 'bench/radix2solid/sp2-capture-matrix.json'),
+      resolve(rootDir, 'bench/radix2solid/sp2-capture-matrix.json'),
+    )
     await cp(sourceGallery, galleryDir, {
       recursive: true,
       filter: (source) => {
