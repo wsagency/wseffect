@@ -31,7 +31,7 @@
       "reason": "APP-23 runtime-only framework grouping reshapes the Cards lazy chunk by 36 B Brotli-q11; the page remains lazy."
     },
     "page:components": {
-      "bytes": 2511,
+      "bytes": 2756,
       "reason": "The /components hub is one lazy registry entry; its nested family routes stay outside the initial transfer."
     },
     "page:component:accessibility": {
@@ -47,8 +47,8 @@
       "reason": "Avatar demo is independently imported by the nested /components route and remains lazy."
     },
     "page:component:contextMenu": {
-      "bytes": 3519,
-      "reason": "ContextMenu demo is independently imported by the nested /components route and remains lazy."
+      "bytes": 3701,
+      "reason": "ContextMenu variant coverage expands its lazy family module; the nested /components route remains lazy."
     },
     "page:component:data": {
       "bytes": 1811,
@@ -61,6 +61,10 @@
     "page:component:feedback": {
       "bytes": 3072,
       "reason": "Feedback demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:formsExtra": {
+      "bytes": 5165,
+      "reason": "Form-control matrix capture support remains in its independently loaded family chunk."
     },
     "page:component:hoverCard": {
       "bytes": 2363,
@@ -82,9 +86,17 @@
       "bytes": 3291,
       "reason": "Popover demo is independently imported by the nested /components route and remains lazy."
     },
+    "page:component:rangeSlider": {
+      "bytes": 4587,
+      "reason": "Range Slider state and capture coverage remain in the independently loaded family chunk."
+    },
     "page:component:scrollArea": {
       "bytes": 454,
       "reason": "ScrollArea demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:select": {
+      "bytes": 8537,
+      "reason": "Select state and capture coverage remain in the independently loaded family chunk."
     },
     "page:component:tabNav": {
       "bytes": 1267,
@@ -167,8 +179,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "styles.css": {
-      "bytes": 56739,
-      "reason": "The pre-SP2 aggregate remains eager via components-base.css; SP2 component CSS stays in lazy family chunks."
+      "bytes": 67764,
+      "reason": "SP2 component styles are included in the eagerly imported components-base.css."
     }
   }
 }
