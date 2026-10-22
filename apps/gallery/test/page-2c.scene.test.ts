@@ -73,7 +73,8 @@ describe('Gallery lane 2C pages', () => {
     Scene.scene({ update: links.update, view: (model, h) => links.view(model, inputs, h) }, Scene.given(initial.model),
       Scene.expect(Scene.role('heading', { name: 'Links' })).toExist(),
       Scene.expect(Scene.role('link', { name: 'Read the guide' })).toExist(),
-      Scene.expect(Scene.selector('.rt-Link.rt-underline-always')).toExist())
+      Scene.expect(Scene.selector('.rt-Link.rt-underline-always')).toExist(),
+      Scene.expect(Scene.selector('.rt-Link')).toHaveAttr('data-accent-color', ''))
   })
 
   it('renders vertically scrollable content with an explicit size', () => {

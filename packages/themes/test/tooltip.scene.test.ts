@@ -22,6 +22,7 @@ describe('themed Tooltip', () => {
       Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
       Scene.expect(Scene.role('tooltip')).toExist(),
       Scene.expect(Scene.selector('.rt-TooltipArrow')).toExist(),
+      Scene.expect(Scene.selector('.rt-TooltipContent span')).toExist(),
       Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-state', 'instant-open'),
       Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-side', 'bottom'),
     )
@@ -33,6 +34,7 @@ describe('themed Tooltip', () => {
       { update, view }, Scene.given({ tooltip }),
       Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
       Scene.expect(Scene.selector('button')).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+      Scene.expect(Scene.selector('button')).toHaveAttr('data-accent-color', ''),
       Scene.expect(Scene.selector('.rt-TooltipText')).toHaveAttr('class', 'rt-Text rt-r-size-1 rt-TooltipText'),
     )
   })

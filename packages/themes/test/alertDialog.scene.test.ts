@@ -35,6 +35,16 @@ describe('themed AlertDialog', () => {
       Scene.click(Scene.selector('.rt-BaseDialogOverlay')),
     )).toThrow(/neither it nor any ancestor has a click handler/)
   })
+  it('matches the pinned title heading and start trim', () => {
+    const alert = UiDialog.open(AlertDialog.init({ id: 'alert-title' })).model
+    Scene.scene(
+      { update, view }, Scene.given({ alert }),
+      Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent h1')).toHaveAttr('class', 'rt-Heading rt-r-size-5 rt-r-lt-start rt-r-mb-3'),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent p')).toHaveAttr('class', 'rt-Text rt-r-size-3'),
+      Scene.expect(Scene.selector('#alert-title-cancel')).toHaveAttr('data-accent-color', ''),
+    )
+  })
   // Pinned R2S alert-dialog.tsx:22-23,31-35 exposes Cancel and Action as sibling controls in the action row.
   it('renders caller action controls after the focused Cancel control', () => {
     const alert = UiDialog.open(AlertDialog.init({ id: 'alert-actions' })).model

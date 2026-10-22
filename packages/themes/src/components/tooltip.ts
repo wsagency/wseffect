@@ -28,30 +28,49 @@ export type EmbedConfig<Message> = Readonly<{
 }>
 
 const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip.Message>>((model, inputs, h) => {
-  const toView = (render: RenderInfo): Html => h.div([], [
-    h.button([
-      ...render.trigger,
-      h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
-      h.Type('button'),
-    ], inputs.trigger),
-    ...(render.isVisible ? [h.div([
-      ...render.panel,
-      h.Attribute('data-state', model.isHovered && !model.isFocused && Duration.toMillis(model.showDelay) > 0 ? 'delayed-open' : 'instant-open'),
-      h.Attribute('data-side', (inputs.anchor?.placement ?? 'top').split('-')[0]),
-      h.Class('rt-TooltipContent'),
-    ], [
-      h.p([h.Class('rt-Text rt-r-size-1 rt-TooltipText')], inputs.content),
-      h.svg([
-        h.Attribute('width', '10'),
-        h.Attribute('height', '5'),
-        h.Attribute('viewBox', '0 0 30 10'),
-        h.Attribute('preserveAspectRatio', 'none'),
-        h.Class('rt-TooltipArrow'),
+  const toView = (render: RenderInfo): Html => {
+    const side = (inputs.anchor?.placement ?? 'top').split('-')[0]
+    const arrowStyle = {
+      position: 'absolute',
+      ...(side === 'top' || side === 'bottom' ? { left: '50%' } : { top: '50%' }),
+      ...(side === 'top' ? { bottom: '0px' } : side === 'bottom' ? { top: '0px' } : side === 'right' ? { left: '0px' } : { right: '0px' }),
+      transform: side === 'top'
+        ? 'translateX(-50%) translateY(100%)'
+        : side === 'right'
+          ? 'translateY(50%) rotate(90deg) translateX(-50%)'
+          : side === 'bottom'
+            ? 'translateX(-50%) rotate(180deg)'
+            : 'translateY(50%) rotate(-90deg) translateX(50%)',
+    }
+    return h.div([], [
+      h.button([
+        ...render.trigger,
+        h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+        h.DataAttribute('accent-color', ''),
+        h.Type('button'),
+      ], inputs.trigger),
+      ...(render.isVisible ? [h.div([
+        ...render.panel,
+        h.Attribute('data-state', model.isHovered && !model.isFocused && Duration.toMillis(model.showDelay) > 0 ? 'delayed-open' : 'instant-open'),
+        h.Attribute('data-side', side),
+        h.Class('rt-TooltipContent'),
       ], [
-        h.polygon([h.Attribute('points', '0,0 30,0 15,10')], []),
-      ]),
-    ])] : []),
-  ])
+        h.p([h.Class('rt-Text rt-r-size-1 rt-TooltipText')], inputs.content),
+        h.span([h.Style(arrowStyle)], [
+          h.svg([
+            h.Attribute('width', '10'),
+            h.Attribute('height', '5'),
+            h.Attribute('viewBox', '0 0 30 10'),
+            h.Attribute('preserveAspectRatio', 'none'),
+            h.Style({ display: 'block' }),
+            h.Class('rt-TooltipArrow'),
+          ], [
+            h.polygon([h.Attribute('points', '0,0 30,0 15,10')], []),
+          ]),
+        ]),
+      ])] : []),
+    ])
+  }
   const viewInputs: UiViewInputs = {
     anchor: { placement: 'top', gap: 4, portal: true, ...inputs.anchor },
     toView,

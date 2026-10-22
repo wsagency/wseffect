@@ -24,6 +24,7 @@ describe('themed HoverCard', () => {
       Scene.expect(Scene.role('link', { name: '@radix' })).toExist(),
       Scene.expect(Scene.selector('a')).toHaveAttr('href', '#profile'),
       Scene.expect(Scene.selector('a')).toHaveAttr('class', 'rt-Text rt-reset rt-Link rt-r-size-2 rt-HoverCardTrigger'),
+      Scene.expect(Scene.selector('a')).toHaveAttr('data-accent-color', ''),
       Scene.expect(Scene.text('Radix2Solid profile card.')).toExist(),
     )
   })

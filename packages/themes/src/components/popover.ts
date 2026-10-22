@@ -30,6 +30,7 @@ const view = defineView<UiPopover.Model, UiPopover.Message, ViewInputs<UiPopover
     h.button([
       ...render.button,
       h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+      h.DataAttribute('accent-color', ''),
     ], inputs.trigger),
     ...(render.isVisible ? [
       ...(model.isModal ? [h.div([...render.backdrop, h.Class('rt-BaseDialogOverlay')], [])] : []),

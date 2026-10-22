@@ -49,10 +49,10 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
           h.DataAttribute('state', 'open'),
           h.Style({ '--max-width': '600px' }),
         ], [
-          h.h2([...render.title, h.Class('rt-Heading rt-r-size-5 rt-r-mb-3')], [inputs.title]),
+          h.h1([...render.title, h.Class('rt-Heading rt-r-size-5 rt-r-lt-start rt-r-mb-3')], [inputs.title]),
           ...(hasDescription ? [h.p([...render.description, h.Class('rt-Text rt-r-size-3')], [inputs.description!])] : []),
           ...inputs.content,
-          h.button([...render.closeButton, ...render.initialFocus, h.Id(`${model.id}-cancel`), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button')], [inputs.cancelLabel]),
+          h.button([...render.closeButton, ...render.initialFocus, h.Id(`${model.id}-cancel`), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'), h.DataAttribute('accent-color', '')], [inputs.cancelLabel]),
           ...inputs.actions,
         ]),
       ]),

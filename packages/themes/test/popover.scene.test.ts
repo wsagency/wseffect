@@ -35,6 +35,7 @@ describe('themed Popover', () => {
       Scene.Mount.expectHas(UiPopover.AnchorPopover({ buttonId: 'details-button', anchor: { portal: true, gap: 8 }, arrowId: UiPopover.arrowId('details') })),
       Scene.Mount.resolve(UiPopover.AnchorPopover, UiPopover.Message.CompletedAnchorPopover()),
       Scene.expect(Scene.selector('button')).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+      Scene.expect(Scene.selector('button')).toHaveAttr('data-accent-color', ''),
       Scene.expect(Scene.selector('p')).not.toExist(),
     )
   })

@@ -30,7 +30,7 @@ export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | s
   if (props.rel !== undefined) attrs.push(h.Attribute('rel', props.rel))
   if (props.download === true) attrs.push(h.Attribute('download', ''))
   else if (typeof props.download === 'string') attrs.push(h.Attribute('download', props.download))
-  if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
+  attrs.push(h.DataAttribute('accent-color', props.color ?? ''))
   const style = { ...size.style, ...weight.style, ...trim.style, ...wrap.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.a(attrs, children), 'wseffect/Link')
