@@ -1,7 +1,5 @@
 import { brandViewResult } from 'foldkit/brand'
-import { Effect } from 'effect'
-import * as Mount from 'foldkit/mount'
-import * as UiAnchor from '@foldkit/ui/anchor'
+import { PortalAlertDialog } from './alert-dialog.mount.js'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
@@ -10,13 +8,6 @@ import type { RenderInfo } from '@foldkit/ui/dialog'
 export { Model, Message, OutMessage, update, open, close, titleId, descriptionId } from '@foldkit/ui/dialog'
 import { init as initDialog } from '@foldkit/ui/dialog'
 
-const PortalAlertDialog = Mount.define('PortalAlertDialog', {
-  messages: [UiDialog.Message.CompletedCloseDialog],
-  execute: ({ element }) => Effect.acquireRelease(
-    Effect.sync(() => UiAnchor.portalToContainingRoot(element)),
-    cleanup => Effect.sync(cleanup),
-  ).pipe(Effect.as(UiDialog.Message.CompletedCloseDialog())),
-})
 export const init = (config: UiDialog.InitConfig): UiDialog.Model => initDialog({
   ...config,
   focusSelector: `#${config.id}-cancel`,
