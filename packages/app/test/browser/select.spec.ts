@@ -52,7 +52,7 @@ for (const position of ['item-aligned', 'popper'] as const) {
     await expect(listbox).toBeVisible()
     await expect(trigger).toHaveClass(/rt-r-size-3/)
     await expect(trigger).toHaveClass(/rt-variant-classic/)
-    await expect(trigger).toHaveClass(/rt-high-contrast/)
+    await expect(trigger).not.toHaveClass(/rt-high-contrast/)
     await expect(trigger).toHaveAttribute('data-accent-color', 'blue')
     await expect(trigger).toHaveAttribute('data-radius', 'large')
     await expect(page.locator('.rt-SelectTriggerInner')).toBeVisible()

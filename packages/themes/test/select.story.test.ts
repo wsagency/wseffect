@@ -1,5 +1,5 @@
 import { Option } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Listbox from '@foldkit/ui/listbox'
 import * as Scene from 'foldkit/scene'
 import { defineMessageUnion } from 'foldkit/message'
@@ -66,5 +66,51 @@ describe('Select', () => {
       viewInputs: { id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false },
     })
     Scene.scene({ update, view: embeddedView }, Scene.given(SelectBox.init({ id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false })), Scene.expect(Scene.role('combobox', { name: 'choice' })).toExist())
+  })
+  it.each(['item-aligned', 'popper'] as const)('matches the pinned Select content structure in %s position', position => {
+    const config: Select.Config<'one' | 'two' | 'three'> = {
+      id: 'choice',
+      selectedValue: Option.none(),
+      position,
+      isModal: false,
+      props: { variant: 'classic', contentVariant: 'soft', highContrast: true },
+      items: [{
+        id: 'group',
+        label: null,
+        items: [
+          { value: 'one', textValue: 'One', isDisabled: false, content: null },
+          { kind: 'separator', id: 'divider' },
+          { value: 'two', textValue: 'Two', isDisabled: false, content: null },
+        ],
+      }],
+    }
+    const view = function themedSelectView(model: Select.Model, h: HtmlBuilder<Select.Message | Other>): Html {
+      return SelectBox.view(model, config, h as HtmlBuilder<Select.Message>)
+    }
+    Scene.scene(
+      { update, view },
+      Scene.given(SelectBox.init({ ...config, items: [] })),
+      Scene.keydown(Scene.role('combobox', { name: 'choice' }), 'ArrowDown'),
+      Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
+      ...(position === 'popper'
+        ? [
+          Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
+          Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+        ]
+        : [Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never)]),
+      Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-variant-classic'),
+      Scene.expect(Scene.selector('.rt-SelectTrigger')).not.toHaveClass('rt-high-contrast'),
+      Scene.expect(Scene.selector('.rt-SelectContent')).toHaveClass('rt-variant-soft'),
+      Scene.expect(Scene.selector('.rt-SelectContent')).toHaveClass('rt-high-contrast'),
+      Scene.expect(Scene.selector('.rt-SelectContent')).toHaveAttr('data-accent-color', 'indigo'),
+      Scene.expect(Scene.selector('.rt-SelectContent')).not.toHaveClass('rt-variant-classic'),
+      Scene.expect(Scene.selector('.rt-ScrollAreaRoot')).toExist(),
+      Scene.expect(Scene.selector('.rt-SelectViewport.rt-ScrollAreaViewport')).toExist(),
+      Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).toExist(),
+      Scene.expect(Scene.selector('.rt-ScrollAreaThumb')).toExist(),
+      ...(position === 'popper'
+        ? [Scene.expect(Scene.selector('.rt-SelectContent')).toHaveClass('rt-PopperContent')]
+        : [Scene.expect(Scene.selector('.rt-SelectContent')).not.toHaveClass('rt-PopperContent')]),
+    )
   })
 })

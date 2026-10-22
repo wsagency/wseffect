@@ -71,3 +71,30 @@ it('uses the upstream Listbox renderer for popper positioning', () => {
     Scene.expect(Scene.role('combobox', { name: 'choice' })).toExist(),
   )
 })
+it('keeps the default item-aligned renderer headless', () => {
+  const groupedConfig: Select.SelectConfig<'one' | 'two'> = {
+    ...config,
+    items: [{
+      id: 'group',
+      label: null,
+      items: [
+        { value: 'one', textValue: 'One', isDisabled: false, content: null },
+        { kind: 'separator', id: 'divide' },
+        { value: 'two', textValue: 'Two', isDisabled: false, content: null },
+      ],
+    }],
+  }
+  const model = bundle.update(
+    bundle.init(groupedConfig),
+    Listbox.Message.Opened({ maybeActiveItemIndex: Option.some(0) }),
+  ).model
+  Scene.scene(
+    { update, view: (current, h) => bundle.view(current, groupedConfig, h) },
+    Scene.given(model),
+    Scene.expect(Scene.selector('.rt-SelectItem')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectGroup')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectLabel')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectSeparator')).not.toExist(),
+    Scene.expect(Scene.selector('.rt-SelectViewport')).not.toExist(),
+  )
+})

@@ -1,6 +1,6 @@
 import * as Option from 'effect/Option'
 import * as Listbox from '@foldkit/ui/listbox'
-import { childAttributes, type Html, type HtmlBuilder } from 'foldkit/html'
+import { childAttributes, type Attribute, type ChildAttribute, type Html, type HtmlBuilder } from 'foldkit/html'
 export type SelectItem<Value extends string> = {
   value: Value
   textValue: string
@@ -21,10 +21,16 @@ export type SelectAppearance = Readonly<{
   groupClassName?: string
   labelClassName?: string
   separatorClassName?: string
+  itemsScrollClassName?: string
+  scrollAreaClassName?: string
+  scrollbarClassName?: string
+  scrollThumbClassName?: string
+  itemIndicatorClassName?: string
+  itemIndicatorContent?: Html
+  triggerAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
+  contentAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
+  separatorAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
   triggerContent?: Html
-  accentColor?: string
-  radius?: string
-  highContrast?: boolean
 }>
 export type SelectConfig<Value extends string> = {
   id: string
@@ -66,7 +72,6 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
       const groupedItems: SelectItem<Value>[] = []
       const groupByItem = new Map<SelectItem<Value>, string>()
       const headingByKey = new Map<string, Html>()
-      const hasSeparator = config.items.some(item => isSeparator(item) || ('items' in item && item.items.some(isSeparator)))
       let rootSegment = 0
       for (const item of config.items) {
         if (isSeparator(item)) {
@@ -91,10 +96,14 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
           groupByItem.set(item, `ungrouped-${rootSegment}`)
         }
       }
-      const markers = () => [
-        ...(appearance?.accentColor === undefined ? [] : [h.DataAttribute('accent-color', appearance.accentColor)]),
-        ...(appearance?.radius === undefined ? [] : [h.DataAttribute('radius', appearance.radius)]),
-      ]
+      const separatorAttributes = childAttributes([h.Role('separator'), ...(appearance?.separatorAttributes ?? [])])
+      const itemContent = (item: SelectItem<Value>): Html => {
+        if (appearance?.itemIndicatorClassName === undefined) return item.content
+        return h.span([], [
+          h.span([h.Class(appearance.itemIndicatorClassName)], [appearance.itemIndicatorContent ?? null]),
+          h.span([], [item.content]),
+        ])
+      }
       const separatorValue = groupedItems[0]?.value ?? (Option.isSome(config.selectedValue) ? config.selectedValue.value : '' as Value)
       return listbox.view(model, {
         items: groupedItems,
@@ -106,19 +115,23 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
           const heading = headingByKey.get(key)
           return heading === undefined
             ? undefined
-            : { content: heading, className: appearance?.labelClassName ?? 'rt-SelectLabel' }
+            : { content: heading, ...(appearance?.labelClassName === undefined ? {} : { className: appearance.labelClassName }) }
         },
-        groupClassName: appearance?.groupClassName ?? 'rt-SelectGroup',
-        ...(hasSeparator ? { separatorClassName: appearance?.separatorClassName ?? 'rt-SelectSeparator' } : {}),
-        itemToConfig: item => ({ content: isSeparator(item) ? h.span([], []) : item.content, className: appearance?.itemClassName ?? 'rt-SelectItem' }),
+        ...(appearance?.groupClassName === undefined ? {} : { groupClassName: appearance.groupClassName }),
+        separatorAttributes,
+        ...(appearance?.separatorClassName === undefined ? {} : { separatorClassName: appearance.separatorClassName }),
+        itemToConfig: item => ({
+          content: isSeparator(item) ? h.span([], []) : itemContent(item),
+          ...(appearance?.itemClassName === undefined ? {} : { className: appearance.itemClassName }),
+        }),
         maybeSelectedValue: config.selectedValue,
         ariaLabel: config.id,
         buttonContent: appearance?.triggerContent ?? (selected !== undefined && !isSeparator(selected) ? selected.content : h.span([], [config.id])),
-        buttonClassName: appearance?.triggerClassName,
-        buttonAttributes: childAttributes([h.Role('combobox'), ...markers()]),
-        itemsClassName: appearance?.contentClassName,
-        itemsAttributes: childAttributes(markers()),
-        itemsScrollClassName: 'rt-SelectViewport',
+        ...(appearance?.triggerClassName === undefined ? {} : { buttonClassName: appearance.triggerClassName }),
+        buttonAttributes: childAttributes([h.Role('combobox'), ...(appearance?.triggerAttributes ?? [])]),
+        ...(appearance?.contentClassName === undefined ? {} : { itemsClassName: appearance.contentClassName }),
+        itemsAttributes: childAttributes(appearance?.contentAttributes ?? []),
+        ...(appearance?.itemsScrollClassName === undefined ? {} : { itemsScrollClassName: appearance.itemsScrollClassName }),
       }, h)
     }
     if (!model.isOpen) return null
@@ -132,7 +145,11 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
       return undefined
     }
     const renderItem = (item: SelectItem<Value> | SelectSeparator, index: number): Html => {
-      if (isSeparator(item)) return h.div([h.Id(`${config.id}-separator-${item.id}`), h.Role('separator'), h.Class(appearance?.separatorClassName ?? 'rt-SelectSeparator')], [])
+      if (isSeparator(item)) return h.div([
+        h.Id(`${config.id}-separator-${item.id}`),
+        h.Role('separator'),
+        ...(appearance?.separatorClassName === undefined ? [] : [h.Class(appearance.separatorClassName)]),
+      ], [])
       const isSelected = Option.isSome(config.selectedValue) && config.selectedValue.value === item.value
       const isActive = activeIndex === index
       return h.div([
@@ -142,8 +159,13 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
         ...(item.isDisabled ? [h.AriaDisabled(true)] : []),
         h.Attribute('data-active', String(isActive)),
         ...(item.isDisabled ? [] : [h.OnClick(Listbox.Message.SelectedItem({ item: item.value }))]),
-        h.Class(appearance?.itemClassName ?? 'rt-SelectItem'),
-      ], [item.content])
+        ...(appearance?.itemClassName === undefined ? [] : [h.Class(appearance.itemClassName)]),
+      ], [
+        ...(appearance?.itemIndicatorClassName === undefined
+          ? []
+          : [h.span([h.Class(appearance.itemIndicatorClassName)], [appearance.itemIndicatorContent ?? null])]),
+        appearance?.itemIndicatorClassName === undefined ? item.content : h.span([], [item.content]),
+      ])
     }
     let itemIndex = 0
     const children = config.items.map(item => {
@@ -154,20 +176,38 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
         h.Id(`${config.id}-group-${item.id}`),
         h.Role('group'),
         h.AriaLabelledBy(labelId),
-        h.Class(appearance?.groupClassName ?? 'rt-SelectGroup'),
+        ...(appearance?.groupClassName === undefined ? [] : [h.Class(appearance.groupClassName)]),
       ], [
-        h.div([h.Id(labelId), h.Class(appearance?.labelClassName ?? 'rt-SelectLabel')], [item.label]),
+        h.div([
+          h.Id(labelId),
+          ...(appearance?.labelClassName === undefined ? [] : [h.Class(appearance.labelClassName)]),
+        ], [item.label]),
         ...groupItems,
       ])
     })
-    const contentClassName = [appearance?.contentClassName, appearance?.highContrast ? 'rt-high-contrast' : undefined].filter(Boolean).join(' ')
+    const viewport = h.div([
+      ...(appearance?.itemsScrollClassName === undefined ? [] : [h.Class(appearance.itemsScrollClassName)]),
+    ], children)
+    const scrollAreaChildren = [viewport]
+    if (appearance?.scrollbarClassName !== undefined || appearance?.scrollThumbClassName !== undefined) {
+      scrollAreaChildren.push(h.div([
+        h.DataAttribute('orientation', 'vertical'),
+        ...(appearance?.scrollbarClassName === undefined ? [] : [h.Class(appearance.scrollbarClassName)]),
+      ], [
+        ...(appearance?.scrollThumbClassName === undefined
+          ? []
+          : [h.div([h.Class(appearance.scrollThumbClassName)], [])]),
+      ]))
+    }
+    const scrollArea = h.div([
+      ...(appearance?.scrollAreaClassName === undefined ? [] : [h.Class(appearance.scrollAreaClassName)]),
+    ], scrollAreaChildren)
     return h.div([
       h.Id(`${config.id}-items`),
       h.Role('listbox'),
       h.AriaLabel(config.id),
-      ...(contentClassName.length > 0 ? [h.Class(contentClassName)] : []),
-      ...(appearance?.accentColor === undefined ? [] : [h.DataAttribute('accent-color', appearance.accentColor)]),
-      ...(appearance?.radius === undefined ? [] : [h.DataAttribute('radius', appearance.radius)]),
+      ...(appearance?.contentClassName === undefined ? [] : [h.Class(appearance.contentClassName)]),
+      ...(appearance?.contentAttributes ?? []),
       ...(Option.isSome(model.maybeActiveItemIndex)
         ? [h.AriaActiveDescendant(`${config.id}-item-${model.maybeActiveItemIndex.value}`)]
         : []),
@@ -206,7 +246,7 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
           maybeTargetIndex: wrappedIndex < 0 ? Option.none() : Option.some(wrappedIndex),
         }))
       }),
-    ], [h.div([h.Class('rt-SelectViewport')], children)])
+    ], [scrollArea])
   }
   return { init, update, view, selectItem: listbox.selectItem, open: listbox.open, close: listbox.close }
 }
