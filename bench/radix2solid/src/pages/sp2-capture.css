@@ -1,0 +1,4 @@
+html[data-sp2-capture-mode='true'],
+html[data-sp2-capture-mode='true'] body {
+  background-color: var(--color-background);
+}

@@ -1,7 +1,8 @@
-import { For, type Component } from 'solid-js'
+import { createEffect, For, onCleanup, type Component } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import * as R2S from '@wsagency/radix2solid-themes'
 import type { AppPageProps } from '../types'
+import './sp2-capture.css'
 
 type VisualProps = Record<string, unknown>
 const FAMILY_COMPONENTS: Record<string, ReadonlyArray<string>> = {
@@ -99,6 +100,29 @@ export function Sp2Page(props: AppPageProps & { family: string; title: string })
   let visualProps: VisualProps = {}
   try { visualProps = JSON.parse(new URLSearchParams(window.location.search).get('props') ?? '{}') as VisualProps } catch { visualProps = {} }
   const components = captureId ? [componentId] : FAMILY_COMPONENTS[props.family] ?? []
+  if (captureId) {
+    const html = document.documentElement
+    const previous = {
+      radixThemes: html.classList.contains('radix-themes'),
+      light: html.classList.contains('light'),
+      dark: html.classList.contains('dark'),
+      captureMode: html.dataset.sp2CaptureMode,
+    }
+    createEffect(() => {
+      const appearance = props.appearance()
+      html.classList.add('radix-themes')
+      html.classList.toggle('light', appearance === 'light')
+      html.classList.toggle('dark', appearance === 'dark')
+      html.dataset.sp2CaptureMode = 'true'
+    })
+    onCleanup(() => {
+      html.classList.toggle('radix-themes', previous.radixThemes)
+      html.classList.toggle('light', previous.light)
+      html.classList.toggle('dark', previous.dark)
+      if (previous.captureMode === undefined) delete html.dataset.sp2CaptureMode
+      else html.dataset.sp2CaptureMode = previous.captureMode
+    })
+  }
   return <main class="page-content" data-page={props.family} data-sp2-family={props.family}>
     <section class="bench-section">
       <R2S.Heading as="h2">{props.title}</R2S.Heading>

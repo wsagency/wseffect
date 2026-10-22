@@ -17,6 +17,7 @@ The capture harness injects the same vendored Noto Sans test stylesheet into Sol
 ### Symmetric component crops
 
 Each paired capture places only the component under test inside `data-sp2-capture-target`; the route headings, gallery shell, and benchmark shell are excluded. Solid and Gallery use the same target geometry: 480px wide, at least 160px tall, 24px padding, and the current theme’s `--gray-2` surface (with `#f6f7f9` fallback). The harness takes viewport screenshots clipped to the shared union of both target boxes and their visible portaled-panel boxes, preserving complete panels while excluding surrounding page content.
+In capture mode, both pages give `html` and `body` `background-color: var(--color-background)` for the captured appearance. This keeps page background exposed inside the union crop identical on both sides; the rule is loaded only for capture mode and does not affect either eager page shell.
 Before each open/hover capture, the harness measures the default Solid target and pins both capture targets at those viewport coordinates before rendering the interactive state; this lets each portal calculate its position against its final trigger geometry. It raises floating panel layers above the target surface and waits for positioned panels on both pages without changing comparator tolerances.
 
 

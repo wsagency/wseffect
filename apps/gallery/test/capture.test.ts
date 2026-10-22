@@ -83,6 +83,8 @@ describe('Gallery capture resolver', () => {
       props: JSON.stringify(props),
       appearance: theme,
     }).toString()
+    document.documentElement.classList.remove('radix-themes', 'light', 'dark')
+    delete document.documentElement.dataset.sp2CaptureMode
     document.body.innerHTML = '<div id="app"></div>'
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 })))
     try {
@@ -91,6 +93,9 @@ describe('Gallery capture resolver', () => {
       expect(app.querySelector('[data-sp2-capture-error]')).toBeNull()
       const target = app.querySelector(`[data-sp2-family="${family}"][data-sp2-component="${component}"]`)
       expect(target).not.toBeNull()
+      expect(document.documentElement.classList.contains('radix-themes')).toBe(true)
+      expect(document.documentElement.classList.contains(theme)).toBe(true)
+      expect(document.documentElement.dataset.sp2CaptureMode).toBe('true')
       expect(target?.querySelectorAll('[data-is-root-theme="true"]')).toHaveLength(1)
       expect(target?.querySelectorAll('#foldkit-portal-root')).toHaveLength(1)
       if (component === 'ContextMenu') {
