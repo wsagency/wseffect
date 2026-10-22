@@ -1,3 +1,4 @@
+import * as Option from 'effect/Option'
 import * as UiPopover from '@foldkit/ui/popover'
 import * as Story from 'foldkit/story'
 import { defineMessageUnion } from 'foldkit/message'
@@ -22,5 +23,15 @@ describe('Popover wrapper', () => {
     expect(nonmodal.isModal).toBe(false)
     expect(modal.isModal).toBe(true)
     Story.story(update, Story.given({ popover: nonmodal }), Story.message(send(Popover.Message.RequestedOpen())), Story.model(model => expect(model.popover.isOpen).toBe(true)))
+  })
+  it('folds a child message into its parent model', () => {
+    const fold = Popover.fold<ParentModel, ParentMessage, never>({
+      read: model => Option.some(model.popover),
+      write: (model, popover) => ({ ...model, popover }),
+      toParentMessage: send,
+      foldOutMessage: () => model => ({ model }),
+    })
+    const result = fold({ popover: Popover.init({ id: 'folded-popover' }) }, Popover.Message.RequestedOpen())
+    expect(result.model.popover.isOpen).toBe(true)
   })
 })

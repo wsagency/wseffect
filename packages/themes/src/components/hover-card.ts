@@ -1,33 +1,16 @@
-import { Effect, Schema } from 'effect'
 import { brandViewResult } from 'foldkit/brand'
 import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Mount from 'foldkit/mount'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
 import * as UiHoverIntent from '@foldkit/ui/hoverIntent'
-import * as UiAnchor from '@foldkit/ui/anchor'
 import type { AnchorConfig } from '@foldkit/ui/anchor'
 import type { RenderInfo } from '@foldkit/ui/hoverIntent'
+import { AnchorHoverCard } from './hover-card-anchor.js'
 
 export { Model, Message, OutMessage, update, close } from '@foldkit/ui/hoverIntent'
 export const init = UiHoverIntent.init
 
 
-const AnchorHoverCard = Mount.define('AnchorHoverCard', {
-  args: { buttonId: Schema.String, anchor: UiAnchor.AnchorConfig },
-  messages: [UiHoverIntent.Message],
-  execute: ({ element, buttonId, anchor }) => Effect.acquireRelease(
-    Effect.sync(() => {
-      const removePortal = UiAnchor.portalToContainingRoot(element)
-      const stopPositioning = UiAnchor.anchorSetup(element, { buttonId, anchor, interceptTab: false })
-      return () => {
-        stopPositioning()
-        removePortal()
-      }
-    }),
-    cleanup => Effect.sync(cleanup),
-  ).pipe(Effect.as(UiHoverIntent.Message.CompletedWaitBeforeClosing({ version: -1 }))),
-})
 export type ViewInputs<Message> = Readonly<{
   id: string
   anchor?: AnchorConfig

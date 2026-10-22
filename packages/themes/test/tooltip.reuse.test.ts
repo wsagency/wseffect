@@ -1,3 +1,4 @@
+import * as Option from 'effect/Option'
 import { createLazy, type HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as Scene from 'foldkit/scene'
@@ -31,5 +32,21 @@ describe('Tooltip execution-counter reuse', () => {
       Scene.expect(Scene.role('button', { name: 'Save in progress' })).toExist(),
     )
     expect(renderTooltip).toHaveBeenCalledTimes(2)
+  })
+  it('folds a focused child message into the parent model', () => {
+    const ParentMessage = defineMessageUnion({ Tooltip: { message: Tooltip.Message } })
+    type ParentMessage = typeof ParentMessage.Type
+    type ParentModel = { tooltip: Tooltip.Model }
+    const fold = Tooltip.fold<ParentModel, ParentMessage, never>({
+      read: model => Option.some(model.tooltip),
+      write: (model, tooltip) => ({ ...model, tooltip }),
+      toParentMessage: message => ParentMessage.Tooltip({ message }),
+      foldOutMessage: () => model => ({ model }),
+    })
+    const result = fold(
+      { tooltip: Tooltip.init({ id: 'folded-tooltip' }) },
+      Tooltip.Message.FocusedTrigger(),
+    )
+    expect(result.model.tooltip.isOpen).toBe(true)
   })
 })
