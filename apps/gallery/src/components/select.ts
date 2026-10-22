@@ -8,7 +8,7 @@ import { galleryPageContract, PageOutMessage, type PageInputs } from '../contrac
 import { renderCaptureView } from '../captureView.js'
 import type { HtmlBuilder } from 'foldkit/html'
 import type { CaptureRequest } from '../capture.js'
- 
+
 
 const Picker = Select.create<string>()
 const options = Array.from({ length: 1000 }, (_, index) => {

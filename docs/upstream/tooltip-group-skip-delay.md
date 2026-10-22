@@ -1,6 +1,6 @@
 # Proposal: coordinated TooltipGroup skip-delay
 
-**Status:** local proposal draft; not submitted upstream.  
+**Status:** local proposal draft; not submitted upstream.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem

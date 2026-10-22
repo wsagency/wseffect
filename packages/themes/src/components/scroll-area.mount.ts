@@ -105,4 +105,3 @@ export const mountScrollArea = <Message>(): Mount.MountAction<Message> => ({
     return yield* Effect.never
   })),
 })
-
