@@ -4,6 +4,7 @@ import * as Menu from '@foldkit/ui/menu'
 import { autoUpdate, computePosition, flip, shift, type VirtualElement } from '@floating-ui/dom'
 import { portalToContainingRoot } from '@foldkit/ui/anchor'
 import type { Html, HtmlBuilder } from 'foldkit/html'
+import type * as Mount from 'foldkit/mount'
 import * as Render from 'foldkit/render'
 import type * as Update from 'foldkit/update'
 

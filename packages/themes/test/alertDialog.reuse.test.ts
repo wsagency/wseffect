@@ -1,6 +1,7 @@
 import { createLazy, type HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as Scene from 'foldkit/scene'
+import * as Stream from 'effect/Stream'
 import { describe, expect, it, vi } from 'vitest'
 import * as UiDialog from '@foldkit/ui/dialog'
 import * as AlertDialog from '../src/components/alert-dialog.js'
@@ -10,6 +11,7 @@ type Message = typeof Message.Type
 type Model = { title: string; tick: number }
 const update = (model: Model, message: Message) => ({ model: message._tag === 'Rename' ? { ...model, title: 'Changed confirmation' } : { ...model, tick: model.tick + 1 } })
 const lazy = createLazy()
+const portalMount = { name: 'PortalAlertDialog', f: () => Stream.empty }
 const renderAlert = vi.fn((title: string, h: HtmlBuilder<Message>) => AlertDialog.embed(h, {
   slotId: 'alert', model: UiDialog.open(AlertDialog.init({ id: 'alert' })).model, toParentMessage: () => Message.Tick(),
   title, cancelLabel: 'Cancel',
@@ -26,6 +28,7 @@ describe('AlertDialog execution-counter reuse', () => {
     Scene.scene(
       { update, view }, Scene.given({ title: 'Confirm deletion', tick: 0 }),
       Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
+      Scene.Mount.resolve(portalMount, AlertDialog.Message.CompletedCloseDialog()),
       Scene.click(Scene.role('button', { name: 'Unrelated update' })),
       Scene.expect(Scene.text('Confirm deletion')).toExist(),
       Scene.click(Scene.role('button', { name: 'Change title' })),

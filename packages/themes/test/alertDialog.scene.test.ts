@@ -1,6 +1,7 @@
 import type { HtmlBuilder } from 'foldkit/html'
 import * as Option from 'effect/Option'
 import { defineMessageUnion } from 'foldkit/message'
+import * as Stream from 'effect/Stream'
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import * as UiDialog from '@foldkit/ui/dialog'
@@ -17,6 +18,7 @@ const view = (model: Model, h: HtmlBuilder<Message>) => AlertDialog.embed(h, {
   toParentMessage: message => Message.Alert({ message }),
   title: 'Delete item?', description: 'This cannot be undone.', cancelLabel: 'Cancel',
 })
+const portalMount = { name: 'PortalAlertDialog', f: () => Stream.empty }
 
 describe('themed AlertDialog', () => {
   it('uses alertdialog semantics and focuses Cancel without a dismissing backdrop', () => {
@@ -26,6 +28,7 @@ describe('themed AlertDialog', () => {
     expect(() => Scene.scene(
       { update, view }, Scene.given({ alert }),
       Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
+      Scene.Mount.resolve(portalMount, AlertDialog.Message.CompletedCloseDialog()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete item?' })).toExist(),
       Scene.expect(Scene.selector('.rt-BaseDialogOverlay')).toHaveAttr('class', 'rt-BaseDialogOverlay rt-DialogOverlay'),
       Scene.expect(Scene.selector('.rt-BaseDialogScroll')).toHaveAttr('class', 'rt-BaseDialogScroll rt-DialogScroll'),
