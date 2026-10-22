@@ -27,13 +27,30 @@ describe('themed AlertDialog', () => {
       { update, view }, Scene.given({ alert }),
       Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete item?' })).toExist(),
-      Scene.expect(Scene.selector('.rt-BaseDialogOverlay')).toHaveAttr('class', 'rt-BaseDialogOverlay rt-DialogOverlay'),
-      Scene.expect(Scene.selector('.rt-BaseDialogScroll')).toHaveAttr('class', 'rt-BaseDialogScroll rt-DialogScroll'),
-      Scene.expect(Scene.selector('.rt-BaseDialogScrollPadding')).toHaveAttr('class', 'rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center'),
-      Scene.expect(Scene.selector('.rt-BaseDialogContent')).toHaveAttr('class', 'rt-BaseDialogContent rt-DialogContent rt-r-size-3 rt-r-max-w'),
+      Scene.expect(Scene.selector('.rt-BaseDialogOverlay')).toHaveAttr('class', 'rt-BaseDialogOverlay rt-AlertDialogOverlay'),
+      Scene.expect(Scene.selector('.rt-BaseDialogScroll')).toHaveAttr('class', 'rt-BaseDialogScroll rt-AlertDialogScroll'),
+      Scene.expect(Scene.selector('.rt-BaseDialogScrollPadding')).toHaveAttr('class', 'rt-BaseDialogScrollPadding rt-AlertDialogScrollPadding rt-r-align-center'),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent')).toHaveAttr('class', 'rt-BaseDialogContent rt-AlertDialogContent rt-r-size-3 rt-r-max-w'),
       Scene.expect(Scene.selector('.rt-BaseDialogScroll .rt-BaseDialogScrollPadding .rt-BaseDialogContent')).toExist(),
       Scene.click(Scene.selector('.rt-BaseDialogOverlay')),
     )).toThrow(/neither it nor any ancestor has a click handler/)
+  })
+  // Pinned R2S alert-dialog.tsx:22-23,31-35 exposes Cancel and Action as sibling controls in the action row.
+  it('renders caller action controls after the focused Cancel control', () => {
+    const alert = UiDialog.open(AlertDialog.init({ id: 'alert-actions' })).model
+    Scene.scene(
+      { update, view: (_model, h) => AlertDialog.embed(h, {
+        slotId: 'alert-actions', model: alert, toParentMessage: message => Message.Alert({ message }),
+        title: 'Delete item?', cancelLabel: 'Cancel',
+        actions: [h.button([h.Type('button')], ['Delete'])],
+      }) },
+      Scene.given({ alert }),
+      Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
+      Scene.expect(Scene.role('button', { name: 'Cancel' })).toExist(),
+      Scene.expect(Scene.role('button', { name: 'Delete' })).toExist(),
+      Scene.expect(Scene.selector('.rt-Flex')).not.toExist(),
+      Scene.expect(Scene.selector('.rt-BaseDialogContent button')).toExist(),
+    )
   })
 
 })

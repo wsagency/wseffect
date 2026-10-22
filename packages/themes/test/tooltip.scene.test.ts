@@ -26,5 +26,15 @@ describe('themed Tooltip', () => {
       Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-side', 'bottom'),
     )
   })
+  // Pinned R2S tooltip.tsx:16-20 renders a Text size-1 content paragraph and preserves caller Button styling.
+  it('matches the pinned trigger button and tooltip text classes', () => {
+    const tooltip = UiTooltip.update(Tooltip.init({ id: 'save' }), UiTooltip.Message.FocusedTrigger()).model
+    Scene.scene(
+      { update, view }, Scene.given({ tooltip }),
+      Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
+      Scene.expect(Scene.selector('button')).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+      Scene.expect(Scene.selector('.rt-TooltipText')).toHaveAttr('class', 'rt-Text rt-r-size-1 rt-TooltipText'),
+    )
+  })
 
 })

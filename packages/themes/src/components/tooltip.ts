@@ -31,7 +31,7 @@ const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip
   const toView = (render: RenderInfo): Html => h.div([], [
     h.button([
       ...render.trigger,
-      h.Class('rt-reset rt-BaseButton'),
+      h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
       h.Type('button'),
     ], inputs.trigger),
     ...(render.isVisible ? [h.div([
@@ -40,7 +40,7 @@ const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip
       h.Attribute('data-side', (inputs.anchor?.placement ?? 'top').split('-')[0]),
       h.Class('rt-TooltipContent'),
     ], [
-      h.p([h.Class('rt-TooltipText')], inputs.content),
+      h.p([h.Class('rt-Text rt-r-size-1 rt-TooltipText')], inputs.content),
       h.svg([
         h.Attribute('width', '10'),
         h.Attribute('height', '5'),

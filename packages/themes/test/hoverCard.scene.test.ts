@@ -10,19 +10,21 @@ type Model = { hover: HoverCard.Model }
 const update = (model: Model, _message: Message) => ({ model })
 const view = (model: Model, h: HtmlBuilder<Message>) => HoverCard.embed(h, {
   slotId: 'hover-card', id: 'person', model: model.hover, toParentMessage: () => Message.Tick(),
-  viewInputs: { id: 'person', trigger: ['Ada Lovelace'], content: [h.p([], ['Mathematician'])] },
+  viewInputs: { id: 'person', triggerHref: '#profile', trigger: ['@radix'], content: ['Radix2Solid profile card.'] },
 })
 
 describe('themed HoverCard', () => {
-  it('opens nonmodal description content from an accessible trigger', () => {
-    const hover = { ...HoverCard.init(), isOpen: true }
+  // Pinned R2S hover-card.tsx:15-23 composes HoverCard.Trigger onto a Link child and emits plain card content.
+  it('retains the supplied link trigger and its Radix classes', () => {
+    const hover = { ...HoverCard.init(), isOpen: true, isHovered: true }
     Scene.scene(
       { update, view }, Scene.given({ hover }),
       Scene.Mount.expectHas({ name: 'AnchorHoverCard', args: { buttonId: 'person-trigger', anchor: { portal: true, gap: 8 } } }),
       Scene.Mount.resolve({ name: 'AnchorHoverCard' }, HoverCard.Message.CompletedWaitBeforeClosing({ version: -1 })),
-      Scene.expect(Scene.role('button', { name: 'Ada Lovelace' })).toExist(),
-      Scene.expect(Scene.selector('.rt-HoverCardContent')).toExist(),
-      Scene.expect(Scene.text('Mathematician')).toExist(),
+      Scene.expect(Scene.role('link', { name: '@radix' })).toExist(),
+      Scene.expect(Scene.selector('a')).toHaveAttr('href', '#profile'),
+      Scene.expect(Scene.selector('a')).toHaveAttr('class', 'rt-Text rt-reset rt-Link rt-r-size-2 rt-HoverCardTrigger'),
+      Scene.expect(Scene.text('Radix2Solid profile card.')).toExist(),
     )
   })
 })
