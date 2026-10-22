@@ -26,13 +26,13 @@ export type EmbedConfig<Message> = Readonly<{
 }>
 
 const view = defineView<UiPopover.Model, UiPopover.Message, ViewInputs<UiPopover.Message>>((model, inputs, h) => {
-  const toView = (render: RenderInfo): Html => h.div([h.Class('rt-PopoverRoot')], [
+  const toView = (render: RenderInfo): Html => h.div([], [
     h.button([
       ...render.button,
-      h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-ghost rt-Button rt-PopoverTrigger'),
+      h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-ghost rt-Button'),
     ], inputs.trigger),
     ...(render.isVisible ? [
-      ...(model.isModal ? [h.div([...render.backdrop, h.Class('rt-BaseDialogOverlay rt-PopoverOverlay')], [])] : []),
+      ...(model.isModal ? [h.div([...render.backdrop, h.Class('rt-BaseDialogOverlay')], [])] : []),
       h.div([
         ...render.panel,
         h.Class('rt-PopperContent rt-PopoverContent rt-r-size-2'),

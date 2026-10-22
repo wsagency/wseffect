@@ -45,11 +45,11 @@ export const create = <Value extends string>(): Bundle<Value> => {
         ...item,
         items: item.items.map(child => 'kind' in child ? child : {
           ...child,
-          content: h.div([h.Class('rt-BaseMenuItem rt-ContextMenuItem')], [child.content]),
+          content: h.div([h.Class('rt-BaseMenuItem')], [child.content]),
         }),
       }
       if ('kind' in item) return item
-      return { ...item, content: h.div([h.Class('rt-BaseMenuItem rt-ContextMenuItem')], [item.content]) }
+      return { ...item, content: h.div([h.Class('rt-BaseMenuItem')], [item.content]) }
     })
     return brandViewResult(contextMenu.view(model, { ...config, items: themedItems }, h), 'wseffect/ContextMenu')
   })

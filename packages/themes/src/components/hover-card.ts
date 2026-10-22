@@ -43,11 +43,10 @@ export type EmbedConfig<Message> = Readonly<{
 }>
 
 const view = defineView<UiHoverIntent.Model, UiHoverIntent.Message, ViewInputs<UiHoverIntent.Message>>((model, inputs, h) => {
-  const toView = (render: RenderInfo): Html => h.div([h.Class('rt-HoverCardRoot')], [
+  const toView = (render: RenderInfo): Html => h.div([], [
     h.button([
       ...render.trigger,
       h.Id(`${inputs.id}-trigger`),
-      h.Class('rt-HoverCardTrigger'),
       h.Type('button'),
     ], inputs.trigger),
     ...(render.isVisible ? [h.div([

@@ -30,10 +30,10 @@ export type EmbedConfig<Message> = Readonly<{
 const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip.Message>>((model, inputs, h) => {
   const showDelay = inputs.group === undefined ? model.showDelay : Duration.millis(TooltipGroupPrimitive.reflectShowDelay(inputs.group))
   const reflected = UiTooltip.reflectShowDelay(model, showDelay)
-  const toView = (render: RenderInfo): Html => h.div([h.Class('rt-TooltipRoot')], [
+  const toView = (render: RenderInfo): Html => h.div([], [
     h.button([
       ...render.trigger,
-      h.Class('rt-reset rt-BaseButton rt-TooltipTrigger'),
+      h.Class('rt-reset rt-BaseButton'),
       h.Type('button'),
     ], inputs.trigger),
     ...(render.isVisible ? [h.div([
