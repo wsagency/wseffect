@@ -74,7 +74,7 @@ describe('themes distribution', () => {
       // Pinned R2S callout.css has no rt-CalloutText selector by design.
       'rt-CalloutText',
     ] as const
-    const unstyledStructuralClasses = new Set(['rt-ScrollAreaCorner'])
+    const unstyledStructuralClasses = new Set(['rt-ScrollAreaCorner', 'rt-underline-none'])
 
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')

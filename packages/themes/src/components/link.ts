@@ -14,7 +14,7 @@ const sizeProp = responsiveProp({ className: 'rt-r-size', values: sizes })
 const weightProp = responsiveProp({ className: 'rt-r-weight', values: weights })
 const trimProp = responsiveProp({ className: 'rt-r-lt', values: trims })
 const wrapProp = responsiveProp({ className: 'rt-r-tw', values: wraps })
-const underlineClasses = Object.freeze({ auto: 'rt-underline-auto', always: 'rt-underline-always', hover: 'rt-underline-hover' })
+const underlineClasses = Object.freeze({ auto: 'rt-underline-auto', always: 'rt-underline-always', hover: 'rt-underline-hover', none: 'rt-underline-none' })
 export const Props = Schema.Struct({ href: Schema.optional(Schema.String), target: Schema.optional(Schema.String), rel: Schema.optional(Schema.String), download: Schema.optional(Schema.Union([Schema.String, Schema.Boolean])), size: Schema.optional(responsiveSchema(sizes)), weight: Schema.optional(responsiveSchema(weights)), trim: Schema.optional(responsiveSchema(trims)), truncate: Schema.optional(Schema.Boolean), wrap: Schema.optional(responsiveSchema(wraps)), underline: Schema.optional(Schema.Literals(underlines)), color: Schema.optional(Schema.Literals(accentColors)), highContrast: Schema.optional(Schema.Boolean), ...marginPropSchemas })
 export type ViewProps = typeof Props.Type
 export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
@@ -24,7 +24,7 @@ export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | s
   const wrap = responsiveClasses(wrapProp, props.wrap)
   const margin = marginClasses(props)
   const underline = props.underline ?? 'auto'
-  const attrs: Attribute<Message>[] = [h.Class(['rt-Text', 'rt-reset', 'rt-Link', ...size.classes, ...weight.classes, ...trim.classes, ...wrap.classes, ...(underline === 'none' ? [] : [underlineClasses[underline]]), ...(props.truncate ? ['rt-truncate'] : []), ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
+  const attrs: Attribute<Message>[] = [h.Class(['rt-Text', 'rt-reset', 'rt-Link', ...size.classes, ...weight.classes, ...trim.classes, ...wrap.classes, underlineClasses[underline], ...(props.truncate ? ['rt-truncate'] : []), ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
   if (props.href !== undefined) attrs.push(h.Attribute('href', props.href))
   if (props.target !== undefined) attrs.push(h.Attribute('target', props.target))
   if (props.rel !== undefined) attrs.push(h.Attribute('rel', props.rel))

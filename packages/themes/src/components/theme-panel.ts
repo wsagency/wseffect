@@ -21,7 +21,9 @@ const optionLabels = Object.freeze({ inherit: 'Inherit', light: 'Light', dark: '
 export const view = <M>(props: ViewProps, _children: ReadonlyArray<Html | string>, h: HtmlBuilder<M | Message>): Html => {
   const group = <Key extends keyof ThemeSettings>(label: string, key: Key, values: ReadonlyArray<ThemeSettings[Key]>): Html => {
     const options = values.map(value => {
-      const text = String(optionLabels[value as keyof typeof optionLabels] ?? value)
+      const rawText = String(value)
+      const label = optionLabels[value as keyof typeof optionLabels] ?? rawText
+      const text = label[0]!.toUpperCase() + label.slice(1)
       const selected = props.settings[key] === value
       const attrs = [h.Class('rt-ThemePanelRadioCard'), h.Role('radio'), h.Attribute('aria-checked', String(selected)), h.OnClick(props.toSettingsChanged({ ...props.settings, [key]: value }))]
       return h.button(attrs, [text])
