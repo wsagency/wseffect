@@ -17,6 +17,22 @@ describe('gallery shell', () => {
       Scene.expect(Scene.selector('[data-perf="nav-prefetch"]')).toHaveAttr('href', '/dialog'),
       Scene.expect(Scene.selector('#more-pages')).toBeAbsent(),
       Scene.expect(Scene.selector('#link-dataTable')).toHaveAttr('href', '/data-table'),
+      Scene.expect(Scene.selector('#link-accessibility')).toHaveAttr('href', '/accessibility'),
+      Scene.expect(Scene.selector('#link-layoutExtra')).toHaveAttr('href', '/layout-extra'),
+      Scene.expect(Scene.selector('#link-avatar')).toHaveAttr('href', '/avatar'),
+      Scene.expect(Scene.selector('#link-feedback')).toHaveAttr('href', '/feedback'),
+      Scene.expect(Scene.selector('#link-typographyExtra')).toHaveAttr('href', '/typography-extra'),
+      Scene.expect(Scene.selector('#link-iconButton')).toHaveAttr('href', '/icon-button'),
+      Scene.expect(Scene.selector('#link-links')).toHaveAttr('href', '/links'),
+      Scene.expect(Scene.selector('#link-scrollArea')).toHaveAttr('href', '/scroll-area'),
+      Scene.expect(Scene.selector('#link-data')).toHaveAttr('href', '/data'),
+      Scene.expect(Scene.selector('#link-themePanel')).toHaveAttr('href', '/theme-panel'),
+      Scene.expect(Scene.selector('#link-alertDialog')).toHaveAttr('href', '/alert-dialog'),
+      Scene.expect(Scene.selector('#link-popover')).toHaveAttr('href', '/popover'),
+      Scene.expect(Scene.selector('#link-hoverCard')).toHaveAttr('href', '/hover-card'),
+      Scene.expect(Scene.selector('#link-tooltip')).toHaveAttr('href', '/tooltip'),
+      Scene.expect(Scene.selector('#link-contextMenu')).toHaveAttr('href', '/context-menu'),
+      Scene.expect(Scene.selector('#link-tabNav')).toHaveAttr('href', '/tab-nav'),
       Scene.expect(Scene.selector('#build-id')).toHaveText(BUILD_ID))
   })
 

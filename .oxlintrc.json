@@ -8,7 +8,7 @@
   ],
   "rules": {
     "wseffect/no-effect-promise-in-command": "error",
-    "wseffect/no-top-level-side-effects-in-pages": ["error", { "allow": ["Schema.*", "defineMessageUnion", "defineTaggedUnion", "definePage", "Submodel.defineView", "Command.define", "Mount.define", "Mount.defineStream", "createLazy", "createKeyedLazy", "pipe", "Array.from", "VirtualList.view", "Dialog.fold", "Tabs.create", "Tabs.fold", "TabSet.fold", "DropdownMenu.create", "DropdownMenu.fold", "Menu.fold"] }],
+    "wseffect/no-top-level-side-effects-in-pages": ["error", { "allow": ["Schema.*", "defineMessageUnion", "defineTaggedUnion", "definePage", "Submodel.defineView", "Command.define", "Mount.define", "Mount.defineStream", "createLazy", "createKeyedLazy", "pipe", "Array.from", "VirtualList.view", "Dialog.fold", "AlertDialog.fold", "HoverCard.fold", "Popover.fold", "Tooltip.fold", "ContextMenu.create", "Tabs.create", "Tabs.fold", "TabSet.fold", "DropdownMenu.create", "DropdownMenu.fold", "Menu.fold"] }],
     "wseffect/no-page-inputs-in-model": "error"
   }
 }

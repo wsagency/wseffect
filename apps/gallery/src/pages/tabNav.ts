@@ -1,0 +1,40 @@
+import '@wsagency/wseffect-themes/css/tab-nav.css'
+import * as TabNav from '@wsagency/wseffect-themes/components/tab-nav'
+import * as Heading from '@wsagency/wseffect-themes/components/heading'
+import { Submodel } from 'foldkit'
+import { Schema } from 'effect'
+import { defineMessageUnion } from 'foldkit/message'
+import { galleryPageContract, type PageInputs } from '../contract.js'
+import { renderCaptureView } from '../captureView.js'
+import type { CaptureRequest } from '../capture.js'
+
+const items = [
+  { value: 'overview', href: '#overview', label: 'Overview' },
+  { value: 'api', href: '#api', label: 'API' },
+] as const
+export const Model = Schema.Struct({ currentValue: Schema.String })
+export const Message = defineMessageUnion({ Select: { value: Schema.String } })
+type Model = typeof Model.Type
+type Message = typeof Message.Type
+const tabs = (currentValue: string) => ({ items, currentValue, ariaLabel: 'Documentation' })
+
+export const page = galleryPageContract.definePage({
+  Model, Message,
+  init: () => ({ model: { currentValue: 'overview' } }),
+  update: (model: Model, message: Message) => Message.match(message, {
+    Select: ({ value }) => ({ model: { currentValue: value } }),
+  }),
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
+    Heading.view({ as: 'h1' }, ['Tab navigation'], h),
+    TabNav.view(tabs(model.currentValue), [], h),
+    h.section([h.Id('overview')], [Heading.view({ as: 'h2' }, ['Overview'], h), h.p([], ['Gallery overview.'])]),
+    h.section([h.Id('api')], [Heading.view({ as: 'h2' }, ['API'], h), h.p([], ['Gallery API reference.'])]),
+  ])),
+})
+
+export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
+  renderCaptureView(root, request, (h) => h.div([], [
+    TabNav.view(tabs('overview'), [], h),
+  ]))
+  if (request.state === 'keyboard-focus') root.querySelector<HTMLAnchorElement>('a[href="#overview"]')?.focus()
+}

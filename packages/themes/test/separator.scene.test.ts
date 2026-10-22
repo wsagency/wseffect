@@ -15,14 +15,21 @@ it('defaults decorative to true without separator role', () => Scene.scene(
   { update, view: (_model, h) => Separator.view({}, [], h) },
   Scene.given({}),
   Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('role', 'separator'),
+  Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('aria-orientation', 'horizontal'),
 ))
 it('wires non-default Separator props to R2S classes and attributes', () => Scene.scene(
   { update, view: (_model, h) => Separator.view({ orientation: 'vertical', size: '4', color: 'crimson', decorative: true, m: '2' }, [], h) },
   Scene.given({}),
   Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('class', 'rt-Separator rt-r-orientation-vertical rt-r-size-4 rt-r-m-2'),
-  Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('aria-orientation', 'vertical'),
+  Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('aria-orientation', 'vertical'),
   Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('role', 'separator'),
   Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('data-accent-color', 'crimson'),
+))
+it('exposes orientation only for semantic separators', () => Scene.scene(
+  { update, view: (_model, h) => Separator.view({ orientation: 'vertical', decorative: false }, [], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('role', 'separator'),
+  Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('aria-orientation', 'vertical'),
 ))
 it('defaults the accent marker to gray', () => Scene.scene(
   { update, view: (_model, h) => Separator.view({}, [], h) },

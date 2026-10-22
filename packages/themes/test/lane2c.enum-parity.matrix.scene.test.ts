@@ -162,7 +162,7 @@ for (const loading of [false, true]) {
   booleanRows.push({ name: `Skeleton loading=${loading}`, selector: 'div', structure: loading ? ['span.rt-Skeleton'] : [], absentStructure: loading ? [] : ['span.rt-Skeleton'], render: h => h.div([], [Skeleton.view({ loading }, [text], h)]) })
   booleanRows.push({ name: `Spinner loading=${loading}`, selector: 'div', structure: loading ? ['span.rt-Spinner'] : [], absentStructure: loading ? [] : ['span.rt-Spinner'], render: h => h.div([], [Spinner.view({ loading }, [text], h)]) })
 }
-booleanRows.push({ name: 'Separator decorative=true', selector: 'span.rt-Separator', absentAttrs: ['role'], render: h => Separator.view({ decorative: true }, [], h) })
+booleanRows.push({ name: 'Separator decorative=true', selector: 'span.rt-Separator', absentAttrs: ['role', 'aria-orientation'], render: h => Separator.view({ decorative: true }, [], h) })
 booleanRows.push({ name: 'Separator decorative=false', selector: 'span.rt-Separator', attrs: [['role', 'separator'], ['aria-orientation', 'horizontal']], render: h => Separator.view({ decorative: false }, [], h) })
 booleanRows.push({ name: 'IconButton disabled=false', selector: 'button.rt-IconButton', absentAttrs: ['disabled'], render: h => IconButton.view({ disabled: false, 'aria-label': 'Action' }, [text], h) })
 booleanRows.push({ name: 'IconButton disabled=true', selector: 'button.rt-IconButton', attrs: [['disabled', '']], render: h => IconButton.view({ disabled: true, 'aria-label': 'Action' }, [text], h) })

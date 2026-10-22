@@ -30,6 +30,10 @@ describe('gallery shell', () => {
       model((next) => expect(next.theme.accentColor).toBe('crimson')),
       message(Message.PageOutMessage({ message: PageOutMessage.ChangedThemeSetting({ setting: 'accentColor', value: 'not-a-color' }) })),
       model((next) => expect(next.theme.accentColor).toBe('crimson')))
+    story(update, given(initial), message(Message.PageOutMessage({ message: PageOutMessage.ChangedThemeSetting({ setting: 'hasBackground', value: 'false' }) })),
+      model((next) => expect(next.theme.hasBackground).toBe(false)),
+      message(Message.PageOutMessage({ message: PageOutMessage.ChangedThemeSetting({ setting: 'hasBackground', value: 'invalid' }) })),
+      model((next) => expect(next.theme.hasBackground).toBe(false)))
   })
 
   it('shifts the shared date by the requested day count', () => {

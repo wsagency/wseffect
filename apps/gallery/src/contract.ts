@@ -26,7 +26,7 @@ export const themeSettingsFrom = (inputs: PageInputs): Theme.Settings => ({
 export const PageOutMessage = defineMessageUnion({
   RequestedShiftDay: { days: Schema.Number },
   ChangedThemeSetting: {
-    setting: Schema.Literals(['accentColor', 'grayColor', 'radius', 'scaling', 'appearance', 'panelBackground']),
+    setting: Schema.Literals(['accentColor', 'grayColor', 'radius', 'scaling', 'appearance', 'panelBackground', 'hasBackground']),
     value: Schema.String,
   },
 })

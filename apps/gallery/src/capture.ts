@@ -134,8 +134,13 @@ export async function startCapture(url: URL): Promise<void> {
     const target = document.createElement('div')
     target.dataset.sp2Family = request.family
     target.dataset.sp2Component = request.component
-    await (await loadPage()).renderCapture(target, request)
     root.replaceChildren(target)
+    await (await loadPage()).renderCapture(target, request)
+    if (request.state === 'keyboard-focus') {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      const selector = request.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
+      target.querySelector<HTMLElement>(selector)?.focus()
+    }
   } catch (error) {
     showCaptureError(root, error instanceof Error ? error.message : String(error))
   }

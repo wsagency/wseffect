@@ -72,6 +72,10 @@ const updateThemeSetting = (model: Model, setting: string, value: string): Model
       const decoded = Schema.decodeUnknownOption(Theme.Settings.fields.appearance)(value)
       return Option.isSome(decoded) ? { ...model, theme: { ...model.theme, appearance: decoded.value } } : model
     }
+    case 'hasBackground':
+      if (value === 'true') return { ...model, theme: { ...model.theme, hasBackground: true } }
+      if (value === 'false') return { ...model, theme: { ...model.theme, hasBackground: false } }
+      return model
     case 'panelBackground': {
       const decoded = Schema.decodeUnknownOption(Theme.Settings.fields.panelBackground)(value)
       return Option.isSome(decoded) ? { ...model, theme: { ...model.theme, panelBackground: decoded.value } } : model

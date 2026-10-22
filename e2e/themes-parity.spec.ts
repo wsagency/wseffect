@@ -65,7 +65,7 @@ test('Dialog content uses the pinned 600px default max width', async ({ page }) 
 test('Dialog content inherits the dark root Theme', async ({ page }) => {
   await page.goto('/theme')
   await page.getByRole('button', { name: 'Appearance' }).click()
-  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'dialog' }).click()
+  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'dialog', exact: true }).click()
   await page.getByRole('button', { name: 'Open dialog' }).click()
   const dialogContent = page.locator('.rt-DialogContent')
   await expect(dialogContent).toBeVisible()
@@ -109,7 +109,7 @@ test('DropdownMenu portals inherit light and dark root Themes', async ({ page })
   expect(lightBackground).toBe('rgb(255, 255, 255)')
   await page.getByRole('button', { name: 'Actions' }).click()
 
-  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'theme' }).click()
+  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'theme', exact: true }).click()
   await page.getByRole('button', { name: 'Appearance' }).click()
   await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'dropdown-menu' }).click()
   await page.getByRole('button', { name: 'Actions' }).click()
@@ -128,7 +128,7 @@ test('the shared portal root stays inside the Theme and survives shell/theme rer
     ;(window as typeof window & { __portalRootIdentity?: Element }).__portalRootIdentity = element
   })
 
-  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'theme' }).click()
+  await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'theme', exact: true }).click()
   await page.getByRole('button', { name: 'Appearance' }).click()
   await expect(page.locator('.radix-themes.dark > #foldkit-portal-root')).toHaveCount(1)
   await page.getByRole('navigation', { name: 'Gallery pages', exact: true }).getByRole('link', { name: 'menus' }).click()
