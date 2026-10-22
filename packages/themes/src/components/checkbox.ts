@@ -43,7 +43,6 @@ export const view = <Message>(props: Props & { onCheckedChange?: (checked: boole
     toView: attributes => {
       const attrs = [...attributes.checkbox, h.Class(classes)]
       if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
-      if (props.radius !== undefined) attrs.push(h.DataAttribute('radius', props.radius))
       const mark = props.indeterminate ? '−' : '✓'
       return h.label([...attributes.label], [
         h.button(attrs, [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [mark])]),

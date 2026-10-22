@@ -13,6 +13,11 @@ const verticalView = (model: RadioGroup.Model, h: HtmlBuilder<RadioGroup.Message
 const view = (model: RadioGroup.Model, h: HtmlBuilder<RadioGroup.Message | Message>) => Group.view(model, { options: [{ value: 'one', label: h.span([], ['One']) }, { value: 'two', label: h.span([], ['Two']), isDisabled: true }, { value: 'three', label: h.span([], ['Three']) }], selectedValue: Option.some('one'), ariaLabel: 'Choice', orientation: 'Horizontal' }, h as HtmlBuilder<RadioGroup.Message>)
 describe('RadioGroup', () => {
   it('arrows and Home End skip disabled items', () => Scene.scene({ update, view }, Scene.given(Group.init({ id: 'plans' })), Scene.keydown(Scene.selector('[role="radio"]'), 'ArrowRight'), Scene.Command.resolve(RadioGroupUi.FocusOption, RadioGroupUi.Message.CompletedFocusOption()), Scene.expect(Scene.selector('[role="radio"][data-active]')).toExist()))
+  it('renders option labels with the pinned Text class', () => Scene.scene(
+    { update, view },
+    Scene.given(Group.init({ id: 'plans' })),
+    Scene.expect(Scene.selector('.rt-Text.rt-RadioGroupItem')).toExist(),
+  ))
   it('renders vertical orientation and moves focus with vertical arrows', () => Scene.scene(
     { update, view: verticalView },
     Scene.given(Group.init({ id: 'plans' })),

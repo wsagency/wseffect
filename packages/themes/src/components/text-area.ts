@@ -35,6 +35,7 @@ export const Props = Schema.Struct({
 export type Props = typeof Props.Type
 export type ViewProps<Message> = Props & Readonly<{
   onInput?: (value: string) => Message
+  /** Additional native textarea attributes and event handlers. The typed list supports Foldkit's full textarea attribute set and is forwarded directly to the `<textarea>`. */
   textareaAttributes?: ReadonlyArray<TextareaAttribute<Message>>
 }>
 export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
