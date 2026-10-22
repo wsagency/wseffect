@@ -4,7 +4,7 @@ import { spawn, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
-import { tmpdir } from 'node:os'
+import { homedir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from '@playwright/test'
 import { comparePixels, validatePairs, type PixelComparison, type PixelImage } from './compare-sp2.ts'
@@ -48,7 +48,7 @@ const args = process.argv.slice(2)
 const galleryBase = args.find(arg => arg.startsWith('--gallery-url='))?.slice('--gallery-url='.length).replace(/\/$/, '')
 const comparing = args.includes('--compare')
 if (comparing && !galleryBase) throw new Error('compare-sp2 requires --gallery-url=<production-gallery-url>')
-const output = process.env.WSEFFECT_SCRATCH_DIR ?? resolve(tmpdir(), 'wseffect-radix2solid-sp2')
+const output = process.env.WSEFFECT_SCRATCH_DIR ?? resolve(homedir(), '.cache/wseffect-radix2solid-sp2')
 const captureDir = resolve(output, 'captures')
 const reportPath = resolve(output, 'compare-sp2.json')
 const port = Number(process.env.RADIX2SOLID_PREVIEW_PORT ?? 4178)

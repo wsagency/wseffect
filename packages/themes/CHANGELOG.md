@@ -20,6 +20,7 @@
 - Omit `aria-orientation` from decorative Separators; expose it only with separator semantics.
 - Export `components-base.css`, preserving the pre-SP2 component stylesheet set for eager shells.
 - Add themed Checkbox, Radio, Switch, SegmentedControl, Select, TextArea and single/range Slider controls.
+- Export the multi-thumb Slider through an isolated `components/slider/range` subpath so lazy range routes do not pull in the single-slider runtime.
 - Forward native name, required, placeholder, rows, and ARIA attributes to themed TextArea inputs.
 - Cover view reuse counters for CheckboxGroup, CheckboxCards, RadioGroup, RadioCards, SegmentedControl, and TextArea.
 - Allow TextArea labels to be omitted when native ARIA labeling is supplied.

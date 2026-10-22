@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'data-table', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'] as const
-const viewComponentNames = componentNames.filter(name => name !== 'radio-cards')
+const viewComponentNames = [...componentNames.filter(name => name !== 'radio-cards'), 'slider/range'] as const
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',
   './layout.css', './layout/tokens.css', './layout/components.css', './layout/utilities.css',
@@ -14,10 +14,10 @@ const cssSubpaths = [
 ]
 
 describe('themes distribution', () => {
-  it('brands every component view in the built package', async () => {
+  it('brands or delegates every component view in the built package', async () => {
     for (const name of viewComponentNames) {
       const code = await readFile(resolve(packageRoot, `dist/components/${name}.js`), 'utf8')
-      expect(code, name).toContain("from 'foldkit/brand'")
+      expect(code, name).toContain(name === 'slider' ? "from '@foldkit/ui/slider'" : "from 'foldkit/brand'")
     }
   })
 
@@ -25,6 +25,7 @@ describe('themes distribution', () => {
     const packageJson = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')) as { exports: Record<string, unknown> }
     expect(packageJson.exports['.']).toBeDefined()
     for (const name of componentNames) expect(packageJson.exports[`./components/${name}`], name).toBeDefined()
+    expect(packageJson.exports['./components/slider/range']).toBeDefined()
     for (const subpath of cssSubpaths) expect(packageJson.exports[subpath], subpath).toBeDefined()
     const layerEntry = packageJson.exports['./*.layer.css']
     expect(layerEntry).toBeDefined()

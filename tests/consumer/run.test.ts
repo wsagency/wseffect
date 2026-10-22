@@ -81,6 +81,7 @@ test('REPO-2 checks every exported view adapter and component factory', () => {
   assert.notDeepEqual(checkBranding(missingBrand('embed')), [])
   assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from "foldkit"; export const create = () => defineView(() => {})' }]), [])
   assert.deepEqual(checkBranding([{ path: 'dist/other.js', source: 'export const create = () => ({})' }]), [])
+  assert.deepEqual(checkBranding([{ path: 'dist/components/slider.js', source: `import * as SliderUi from '@foldkit/ui/slider'; export const view = SliderUi.view` }]), [])
 })
 
 test('TEST-7 requires every listed export check to pass', () => {

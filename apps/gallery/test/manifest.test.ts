@@ -14,4 +14,11 @@ describe('gallery manifest', () => {
     expect(source).toContain("import '@wsagency/wseffect-themes/components-base.css'")
     expect(source).not.toContain("import '@wsagency/wseffect-themes/components.css'")
   })
+  it('keeps the multi-thumb Gallery slider on its isolated lazy theme subpath', async () => {
+    const source = await readFile(resolve(import.meta.dirname, '../src/components/rangeSlider.ts'), 'utf8')
+    const rangeSource = await readFile(resolve(import.meta.dirname, '../../../packages/themes/src/components/slider/range.ts'), 'utf8')
+    expect(source).toContain("import * as RangeSlider from '@wsagency/wseffect-themes/components/slider/range'")
+    expect(source).not.toContain("from '@wsagency/wseffect-themes/components/slider'")
+    expect(rangeSource).not.toContain("from '@foldkit/ui/slider'")
+  })
 })
