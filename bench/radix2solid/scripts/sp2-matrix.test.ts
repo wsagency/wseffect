@@ -7,8 +7,8 @@ import { test } from 'node:test'
 type Capture = { id: string; component: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown> }
 type Slot = { prop: string; values: ReadonlyArray<string>; sourceProps: string }
 type Component = { id: string; sourceProps: string | null; domainProps: string[]; size: boolean; variantSlots: Slot[]; visualReference?: string; fixtureId: string | null; defaultProps: Record<string, unknown>; interactive: string | null }
-type Family = { family: string; components: Component[]; captures: Capture[] }
-const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as { source: { commit: string }; font: { family: string; face: string; file: string; license: string; weight: number }; fixtures: Record<string, Array<{ id: string; name: string; status: string }>>; families: Family[] }
+type Family = { family: string; route: string; galleryRoute: string; components: Component[]; captures: Capture[] }
+const matrix = JSON.parse(readFileSync(resolve(dirname(fileURLToPath(import.meta.url)), '../sp2-capture-matrix.json'), 'utf8')) as { schemaVersion: number; source: { commit: string }; font: { family: string; face: string; file: string; license: string; weight: number }; fixtures: Record<string, Array<{ id: string; name: string; status: string }>>; families: Family[] }
 const EXPECTED: Record<string, ReadonlyArray<string>> = {
   accessibility: ['AccessibleIcon', 'VisuallyHidden'],
   'layout-extra': ['AspectRatio', 'Container', 'Inset', 'Section'],
@@ -33,10 +33,14 @@ const EXPECTED: Record<string, ReadonlyArray<string>> = {
 }
 
 test('matrix includes every SP2 comparison component on its prescribed family page', () => {
+  assert.equal(matrix.schemaVersion, 3)
   assert.equal(matrix.source.commit, '383676172abb84b4a1d2e54a087d290437ee8848')
   assert.deepEqual(Object.fromEntries(matrix.families.map(family => [family.family, family.components.map(component => component.id)])), EXPECTED)
-  for (const family of matrix.families) for (const component of family.components) {
-    assert.equal(family.captures.filter(capture => capture.component === component.id && capture.state === 'default').length, 2, `${family.family}/${component.id} needs light and dark default captures`)
+  for (const family of matrix.families) {
+    assert.equal(family.galleryRoute, `/components/${family.family}`)
+    for (const component of family.components) {
+      assert.equal(family.captures.filter(capture => capture.component === component.id && capture.state === 'default').length, 2, `${family.family}/${component.id} needs light and dark default captures`)
+    }
   }
 })
 

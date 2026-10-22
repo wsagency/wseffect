@@ -3,10 +3,13 @@ import { accessibilityViolations } from './helpers/accessibility.ts'
 
 const routes = [
   '/', '/layout', '/typography', '/buttons', '/cards', '/text-field', '/dialog',
-  '/dropdown-menu', '/tabs', '/theme', '/shared', '/shared-a', '/virtual-list', '/data-table',
-  '/form', '/menus', '/accessibility', '/layout-extra', '/avatar', '/feedback',
-  '/typography-extra', '/icon-button', '/links', '/scroll-area', '/data', '/theme-panel',
-  '/alert-dialog', '/popover', '/hover-card', '/tooltip', '/context-menu', '/tab-nav',
+  '/dropdown-menu', '/tabs', '/theme', '/shared', '/shared-a', '/virtual-list',
+  '/form', '/menus', '/components', '/components/accessibility', '/components/layout-extra',
+  '/components/avatar', '/components/feedback', '/components/typography-extra', '/components/icon-button',
+  '/components/links', '/components/scroll-area', '/components/data', '/components/forms-extra',
+  '/components/select', '/components/range-slider', '/components/tab-nav', '/components/alert-dialog',
+  '/components/popover', '/components/hover-card', '/components/tooltip', '/components/context-menu',
+  '/components/theme-panel', '/components/data-table',
 ]
 
 test('every gallery route has no accessibility violations', async ({ page }) => {

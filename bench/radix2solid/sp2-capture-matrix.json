@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "source": {
     "repository": "https://github.com/wsagency/radix2solid.git",
     "commit": "383676172abb84b4a1d2e54a087d290437ee8848",
@@ -78,6 +78,7 @@
     {
       "family": "accessibility",
       "route": "accessibility",
+      "galleryRoute": "/components/accessibility",
       "components": [
         {
           "id": "AccessibleIcon",
@@ -134,6 +135,7 @@
     {
       "family": "layout-extra",
       "route": "layout-extra",
+      "galleryRoute": "/components/layout-extra",
       "components": [
         {
           "id": "AspectRatio",
@@ -250,6 +252,7 @@
     {
       "family": "avatar",
       "route": "avatar",
+      "galleryRoute": "/components/avatar",
       "components": [
         {
           "id": "Avatar",
@@ -340,6 +343,7 @@
     {
       "family": "feedback",
       "route": "feedback",
+      "galleryRoute": "/components/feedback",
       "components": [
         {
           "id": "Badge",
@@ -762,6 +766,7 @@
     {
       "family": "typography-extra",
       "route": "typography-extra",
+      "galleryRoute": "/components/typography-extra",
       "components": [
         {
           "id": "Blockquote",
@@ -1078,6 +1083,7 @@
     {
       "family": "icon-button",
       "route": "icon-button",
+      "galleryRoute": "/components/icon-button",
       "components": [
         {
           "id": "IconButton",
@@ -1297,6 +1303,7 @@
     {
       "family": "links",
       "route": "links",
+      "galleryRoute": "/components/links",
       "components": [
         {
           "id": "Link",
@@ -1335,6 +1342,7 @@
     {
       "family": "scroll-area",
       "route": "scroll-area",
+      "galleryRoute": "/components/scroll-area",
       "components": [
         {
           "id": "ScrollArea",
@@ -1373,6 +1381,7 @@
     {
       "family": "data",
       "route": "data",
+      "galleryRoute": "/components/data",
       "components": [
         {
           "id": "Table",
@@ -1505,6 +1514,7 @@
     {
       "family": "forms-extra",
       "route": "forms-extra",
+      "galleryRoute": "/components/forms-extra",
       "components": [
         {
           "id": "Checkbox",
@@ -2405,6 +2415,7 @@
     {
       "family": "select",
       "route": "select",
+      "galleryRoute": "/components/select",
       "components": [
         {
           "id": "Select",
@@ -2647,6 +2658,7 @@
     {
       "family": "range-slider",
       "route": "range-slider",
+      "galleryRoute": "/components/range-slider",
       "components": [
         {
           "id": "Slider",
@@ -2810,6 +2822,7 @@
     {
       "family": "tab-nav",
       "route": "tab-nav",
+      "galleryRoute": "/components/tab-nav",
       "components": [
         {
           "id": "TabNav",
@@ -2860,6 +2873,7 @@
     {
       "family": "alert-dialog",
       "route": "alert-dialog",
+      "galleryRoute": "/components/alert-dialog",
       "components": [
         {
           "id": "AlertDialog",
@@ -2910,6 +2924,7 @@
     {
       "family": "popover",
       "route": "popover",
+      "galleryRoute": "/components/popover",
       "components": [
         {
           "id": "Popover",
@@ -2968,6 +2983,7 @@
     {
       "family": "hover-card",
       "route": "hover-card",
+      "galleryRoute": "/components/hover-card",
       "components": [
         {
           "id": "HoverCard",
@@ -3026,6 +3042,7 @@
     {
       "family": "tooltip",
       "route": "tooltip",
+      "galleryRoute": "/components/tooltip",
       "components": [
         {
           "id": "Tooltip",
@@ -3076,6 +3093,7 @@
     {
       "family": "context-menu",
       "route": "context-menu",
+      "galleryRoute": "/components/context-menu",
       "components": [
         {
           "id": "ContextMenu",
@@ -3168,6 +3186,7 @@
     {
       "family": "theme-panel",
       "route": "theme-panel",
+      "galleryRoute": "/components/theme-panel",
       "components": [
         {
           "id": "ThemePanel",
@@ -3200,6 +3219,7 @@
     {
       "family": "data-table",
       "route": "data-table",
+      "galleryRoute": "/components/data-table",
       "components": [
         {
           "id": "DataTable",

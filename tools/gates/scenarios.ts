@@ -80,7 +80,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   },
   {
     id: 'dt-update',
-    route: '/data-table',
+    route: '/components/data-table',
     inputEventType: 'click',
     hook: 'data-table-update',
     prepare: async () => {},
@@ -92,7 +92,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   },
   {
     id: 'dt-filter',
-    route: '/data-table',
+    route: '/components/data-table',
     inputEventType: 'keydown',
     hook: 'data-table-filter',
     prepare: async (page) => page.locator('[data-perf="data-table-filter"]').fill(''),
@@ -104,7 +104,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   },
   {
     id: 'dt-sort',
-    route: '/data-table',
+    route: '/components/data-table',
     inputEventType: 'click',
     hook: 'data-table-sort',
     prepare: async () => {},
@@ -116,7 +116,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   },
   {
     id: 'dt-select',
-    route: '/data-table',
+    route: '/components/data-table',
     inputEventType: 'click',
     hook: 'data-table-select',
     prepare: async () => {},

@@ -7,6 +7,7 @@ import { page as cardsPage } from '../src/pages/cards.js'
 import { page as textFieldPage } from '../src/pages/textField.js'
 
 const inputs = {
+  path: '/layout',
   date: '2026-10-19',
   accentColor: 'indigo',
   grayColor: 'auto',

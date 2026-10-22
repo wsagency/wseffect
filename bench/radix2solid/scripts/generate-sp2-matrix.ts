@@ -84,10 +84,10 @@ for (const family of families) {
       if (component.id === 'Slider') add('range-keyboard-focus', theme, { ...commonProps, focused: true, value: [25, 70] })
     }
   }
-  generatedFamilies.push({ family: family.family, route: family.family, components, captures })
+  generatedFamilies.push({ family: family.family, route: family.family, galleryRoute: `/components/${family.family}`, components, captures })
 }
 const matrix = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   source: { repository: 'https://github.com/wsagency/radix2solid.git', commit: PIN, extraction: 'packages/themes/src/components/*.props.ts' },
   viewport: { width: 1280, height: 800, deviceScaleFactor: 1 },
   browser: 'playwright.chromium (repository-pinned revision)',

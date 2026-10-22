@@ -6,14 +6,15 @@ import * as UiPopover from '@foldkit/ui/popover'
 import * as UiTooltip from '@foldkit/ui/tooltip'
 import * as UiMenu from '@foldkit/ui/menu'
 import type { PageInputs } from '../src/contract.js'
-import { page as alertDialogPage } from '../src/pages/alertDialog.js'
-import { page as popoverPage } from '../src/pages/popover.js'
-import { page as hoverCardPage } from '../src/pages/hoverCard.js'
-import { page as tooltipPage } from '../src/pages/tooltip.js'
-import { page as contextMenuPage } from '../src/pages/contextMenu.js'
-import { page as tabNavPage } from '../src/pages/tabNav.js'
+import { page as alertDialogPage } from '../src/components/alertDialog.js'
+import { page as popoverPage } from '../src/components/popover.js'
+import { page as hoverCardPage } from '../src/components/hoverCard.js'
+import { page as tooltipPage } from '../src/components/tooltip.js'
+import { page as contextMenuPage } from '../src/components/contextMenu.js'
+import { page as tabNavPage } from '../src/components/tabNav.js'
 
 const inputs: PageInputs = {
+  path: '/components/alert-dialog',
   date: '2026-10-22', accentColor: 'indigo', grayColor: 'slate', radius: 'medium',
   scaling: '100%', appearance: 'inherit', panelBackground: 'translucent',
 }

@@ -4,7 +4,7 @@ type CaptureMatrix = {
   readonly fixtures: Readonly<Record<string, ReadonlyArray<Record<string, unknown>>>>
   readonly families: ReadonlyArray<{
     readonly family: string
-    readonly route: string
+    readonly galleryRoute: string
     readonly components: ReadonlyArray<{
       readonly id: string
       readonly fixtureId: string | null
@@ -36,7 +36,7 @@ export type CapturePageModule = {
   readonly renderCapture: (root: HTMLElement, request: CaptureRequest) => void | Promise<void>
 }
 
-const capturePages = import.meta.glob<CapturePageModule>('./pages/*.ts')
+const capturePages = import.meta.glob<CapturePageModule>('./components/*.ts')
 
 
 async function loadCaptureMatrix(): Promise<CaptureMatrix> {
@@ -64,8 +64,7 @@ export function resolveCaptureRequest(url: URL, matrix: CaptureMatrix): CaptureR
     throw new Error('Capture props query parameter must contain a JSON object')
   }
 
-  const route = url.pathname.replace(/^\/+|\/+$/g, '')
-  const family = matrix.families.find((candidate) => candidate.route === route)
+  const family = matrix.families.find((candidate) => candidate.galleryRoute === url.pathname.replace(/\/+$/, ''))
   if (!family) throw new Error(`Capture route ${url.pathname} is not declared in the matrix`)
 
   const capture = family.captures.find((candidate) => candidate.id === captureId)
@@ -92,7 +91,7 @@ export function resolveCaptureRequest(url: URL, matrix: CaptureMatrix): CaptureR
 
   return {
     family: family.family,
-    route: family.route,
+    route: family.galleryRoute,
     id: capture.id,
     component: componentId,
     state: capture.state,
@@ -126,7 +125,7 @@ export async function startCapture(url: URL): Promise<void> {
   try {
     const request = resolveCaptureRequest(url, await loadCaptureMatrix())
     const pageKey = pageKeyForFamily(request.family)
-    const pagePath = `./pages/${pageKey}.ts`
+    const pagePath = `./components/${pageKey}.ts`
     const loadPage = capturePages[pagePath]
     if (!loadPage) throw new Error(`Capture page module ${pageKey} for family ${request.family} has not been integrated`)
 

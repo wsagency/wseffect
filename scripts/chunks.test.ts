@@ -8,13 +8,13 @@ async function assetNames(directory: string): Promise<ReadonlyArray<string>> {
   return (await readdir(resolve(directory, 'assets'))).filter((name) => name.endsWith('.js')).sort()
 }
 
-test('fixed build IDs rename the entry, changed page, and capture loader while shared assets stay stable', async () => {
+test('fixed build IDs rename the entry, changed component-family page, and capture loader while shared assets stay stable', async () => {
   const fixture = await createGalleryBuildFixture()
-  const tabsPath = resolve(fixture.pagesDir, 'tabs.ts')
+  const dataTablePath = resolve(fixture.galleryDir, 'src/components/dataTable.ts')
   const first = resolve(fixture.rootDir, 'builds/first')
   const second = resolve(fixture.rootDir, 'builds/second')
   try {
-    const source = (await readFile(tabsPath)).toString()
+    const source = (await readFile(dataTablePath)).toString()
     fixture.build({ outDir: first, buildId: 'd3a1234' })
     const initialAssets = resolve(first, 'assets')
     const eagerSourceMaps = (await readdir(initialAssets))
@@ -37,34 +37,38 @@ test('fixed build IDs rename the entry, changed page, and capture loader while s
       false,
       'the initial HTML, framework and app-shared module closure must not contain lazy capability helpers',
     )
-    const changedSource = source.replace("'Overview panel.'", "'Overview panel changed.'")
+    const changedSource = source.replace('rowHeight: 36,', 'rowHeight: 37,')
     assert.notEqual(changedSource, source)
-    await writeFile(tabsPath, changedSource)
+    await writeFile(dataTablePath, changedSource)
     fixture.build({ outDir: second, buildId: 'd3a1234' })
     const before = new Set(await assetNames(first))
     const after = new Set(await assetNames(second))
     const removed = [...before].filter((name) => !after.has(name))
     const added = [...after].filter((name) => !before.has(name))
-    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['capture', 'index', 'tabs'])
-    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['capture', 'index', 'tabs'])
+    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['capture', 'components', 'dataTable', 'index'])
+    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['capture', 'components', 'dataTable', 'index'])
     const oldEntry = removed.find((name) => /^index-[^/]+\.js$/.test(name))
     const newEntry = added.find((name) => /^index-[^/]+\.js$/.test(name))
-    const oldTabs = removed.find((name) => /^tabs-[^/]+\.js$/.test(name))
-    const newTabs = added.find((name) => /^tabs-[^/]+\.js$/.test(name))
+    const oldComponents = removed.find((name) => /^components-[^/]+\.js$/.test(name))
+    const newComponents = added.find((name) => /^components-[^/]+\.js$/.test(name))
+    const oldDataTable = removed.find((name) => /^dataTable-[^/]+\.js$/.test(name))
+    const newDataTable = added.find((name) => /^dataTable-[^/]+\.js$/.test(name))
     const appShared = [...before].find((name) => name.startsWith('app-shared-'))
-    assert.ok(oldEntry && newEntry && oldTabs && newTabs && appShared)
+    assert.ok(oldEntry && newEntry && oldComponents && newComponents && oldDataTable && newDataTable && appShared)
     assert.equal(after.has(appShared), true)
     assert.deepEqual(await readFile(resolve(first, 'assets', appShared)), await readFile(resolve(second, 'assets', appShared)))
-    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(newTabs), true)
-    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldTabs), false)
+    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(newComponents), true)
+    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldComponents), false)
+    assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(newDataTable), true)
+    assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(oldDataTable), false)
     const oldCapture = removed.find((name) => /^capture-[^/]+\.js$/.test(name))
     const newCapture = added.find((name) => /^capture-[^/]+\.js$/.test(name))
     assert.ok(oldCapture && newCapture)
-    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(newTabs), true)
-    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(oldTabs), false)
+    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(newDataTable), true)
+    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(oldDataTable), false)
     assert.deepEqual(
-      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-') && !name.startsWith('capture-')),
-      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('tabs-') && !name.startsWith('capture-')),
+      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),
+      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),
     )
   } finally {
     await fixture.cleanup()

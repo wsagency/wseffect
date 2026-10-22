@@ -265,7 +265,7 @@ test('capture resolver and matrix stay outside the built index.html static closu
   )?.[1]
   assert.ok(captureEntry, 'Gallery capture module is emitted as a lazy dynamic entry')
   assert.ok(captureEntry.assets?.some((asset) => asset.includes('sp2-capture-matrix-')), 'capture matrix is an asset of the lazy capture module')
-  assert.ok(captureEntry.dynamicImports?.some((module) => module.startsWith('src/pages/')), 'capture page modules are lazy imports')
+  assert.ok(captureEntry.dynamicImports?.some((module) => module.startsWith('src/components/')), 'capture family modules are lazy imports')
 
   const assetsDir = join(distDir, 'assets')
   const assets = readdirSync(assetsDir)
@@ -276,10 +276,23 @@ test('capture resolver and matrix stay outside the built index.html static closu
   const expectedShellRaw = readFileSync(join(assetsDir, entry)).byteLength + readFileSync(join(assetsDir, framework)).byteLength
   const expectedShell = brotliBytes(readFileSync(join(assetsDir, entry))) + brotliBytes(readFileSync(join(assetsDir, framework)))
 
-  const result = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
+  const result = await measureSize({
+    distDir,
+    pagesDir: join(appDir, 'src', 'pages'),
+    componentDir: join(appDir, 'src', 'components'),
+  })
   assert.equal(result.shell, expectedShell)
   assert.equal(result.shellRaw, expectedShellRaw)
-  assert.deepEqual(Object.keys(result.pages).sort(), ['accessibility', 'alertDialog', 'avatar', 'browser', 'buttons', 'capabilities', 'cards', 'contextMenu', 'data', 'dataTable', 'dialog', 'dropdownMenu', 'feedback', 'form', 'hoverCard', 'iconButton', 'island', 'layout', 'layoutExtra', 'links', 'menus', 'persistence', 'popover', 'scrollArea', 'sharedA', 'sharedB', 'signals', 'tabNav', 'tabs', 'textField', 'theme', 'themePanel', 'tooltip', 'typography', 'typographyExtra', 'validation', 'virtualList'])
+  assert.deepEqual(Object.keys(result.pages).sort(), [
+    'browser', 'buttons', 'capabilities', 'cards',
+    'component:accessibility', 'component:alertDialog', 'component:avatar', 'component:contextMenu',
+    'component:data', 'component:dataTable', 'component:feedback', 'component:hoverCard',
+    'component:iconButton', 'component:layoutExtra', 'component:links', 'component:popover',
+    'component:scrollArea', 'component:tabNav', 'component:themePanel', 'component:tooltip',
+    'component:typographyExtra', 'components', 'dialog', 'dropdownMenu', 'form', 'island',
+    'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField',
+    'theme', 'typography', 'validation', 'virtualList',
+  ].sort())
   assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
   assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')

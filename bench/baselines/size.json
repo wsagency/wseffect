@@ -30,9 +30,77 @@
       "bytes": 362,
       "reason": "APP-23 runtime-only framework grouping reshapes the Cards lazy chunk by 36 B Brotli-q11; the page remains lazy."
     },
-    "page:dataTable": {
-      "bytes": 6090,
-      "reason": "The 10,000-row virtualized DataTable stays lazy; dedicated benchmark controls measure cell update, filter, sort, and visible-row selection."
+    "page:components": {
+      "bytes": 2511,
+      "reason": "The /components hub is one lazy registry entry; its nested family routes stay outside the initial transfer."
+    },
+    "page:component:accessibility": {
+      "bytes": 577,
+      "reason": "Accessibility demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:alertDialog": {
+      "bytes": 1104,
+      "reason": "AlertDialog demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:avatar": {
+      "bytes": 1263,
+      "reason": "Avatar demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:contextMenu": {
+      "bytes": 3519,
+      "reason": "ContextMenu demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:data": {
+      "bytes": 1811,
+      "reason": "Data demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:dataTable": {
+      "bytes": 6109,
+      "reason": "The 10,000-row virtualized DataTable demo remains a lazy family route; dedicated benchmark controls measure cell update, filter, sort, and visible-row selection."
+    },
+    "page:component:feedback": {
+      "bytes": 3072,
+      "reason": "Feedback demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:hoverCard": {
+      "bytes": 2363,
+      "reason": "HoverCard demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:iconButton": {
+      "bytes": 1409,
+      "reason": "IconButton demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:layoutExtra": {
+      "bytes": 1750,
+      "reason": "Layout-extra demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:links": {
+      "bytes": 1016,
+      "reason": "Links demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:popover": {
+      "bytes": 3291,
+      "reason": "Popover demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:scrollArea": {
+      "bytes": 454,
+      "reason": "ScrollArea demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:tabNav": {
+      "bytes": 1267,
+      "reason": "TabNav demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:themePanel": {
+      "bytes": 1147,
+      "reason": "ThemePanel demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:tooltip": {
+      "bytes": 2658,
+      "reason": "Tooltip demo is independently imported by the nested /components route and remains lazy."
+    },
+    "page:component:typographyExtra": {
+      "bytes": 1366,
+      "reason": "Typography-extra demo is independently imported by the nested /components route and remains lazy."
     },
     "page:dialog": {
       "bytes": 611,
@@ -99,8 +167,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "styles.css": {
-      "bytes": 41932,
-      "reason": "The DataTable page adds its route-scoped data-table stylesheet to the measured CSS set."
+      "bytes": 62486,
+      "reason": "The 2B/2C component-family pages add route-scoped stylesheets and themed component styles to the measured CSS set."
     }
   }
 }

@@ -8,30 +8,30 @@ type CaptureMatrix = {
   readonly fixtures: Readonly<Record<string, ReadonlyArray<Record<string, unknown>>>>
   readonly families: ReadonlyArray<{
     readonly family: string
-    readonly route: string
+    readonly galleryRoute: string
     readonly components: ReadonlyArray<{ readonly id: string; readonly fixtureId: string | null; readonly visualReference?: string }>
     readonly captures: ReadonlyArray<MatrixCapture>
   }>
 }
 const captureMatrix: CaptureMatrix = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../../bench/radix2solid/sp2-capture-matrix.json'), 'utf8'))
 const dataTableUrl = () => new URL(
-  'https://gallery.test/data-table?capture=data-table%2FDataTable%2Fdefault%2Flight&state=default&props=%7B%22size%22%3A%222%22%2C%22variant%22%3A%22surface%22%2C%22fixtureId%22%3A%22sp2-data-table%22%2C%22rows%22%3A10%7D&appearance=light',
+  'https://gallery.test/components/data-table?capture=data-table%2FDataTable%2Fdefault%2Flight&state=default&props=%7B%22size%22%3A%222%22%2C%22variant%22%3A%22surface%22%2C%22fixtureId%22%3A%22sp2-data-table%22%2C%22rows%22%3A10%7D&appearance=light',
 )
 
 const integratedFamilies: Readonly<Record<string, true>> = {
   accessibility: true, 'layout-extra': true, avatar: true, feedback: true, 'typography-extra': true,
   'icon-button': true, links: true, 'scroll-area': true, data: true, 'theme-panel': true,
-  'alert-dialog': true, popover: true, 'hover-card': true, tooltip: true, 'context-menu': true, 'tab-nav': true,
+  'alert-dialog': true, popover: true, 'hover-card': true, tooltip: true, 'context-menu': true, 'tab-nav': true, 'data-table': true,
 }
 const integratedCaptures = captureMatrix.families
   .filter((family) => Object.hasOwn(integratedFamilies, family.family))
-  .flatMap((family) => family.captures.map((capture) => ({ ...capture, family: family.family, route: family.route })))
+  .flatMap((family) => family.captures.map((capture) => ({ ...capture, family: family.family, route: family.galleryRoute })))
 
 describe('Gallery capture resolver', () => {
   it('resolves a matrix capture with its fixture and visual reference', () => {
     expect(resolveCaptureRequest(dataTableUrl(), captureMatrix)).toEqual({
       family: 'data-table',
-      route: 'data-table',
+      route: '/components/data-table',
       id: 'data-table/DataTable/default/light',
       component: 'DataTable',
       state: 'default',
@@ -76,7 +76,7 @@ describe('Gallery capture resolver', () => {
   it.each(integratedCaptures.map((capture) => [capture] as const))('$family $id renders its matrix capture inside the requested theme', async ({
     family, route, id, component, state, theme, props,
   }) => {
-    const url = new URL(`https://gallery.test/${route}`)
+    const url = new URL(route, 'https://gallery.test')
     url.search = new URLSearchParams({
       capture: id,
       state,
@@ -130,7 +130,7 @@ describe('Gallery capture resolver', () => {
     const capture = captureMatrix.families
       .find((family: { family: string }) => family.family === 'forms-extra')!
       .captures[0]
-    const url = new URL(`https://gallery.test/forms-extra?capture=${encodeURIComponent(capture.id)}&state=${encodeURIComponent(capture.state)}&props=${encodeURIComponent(JSON.stringify(capture.props))}&appearance=${capture.theme}`)
+    const url = new URL(`https://gallery.test/components/forms-extra?capture=${encodeURIComponent(capture.id)}&state=${encodeURIComponent(capture.state)}&props=${encodeURIComponent(JSON.stringify(capture.props))}&appearance=${capture.theme}`)
     document.body.innerHTML = '<div id="app"></div>'
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 })))
     try {

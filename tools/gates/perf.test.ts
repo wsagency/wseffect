@@ -124,10 +124,10 @@ test('DataTable 10k scenarios wire the data-table operations at the proposed 4×
   const dataTableScenarios = SCENARIOS.filter(({ id }) => id.startsWith('dt-'))
   assert.deepEqual(dataTableScenarios.map(({ id, route, inputEventType, hook, ceilingMs, ceilingStatus }) =>
     [id, route, inputEventType, hook, ceilingMs, ceilingStatus]), [
-    ['dt-update', '/data-table', 'click', 'data-table-update', 50, 'proposed-not-runner-validated'],
-    ['dt-filter', '/data-table', 'keydown', 'data-table-filter', 50, 'proposed-not-runner-validated'],
-    ['dt-sort', '/data-table', 'click', 'data-table-sort', 50, 'proposed-not-runner-validated'],
-    ['dt-select', '/data-table', 'click', 'data-table-select', 50, 'proposed-not-runner-validated'],
+    ['dt-update', '/components/data-table', 'click', 'data-table-update', 50, 'proposed-not-runner-validated'],
+    ['dt-filter', '/components/data-table', 'keydown', 'data-table-filter', 50, 'proposed-not-runner-validated'],
+    ['dt-sort', '/components/data-table', 'click', 'data-table-sort', 50, 'proposed-not-runner-validated'],
+    ['dt-select', '/components/data-table', 'click', 'data-table-select', 50, 'proposed-not-runner-validated'],
   ])
 
   const calls: string[] = []

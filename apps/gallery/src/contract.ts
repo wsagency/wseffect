@@ -4,6 +4,7 @@ import * as Theme from '@wsagency/wseffect-themes/components/theme'
 import { defineMessageUnion } from 'foldkit/message'
 
 export type PageInputs = Readonly<{
+  path: string
   date: string
   accentColor: Theme.Settings['accentColor']
   grayColor: Theme.Settings['grayColor']

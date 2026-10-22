@@ -8,6 +8,7 @@ import { page as browserPage, Message as BrowserMessage } from '../src/pages/bro
 import { page as islandPage, Message as IslandMessage } from '../src/pages/island.js'
 
 const inputs = {
+  path: '/capabilities',
   date: '2026-10-19', accentColor: 'indigo', grayColor: 'auto', radius: 'medium',
   scaling: '100%', appearance: 'inherit', panelBackground: 'translucent',
 } as const

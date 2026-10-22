@@ -1,18 +1,18 @@
 import * as Scene from 'foldkit/scene'
 import { describe, it } from 'vitest'
 import { type PageInputs } from '../src/contract.js'
-import { page as accessibility } from '../src/pages/accessibility.js'
-import { page as layoutExtra } from '../src/pages/layoutExtra.js'
-import { page as avatar } from '../src/pages/avatar.js'
-import { page as feedback } from '../src/pages/feedback.js'
-import { page as typographyExtra } from '../src/pages/typographyExtra.js'
-import { page as iconButton } from '../src/pages/iconButton.js'
-import { page as links } from '../src/pages/links.js'
-import { Message as ScrollAreaMessage, page as scrollArea } from '../src/pages/scrollArea.js'
-import { Message as DataMessage, page as data } from '../src/pages/data.js'
-import { page as themePanel } from '../src/pages/themePanel.js'
+import { page as accessibility } from '../src/components/accessibility.js'
+import { page as layoutExtra } from '../src/components/layoutExtra.js'
+import { page as avatar } from '../src/components/avatar.js'
+import { page as feedback } from '../src/components/feedback.js'
+import { page as typographyExtra } from '../src/components/typographyExtra.js'
+import { page as iconButton } from '../src/components/iconButton.js'
+import { page as links } from '../src/components/links.js'
+import { Message as ScrollAreaMessage, page as scrollArea } from '../src/components/scrollArea.js'
+import { Message as DataMessage, page as data } from '../src/components/data.js'
+import { page as themePanel } from '../src/components/themePanel.js'
 
-const inputs: PageInputs = { date: '2026-10-19', accentColor: 'indigo', grayColor: 'auto', radius: 'medium', scaling: '100%', appearance: 'inherit', panelBackground: 'translucent' }
+const inputs: PageInputs = { path: '/components/accessibility', date: '2026-10-19', accentColor: 'indigo', grayColor: 'auto', radius: 'medium', scaling: '100%', appearance: 'inherit', panelBackground: 'translucent' }
 
 describe('Gallery lane 2C pages', () => {
   it('renders accessible icon and visually hidden descriptions', () => {

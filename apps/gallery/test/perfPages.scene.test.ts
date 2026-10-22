@@ -6,6 +6,7 @@ import { page as formPage } from '../src/pages/form.js'
 import { Menu, page as menusPage } from '../src/pages/menus.js'
 
 const inputs = {
+  path: '/virtual-list',
   date: '2026-10-19',
   accentColor: 'indigo',
   grayColor: 'auto',

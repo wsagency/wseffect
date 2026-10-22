@@ -15,7 +15,7 @@ type CaptureResult = {
   solidPath: string; galleryPath: string | undefined; comparison: PixelComparison | undefined
   sourceHashes: { radix2solidThemes: string | undefined; radix2solidPrimitives: string | undefined; solidScreenshot: string; galleryScreenshot: string | undefined }
 }
-type Family = { family: string; route: string; captures: Capture[] }
+type Family = { family: string; route: string; galleryRoute: string; captures: Capture[] }
 type CaptureFont = { family: string; face: string; file: string; license: string; weight: number }
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const librarySource = JSON.parse(await readFile(resolve(root, 'library-source.json'), 'utf8')) as {
@@ -135,7 +135,7 @@ try {
     if (galleryBase) {
       const galleryPage = await context.newPage()
       const galleryParams = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
-      const galleryUrl = `${galleryBase}/${family.route}?${galleryParams}`
+      const galleryUrl = `${galleryBase}${family.galleryRoute}?${galleryParams}`
       await galleryPage.goto(galleryUrl, { waitUntil: 'networkidle' })
       await loadCaptureFont(galleryPage)
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })

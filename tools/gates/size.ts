@@ -107,15 +107,19 @@ function relativeKey(root: string, file: string): string {
   return relative(root, file).split(sep).join('/')
 }
 
-function pageSizes(distDir: string, pagesDir: string, manifest: Manifest): Record<string, number> {
+function pageSizes(distDir: string, pagesDir: string, manifest: Manifest, componentDir?: string): Record<string, number> {
   const appDir = dirname(resolve(distDir))
   const pageFiles = filesUnder(pagesDir).filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path))
+    .map((path) => ({ path, key: basename(path, extname(path)) }))
+  const componentFiles = componentDir === undefined
+    ? []
+    : filesUnder(componentDir).filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path))
+      .map((path) => ({ path, key: `component:${basename(path, extname(path))}` }))
   const sizes: Record<string, number> = {}
 
-  for (const source of pageFiles) {
-    const entry = manifest[relativeKey(appDir, source)]
+  for (const { path, key } of [...pageFiles, ...componentFiles]) {
+    const entry = manifest[relativeKey(appDir, path)]
     if (entry?.isDynamicEntry !== true) continue
-    const key = basename(source, extname(source))
     if (Object.hasOwn(sizes, key)) throw new Error(`duplicate page chunk key: ${key}`)
     sizes[key] = brotliBytes(readFileSync(join(distDir, entry.file)))
   }
@@ -211,6 +215,7 @@ async function waitForQuiet(server: ServerHandle, page: import('@playwright/test
 export async function measureSize(input: {
   readonly distDir: string
   readonly pagesDir: string
+  readonly componentDir?: string
   readonly primaryPageKeys?: ReadonlyArray<string>
 }): Promise<SizeReport> {
   const distDir = resolve(input.distDir)
@@ -228,7 +233,7 @@ export async function measureSize(input: {
   const frameworkContents = readFileSync(frameworkFile)
   const shellRaw = entryContents.byteLength + frameworkContents.byteLength
   const shell = brotliBytes(entryContents) + brotliBytes(frameworkContents)
-  const pages = pageSizes(distDir, input.pagesDir, manifest)
+  const pages = pageSizes(distDir, input.pagesDir, manifest, input.componentDir)
   const cssFiles = filesUnder(assetsDir).filter((path) => path.endsWith('.css'))
   const stylesCss = cssFiles.length === 0
     ? undefined
@@ -327,7 +332,11 @@ async function runCli(): Promise<void> {
   }
 
   execFileSync('pnpm', ['--dir', appDir, 'build'], { stdio: 'inherit' })
-  const report = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
+  const report = await measureSize({
+    distDir,
+    pagesDir: join(appDir, 'src', 'pages'),
+    componentDir: join(appDir, 'src', 'components'),
+  })
   console.log(JSON.stringify(report, null, 2))
 
   const baselinePath = join(ROOT, 'bench/baselines/size.json')
