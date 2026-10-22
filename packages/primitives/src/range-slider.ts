@@ -102,6 +102,7 @@ export const update = (model: Model, config: Config, message: Message): Update.R
 
 const percentage = (value: number, min: number, max: number): number =>
   max === min ? 0 : ((value - min) / (max - min)) * 100
+const thumbOffset = (position: number): number => 0.5 - position / 100
 
 const pointerMount = (config: Config): Mount.MountAction<Message> => ({
   name: 'RangeSliderPointer',
@@ -213,7 +214,10 @@ h.OnMount(pointerMount(config)),
         return undefined
       }
       const position = percentage(thumb.value, min, max)
-      const thumbStyle = horizontal ? `left:${position}%` : `bottom:${position}%`
+      const offset = thumbOffset(position)
+      const thumbStyle = horizontal
+        ? `left:calc(${position}% + var(--slider-thumb-size) * ${offset})`
+        : `bottom:calc(${position}% + var(--slider-thumb-size) * ${offset})`
       return h.div([h.DataAttribute('slider-slot', 'thumb-container')], [
         h.input([
           h.Attribute('type', 'range'),

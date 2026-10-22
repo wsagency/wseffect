@@ -1,7 +1,8 @@
+import { Effect, Fiber, Schema, Stream } from 'effect'
+import type * as Mount from 'foldkit/mount'
 import type { HtmlBuilder } from 'foldkit/html'
 import * as Scene from 'foldkit/scene'
-import { Schema } from 'effect'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import * as RangeSlider from '../src/range-slider.js'
 
 const config: RangeSlider.Config = {
@@ -98,6 +99,13 @@ const update = (model: SceneModel, message: RangeSlider.Message) => {
   }
 }
 const render = (model: SceneModel, h: HtmlBuilder<RangeSlider.Message>) => RangeSlider.view(model.slider, model.config, h)
+it('offsets slider thumbs inward at the track edges', () => Scene.scene(
+  { update, view: render },
+  Scene.given(sceneModel()),
+  Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
+  Scene.expect(Scene.selector("[data-slider-slot='thumb'][data-thumb-id='low']")).toHaveAttr('style', 'left:calc(25% + var(--slider-thumb-size) * 0.25)'),
+  Scene.expect(Scene.selector("[data-slider-slot='thumb'][data-thumb-id='high']")).toHaveAttr('style', 'left:calc(75% + var(--slider-thumb-size) * -0.25)'),
+))
 
 it('keyboard view bindings clamp and move thumbs within accessible bounds', () => {
   Scene.scene(
@@ -149,6 +157,49 @@ it('input and pointer bindings start, update, and end a drag', () => {
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '40'),
     Scene.pointerUp(Scene.role('slider', { name: 'low' })),
   )
+})
+it('runs pointer mount handlers through drag completion and cancellation', async () => {
+  let mounted: Mount.MountAction<RangeSlider.Message> | undefined
+  const h = new Proxy({}, {
+    get: (_target, key) => key === 'OnMount'
+      ? (action: Mount.MountAction<RangeSlider.Message>) => { mounted = action }
+      : () => undefined,
+  }) as unknown as HtmlBuilder<RangeSlider.Message>
+  RangeSlider.view(RangeSlider.init(config), config, h)
+  expect(mounted).toBeDefined()
+
+  const root = document.createElement('div')
+  root.setAttribute('data-range-slider-root', '')
+  root.getBoundingClientRect = () => ({ x: 0, y: 0, left: 0, top: 0, right: 100, bottom: 20, width: 100, height: 20, toJSON: () => ({}) })
+  const host = root.appendChild(document.createElement('div'))
+  for (const [id, value] of [['low', 25], ['high', 75]] as const) {
+    const input = document.createElement('input')
+    input.type = 'range'
+    input.dataset.thumbId = id
+    input.value = String(value)
+    host.append(input)
+  }
+  const messages: RangeSlider.Message[] = []
+  const addListener = vi.spyOn(host, 'addEventListener')
+  const fiber = Effect.runFork(Stream.runForEach(mounted!.f(host, Stream.empty), message => Effect.sync(() => messages.push(message))))
+  const pointer = (target: EventTarget, type: string, pointerId: number, clientX: number) => {
+    const event = new Event(type, { bubbles: true, cancelable: true })
+    Object.defineProperties(event, { pointerId: { value: pointerId }, button: { value: 0 }, clientX: { value: clientX } })
+    target.dispatchEvent(event)
+  }
+  try {
+    await vi.waitFor(() => expect(addListener).toHaveBeenCalledWith('pointerdown', expect.any(Function)))
+    pointer(host, 'pointerdown', 1, 25)
+    pointer(document, 'pointermove', 1, 40)
+    pointer(document, 'pointerup', 1, 40)
+    pointer(host, 'pointerdown', 2, 75)
+    pointer(document, 'pointercancel', 2, 75)
+    await vi.waitFor(() => expect(messages).toHaveLength(7))
+    expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue', 'DragValue', 'DragEnd', 'DragStart', 'DragValue', 'CancelDrag'])
+  } finally {
+    await Effect.runPromise(Fiber.interrupt(fiber))
+    addListener.mockRestore()
+  }
 })
 
 it('processes every Message arm', () => {
