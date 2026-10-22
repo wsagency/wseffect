@@ -91,7 +91,7 @@ describe('DataTable model', () => {
     }))
     expect(resized.model.virtualList.measurement).toEqual({ _tag: 'Measured', containerWidth: 420, containerHeight: 220 })
   })
-  it('dispatches the local after-commit scroll command when grid focus moves', () => {
+  it('records pending focus until its stable-key scroll completes', () => {
     const cfg = config({ isGrid: true })
     const result = DataTable.update(
       DataTable.init(cfg),
@@ -99,18 +99,13 @@ describe('DataTable model', () => {
       DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }),
     )
     expect(result.model.activeCell).toEqual({ rowId: 'b', columnId: '$selection' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'b', columnId: '$selection' })
     expect(result.model.virtualList.pendingScroll).toMatchObject({
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
-    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toEqual({
-      containerId: `${cfg.id}-virtual-list`,
-      rowIndex: 1,
-      rowHeight: cfg.rowHeight,
-      rowId: 'b',
-      scrollTop: cfg.rowHeight,
-      columnIndex: 0,
-      shouldFocus: true,
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
   })
 
