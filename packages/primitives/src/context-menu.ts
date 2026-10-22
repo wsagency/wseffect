@@ -10,6 +10,13 @@ import type * as Update from 'foldkit/update'
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
 export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }
 export type ContextMenuSeparator = { kind: 'separator'; id: string }
+type ContextMenuClasses = Readonly<{
+  panel?: string
+  item?: string
+  group?: string
+  groupLabel?: string
+  separator?: string
+}>
 export type ContextMenuConfig<Value extends string> = {
   id: string
   items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuGroup<Value> | ContextMenuSeparator>
@@ -17,6 +24,7 @@ export type ContextMenuConfig<Value extends string> = {
   sourceId: string
   sourceToken: string
   toItem(item: Value): Html
+  classes?: ContextMenuClasses
 }
 export const ContextMenuInvocationSchema = Schema.Struct({
   sourceId: Schema.String,
@@ -197,12 +205,12 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       const index = itemIndex++
       if (isSeparator(item)) return h.div([
         h.Id(`${config.id}-separator-${item.id}`), h.Role('separator'),
-        h.Class('rt-BaseMenuSeparator rt-ContextMenuSeparator'),
+        ...(config.classes?.separator === undefined ? [] : [h.Class(config.classes.separator)]),
       ], [])
       const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value === index : fallbackActive === index
       return h.div([
         h.Id(`${config.id}-item-${index}`), h.Role('menuitem'), h.Attribute('tabindex', '-1'),
-        h.Class('rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
+        ...(config.classes?.item === undefined ? [] : [h.Class(config.classes.item)]),
         h.AriaDisabled(item.isDisabled), ...(active ? [h.Attribute('data-active', '')] : []),
         ...(item.isDisabled ? [] : [
           h.OnClick(Menu.Message.SelectedItem({ index, item: item.value })),
@@ -212,8 +220,11 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       ], [item.content])
     }
     const renderedItems = config.items.map(item => 'items' in item
-      ? h.div([h.Role('group'), h.Class('rt-BaseMenuGroup rt-ContextMenuGroup')], [
-        h.div([h.Class('rt-BaseMenuLabel rt-ContextMenuLabel')], [item.label]),
+      ? h.div([
+        h.Role('group'),
+        ...(config.classes?.group === undefined ? [] : [h.Class(config.classes.group)]),
+      ], [
+        h.div(config.classes?.groupLabel === undefined ? [] : [h.Class(config.classes.groupLabel)], [item.label]),
         ...item.items.map(renderItem),
       ])
       : renderItem(item))
@@ -232,7 +243,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       h.span([], [config.id]),
       model.isOpen ? h.div([
         h.Id(`${config.id}-items`), h.Role('menu'), h.Attribute('tabindex', '-1'),
-        h.Class('rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent'),
+        ...(config.classes?.panel === undefined ? [] : [h.Class(config.classes.panel)]),
         h.OnMount(anchorMount(model, config)),
         h.OnKeyDownFocus((key, modifiers) => {
           const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value : fallbackActive ?? -1

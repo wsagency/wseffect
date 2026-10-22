@@ -6,13 +6,21 @@ import { defineView } from 'foldkit/submodel'
 import * as LocalContextMenu from '@wsagency/wseffect-primitives/context-menu'
 import type { ContextMenuConfig, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator } from '@wsagency/wseffect-primitives/context-menu'
 
+const themedClasses: NonNullable<ContextMenuConfig<string>['classes']> = Object.freeze({
+  panel: 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent',
+  item: 'rt-reset rt-BaseMenuItem rt-ContextMenuItem',
+  group: 'rt-BaseMenuGroup rt-ContextMenuGroup',
+  groupLabel: 'rt-BaseMenuLabel rt-ContextMenuLabel',
+  separator: 'rt-BaseMenuSeparator rt-ContextMenuSeparator',
+})
+
 export const Model = LocalContextMenu.ContextMenuModelSchema
 export type Model = LocalContextMenu.ContextMenuModel
 export const Message = LocalContextMenu.ContextMenuMessageSchema
 export const OutMessage = UiMenu.OutMessage
 export type Message = LocalContextMenu.ContextMenuMessage
 export type OutMessage<Value extends string> = LocalContextMenu.ContextMenuOutMessage<Value>
-export type Config<Value extends string> = ContextMenuConfig<Value>
+export type Config<Value extends string> = Omit<ContextMenuConfig<Value>, 'classes'>
 export type Item<Value extends string> = ContextMenuItem<Value>
 export type Group<Value extends string> = ContextMenuGroup<Value>
 export type Separator = ContextMenuSeparator
@@ -40,7 +48,7 @@ export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{
 export const create = <Value extends string>(): Bundle<Value> => {
   const contextMenu = LocalContextMenu.createContextMenu<Value>()
   const view = defineView<Model, Message, Config<Value>>((model, config, h) =>
-    brandViewResult(contextMenu.view(model, config, h), 'wseffect/ContextMenu')
+    brandViewResult(contextMenu.view(model, { ...config, classes: themedClasses }, h), 'wseffect/ContextMenu')
   )
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(
     config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Config<Value>, Message, OutMessage<Value>, ParentOutMessage>, 'update'>,

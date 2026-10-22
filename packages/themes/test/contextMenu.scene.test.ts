@@ -43,7 +43,7 @@ describe('themed ContextMenu', () => {
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
     )
   })
-  it('renders themed content, item, group, and separator classes', () => {
+  it('renders themed content, item, group, group-label, and separator classes', () => {
     Scene.scene<ContextMenu.Model, ContextMenu.Message, ContextMenu.OutMessage<'edit' | 'delete'>>(
       { update, view },
       Scene.given(contextMenu.init(config)),
@@ -55,6 +55,7 @@ describe('themed ContextMenu', () => {
       Scene.expect(Scene.selector('.rt-BaseMenuItem')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
       Scene.expect(Scene.selector('.rt-BaseMenuGroup')).toHaveAttr('class', 'rt-BaseMenuGroup rt-ContextMenuGroup'),
       Scene.expect(Scene.selector('.rt-BaseMenuSeparator')).toHaveAttr('class', 'rt-BaseMenuSeparator rt-ContextMenuSeparator'),
+      Scene.expect(Scene.selector('.rt-BaseMenuLabel')).toHaveAttr('class', 'rt-BaseMenuLabel rt-ContextMenuLabel'),
     )
   })
 

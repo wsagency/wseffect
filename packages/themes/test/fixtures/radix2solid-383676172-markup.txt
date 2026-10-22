@@ -1,6 +1,6 @@
 # Provenance: wsagency/radix2solid commit 383676172abb84b4a1d2e54a087d290437ee8848
 # Excerpts copied verbatim from packages/themes/src/components/dialog.tsx:26-33,
-# packages/themes/src/components/dropdown-menu.tsx:39-43,59-63, and packages/themes/src/components/tabs.tsx:15-24.
+# packages/themes/src/components/dropdown-menu.tsx:39-43,59-63, context-menu.tsx:42,61,82-83,85, and tabs.tsx:15-24.
 
     get class() { return ['rt-BaseDialogContent', 'rt-DialogContent', parsed.class]; }
   }) as Native.DialogContentProps;
@@ -35,3 +35,9 @@ function TabsTrigger(props: TabsTriggerProps): Element {
     <span class="rt-BaseTabListTriggerInnerHidden rt-TabsTriggerInnerHidden">{props.children}</span>
   </TabsPrimitive.Trigger>;
 }
+
+    get class() { return ['rt-PopperContent', 'rt-BaseMenuContent', 'rt-ContextMenuContent', parsed.class]; },
+    get ['data-accent-color']() { return props.color; }, get class() { return ['rt-reset', 'rt-BaseMenuItem', 'rt-ContextMenuItem', props.class]; },
+function ContextMenuLabel(props: ContextMenuLabelProps): Element { return <Native.Label {...merge(props, { get class() { return ['rt-BaseMenuLabel', 'rt-ContextMenuLabel', props.class]; } })} asChild={false} />; }
+function ContextMenuGroup(props: ContextMenuGroupProps): Element { return <Native.Group {...merge(props, { get class() { return ['rt-BaseMenuGroup', 'rt-ContextMenuGroup', props.class]; } })} asChild={false} />; }
+function ContextMenuSeparator(props: ContextMenuSeparatorProps): Element { return <Native.Separator {...merge(props, { get class() { return ['rt-BaseMenuSeparator', 'rt-ContextMenuSeparator', props.class]; } })} asChild={false} />; }
