@@ -1,3 +1,4 @@
+import { brandViewResult } from 'foldkit/brand'
 import { Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as RadioGroupUi from '@foldkit/ui/radioGroup'
@@ -23,9 +24,9 @@ export type ViewInputs<Value extends string> = RadioGroup.ViewInputs<Value> & Re
 export type Bundle<Value extends string> = Omit<RadioGroup.Bundle<Value>, 'view'> & Readonly<{ view(model: Model, inputs: ViewInputs<Value>, h: HtmlBuilder<Message>): Html }>
 export const create = <Value extends string>(): Bundle<Value> => {
   const group = RadioGroup.create<Value>()
-  const view = (model: Model, inputs: ViewInputs<Value>, h: HtmlBuilder<Message>): Html => group.view(model, {
+  const view = (model: Model, inputs: ViewInputs<Value>, h: HtmlBuilder<Message>): Html => brandViewResult(group.view(model, {
     ...inputs,
-    props: { ...inputs.props, rootClass: 'rt-SegmentedControlRoot' },
-  }, h)
+    props: { ...inputs.props, rootClass: 'rt-SegmentedControlRoot', itemClass: 'rt-SegmentedControlItem', itemInnerClass: 'rt-SegmentedControlItemLabel' },
+  }, h), 'wseffect/SegmentedControl')
   return { ...group, view }
 }
