@@ -41,7 +41,7 @@ const decorationsByBuilder = new WeakMap<object, TableDecorations>()
 const columnsByNameHeader = new WeakMap<object, WeakMap<object, ReadonlyArray<DataTable.Column<Row>>>>()
 const columnsByModel = new WeakMap<object, ReadonlyArray<DataTable.Column<Row>>>()
 
-function tableDecorations(h: HtmlBuilder<Message>): TableDecorations {
+function tableDecorations<BuilderMessage>(h: HtmlBuilder<BuilderMessage>): TableDecorations {
   const cached = decorationsByBuilder.get(h)
   if (cached) return cached
   const decorations = {
@@ -203,13 +203,14 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   const rows = captureRows(request)
   renderCaptureView(root, request, (h) => {
-    const decorations = tableDecorations(h)
+    const tableBuilder = h as unknown as HtmlBuilder<DataTable.Message>
+    const decorations = tableDecorations(tableBuilder)
     const modelInputs = { rows, selectedRowIds: [] as ReadonlyArray<string> }
     const config = tableConfig(
       modelInputs,
       tableColumns(decorations.nameHeader, decorations.statusHeader),
       decorations.caption,
     )
-    return DataTable.view(DataTable.init(config), config, h)
+    return DataTable.view(DataTable.init(config), config, tableBuilder)
   })
 }
