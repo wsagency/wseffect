@@ -268,6 +268,15 @@ test('trace window without ET bounds rAF search to the first frame after input',
   assert.equal(traceScriptingDuration(events, 'click'), 10)
   assert.equal(traceAnimationFrameCount(events, 'click'), 1)
 })
+test('trace window ignores Paint events before the matched input when Event Timing bounds it', () => {
+  const events = [
+    { name: 'Paint', ph: 'X', ts: 90_000, dur: 1_000 },
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 5_000, args: { data: { type: 'click' } } },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 110_000, dur: 5_000 },
+  ]
+  assert.equal(traceScriptingDuration(events, 'click', 40), 10)
+  assert.equal(traceAnimationFrameCount(events, 'click', 40), 1)
+})
 
 
 test('harness self-test observes valid slow/fast clicks and traced rAF work', { timeout: 45_000 }, async () => {

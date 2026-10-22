@@ -216,6 +216,7 @@ function tracePresentationBoundary(
   if (eventTimingEnd !== undefined) {
     let boundary: number | undefined
     for (const presentation of presentations) {
+      if (presentation.ts! <= inputStart) continue
       if (presentation.ts! > eventTimingEnd) break
       boundary = presentation.ts
     }
