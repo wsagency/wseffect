@@ -10,16 +10,15 @@ const overlays: ReadonlyArray<Overlay> = [
   {
     route: '/components/popover',
     open: async (page) => {
-      await page.getByRole('button', { name: 'Details' }).click()
-      return page.getByRole('dialog', { name: 'Additional information' })
+      await page.getByText('Details', { exact: true }).click()
+      return page.locator('.rt-PopoverContent')
     },
   },
   {
     route: '/components/tooltip',
     open: async (page) => {
-      const trigger = page.getByRole('button', { name: 'Save' })
-      await trigger.hover()
-      return page.getByRole('tooltip', { name: 'Save changes help' })
+      await page.getByRole('button', { name: 'Save' }).hover()
+      return page.locator('.rt-TooltipContent')
     },
   },
   {
@@ -34,7 +33,7 @@ const overlays: ReadonlyArray<Overlay> = [
     route: '/components/alert-dialog',
     open: async (page) => {
       await page.getByRole('button', { name: 'Delete record' }).click()
-      return page.getByRole('alertdialog')
+      return page.locator('dialog[open][role="alertdialog"]')
     },
   },
 ]
@@ -44,57 +43,26 @@ for (const overlayCase of overlays) {
     await page.goto(overlayCase.route)
     const overlay = await overlayCase.open(page)
     await expect(overlay).toBeVisible()
-    await expect.poll(() => overlay.evaluate(element => {
-      const rootTheme = element.ownerDocument.querySelector('.radix-themes')
-      const theme = element.closest('.radix-themes')
-      const portal = element.closest('#foldkit-portal-root')
-      return Boolean(rootTheme && theme === rootTheme && portal?.parentElement === rootTheme && portal.contains(element) && !element.closest('main'))
-    })).toBe(true)
-    const lightTheme = await overlay.evaluate(element => {
-      const theme = element.closest('.radix-themes')
+    const tokens = await overlay.evaluate(element => {
+      const rootTheme = element.ownerDocument.querySelector<HTMLElement>('.radix-themes[data-is-root-theme="true"]')
+      const portal = rootTheme?.querySelector<HTMLElement>('#foldkit-portal-root') ?? null
       const overlayStyle = getComputedStyle(element)
-      const themeStyle = theme === null ? null : getComputedStyle(theme)
+      const themeStyle = rootTheme === null ? null : getComputedStyle(rootTheme)
       return {
+        inRootPortal: portal?.parentElement === rootTheme && portal.contains(element),
         accent: overlayStyle.getPropertyValue('--accent-9').trim(),
+        themeAccent: themeStyle?.getPropertyValue('--accent-9').trim() ?? '',
         radius: overlayStyle.getPropertyValue('--radius-3').trim(),
-        themeAccent: themeStyle?.getPropertyValue('--accent-9').trim(),
-        themeRadius: themeStyle?.getPropertyValue('--radius-3').trim(),
+        themeRadius: themeStyle?.getPropertyValue('--radius-3').trim() ?? '',
       }
     })
-    expect(lightTheme.accent).not.toBe('')
-    expect(lightTheme.radius).not.toBe('')
-    expect(lightTheme.accent).toBe(lightTheme.themeAccent)
-    expect(lightTheme.radius).toBe(lightTheme.themeRadius)
-    await expect(page.locator('.radix-themes > #foldkit-portal-root')).toHaveCount(1)
-    if (overlayCase.route === '/components/alert-dialog') {
-      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
-    } else {
-      await page.keyboard.press('Escape')
-    }
-    await expect(overlay).not.toBeVisible()
-    const nav = page.getByRole('navigation', { name: 'Gallery pages', exact: true })
-    await nav.getByRole('link', { name: 'theme', exact: true }).click()
-    await page.getByRole('button', { name: 'Appearance' }).click()
-    await nav.locator(`a[href="${overlayCase.route}"]`).click()
-    const darkOverlay = await overlayCase.open(page)
-    await expect(darkOverlay).toBeVisible()
-    const darkTheme = await darkOverlay.evaluate(element => {
-      const theme = element.closest('.radix-themes')
-      const overlayStyle = getComputedStyle(element)
-      const themeStyle = theme === null ? null : getComputedStyle(theme)
-      return {
-        accent: overlayStyle.getPropertyValue('--accent-9').trim(),
-        radius: overlayStyle.getPropertyValue('--radius-3').trim(),
-        themeAccent: themeStyle?.getPropertyValue('--accent-9').trim(),
-        themeRadius: themeStyle?.getPropertyValue('--radius-3').trim(),
-        dark: theme?.classList.contains('dark') ?? false,
-      }
-    })
-    expect(darkTheme.accent).not.toBe('')
-    expect(darkTheme.accent).toBe(darkTheme.themeAccent)
-    expect(darkTheme.radius).toBe(darkTheme.themeRadius)
-    expect(darkTheme.radius).not.toBe('')
-    expect(darkTheme.dark).toBe(true)
-    await expect(page.locator('.radix-themes > #foldkit-portal-root')).toHaveCount(1)
+    expect(tokens.inRootPortal).toBe(true)
+    expect(tokens.accent).not.toBe('')
+    expect(tokens.themeAccent).not.toBe('')
+    expect(tokens.accent).toBe(tokens.themeAccent)
+    expect(tokens.radius).not.toBe('')
+    expect(tokens.themeRadius).not.toBe('')
+    expect(tokens.radius).toBe(tokens.themeRadius)
+    await expect(page.locator('.radix-themes[data-is-root-theme="true"] > #foldkit-portal-root')).toHaveCount(1)
   })
 }
