@@ -118,7 +118,7 @@ it('PageUp and PageDown move vertical thumbs and expose vertical orientation', (
   Scene.scene(
     { update, view: render },
     Scene.given(sceneModel(vertical)),
-    Scene.expect(Scene.role('group', { name: 'vertical range' })).toHaveAttr('aria-orientation', 'vertical'),
+    Scene.expect(Scene.role('group', { name: 'vertical range' })).not.toHaveAttr('aria-orientation'),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('aria-orientation', 'vertical'),
     Scene.keydown(Scene.role('slider', { name: 'low' }), 'PageUp'),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '30'),

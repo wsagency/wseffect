@@ -26,7 +26,12 @@ export function renderCaptureView(root: HTMLElement, request: CaptureRequest, vi
     Model: CaptureModel,
     init: () => ({ model: {} }),
     update: (model) => ({ model }),
-    view: (_model, h) => Theme.view({ settings, isRoot: true }, [view(h, request)], h),
+    view: (_model, h) => Theme.view({ settings, isRoot: true }, [
+      h.div([
+        h.DataAttribute('sp2-capture-target', ''),
+        h.Style({ width: '480px', minHeight: '160px', padding: '24px', background: 'var(--gray-2, #f6f7f9)', boxSizing: 'border-box' }),
+      ], [view(h, request)]),
+    ], h),
     container: runtimeHost,
   }))
 }

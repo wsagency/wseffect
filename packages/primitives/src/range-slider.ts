@@ -103,7 +103,6 @@ export const view = (model: Model, config: Config, h: HtmlBuilder<Message>): Htm
   h.div([
     h.Role('group'),
     h.AriaLabel(`${config.orientation} range`),
-    h.AriaOrientation(config.orientation),
     h.Attribute('data-disabled', String(config.isDisabled === true)),
   ], config.thumbs.map((thumb, index) => {
     const bounds = limit(thumb, index, config)

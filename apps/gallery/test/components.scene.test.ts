@@ -20,6 +20,19 @@ describe('Gallery Components hub', () => {
     expect(Schema.decodeUnknownSync(modelCodec)(encodedModel)).toEqual(entered.model)
     expect(Schema.decodeUnknownSync(messageCodec)(encodedMessage)).toEqual(message)
   })
+  it.each(['formsExtra', 'select', 'rangeSlider'] as const)('loads lane 2A family %s through its lazy slot', family => {
+    const initial = Components.page.init()
+    const message = Components.Message.RouteChanged({ family })
+    const entered = Components.page.update(initial.model, message)
+
+    expect(entered.model.familyKit.activeKeys).toEqual([family])
+    expect(entered.model.familyKit.slots[family]._tag).toBe('Loading')
+    expect(entered.commands?.some(command => command.name === 'LoadGalleryComponentFamily')).toBe(true)
+
+    const modelCodec = Schema.toCodecJson(Components.Model)
+    const encodedModel = Schema.encodeSync(modelCodec)(entered.model)
+    expect(Schema.decodeUnknownSync(modelCodec)(encodedModel)).toEqual(entered.model)
+  })
 
   it('keeps DataTable model and message codecs available to nested family state', () => {
     const initial = dataTablePage.init()

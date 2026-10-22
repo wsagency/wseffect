@@ -1,31 +1,17 @@
 import { brandViewResult } from 'foldkit/brand'
-import { responsiveProp, responsiveClasses } from '../props/responsive.js'
-import { Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
-import { responsiveSchema } from '../props/componentSchema.js'
+import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { layoutPropDefs } from '../props/layout.props.js'
-import { paddingClasses, paddingPropSchemas } from '../props/padding.props.js'
-import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
+import { paddingClasses } from '../props/padding.classes.js'
+import { marginClasses } from '../props/margin.classes.js'
+import type { ViewProps } from './box.props.js'
 import { styledElement } from './element.js'
+export { Props } from './box.props.js'
+export type { ViewProps } from './box.props.js'
 
 const displayValues = ['none', 'inline', 'inline-block', 'block', 'contents', 'flex', 'inline-flex', 'grid', 'inline-grid'] as const
 const displayProp = responsiveProp({ className: 'rt-r-display', values: displayValues })
 
-export const Props = Schema.Struct({
-  as: Schema.optional(Schema.Literals(['div', 'span'])),
-  display: Schema.optional(responsiveSchema(displayValues)),
-  position: Schema.optional(responsiveSchema(['static', 'relative', 'absolute', 'fixed', 'sticky'])),
-  overflow: Schema.optional(responsiveSchema(['visible', 'hidden', 'clip', 'scroll', 'auto'])),
-  width: Schema.optional(responsiveSchema([], true)),
-  minWidth: Schema.optional(responsiveSchema([], true)),
-  maxWidth: Schema.optional(responsiveSchema([], true)),
-  height: Schema.optional(responsiveSchema([], true)),
-  minHeight: Schema.optional(responsiveSchema([], true)),
-  maxHeight: Schema.optional(responsiveSchema([], true)),
-  ...paddingPropSchemas,
-  ...marginPropSchemas,
-})
-export type ViewProps = typeof Props.Type
 
 export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
   const results = [

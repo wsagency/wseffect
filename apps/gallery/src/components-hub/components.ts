@@ -14,12 +14,15 @@ type FamilyPages = {
   data: typeof import('../components/data.js').page
   dataTable: typeof import('../components/dataTable.js').page
   feedback: typeof import('../components/feedback.js').page
+  formsExtra: typeof import('../components/formsExtra.js').page
   hoverCard: typeof import('../components/hoverCard.js').page
   iconButton: typeof import('../components/iconButton.js').page
   layoutExtra: typeof import('../components/layoutExtra.js').page
   links: typeof import('../components/links.js').page
   popover: typeof import('../components/popover.js').page
+  rangeSlider: typeof import('../components/rangeSlider.js').page
   scrollArea: typeof import('../components/scrollArea.js').page
+  select: typeof import('../components/select.js').page
   tabNav: typeof import('../components/tabNav.js').page
   themePanel: typeof import('../components/themePanel.js').page
   tooltip: typeof import('../components/tooltip.js').page
@@ -34,12 +37,15 @@ const familyPages = makePages<FamilyPages>({
   data: () => import('../components/data.js').then((module) => module.page),
   dataTable: () => import('../components/dataTable.js').then((module) => module.page),
   feedback: () => import('../components/feedback.js').then((module) => module.page),
+  formsExtra: () => import('../components/formsExtra.js').then((module) => module.page),
   hoverCard: () => import('../components/hoverCard.js').then((module) => module.page),
   iconButton: () => import('../components/iconButton.js').then((module) => module.page),
   layoutExtra: () => import('../components/layoutExtra.js').then((module) => module.page),
   links: () => import('../components/links.js').then((module) => module.page),
   popover: () => import('../components/popover.js').then((module) => module.page),
+  rangeSlider: () => import('../components/rangeSlider.js').then((module) => module.page),
   scrollArea: () => import('../components/scrollArea.js').then((module) => module.page),
+  select: () => import('../components/select.js').then((module) => module.page),
   tabNav: () => import('../components/tabNav.js').then((module) => module.page),
   themePanel: () => import('../components/themePanel.js').then((module) => module.page),
   tooltip: () => import('../components/tooltip.js').then((module) => module.page),
@@ -47,9 +53,10 @@ const familyPages = makePages<FamilyPages>({
 })
 const FamilyKeySchema = Schema.Literals([
   'accessibility', 'alertDialog', 'avatar', 'contextMenu', 'data', 'dataTable', 'feedback',
-  'hoverCard', 'iconButton', 'layoutExtra', 'links', 'popover', 'scrollArea', 'tabNav',
-  'themePanel', 'tooltip', 'typographyExtra',
+  'formsExtra', 'hoverCard', 'iconButton', 'layoutExtra', 'links', 'popover', 'rangeSlider',
+  'scrollArea', 'select', 'tabNav', 'themePanel', 'tooltip', 'typographyExtra',
 ])
+
 
 const FamilyMessage = defineTaggedUnion({ ...kitMessageFields(familyPages) })
 const familyPageMessageTags = {
@@ -60,12 +67,15 @@ const familyPageMessageTags = {
   data: 'GotDataPageMessage',
   dataTable: 'GotDataTablePageMessage',
   feedback: 'GotFeedbackPageMessage',
+  formsExtra: 'GotFormsExtraPageMessage',
   hoverCard: 'GotHoverCardPageMessage',
   iconButton: 'GotIconButtonPageMessage',
   layoutExtra: 'GotLayoutExtraPageMessage',
   links: 'GotLinksPageMessage',
   popover: 'GotPopoverPageMessage',
+  rangeSlider: 'GotRangeSliderPageMessage',
   scrollArea: 'GotScrollAreaPageMessage',
+  select: 'GotSelectPageMessage',
   tabNav: 'GotTabNavPageMessage',
   themePanel: 'GotThemePanelPageMessage',
   tooltip: 'GotTooltipPageMessage',
@@ -82,12 +92,15 @@ const familyRoutes = [
   { key: 'data', path: '/components/data', label: 'Data' },
   { key: 'dataTable', path: '/components/data-table', label: 'Data table' },
   { key: 'feedback', path: '/components/feedback', label: 'Feedback' },
+  { key: 'formsExtra', path: '/components/forms-extra', label: 'Form controls' },
   { key: 'hoverCard', path: '/components/hover-card', label: 'Hover card' },
   { key: 'iconButton', path: '/components/icon-button', label: 'Icon button' },
   { key: 'layoutExtra', path: '/components/layout-extra', label: 'Layout extras' },
   { key: 'links', path: '/components/links', label: 'Links' },
   { key: 'popover', path: '/components/popover', label: 'Popover' },
+  { key: 'rangeSlider', path: '/components/range-slider', label: 'Range slider' },
   { key: 'scrollArea', path: '/components/scroll-area', label: 'Scroll area' },
+  { key: 'select', path: '/components/select', label: 'Select' },
   { key: 'tabNav', path: '/components/tab-nav', label: 'Tab navigation' },
   { key: 'themePanel', path: '/components/theme-panel', label: 'Theme panel' },
   { key: 'tooltip', path: '/components/tooltip', label: 'Tooltip' },

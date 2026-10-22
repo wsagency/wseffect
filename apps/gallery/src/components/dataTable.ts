@@ -1,12 +1,15 @@
 import '@wsagency/wseffect-themes/css/data-table.css'
+import '@wsagency/wseffect-themes/css/table.css'
 import { Schema } from 'effect'
 import { Command, Submodel } from 'foldkit'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
+import * as Table from '@wsagency/wseffect-themes/components/table'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 import type { CaptureRequest } from '../capture.js'
+import { renderCaptureView } from '../captureView.js'
 
 const RowSchema = Schema.Struct({
   id: Schema.String,
@@ -198,75 +201,25 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
   })
 }
 
-function captureCell(tag: 'td' | 'th', text: string): HTMLTableCellElement {
-  const cell = document.createElement(tag)
-  cell.textContent = text
-  return cell
-}
-
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   const rows = captureRows(request)
-  const theme = document.createElement('div')
-  theme.className = `radix-themes ${request.theme}`
-  theme.dataset.isRootTheme = 'true'
-  theme.dataset.accentColor = 'indigo'
-  theme.dataset.grayColor = 'slate'
-  theme.dataset.radius = 'medium'
-  theme.dataset.scaling = '100%'
-  theme.dataset.hasBackground = 'true'
-  theme.dataset.panelBackground = 'translucent'
-  const portal = document.createElement('div')
-  portal.id = 'foldkit-portal-root'
-  theme.append(portal)
-
-  const scroll = document.createElement('div')
-  scroll.className = 'wse-data-table__scroll'
-  scroll.style.overflow = 'auto'
-  scroll.style.maxHeight = '360px'
-  const table = document.createElement('table')
-  table.className = 'wse-data-table'
-  table.dataset.size = String(request.props.size)
-  table.dataset.variant = String(request.props.variant)
-  const head = document.createElement('thead')
-  const headerRow = document.createElement('tr')
-  const selectionHeader = document.createElement('th')
-  const selectAll = document.createElement('input')
-  selectAll.type = 'checkbox'
-  selectAll.setAttribute('aria-label', 'Select all visible rows')
-  selectAll.tabIndex = -1
-  selectionHeader.append(selectAll)
-  headerRow.append(selectionHeader, captureCell('th', 'Name'), captureCell('th', 'Status'))
-  head.append(headerRow)
-  const body = document.createElement('tbody')
-  const appendSpacer = (position: 'top' | 'bottom') => {
-    const spacer = document.createElement('tr')
-    spacer.setAttribute('aria-hidden', 'true')
-    spacer.dataset.virtualListSpacer = position
-    const cell = document.createElement('td')
-    cell.colSpan = 3
-    cell.style.height = '0px'
-    cell.style.padding = '0'
-    cell.style.border = '0'
-    spacer.append(cell)
-    body.append(spacer)
-  }
-  appendSpacer('top')
-  rows.forEach((row, index) => {
-    const tr = document.createElement('tr')
-    tr.dataset.virtualListItemKey = row.id
-    tr.dataset.virtualListItemIndex = String(index)
-    tr.style.height = '36px'
-    const selectionCell = document.createElement('td')
-    const checkbox = document.createElement('input')
-    checkbox.type = 'checkbox'
-    checkbox.setAttribute('aria-label', `Select row ${row.id}`)
-    selectionCell.append(checkbox)
-    tr.append(selectionCell, captureCell('td', row.name), captureCell('td', row.status))
-    body.append(tr)
-  })
-  appendSpacer('bottom')
-  table.append(head, body)
-  scroll.append(table)
-  theme.append(scroll)
-  root.replaceChildren(theme)
+  renderCaptureView(root, request, (h) => Table.Root.view(
+    {
+      size: request.props.size as '1' | '2' | '3',
+      variant: request.props.variant as 'surface' | 'ghost',
+    },
+    [
+      Table.Header.view({}, [
+        Table.Row.view({}, [
+          Table.ColumnHeaderCell.view({}, ['Name'], h),
+          Table.ColumnHeaderCell.view({}, ['Status'], h),
+        ], h),
+      ], h),
+      Table.Body.view({}, rows.map((row) => Table.Row.view({}, [
+        Table.RowHeaderCell.view({}, [row.name], h),
+        Table.Cell.view({}, [row.status], h),
+      ], h)), h),
+    ],
+    h,
+  ))
 }

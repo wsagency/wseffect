@@ -21,6 +21,9 @@ describe('gallery route page keys', () => {
     ['/components', ['components']],
     ['/components/data-table', ['components']],
     ['/components/tooltip', ['components']],
+    ['/components/forms-extra', ['components']],
+    ['/components/select', ['components']],
+    ['/components/range-slider', ['components']],
     ['/components/', ['components']],
   ] as const)('maps %s to its lazy pages', (route, keys) => {
     expect(pageKeysForRoute(route)).toEqual(keys)
@@ -32,7 +35,7 @@ describe('gallery route page keys', () => {
       '/components/typography-extra', '/components/icon-button', '/components/links', '/components/scroll-area',
       '/components/data', '/components/data-table', '/components/theme-panel', '/components/alert-dialog',
       '/components/popover', '/components/hover-card', '/components/tooltip', '/components/context-menu',
-      '/components/tab-nav',
+      '/components/tab-nav', '/components/forms-extra', '/components/select', '/components/range-slider',
     ]
     for (const route of newRoutes) {
       for (const key of pageKeysForRoute(route)) {

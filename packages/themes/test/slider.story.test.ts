@@ -39,7 +39,7 @@ describe('Slider', () => {
     const view = (model: Slider.RangeModel, h: HtmlBuilder<Slider.RangeMessage | Other>) => Slider.Range.view(model, config, h as HtmlBuilder<Slider.RangeMessage>)
     const update = (model: Slider.RangeModel, message: Slider.RangeMessage | Other) => message._tag === 'Tick' ? { model } : Slider.Range.update(model, config, message)
     Scene.scene({ update, view }, Scene.given(Slider.Range.init(config)),
-      Scene.expect(Scene.role('group', { name: 'vertical range' })).toHaveAttr('aria-orientation', 'vertical'),
+      Scene.expect(Scene.role('group', { name: 'vertical range' })).not.toHaveAttr('aria-orientation'),
       Scene.expect(Scene.selector('[data-thumb-id="low"]')).toHaveAttr('aria-orientation', 'vertical'))
   })
   it('builds the single-value parent fold adapter', () => {

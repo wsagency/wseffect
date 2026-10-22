@@ -105,7 +105,9 @@ export function Sp2Page(props: AppPageProps & { family: string; title: string })
       <div class="demo-grid">
         <For each={components}>{name => <section class="bench-section" data-sp2-component={name}>
           <R2S.Heading as="h3">{name}</R2S.Heading>
-          <Specialized name={name} values={componentId === name ? visualProps : {}} state={componentId === name ? state : 'default'} />
+          <div data-sp2-capture-target style={{ width: '480px', 'min-height': '160px', padding: '24px', background: 'var(--gray-2, #f6f7f9)', 'box-sizing': 'border-box' }}>
+            <Specialized name={name} values={componentId === name ? visualProps : {}} state={componentId === name ? state : 'default'} />
+          </div>
         </section>}</For>
       </div>
     </section>

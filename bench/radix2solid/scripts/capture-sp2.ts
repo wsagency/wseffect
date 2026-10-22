@@ -128,8 +128,9 @@ try {
       await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).hover()
     }
     await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
+    const solidComponent = page.locator('[data-sp2-capture-target]')
     const solidPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.solid.png`)
-    await page.screenshot({ path: solidPath, fullPage: false, animations: 'disabled' })
+    await solidComponent.screenshot({ path: solidPath, animations: 'disabled' })
     let galleryPath: string | undefined
     let comparison: PixelComparison | undefined
     if (galleryBase) {
@@ -141,7 +142,8 @@ try {
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
       const pairedGalleryPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.gallery.png`)
       galleryPath = pairedGalleryPath
-      await galleryPage.screenshot({ path: pairedGalleryPath, fullPage: false, animations: 'disabled' })
+      const galleryComponent = galleryPage.locator('[data-sp2-capture-target]')
+      await galleryComponent.screenshot({ path: pairedGalleryPath, animations: 'disabled' })
       comparison = comparePixels(await decodePng(page, solidPath), await decodePng(galleryPage, pairedGalleryPath))
       await galleryPage.close()
     }

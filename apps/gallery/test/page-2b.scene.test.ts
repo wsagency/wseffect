@@ -56,6 +56,8 @@ describe('Gallery lane 2B pages', () => {
       Scene.expect(Scene.role('heading', { name: 'Tooltip' })).toExist(),
       Scene.focus(Scene.role('button', { name: 'Save changes help' })),
       Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
+      Scene.expect(Scene.selector('[data-perf="tooltip-open"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="tooltip-close"]')).toExist(),
       Scene.expect(Scene.role('tooltip')).toExist(),
       Scene.expect(Scene.text('Save your changes')).toExist())
   })

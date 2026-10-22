@@ -1,0 +1,62 @@
+import { Option, Schema } from 'effect'
+import '@wsagency/wseffect-themes/css/checkbox.css'
+import '@wsagency/wseffect-themes/css/checkbox-group.css'
+import '@wsagency/wseffect-themes/css/checkbox-cards.css'
+import '@wsagency/wseffect-themes/css/radio.css'
+import '@wsagency/wseffect-themes/css/radio-group.css'
+import '@wsagency/wseffect-themes/css/radio-cards.css'
+import '@wsagency/wseffect-themes/css/switch.css'
+import '@wsagency/wseffect-themes/css/segmented-control.css'
+import type { HtmlBuilder } from 'foldkit/html'
+import { Submodel } from 'foldkit'
+import { defineMessageUnion } from 'foldkit/message'
+import * as Checkbox from '@wsagency/wseffect-themes/components/checkbox'
+import * as CheckboxGroup from '@wsagency/wseffect-themes/components/checkbox-group'
+import * as CheckboxCards from '@wsagency/wseffect-themes/components/checkbox-cards'
+import * as Radio from '@wsagency/wseffect-themes/components/radio'
+import * as RadioGroup from '@wsagency/wseffect-themes/components/radio-group'
+import * as RadioCards from '@wsagency/wseffect-themes/components/radio-cards'
+import * as Switch from '@wsagency/wseffect-themes/components/switch'
+import * as SegmentedControl from '@wsagency/wseffect-themes/components/segmented-control'
+import * as Heading from '@wsagency/wseffect-themes/components/heading'
+import { galleryPageContract, type PageInputs } from '../contract.js'
+import { renderCaptureView } from '../captureView.js'
+import type { CaptureRequest } from '../capture.js'
+
+export const Model = Schema.Struct({ checked: Schema.Boolean, enabled: Schema.Boolean })
+export const Message = defineMessageUnion({ ToggleCheckbox: { checked: Schema.Boolean }, ToggleSwitch: { enabled: Schema.Boolean } })
+type Model = typeof Model.Type
+type Message = typeof Message.Type
+const frequencyGroup = RadioGroup.create<string>()
+const billingGroup = RadioCards.create<string>()
+const segmented = SegmentedControl.create<string>()
+const draw = (h: HtmlBuilder<Message>, name: string, props: Record<string, unknown> = {}) => {
+  if (name === 'Checkbox') return Checkbox.view<Message>({ id: 'forms-extra-checkbox', checked: false, ...props } as Checkbox.Props & { onCheckedChange?: (checked: boolean) => Message }, ['Enable notifications'], h)
+  if (name === 'Switch') return Switch.view<Message>({ id: 'forms-extra-switch', checked: false, ...props } as Switch.Props & { onCheckedChange?: (checked: boolean) => Message }, ['Airplane mode'], h)
+  if (name === 'CheckboxGroup') return CheckboxGroup.view<string, Message>({ id: 'forms-extra-group', label: h.span([], ['Notifications']), options: [{ value: 'updates', label: h.span([], ['Product updates']) }, { value: 'news', label: h.span([], ['Company news']) }], selected: new Set(['updates']), toggleMessage: (_value, checked) => Message.ToggleCheckbox({ checked }), variant: 'soft', ...props } as Parameters<typeof CheckboxGroup.view<string, Message>>[0], h)
+  if (name === 'CheckboxCards') return CheckboxCards.view<string, Message>({ id: 'forms-extra-cards', label: 'Plans', options: [{ value: 'standard', label: ['Standard plan'] }, { value: 'premium', label: ['Premium plan'] }], selected: new Set(['standard']), toggleMessage: (_value, checked) => Message.ToggleCheckbox({ checked }), variant: 'classic', highContrast: true, ...props } as Parameters<typeof CheckboxCards.view<string, Message>>[0], h)
+  if (name === 'Radio') return Radio.view<Message>({ id: 'forms-extra-radio', value: 'daily', checked: true, ...props } as Radio.Props & { onValueChange?: (value: string) => Message }, ['Daily'], h)
+  const groupInputs = { options: [{ value: 'daily', label: h.span([], ['Daily']) }, { value: 'weekly', label: h.span([], ['Weekly']) }], selectedValue: Option.some('daily'), ariaLabel: 'Frequency', orientation: 'Horizontal' as const, props: { variant: 'surface', ...props } } as Parameters<typeof frequencyGroup.view>[1]
+  if (name === 'RadioGroup') return frequencyGroup.view(frequencyGroup.init({ id: 'gallery-frequency' }), groupInputs, h as unknown as HtmlBuilder<typeof frequencyGroup.Message.Type>)
+  if (name === 'RadioCards') return billingGroup.view(billingGroup.init({ id: 'gallery-billing' }), { options: [{ value: 'monthly', label: h.span([], ['Monthly']) }, { value: 'yearly', label: h.span([], ['Yearly']) }], selectedValue: Option.some('monthly'), ariaLabel: 'Billing', orientation: 'Horizontal', props: { variant: 'surface', ...props } } as Parameters<typeof billingGroup.view>[1], h as unknown as HtmlBuilder<typeof billingGroup.Message.Type>)
+  return segmented.view(segmented.init({ id: 'gallery-view' }), { options: [{ value: 'day', label: h.span([], ['Day']) }, { value: 'week', label: h.span([], ['Week']) }], selectedValue: Option.some('day'), ariaLabel: 'View mode', orientation: 'Horizontal', props: { variant: 'surface', ...props } } as Parameters<typeof segmented.view>[1], h as unknown as HtmlBuilder<typeof segmented.Message.Type>)
+}
+export const page = galleryPageContract.definePage({
+  Model, Message,
+  init: () => ({ model: { checked: false, enabled: false } }),
+  update: (model: Model, message: Message) => Message.match(message, {
+    ToggleCheckbox: ({ checked }) => ({ model: { ...model, checked } }),
+    ToggleSwitch: ({ enabled }) => ({ model: { ...model, enabled } }),
+  }),
+  view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
+    Heading.view({ as: 'h1' }, ['Forms extra'], h),
+    h.section([], [Heading.view({ as: 'h2' }, ['Checkboxes'], h), draw(h, 'Checkbox', { checked: model.checked, onCheckedChange: (checked: boolean) => Message.ToggleCheckbox({ checked }) }), draw(h, 'Checkbox', { variant: 'classic', size: '3', highContrast: true }), draw(h, 'CheckboxGroup', { variant: 'soft' }), draw(h, 'CheckboxCards')]),
+    h.section([], [Heading.view({ as: 'h2' }, ['Radio controls'], h), draw(h, 'Radio'), draw(h, 'RadioGroup'), draw(h, 'RadioCards')]),
+    h.section([], [Heading.view({ as: 'h2' }, ['Switch'], h), draw(h, 'Switch', { checked: model.enabled, variant: 'soft', size: '3', onCheckedChange: (enabled: boolean) => Message.ToggleSwitch({ enabled }) })]),
+    h.section([], [Heading.view({ as: 'h2' }, ['Segmented control'], h), draw(h, 'SegmentedControl')]),
+  ])),
+})
+
+export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
+  renderCaptureView(root, request, h => draw(h as unknown as HtmlBuilder<Message>, request.component, request.props))
+}

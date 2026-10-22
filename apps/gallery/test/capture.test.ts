@@ -126,7 +126,7 @@ describe('Gallery capture resolver', () => {
     expect(() => resolveCaptureRequest(dataTableUrl(), inconsistentMatrix)).toThrow(/capture id.*component/i)
   })
 
-  it('fails visibly without emitting a capture target until its page family is integrated', async () => {
+  it('renders an integrated family capture without an error or missing target', async () => {
     const capture = captureMatrix.families
       .find((family: { family: string }) => family.family === 'forms-extra')!
       .captures[0]
@@ -136,8 +136,9 @@ describe('Gallery capture resolver', () => {
     try {
       await startCapture(url)
       const app = document.getElementById('app')!
-      expect(app.querySelector('[data-sp2-capture-error]')?.textContent).toMatch(/has not been integrated/)
-      expect(app.querySelector('[data-sp2-family]')).toBeNull()
+      expect(app.querySelector('[data-sp2-capture-error]')).toBeNull()
+      expect(app.querySelector('[data-sp2-family]')?.getAttribute('data-sp2-family')).toBe('forms-extra')
+      expect(app.querySelector('[data-sp2-capture-target]')).not.toBeNull()
     } finally {
       vi.unstubAllGlobals()
       document.body.replaceChildren()

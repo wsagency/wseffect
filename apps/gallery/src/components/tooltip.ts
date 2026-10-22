@@ -28,7 +28,11 @@ export const page = galleryPageContract.definePage({
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Tooltip'], h),
-    Tooltip.embed(h, { slotId: 'gallery-tooltip', model: model.tooltip, toParentMessage: message => Message.TooltipEvent({ message }), viewInputs: tooltipInputs }),
+    h.button([h.Type('button'), h.DataAttribute('perf', 'tooltip-open')], ['Previous control']),
+    h.div([h.DataAttribute('perf', 'tooltip-close')], [
+      Tooltip.embed(h, { slotId: 'gallery-tooltip', model: model.tooltip, toParentMessage: message => Message.TooltipEvent({ message }), viewInputs: tooltipInputs }),
+    ]),
+    h.button([h.Type('button')], ['Continue']),
   ])),
 })
 
