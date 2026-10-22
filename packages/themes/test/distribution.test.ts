@@ -80,6 +80,7 @@ describe('themes distribution', () => {
       'rt-DropdownMenuContent', 'rt-DropdownMenuItem', 'rt-DropdownMenuViewport',
       'rt-TabsList', 'rt-TabsRoot', 'rt-TabsTrigger', 'rt-TabsTriggerInner', 'rt-TabsTriggerInnerHidden',
     ] as const
+    const unstyledStructuralClasses = ['rt-SelectGroup'] as const
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
     const upstreamClasses = new Set([...radix2solidMarkup.matchAll(/\b(rt-[A-Za-z0-9_-]+)\b/g)].map(([, className]) => className))
@@ -88,8 +89,11 @@ describe('themes distribution', () => {
       expect(emittedClasses.has(alias), `emitted semantic alias ${alias}`).toBe(true)
     }
     const css = await readFile(resolve(packageRoot, 'dist/styles/styles.css'), 'utf8')
+    for (const structuralClass of unstyledStructuralClasses) {
+      expect(emittedClasses.has(structuralClass), `emitted structural alias ${structuralClass}`).toBe(true)
+    }
     for (const className of emittedClasses) {
-      if (!semanticAliases.includes(className as typeof semanticAliases[number])) {
+      if (!semanticAliases.includes(className as typeof semanticAliases[number]) && !unstyledStructuralClasses.includes(className as typeof unstyledStructuralClasses[number])) {
         expect(css, `.${className}`).toContain(`.${className}`)
       }
     }

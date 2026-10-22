@@ -50,36 +50,66 @@ export const create = <Value extends string>(): Bundle<Value> => {
     const size = config.props?.size ?? '2'
     const sizeClasses = typeof size === 'string' ? `rt-r-size-${size}` : responsiveClasses(sizeProp, size).classes.join(' ')
     const classes = [sizeClasses, variantClasses[config.props?.variant ?? 'surface']].join(' ')
-    if (config.position === 'popper') return brandViewResult(h.div([
-      h.Class(classes),
-      ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),
-      ...(config.props?.radius === undefined ? [] : [h.DataAttribute('radius', config.props.radius)]),
-    ], [adapter.view(model, config, h)]), 'wseffect/Select')
+    const highContrast = config.props?.highContrast === true
+    const appearance = {
+      triggerClassName: ['rt-reset', 'rt-SelectTrigger', classes, ...(highContrast ? ['rt-high-contrast'] : [])].join(' '),
+      contentClassName: ['rt-SelectContent', classes, 'rt-variant-solid', ...(highContrast ? ['rt-high-contrast'] : [])].join(' '),
+      itemClassName: 'rt-SelectItem',
+      groupClassName: 'rt-SelectGroup',
+      labelClassName: 'rt-SelectLabel',
+      separatorClassName: 'rt-SelectSeparator',
+      ...(config.props?.color === undefined ? {} : { accentColor: config.props.color }),
+      ...(config.props?.radius === undefined ? {} : { radius: config.props.radius }),
+      highContrast,
+    }
     const flatItems = config.items.flatMap(item => 'items' in item ? item.items : [item])
     const selectedValue = Option.isSome(config.selectedValue) ? config.selectedValue.value : undefined
     const selected = selectedValue === undefined ? undefined : flatItems.find((item): item is SelectItem<Value> => !('kind' in item) && item.value === selectedValue)
+    const triggerContent = h.span([h.Class('rt-SelectTriggerInner')], [
+      selected !== undefined ? selected.content : config.props?.placeholder ?? config.id,
+      h.span([h.Class('rt-SelectIcon'), h.Attribute('aria-hidden', 'true')], ['⌄']),
+    ])
+    if (config.position === 'popper') return brandViewResult(h.div([
+      h.Class(classes),
+    ], [adapter.view(model, { ...config, appearance: { ...appearance, triggerContent } }, h)]), 'wseffect/Select')
+    const selectedIndex = flatItems.findIndex(item => !('kind' in item) && item.value === selectedValue)
+    const firstEnabled = flatItems.findIndex(item => !('kind' in item) && !item.isDisabled)
+    let lastEnabled = -1
+    flatItems.forEach((item, index) => {
+      if (!('kind' in item) && !item.isDisabled) lastEnabled = index
+    })
+    const triggerOpenMessage = (key: string): Option.Option<Message> => {
+      if (key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Enter' && key !== ' ') return Option.none()
+      const index = key === 'ArrowUp'
+        ? selectedIndex >= 0 ? selectedIndex : lastEnabled
+        : selectedIndex >= 0 ? selectedIndex : firstEnabled
+      return Option.some(Message.Opened({ maybeActiveItemIndex: index < 0 ? Option.none() : Option.some(index) }))
+    }
     return brandViewResult(h.div([
       h.Class(classes),
-      ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),
-      ...(config.props?.radius === undefined ? [] : [h.DataAttribute('radius', config.props.radius)]),
     ], [
       h.button([
-        h.Id(`${config.id}-trigger`), h.Type('button'), h.Role('combobox'), h.AriaLabel(config.id), h.Attribute('aria-haspopup', 'listbox'),
-        h.AriaExpanded(model.isOpen), h.OnClick(Message.Opened({ maybeActiveItemIndex: Option.none() })),
-        h.Class(['rt-reset', 'rt-SelectTrigger', sizeClasses, variantClasses[config.props?.variant ?? 'surface']].join(' ')),
-      ], [selected !== undefined ? selected.content : config.props?.placeholder ?? config.id]),
+        h.Id(`${config.id}-button`), h.Type('button'), h.Role('combobox'), h.AriaLabel(config.id),
+        h.Attribute('aria-haspopup', 'listbox'), h.AriaExpanded(model.isOpen),
+        ...(model.isOpen ? [h.Attribute('aria-controls', `${config.id}-items`)] : []),
+        ...(Option.isSome(model.maybeActiveItemIndex) ? [h.AriaActiveDescendant(`${config.id}-item-${model.maybeActiveItemIndex.value}`)] : []),
+        h.OnClick(model.isOpen ? Message.Closed() : Message.Opened({ maybeActiveItemIndex: Option.none() })),
+        h.OnKeyDownPreventDefault(triggerOpenMessage),
+        ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),
+        ...(config.props?.radius === undefined ? [] : [h.DataAttribute('radius', config.props.radius)]),
+        ...(highContrast ? [h.Class('rt-high-contrast')] : []),
+        h.Class(appearance.triggerClassName),
+      ], [triggerContent]),
       ...(model.isOpen ? [h.div([
-        h.Class(['rt-SelectContent', sizeClasses, 'rt-variant-solid', ...(config.props?.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
         h.OnMount(SelectPosition.mountSelectPosition({
-          panelId: `${config.id}-listbox`,
-          triggerId: `${config.id}-trigger`,
-          selectedItemId: `${config.id}-option-${selected?.value ?? ''}`,
-          ...(Option.isSome(model.maybeActiveItemIndex) ? (() => {
-            const active = flatItems[model.maybeActiveItemIndex.value]
-            return active !== undefined && !('kind' in active) && !active.isDisabled ? { activeItemId: `${config.id}-option-${active.value}` } : {}
-          })() : {}),
+          panelId: `${config.id}-items`,
+          triggerId: `${config.id}-button`,
+          selectedItemId: `${config.id}-item-${selectedIndex}`,
+          ...(Option.isSome(model.maybeActiveItemIndex)
+            ? { activeItemId: `${config.id}-item-${model.maybeActiveItemIndex.value}` }
+            : {}),
         })),
-      ], [adapter.view(model, config, h)])] : []),
+      ], [adapter.view(model, { ...config, appearance }, h)])] : []),
     ]), 'wseffect/Select')
   }
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage<Value>, ParentOutMessage>, 'update'>): Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage> => Update.foldChild({ ...config, update: adapter.update })
