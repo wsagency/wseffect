@@ -46,6 +46,7 @@ test('packed consumer stops preview retries after three collisions', async () =>
 })
 test('packed tarballs are sourced from the matching local package directory', () => {
   assert.equal(packageDirectory('/consumer-workspace', 'app'), resolve('/consumer-workspace/packages/app'))
+  assert.equal(packageDirectory('/consumer-workspace', 'primitives'), resolve('/consumer-workspace/packages/primitives'))
   assert.equal(packageDirectory('/consumer-workspace', 'themes'), resolve('/consumer-workspace/packages/themes'))
 })
 test('tarball discovery ignores files already present before packing', () => {

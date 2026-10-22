@@ -648,6 +648,98 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-primitives:./checkbox-group:view": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:ContextMenuInvocationSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:ContextMenuMessageSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:ContextMenuModelSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:LongPressExpiredSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:OpenedAtSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:SourceUnmountedSchema": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./context-menu:createContextMenu": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:Message": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:Model": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:OutMessage": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:init": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:update": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./range-slider:view": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./select-position:mountSelectPosition": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./select:SelectMessage": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./select:SelectModel": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./select:createSelect": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./tooltip-group:Message": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./tooltip-group:Model": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./tooltip-group:init": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./tooltip-group:reflectShowDelay": [
+    "public-surface",
+    "branding"
+  ],
+  "export:@wsagency/wseffect-primitives:./tooltip-group:update": [
+    "public-surface",
+    "branding"
+  ],
   "export:@wsagency/wseffect-themes:./breakpoints:BREAKPOINTS": [
     "public-surface",
     "branding"
@@ -857,6 +949,30 @@
     "consumer-install",
     "gallery-build",
     "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./checkbox-group": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./context-menu": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./range-slider": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./select": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./select-position": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "subpath:@wsagency/wseffect-primitives:./tooltip-group": [
+    "public-surface",
+    "consumer-install"
   ],
   "subpath:@wsagency/wseffect-themes:.": [
     "public-surface",
@@ -2687,6 +2803,144 @@
   "type:@wsagency/wseffect-app:./vite:WseffectOptions": [
     "public-surface",
     "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-primitives:./checkbox-group:Option": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./checkbox-group:Props": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./checkbox-group:view": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuBundle": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuCommand": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuConfig": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuGroup": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuInvocation": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuInvocationSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuItem": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuMessage": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuMessageSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuModel": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuModelSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuOutMessage": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:ContextMenuSeparator": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:LongPressExpiredSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:OpenedAtSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:SourceUnmountedSchema": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./context-menu:createContextMenu": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:Config": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:Message": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:Model": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:OutMessage": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:Thumb": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:init": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:update": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./range-slider:view": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select-position:SelectPositionConfig": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select-position:mountSelectPosition": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectBundle": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectConfig": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectGroup": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectItem": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectMessage": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectModel": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectOption": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:SelectSeparator": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./select:createSelect": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:Config": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:Message": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:Model": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:OutMessage": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:init": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:reflectShowDelay": [
+    "public-surface"
+  ],
+  "type:@wsagency/wseffect-primitives:./tooltip-group:update": [
+    "public-surface"
   ],
   "type:@wsagency/wseffect-themes:.:Box": [
     "public-surface",
