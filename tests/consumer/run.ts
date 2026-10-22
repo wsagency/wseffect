@@ -210,6 +210,9 @@ export default defineConfig({
     lib: { entry: 'tree-shaking.ts', formats: ['es'], fileName: 'tree-shaking' } },
 })\n`)
   await cp(resolve(consumerDir, 'fixtures/sp2'), resolve(root, 'sp2'), { recursive: true })
+  await mkdir(resolve(root, 'src/consumer'), { recursive: true })
+  await cp(resolve(consumerDir, 'fixtures/themes-root-types.ts'), resolve(root, 'src/consumer/themes-root-types.ts'))
+  await cp(resolve(consumerDir, 'fixtures/themes-root-consumer.mjs'), resolve(root, 'themes-root-consumer.mjs'))
   await writeFile(resolve(root, 'vite.sp2.config.ts'), `
 import { defineConfig } from 'vite'
 export default defineConfig({
@@ -247,6 +250,9 @@ async function main(): Promise<void> {
       requireAll: process.env.WSEFFECT_REQUIRE_APP_CAPABILITIES === '1',
     })
     run('pnpm', ['exec', 'tsc', '--noEmit'], root)
+    passedChecks.push('themes-root-types')
+    run('node', ['themes-root-consumer.mjs'], root)
+    passedChecks.push('themes-root-api')
     passedChecks.push('consumer-install', 'gallery-build', 'app-capabilities', 'gallery-typecheck', 'up8')
 
     const lockfile = await readFile(resolve(root, 'pnpm-lock.yaml'), 'utf8')

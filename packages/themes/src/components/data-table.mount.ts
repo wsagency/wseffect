@@ -48,11 +48,12 @@ export function makeDataTableMounts<State>(message: typeof Message, tableStates:
       })
       container.scrollTop = scrollTop
       if (shouldFocus && rowId === null) {
-        container.focus()
+        container.querySelector<HTMLElement>('[role="grid"]')?.focus()
       } else if (shouldFocus && rowId !== null) {
         const row = Array.from(container.querySelectorAll<HTMLTableRowElement>('tr[data-virtual-list-item-key]'))
           .find(candidate => candidate.dataset.virtualListItemKey === rowId)
-        row?.cells.item(columnIndex)?.focus()
+        const cell = row?.cells.item(columnIndex)
+        if (cell?.tabIndex === 0) cell.focus()
       }
       return VirtualList.Message.ObservedContainerScroll({
         scrollTop: container.scrollTop,

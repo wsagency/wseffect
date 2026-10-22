@@ -1,6 +1,6 @@
 export type PixelImage = { width: number; height: number; data: Uint8Array }
 export type SemanticPair = { id: string; state: string; props: unknown; theme?: string }
-export type PixelComparison = { accepted: boolean; changedPixels: number; changedPercent: number; largestRegionPixels: number; largestRegionPercent: number }
+export type PixelComparison = { status: 'PASSED' | 'FAILED'; accepted: boolean; changedPixels: number; changedPercent: number; largestRegionPixels: number; largestRegionPercent: number; sizeMismatch?: { left: { width: number; height: number }; right: { width: number; height: number } } }
 
 const PIXEL_NOISE_DELTA = 2
 const EDGE_ANTIALIAS_DELTA = 20
@@ -27,7 +27,19 @@ function isEdge(image: PixelImage, x: number, y: number): boolean {
 }
 
 export function comparePixels(left: PixelImage, right: PixelImage): PixelComparison {
-  if (left.width !== right.width || left.height !== right.height || left.data.length !== right.data.length) throw new Error('capture dimensions do not match')
+  if (left.width !== right.width || left.height !== right.height) return {
+    status: 'FAILED',
+    accepted: false,
+    changedPixels: 0,
+    changedPercent: 0,
+    largestRegionPixels: 0,
+    largestRegionPercent: 0,
+    sizeMismatch: {
+      left: { width: left.width, height: left.height },
+      right: { width: right.width, height: right.height },
+    },
+  }
+  if (left.data.length !== right.data.length) throw new Error('capture pixel data lengths do not match')
   const { width, height } = left
   const total = width * height
   const edgeMask = new Uint8Array(total)
@@ -70,7 +82,8 @@ export function comparePixels(left: PixelImage, right: PixelImage): PixelCompari
   }
   const changedPercent = changedPixels * 100 / total
   const largestRegionPercent = largestRegionPixels * 100 / total
-  return { accepted: changedPercent <= 0.5 && largestRegionPercent <= 0.25, changedPixels, changedPercent, largestRegionPixels, largestRegionPercent }
+  const accepted = changedPercent <= 0.5 && largestRegionPercent <= 0.25
+  return { status: accepted ? 'PASSED' : 'FAILED', accepted, changedPixels, changedPercent, largestRegionPixels, largestRegionPercent }
 }
 
 export function validatePairs<T extends SemanticPair>(pairs: ReadonlyArray<T>): void {

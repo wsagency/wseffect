@@ -79,6 +79,16 @@ test('rejects connected differing region over 0.25 percent of capture', () => {
   assert.equal(comparePixels(image(20, 20), image(20, 20, [210, 211, 212, 213])).accepted, false)
 })
 
+test('records mismatched dimensions as a FAILED capture with both sizes', () => {
+  const comparison = comparePixels(image(480, 408), image(480, 534))
+  assert.equal(comparison.status, 'FAILED')
+  assert.equal(comparison.accepted, false)
+  assert.deepEqual(comparison.sizeMismatch, {
+    left: { width: 480, height: 408 },
+    right: { width: 480, height: 534 },
+  })
+})
+
 test('requires matching semantic pair', () => {
   assert.throws(() => validateSemanticPair(
     { id: 'select/open-light', state: 'open', props: { size: 2, selectedValue: 'indigo' } },

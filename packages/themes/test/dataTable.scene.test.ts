@@ -121,9 +121,9 @@ describe('DataTable view semantics', () => {
         DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const root = simulation.html
-        if (root === undefined || !isVNode(root)) return simulation
-        expect(root.data?.props?.tabIndex).toBe(0)
+        const table = simulation.html?.children?.[0]
+        if (table === undefined || !isVNode(table)) return simulation
+        expect(table.data?.props?.tabIndex).toBe(0)
         return simulation
       },
     )

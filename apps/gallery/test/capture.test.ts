@@ -14,9 +14,21 @@ type CaptureMatrix = {
   }>
 }
 const captureMatrix: CaptureMatrix = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../../bench/radix2solid/sp2-capture-matrix.json'), 'utf8'))
-const dataTableUrl = () => new URL(
-  'https://gallery.test/components/data-table?capture=data-table%2FDataTable%2Fdefault%2Flight&state=default&props=%7B%22size%22%3A%222%22%2C%22variant%22%3A%22surface%22%2C%22fixtureId%22%3A%22sp2-data-table%22%2C%22rows%22%3A10%7D&appearance=light',
-)
+const dataTableUrl = () => {
+  const url = new URL('https://gallery.test/components/data-table')
+  url.searchParams.set('capture', 'data-table/DataTable/default/light')
+  url.searchParams.set('state', 'default')
+  url.searchParams.set('props', JSON.stringify({
+    size: '2',
+    variant: 'surface',
+    fixtureId: 'sp2-data-table',
+    rows: 10,
+    rowHeight: 44,
+    viewportHeight: 486,
+  }))
+  url.searchParams.set('appearance', 'light')
+  return url
+}
 
 const integratedFamilies: Readonly<Record<string, true>> = {
   accessibility: true, 'layout-extra': true, avatar: true, feedback: true, 'typography-extra': true,
@@ -36,7 +48,7 @@ describe('Gallery capture resolver', () => {
       component: 'DataTable',
       state: 'default',
       theme: 'light',
-      props: { size: '2', variant: 'surface', fixtureId: 'sp2-data-table', rows: 10 },
+      props: { size: '2', variant: 'surface', fixtureId: 'sp2-data-table', rows: 10, rowHeight: 44, viewportHeight: 486 },
       fixtureId: 'sp2-data-table',
       fixture: [
         { id: 'row-1', name: 'Record 01', status: 'Active' },
@@ -67,6 +79,13 @@ describe('Gallery capture resolver', () => {
       expect(target?.querySelectorAll('.wse-data-table tbody tr[data-virtual-list-item-key]')).toHaveLength(10)
       expect(target?.textContent).toContain('Record 01')
       expect(target?.textContent).toContain('Record 10')
+      const table = target?.querySelector('.wse-data-table')
+      expect(Array.from(table?.querySelectorAll('thead th') ?? []).map(cell => cell.textContent?.trim()).filter(Boolean)).toEqual(['Name', 'Status'])
+      expect(table?.querySelector('caption')?.textContent).toBe('')
+      const scroll = target?.querySelector<HTMLElement>('.wse-data-table__scroll')
+      expect(scroll?.style.height).toBe('486px')
+      expect(scroll?.style.maxHeight).toBe('486px')
+      expect(Array.from(table?.querySelectorAll('tbody tr[data-virtual-list-item-key]') ?? []).every(row => (row as HTMLElement).style.height === '44px')).toBe(true)
     } finally {
       vi.unstubAllGlobals()
       document.body.replaceChildren()

@@ -83,7 +83,7 @@ describe('DataTable Grid model', () => {
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'label' })
   })
 
-  it('recovers removed active rows to the nearest surviving ordinal', () => {
+  it('recovers removed active rows and focuses after the replacement row commits', () => {
     const cfg = config()
     const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
     const rowsAfterRemoval = rows.filter(row => row.id !== 'b')
@@ -92,9 +92,54 @@ describe('DataTable Grid model', () => {
     const recovered = result.model
     expect(recovered.orderedRowIds).toEqual(['a', 'c'])
     expect(recovered.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+    expect(recovered.pendingFocus).toEqual({ rowId: 'c', columnId: 'rank' })
     expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
       rowId: 'c',
       rowIndex: 1,
+      columnIndex: 2,
+      shouldFocus: false,
+    })
+    const committed = update(recovered, changed, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ObservedContainerScroll({
+        scrollTop: cfg.rowHeight,
+        scrollHeight: rowsAfterRemoval.length * cfg.rowHeight,
+        containerHeight: cfg.rowHeight,
+        anchor: { _tag: 'Row', key: 'c', index: 1, viewportOffset: 0 },
+      }),
+    }))
+    expect(committed.model.pendingFocus).toBeNull()
+    expect(committed.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'c',
+      columnIndex: 2,
+      shouldFocus: true,
+    })
+  })
+
+  it('restores filter-recovered focus after the replacement row commits', () => {
+    const cfg = config()
+    const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
+    const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'ga' }))
+    expect(result.model.orderedRowIds).toEqual(['c'])
+    expect(result.model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'c', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'c',
+      rowIndex: 0,
+      columnIndex: 2,
+      shouldFocus: false,
+    })
+    const committed = update(result.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ObservedContainerScroll({
+        scrollTop: 0,
+        scrollHeight: cfg.rowHeight,
+        containerHeight: cfg.rowHeight,
+        anchor: { _tag: 'Row', key: 'c', index: 0, viewportOffset: 0 },
+      }),
+    }))
+    expect(committed.model.pendingFocus).toBeNull()
+    expect(committed.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'c',
+      rowIndex: 0,
       columnIndex: 2,
       shouldFocus: true,
     })
@@ -111,34 +156,26 @@ describe('DataTable Grid model', () => {
     })
   })
 
-  it('scrolls to a stable VirtualList key before focusing the target after commit', () => {
+  it('scrolls the target into the committed range before focusing it', () => {
     const cfg = config()
     const result = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }))
     expect(result.model.activeCell).toEqual({ rowId: 'b', columnId: '$selection' })
     expect(result.model.pendingFocus).toEqual({ rowId: 'b', columnId: '$selection' })
-    const pendingScroll = result.model.virtualList.pendingScroll
-    expect(pendingScroll).toMatchObject({
-      _tag: 'Pending',
-      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'b',
+      columnIndex: 0,
+      shouldFocus: false,
     })
-    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
-      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
-    })
-    if (pendingScroll._tag !== 'Pending') throw new Error('expected a pending scroll')
-    const completed = update(result.model, cfg, DataTable.Message.VirtualList({
-      message: VirtualList.Message.CompletedApplyScroll({
-        version: pendingScroll.version,
-        outcome: {
-          _tag: 'Applied',
-          scrollTop: cfg.rowHeight,
-          scrollHeight: rows.length * cfg.rowHeight,
-          containerHeight: cfg.rowHeight,
-          anchor: { _tag: 'None' },
-        },
+    const committedScroll = update(result.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ObservedContainerScroll({
+        scrollTop: cfg.rowHeight,
+        scrollHeight: rows.length * cfg.rowHeight,
+        containerHeight: cfg.rowHeight,
+        anchor: { _tag: 'Row', key: 'b', index: 1, viewportOffset: 0 },
       }),
     }))
-    expect(completed.model.pendingFocus).toBeNull()
-    expect(completed.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+    expect(committedScroll.model.pendingFocus).toBeNull()
+    expect(committedScroll.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
       rowId: 'b',
       columnIndex: 0,
       shouldFocus: true,

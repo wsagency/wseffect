@@ -37,7 +37,7 @@ test('fixed build IDs rename the entry, changed component-family page, and captu
       false,
       'the initial HTML, framework and app-shared module closure must not contain lazy capability helpers',
     )
-    const changedSource = source.replace('rowHeight: 36,', 'rowHeight: 37,')
+    const changedSource = source.replace('rowHeight = 36,', 'rowHeight = 37,')
     assert.notEqual(changedSource, source)
     await writeFile(dataTablePath, changedSource)
     fixture.build({ outDir: second, buildId: 'd3a1234' })

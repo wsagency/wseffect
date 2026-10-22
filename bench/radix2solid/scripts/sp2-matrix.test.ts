@@ -69,10 +69,16 @@ test('DataTable explicitly pairs with R2S Table using identical sample data', ()
   const table = matrix.families.find(family => family.family === 'data-table')!
   const dataTable = table.components.find(component => component.id === 'DataTable')!
   assert.equal(dataTable.visualReference, 'Table')
-  const reference = matrix.families.find(family => family.family === 'data')!.components.find(component => component.id === 'Table')!
+  const dataFamily = matrix.families.find(family => family.family === 'data')!
+  const reference = dataFamily.components.find(component => component.id === 'Table')!
+  const dataTableCapture = table.captures.find(capture => capture.component === 'DataTable' && capture.state === 'default' && capture.theme === 'light')!
+  const referenceCapture = dataFamily.captures.find(capture => capture.component === 'Table' && capture.state === 'default' && capture.theme === 'light')!
   assert.equal(dataTable.fixtureId, reference.fixtureId)
   assert.deepEqual(matrix.fixtures[dataTable.fixtureId!], matrix.fixtures[reference.fixtureId!])
-  assert.ok(table.captures.some(capture => capture.component === 'DataTable' && capture.props.rows === 10 && capture.props.fixtureId === dataTable.fixtureId))
+  assert.deepEqual(dataTableCapture.props, referenceCapture.props)
+  assert.equal(dataTableCapture.props.rows, 10)
+  assert.equal(dataTableCapture.props.rowHeight, 44)
+  assert.equal(dataTableCapture.props.viewportHeight, 486)
 })
 test('matrix records the vendored deterministic capture font and its license', () => {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')

@@ -12,6 +12,7 @@ import { comparePixels, validatePairs, type PixelComparison, type PixelImage } f
 type Capture = { id: string; component: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown> }
 type CaptureResult = {
   id: string; family: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown>
+  status: 'CAPTURED' | PixelComparison['status']
   solidPath: string; galleryPath: string | undefined; comparison: PixelComparison | undefined
   sourceHashes: { radix2solidThemes: string | undefined; radix2solidPrimitives: string | undefined; solidScreenshot: string; galleryScreenshot: string | undefined }
 }
@@ -151,6 +152,7 @@ try {
     const gallerySha256 = galleryPath ? createHash('sha256').update(await readFile(galleryPath)).digest('hex') : undefined
     results.push({
       id: capture.id, family: family.family, theme: capture.theme, state: capture.state, props: capture.props,
+      status: comparison?.status ?? 'CAPTURED',
       solidPath, galleryPath, comparison,
       sourceHashes: {
         radix2solidThemes: librarySource.packedTarballs['@wsagency/radix2solid-themes']?.contentSha256,
@@ -162,7 +164,11 @@ try {
     await context.close()
   }
   await writeFile(reportPath, `${JSON.stringify({ sourcePin: librarySource.commit, browserVersion: browser.version(), viewport: matrix.viewport, font: matrix.font, reducedMotion: 'reduce', animationClock: 'disabled and settled for two animation frames', galleryBase, reportingOnly: true, results }, null, 2)}\n`)
-  if (galleryBase) assert.ok(results.every(result => result.comparison?.accepted === true), `visual mismatches in ${reportPath}`)
+  const failedCaptures = results.filter(result => result.status === 'FAILED')
+  if (failedCaptures.length > 0) {
+    console.error(`Failed visual captures: ${failedCaptures.map(result => result.id).join(', ')}; report: ${reportPath}`)
+    process.exitCode = 1
+  }
   console.log(`Captured ${results.length} SP2 images; report: ${reportPath}`)
 } finally {
   await browser?.close()

@@ -74,6 +74,7 @@ const tableConfig = (
   model: Pick<Model, 'rows' | 'selectedRowIds'>,
   columns: ReadonlyArray<DataTable.Column<Row>> = baseColumns,
   caption: Html = null,
+  rowHeight = 36,
 ): DataTable.Config<Row> => ({
   id: 'gallery-data-table',
   rows: model.rows,
@@ -82,7 +83,7 @@ const tableConfig = (
   caption,
   selectedRowIds: new Set(model.selectedRowIds),
   isGrid: true,
-  rowHeight: 36,
+  rowHeight,
   overscanRows: 4,
 })
 
@@ -200,6 +201,11 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   const rows = captureRows(request)
+  const rowHeight = request.props.rowHeight
+  const viewportHeight = request.props.viewportHeight
+  if (typeof rowHeight !== 'number' || typeof viewportHeight !== 'number') {
+    throw new Error('DataTable capture requires matching rowHeight and viewportHeight props')
+  }
   renderCaptureView(root, request, (h) => {
     const tableBuilder = h as unknown as HtmlBuilder<DataTable.Message>
     const decorations = tableDecorations(tableBuilder)
@@ -207,8 +213,13 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
     const config = tableConfig(
       modelInputs,
       tableColumns(decorations.nameHeader, decorations.statusHeader),
-      decorations.caption,
+      null,
+      rowHeight,
     )
     return DataTable.view(DataTable.init(config), config, tableBuilder)
   })
+  const scroll = root.querySelector<HTMLElement>('.wse-data-table__scroll')
+  if (!scroll) throw new Error('DataTable capture scroll viewport is missing')
+  scroll.style.height = `${viewportHeight}px`
+  scroll.style.maxHeight = `${viewportHeight}px`
 }

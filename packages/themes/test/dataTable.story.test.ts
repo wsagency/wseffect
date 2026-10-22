@@ -91,7 +91,7 @@ describe('DataTable model', () => {
     }))
     expect(resized.model.virtualList.measurement).toEqual({ _tag: 'Measured', containerWidth: 420, containerHeight: 220 })
   })
-  it('records pending focus until its stable-key scroll completes', () => {
+  it('records pending focus until the target row commits', () => {
     const cfg = config({ isGrid: true })
     const result = DataTable.update(
       DataTable.init(cfg),
@@ -104,8 +104,10 @@ describe('DataTable model', () => {
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
-    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
-      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'b',
+      columnIndex: 0,
+      shouldFocus: false,
     })
   })
 

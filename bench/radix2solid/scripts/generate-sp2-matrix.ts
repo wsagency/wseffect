@@ -75,7 +75,10 @@ for (const family of families) {
   const components = await Promise.all(family.components.map(componentInfo))
   const captures: Array<Record<string, unknown>> = []
   for (const component of components) {
-    const commonProps = { ...component.defaultProps, ...(component.fixtureId ? { fixtureId: component.fixtureId, rows: 10 } : {}) }
+    const tableLayout = component.id === 'Table' || component.id === 'DataTable'
+      ? { rowHeight: 44, viewportHeight: 486 }
+      : {}
+    const commonProps = { ...component.defaultProps, ...(component.fixtureId ? { fixtureId: component.fixtureId, rows: 10 } : {}), ...tableLayout }
     const add = (state: string, theme: 'light' | 'dark', props: Record<string, unknown>) => captures.push({ id: `${family.family}/${component.id}/${state}/${theme}`, component: component.id, theme, state, props })
     for (const theme of ['light', 'dark'] as const) {
       add('default', theme, { ...commonProps })

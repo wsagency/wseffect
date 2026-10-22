@@ -1296,9 +1296,84 @@
     "public-surface",
     "branding"
   ],
+  "export:@wsagency/wseffect-themes:.:AccessibleIcon": [
+    "themes-root-api"
+  ],
   "export:@wsagency/wseffect-themes:.:AlertDialog": [
     "public-surface",
     "branding"
+  ],
+  "export:@wsagency/wseffect-themes:.:AspectRatio": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Avatar": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Badge": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Blockquote": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Callout": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Code": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Container": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:DataList": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Em": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:IconButton": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Inset": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Kbd": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Link": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Progress": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Quote": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:ScrollArea": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Section": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Separator": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Skeleton": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Spinner": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Strong": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:Table": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:ThemePanel": [
+    "themes-root-api"
+  ],
+  "export:@wsagency/wseffect-themes:.:VisuallyHidden": [
+    "themes-root-api"
   ],
   "export:@wsagency/wseffect-themes:.:Box": [
     "public-surface",
@@ -3842,6 +3917,9 @@
     "public-surface",
     "gallery-typecheck"
   ],
+  "type:@wsagency/wseffect-themes:.:AccessibleIcon": [
+    "themes-root-types"
+  ],
   "type:@wsagency/wseffect-themes:.:AlertDialog": [
     "public-surface",
     "gallery-typecheck"
@@ -3986,6 +4064,78 @@
   ],
   "type:@wsagency/wseffect-primitives:./tooltip-group:update": [
     "public-surface"
+  ],
+  "type:@wsagency/wseffect-themes:.:AspectRatio": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Avatar": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Badge": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Blockquote": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Callout": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Code": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Container": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:DataList": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Em": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:IconButton": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Inset": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Kbd": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Link": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Progress": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Quote": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:ScrollArea": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Section": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Separator": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Skeleton": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Spinner": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Strong": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:Table": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:ThemePanel": [
+    "themes-root-types"
+  ],
+  "type:@wsagency/wseffect-themes:.:VisuallyHidden": [
+    "themes-root-types"
   ],
   "type:@wsagency/wseffect-themes:.:Box": [
     "public-surface",
