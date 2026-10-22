@@ -27,8 +27,8 @@ describe('Gallery lane 2B pages', () => {
       Scene.expect(Scene.role('heading', { name: 'Alert dialog' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Delete record' })),
       Scene.Command.resolve(UiDialog.ShowDialog, UiDialog.Message.SucceededShowDialog()),
-      Scene.Mount.resolve(UiDialog.AcquireResources, UiDialog.Message.SucceededAcquireResources()),
       Scene.Mount.resolve({ name: 'PortalAlertDialog' }, AlertDialog.Message.CompletedCloseDialog()),
+      Scene.Mount.resolve(UiDialog.AcquireResources, UiDialog.Message.SucceededAcquireResources()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete record?' })).toExist(),
       Scene.expect(Scene.text('This action cannot be undone.')).toExist())
   })
