@@ -1,6 +1,7 @@
 import matrixUrl from '../../../bench/radix2solid/sp2-capture-matrix.json?url'
 
 type CaptureMatrix = {
+  readonly fixtures: Readonly<Record<string, ReadonlyArray<Record<string, unknown>>>>
   readonly families: ReadonlyArray<{
     readonly family: string
     readonly route: string
@@ -28,6 +29,7 @@ export type CaptureRequest = {
   readonly theme: 'light' | 'dark'
   readonly props: Record<string, unknown>
   readonly fixtureId: string | null
+  readonly fixture: ReadonlyArray<Record<string, unknown>> | null
   readonly visualReference: string | null
 }
 export type CapturePageModule = {
@@ -83,6 +85,10 @@ export function resolveCaptureRequest(url: URL, matrix: CaptureMatrix): CaptureR
   }
   const component = family.components.find((candidate) => candidate.id === componentId)
   if (!component) throw new Error(`Capture component ${componentId} is missing from family ${family.family}`)
+  const fixture = component.fixtureId === null ? null : matrix.fixtures[component.fixtureId]
+  if (component.fixtureId !== null && fixture === undefined) {
+    throw new Error(`Capture fixture ${component.fixtureId} is missing from the matrix`)
+  }
 
   return {
     family: family.family,
@@ -93,6 +99,7 @@ export function resolveCaptureRequest(url: URL, matrix: CaptureMatrix): CaptureR
     theme: capture.theme,
     props: props as Record<string, unknown>,
     fixtureId: component.fixtureId,
+    fixture,
     visualReference: component.visualReference ?? null,
   }
 }

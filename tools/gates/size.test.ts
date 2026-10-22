@@ -252,8 +252,13 @@ test('capture resolver and matrix stay outside the built index.html static closu
     for (const source of sourceMap.sources) staticSources.add(source)
   }
   assert.ok(
-    [...staticSources].every((source) => !source.endsWith('/src/capture.ts') && !source.includes('sp2-capture-matrix.json')),
-    'static index.html closure excludes Gallery capture resolver and matrix',
+    [...staticSources].every((source) =>
+      !source.endsWith('/src/capture.ts') &&
+      !source.includes('sp2-capture-matrix.json') &&
+      !source.endsWith('/packages/themes/dist/components/data-table.js') &&
+      !source.endsWith('/packages/themes/dist/components/data-table.mount.js') &&
+      !source.includes('/@foldkit/ui/dist/virtualList/')),
+    'static index.html closure excludes Gallery capture and DataTable implementation modules',
   )
   const captureEntry = Object.entries(manifest).find(([key, entry]) =>
     key.endsWith('src/capture.ts') && entry.isDynamicEntry === true,
@@ -274,7 +279,7 @@ test('capture resolver and matrix stay outside the built index.html static closu
   const result = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
   assert.equal(result.shell, expectedShell)
   assert.equal(result.shellRaw, expectedShellRaw)
-  assert.deepEqual(Object.keys(result.pages).sort(), ['browser', 'buttons', 'capabilities', 'cards', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
+  assert.deepEqual(Object.keys(result.pages).sort(), ['browser', 'buttons', 'capabilities', 'cards', 'dataTable', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
   assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
   assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')

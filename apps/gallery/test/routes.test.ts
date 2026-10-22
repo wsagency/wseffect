@@ -16,6 +16,7 @@ describe('gallery route page keys', () => {
     ['/shared', ['sharedA', 'sharedB']],
     ['/shared-a', ['sharedA']],
     ['/virtual-list', ['virtualList']],
+    ['/data-table', ['dataTable']],
     ['/form', ['form']],
     ['/menus', ['menus']],
   ] as const)('maps %s to its lazy pages', (route, keys) => {

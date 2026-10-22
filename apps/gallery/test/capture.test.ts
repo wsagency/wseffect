@@ -19,8 +19,39 @@ describe('Gallery capture resolver', () => {
       theme: 'light',
       props: { size: '2', variant: 'surface', fixtureId: 'sp2-data-table', rows: 10 },
       fixtureId: 'sp2-data-table',
+      fixture: [
+        { id: 'row-1', name: 'Record 01', status: 'Active' },
+        { id: 'row-2', name: 'Record 02', status: 'Pending' },
+        { id: 'row-3', name: 'Record 03', status: 'Active' },
+        { id: 'row-4', name: 'Record 04', status: 'Pending' },
+        { id: 'row-5', name: 'Record 05', status: 'Active' },
+        { id: 'row-6', name: 'Record 06', status: 'Pending' },
+        { id: 'row-7', name: 'Record 07', status: 'Active' },
+        { id: 'row-8', name: 'Record 08', status: 'Pending' },
+        { id: 'row-9', name: 'Record 09', status: 'Active' },
+        { id: 'row-10', name: 'Record 10', status: 'Pending' },
+      ],
       visualReference: 'Table',
     })
+  })
+
+  it('renders the integrated data-table matrix capture from its fixture', async () => {
+    document.body.innerHTML = '<div id="app"></div>'
+    const fetchMatrix = vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMatrix)
+    try {
+      await startCapture(dataTableUrl())
+      const app = document.getElementById('app')!
+      expect(app.querySelector('[data-sp2-capture-error]')).toBeNull()
+      const target = app.querySelector('[data-sp2-family="data-table"][data-sp2-component="DataTable"]')
+      expect(target).not.toBeNull()
+      expect(target?.querySelectorAll('.wse-data-table tbody tr[data-virtual-list-item-key]')).toHaveLength(10)
+      expect(target?.textContent).toContain('Record 01')
+      expect(target?.textContent).toContain('Record 10')
+    } finally {
+      vi.unstubAllGlobals()
+      document.body.replaceChildren()
+    }
   })
 
   it('rejects query state or props that do not match the matrix capture', () => {
@@ -45,20 +76,5 @@ describe('Gallery capture resolver', () => {
     expect(() => resolveCaptureRequest(dataTableUrl(), inconsistentMatrix)).toThrow(/capture id.*component/i)
   })
 
-  it('fails visibly without emitting a capture target until its page family is integrated', async () => {
-    document.body.innerHTML = '<div id="app"></div>'
-    const fetchMatrix = vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 }))
-    vi.stubGlobal('fetch', fetchMatrix)
-    try {
-      await startCapture(dataTableUrl())
-      const app = document.getElementById('app')!
-      expect(app.querySelector('[data-sp2-capture-error]')?.textContent)
-        .toBe('Capture page module dataTable for family data-table has not been integrated')
-      expect(app.querySelector('[data-sp2-component]')).toBeNull()
-    } finally {
-      vi.unstubAllGlobals()
-      document.body.replaceChildren()
-    }
-  })
 
 })

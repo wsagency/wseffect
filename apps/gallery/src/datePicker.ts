@@ -1,7 +1,10 @@
 import { Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'
-import { Button, Flex, Text, TextField } from '@wsagency/wseffect-themes'
+import * as Button from '@wsagency/wseffect-themes/components/button'
+import * as Flex from '@wsagency/wseffect-themes/components/flex'
+import * as Text from '@wsagency/wseffect-themes/components/text'
+import * as TextField from '@wsagency/wseffect-themes/components/text-field'
 
 export const Model = Schema.Struct({})
 export const Message = defineMessageUnion({

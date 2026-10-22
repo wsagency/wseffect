@@ -30,6 +30,10 @@
       "bytes": 362,
       "reason": "APP-23 runtime-only framework grouping reshapes the Cards lazy chunk by 36 B Brotli-q11; the page remains lazy."
     },
+    "page:dataTable": {
+      "bytes": 5937,
+      "reason": "The 10,000-row virtualized DataTable and VirtualList-backed implementation remain in the lazy DataTable page chunk."
+    },
     "page:dialog": {
       "bytes": 611,
       "reason": "Theme component parity reshapes the lazy dialog chunk by 40 B; the page remains lazy."
@@ -71,8 +75,8 @@
       "reason": "New lazy signals demo; module remains outside the initial transfer."
     },
     "page:tabs": {
-      "bytes": 589,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 2131,
+      "reason": "Gallery shell imports only the components it renders, so the Tabs implementation stays in its lazy page chunk."
     },
     "page:textField": {
       "bytes": 358,
@@ -95,8 +99,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "styles.css": {
-      "bytes": 40848,
-      "reason": "The themed Box panel adds 17 B of scoped shell-surface CSS; layout and page modules remain lazy."
+      "bytes": 41932,
+      "reason": "The DataTable page adds its route-scoped data-table stylesheet to the measured CSS set."
     }
   }
 }

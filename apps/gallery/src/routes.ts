@@ -12,6 +12,7 @@ export const pageKeysByRoute = {
   '/shared': ['sharedA', 'sharedB'],
   '/shared-a': ['sharedA'],
   '/virtual-list': ['virtualList'],
+  '/data-table': ['dataTable'],
   '/form': ['form'],
   '/menus': ['menus'],
   '/capabilities': ['capabilities'],

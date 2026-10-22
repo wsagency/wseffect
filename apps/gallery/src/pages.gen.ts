@@ -9,6 +9,7 @@ export type Pages = {
   readonly buttons: typeof import('./pages/buttons').page
   readonly capabilities: typeof import('./pages/capabilities').page
   readonly cards: typeof import('./pages/cards').page
+  readonly dataTable: typeof import('./pages/dataTable').page
   readonly dialog: typeof import('./pages/dialog').page
   readonly dropdownMenu: typeof import('./pages/dropdownMenu').page
   readonly form: typeof import('./pages/form').page
@@ -32,6 +33,7 @@ export const pages = makePages<Pages>({
   buttons: () => import('./pages/buttons').then(module => module.page),
   capabilities: () => import('./pages/capabilities').then(module => module.page),
   cards: () => import('./pages/cards').then(module => module.page),
+  dataTable: () => import('./pages/dataTable').then(module => module.page),
   dialog: () => import('./pages/dialog').then(module => module.page),
   dropdownMenu: () => import('./pages/dropdownMenu').then(module => module.page),
   form: () => import('./pages/form').then(module => module.page),
@@ -49,13 +51,14 @@ export const pages = makePages<Pages>({
   validation: () => import('./pages/validation').then(module => module.page),
   virtualList: () => import('./pages/virtualList').then(module => module.page),
 })
-export const PageKey = Schema.Literals(['browser', 'buttons', 'capabilities', 'cards', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
+export const PageKey = Schema.Literals(['browser', 'buttons', 'capabilities', 'cards', 'dataTable', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
 export const KitMessage = defineTaggedUnion({
   ...kitMessageFields(pages),
   GotBrowserPageMessage: { message: messageSchema(pages, 'browser') },
   GotButtonsPageMessage: { message: messageSchema(pages, 'buttons') },
   GotCapabilitiesPageMessage: { message: messageSchema(pages, 'capabilities') },
   GotCardsPageMessage: { message: messageSchema(pages, 'cards') },
+  GotDataTablePageMessage: { message: messageSchema(pages, 'dataTable') },
   GotDialogPageMessage: { message: messageSchema(pages, 'dialog') },
   GotDropdownMenuPageMessage: { message: messageSchema(pages, 'dropdownMenu') },
   GotFormPageMessage: { message: messageSchema(pages, 'form') },
@@ -79,6 +82,7 @@ export const pageMessageTags = {
   buttons: 'GotButtonsPageMessage',
   capabilities: 'GotCapabilitiesPageMessage',
   cards: 'GotCardsPageMessage',
+  dataTable: 'GotDataTablePageMessage',
   dialog: 'GotDialogPageMessage',
   dropdownMenu: 'GotDropdownMenuPageMessage',
   form: 'GotFormPageMessage',

@@ -3,7 +3,7 @@ import { accessibilityViolations } from './helpers/accessibility.ts'
 
 const routes = [
   '/', '/layout', '/typography', '/buttons', '/cards', '/text-field', '/dialog',
-  '/dropdown-menu', '/tabs', '/theme', '/shared', '/shared-a', '/virtual-list',
+  '/dropdown-menu', '/tabs', '/theme', '/shared', '/shared-a', '/virtual-list', '/data-table',
   '/form', '/menus',
 ]
 
