@@ -1,6 +1,7 @@
 import * as Scene from 'foldkit/scene'
 import { describe, it } from 'vitest'
 import * as UiDialog from '@foldkit/ui/dialog'
+import * as AlertDialog from '@wsagency/wseffect-themes/components/alert-dialog'
 import * as HoverCard from '@wsagency/wseffect-themes/components/hover-card'
 import * as UiPopover from '@foldkit/ui/popover'
 import * as UiTooltip from '@foldkit/ui/tooltip'
@@ -27,6 +28,7 @@ describe('Gallery lane 2B pages', () => {
       Scene.click(Scene.role('button', { name: 'Delete record' })),
       Scene.Command.resolve(UiDialog.ShowDialog, UiDialog.Message.SucceededShowDialog()),
       Scene.Mount.resolve(UiDialog.AcquireResources, UiDialog.Message.SucceededAcquireResources()),
+      Scene.Mount.resolve({ name: 'PortalAlertDialog' }, AlertDialog.Message.CompletedCloseDialog()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete record?' })).toExist(),
       Scene.expect(Scene.text('This action cannot be undone.')).toExist())
   })
