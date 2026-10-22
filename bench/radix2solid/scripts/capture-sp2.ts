@@ -103,28 +103,30 @@ async function alignCaptureTarget(page: Page, position: Readonly<{ x: number; y:
   }, position)
 }
 async function addCaptureInitScript(page: Page, theme: 'light' | 'dark', position?: Readonly<{ x: number; y: number }>): Promise<void> {
-  await page.addInitScript(({ theme, position }) => {
+  await page.addInitScript(({ theme }) => {
     document.documentElement.dataset.appearance = theme
-    if (!position) return
-    const applyPosition = (root: Node) => {
-      const parent = root as ParentNode
-      const targets = root instanceof Element && root.matches('[data-sp2-capture-target]') ? [root] : []
-      if (typeof parent.querySelectorAll === 'function') targets.push(...parent.querySelectorAll('[data-sp2-capture-target]'))
-      for (const target of targets) {
-        target.style.setProperty('position', 'fixed', 'important')
-        target.style.setProperty('left', `${position.x}px`, 'important')
-        target.style.setProperty('top', `${position.y}px`, 'important')
-        target.style.setProperty('z-index', '0', 'important')
-      }
+  }, { theme })
+  if (!position) return
+  await page.route('**/*', async route => {
+    if (!route.request().isNavigationRequest() || route.request().frame() !== page.mainFrame()) {
+      await route.continue()
+      return
     }
-    const observer = new MutationObserver(records => {
-      for (const record of records) {
-        applyPosition(record.target)
-        for (const node of record.addedNodes) applyPosition(node)
+    const response = await route.fetch()
+    const html = await response.text()
+    const positionStyles = `
+      [data-sp2-capture-target] {
+        position: fixed !important;
+        left: ${position.x}px !important;
+        top: ${position.y}px !important;
+        z-index: 0 !important;
       }
-    })
-    observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-sp2-capture-target'] })
-  }, { theme, position })
+    `
+    const style = `<style data-sp2-capture-init>${fontStylesheet}${positionStyles}</style>`
+    const injectedHtml = html.replace(/<head([^>]*)>/i, (_head, attributes: string) => `<head${attributes}>${style}`)
+    if (injectedHtml === html) throw new Error(`Unable to inject capture positioning into ${route.request().url()}`)
+    await route.fulfill({ response, body: injectedHtml })
+  })
 }
 async function raiseCaptureOverlays(page: Page): Promise<void> {
   await page.addStyleTag({ content: `
@@ -236,8 +238,8 @@ try {
       await galleryComponent.waitFor()
       await alignCaptureTarget(galleryPage, capturePosition)
       await raiseCaptureOverlays(galleryPage)
-      await activateCaptureState(galleryPage, capture, true)
       await loadCaptureFont(galleryPage)
+      await activateCaptureState(galleryPage, capture, true)
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
       await waitForOverlayPosition(galleryPage, capture.component, capture.state)
       const galleryBounds = await captureBounds(galleryPage)
