@@ -96,6 +96,8 @@ describe('Themes CSS distribution', () => {
     for (const file of cssFiles.filter(file => file.endsWith('.css'))) {
       if (file === 'index.css') {
         expect(upstream).toContain('packages/themes/src/css-components/index.css')
+      } else if (file === 'data-table.css') {
+        expect(upstream).toContain('`data-table.css` is locally authored')
       } else {
         expect(upstream, file).toContain(`packages/themes/src/components/${file}`)
       }

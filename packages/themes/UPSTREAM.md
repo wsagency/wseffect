@@ -155,7 +155,7 @@ These pinned shared sources inform the ported component schemas and prop-to-clas
 - `packages/themes/src/helpers/merge-styles.ts`
 
 
-The imported closure is self-contained in this list: `icon-button.css` imports `_internal/base-button.css`; `table.css` uses the ScrollArea classes supplied by `scroll-area.css`. The build pipeline processes these source CSS files without adding them to the eager application stylesheet.
+The imported closure is self-contained in this list: `icon-button.css` imports `_internal/base-button.css`; `table.css` uses the ScrollArea classes supplied by `scroll-area.css`. `data-table.css` is locally authored to compose the native table and virtualization styles; it is not copied from R2S. The build pipeline processes these source CSS files without adding them to the eager application stylesheet.
 
 ## Verbatim upstream license and attribution notices
 

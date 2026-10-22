@@ -9,6 +9,10 @@ const syntheticNoiseFloors = {
   'vl-filter': 42,
   'vl-sort': 26,
   'vl-select': 20,
+  'dt-update': 36,
+  'dt-filter': 38,
+  'dt-sort': 39,
+  'dt-select': 35,
   'form-field': 26,
   'menus-tick': 29,
 } as const
@@ -56,6 +60,10 @@ test('GATE-P3 keeps an 8 ms absolute script threshold when the synthetic noise f
     'vl-filter': 0,
     'vl-sort': 0,
     'vl-select': 0,
+    'dt-update': 0,
+    'dt-filter': 0,
+    'dt-sort': 0,
+    'dt-select': 0,
     'form-field': 0,
     'menus-tick': 0,
   }

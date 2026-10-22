@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { renderSummary } from './report.ts'
 
-const scenarios = ['vl-cell', 'vl-filter', 'vl-sort', 'vl-select', 'form-field', 'menus-tick'] as const
+const scenarios = ['vl-cell', 'vl-filter', 'vl-sort', 'vl-select', 'dt-update', 'dt-filter', 'dt-sort', 'dt-select', 'form-field', 'menus-tick'] as const
 type ScenarioId = typeof scenarios[number]
 type ScenarioMetrics = { eventMs: number[]; scriptMs: number[]; eventEntryCounts: number[][]; animationFrameCounts: number[] }
 const perf = (event: number, script: number): Record<ScenarioId, ScenarioMetrics> => Object.fromEntries(
@@ -35,9 +35,10 @@ test('BENCH-2 renders one reporting-only side-by-side table and verified differe
   assert.match(summary, /^\| vl-cell trace scripting median \(ms\) \| 6 \| 8 \|$/m)
   assert.match(summary, /^\| vl-cell qualified Event Timing entries \(median\/interaction\) \| 1 \| 1 \|$/m)
   assert.match(summary, /^\| vl-cell trace rAF callbacks \(median\/interaction\) \| 1 \| 1 \|$/m)
+  assert.match(summary, /^\| dt-filter Event Timing median \(ms\) \| 24 \| 32 \|$/m)
   assert.match(summary, /^\| menus-tick trace scripting median \(ms\) \| 6 \| 8 \|$/m)
   assert.match(summary, /## Verified differences\n- The Gallery and radix2solid share the bench hooks\./)
-  assert.equal((summary.match(/^\|/gm) ?? []).length, 30, 'one table contains header, separator, four size rows and twenty-four metric rows')
+  assert.equal((summary.match(/^\|/gm) ?? []).length, 46, 'one table contains header, separator, four size rows and forty metric rows')
 })
 
 test('BENCH-2 summary counts missing qualified entries as zero', () => {
