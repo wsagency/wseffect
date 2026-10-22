@@ -24,6 +24,7 @@ export type ContextMenuConfig<Value extends string> = {
   sourceId: string
   sourceToken: string
   toItem(item: Value): Html
+  color?: string
   classes?: ContextMenuClasses
 }
 export const ContextMenuInvocationSchema = Schema.Struct({
@@ -243,6 +244,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       h.span([], [config.id]),
       model.isOpen ? h.div([
         h.Id(`${config.id}-items`), h.Role('menu'), h.Attribute('tabindex', '-1'),
+        ...(config.color === undefined ? [] : [h.DataAttribute('accent-color', config.color)]),
         ...(config.classes?.panel === undefined ? [] : [h.Class(config.classes.panel)]),
         h.OnMount(anchorMount(model, config)),
         h.OnKeyDownFocus((key, modifiers) => {

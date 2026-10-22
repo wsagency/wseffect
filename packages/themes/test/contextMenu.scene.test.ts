@@ -51,11 +51,27 @@ describe('themed ContextMenu', () => {
       Scene.focus(Scene.selector('#source')),
       Scene.keydown(Scene.selector('#source'), 'ContextMenu'),
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
-      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent rt-r-size-2 rt-variant-solid'),
       Scene.expect(Scene.selector('.rt-BaseMenuItem')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
       Scene.expect(Scene.selector('.rt-BaseMenuGroup')).toHaveAttr('class', 'rt-BaseMenuGroup rt-ContextMenuGroup'),
       Scene.expect(Scene.selector('.rt-BaseMenuSeparator')).toHaveAttr('class', 'rt-BaseMenuSeparator rt-ContextMenuSeparator'),
       Scene.expect(Scene.selector('.rt-BaseMenuLabel')).toHaveAttr('class', 'rt-BaseMenuLabel rt-ContextMenuLabel'),
+    )
+  })
+  // Parity matrix: R2S context-menu.tsx:31-45 and context-menu.props.ts:1-6.
+  it('maps content variant, responsive size, color, and high contrast to pinned classes and marker', () => {
+    const styledConfig = { ...config, variant: 'soft' as const, size: { initial: '1' as const, md: '2' as const }, color: 'crimson' as const, highContrast: true }
+    const styledContextMenu = ContextMenu.create<'edit' | 'delete'>()
+    const styledView = (model: ContextMenu.Model, h: HtmlBuilder<ContextMenu.Message>) => styledContextMenu.view(model, styledConfig, h)
+    Scene.scene<ContextMenu.Model, ContextMenu.Message, ContextMenu.OutMessage<'edit' | 'delete'>>(
+      { update: styledContextMenu.update, view: styledView },
+      Scene.given(styledContextMenu.init(styledConfig)),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.focus(Scene.selector('#source')),
+      Scene.keydown(Scene.selector('#source'), 'ContextMenu'),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent rt-r-size-1 md:rt-r-size-2 rt-variant-soft rt-high-contrast'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-accent-color', 'crimson'),
     )
   })
 
