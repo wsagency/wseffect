@@ -17,4 +17,5 @@ The capture harness injects the same vendored Noto Sans test stylesheet into Sol
 ### Symmetric component crops
 
 Each paired capture places only the component under test inside `data-sp2-capture-target`; the route headings, gallery shell, and benchmark shell are excluded. Solid and Gallery use the same target geometry: 480px wide, at least 160px tall, 24px padding, and the current theme’s `--gray-2` surface (with `#f6f7f9` fallback). `capture:sp2` and `compare-sp2` screenshot that target on both sides, so the numeric comparison covers matching component, padding, and background pixels rather than one component against a full page.
+
 The DataTable capture is intentionally paired with Solid’s Table reference: the comparison covers visual treatment only, not equivalent component structure or behavior.
