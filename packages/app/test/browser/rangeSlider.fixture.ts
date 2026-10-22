@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
 import { makeElement, run } from 'foldkit/runtime'
 import type { HtmlBuilder } from 'foldkit/html'
-import * as RangeSlider from '../../../primitives/src/range-slider.js'
+import * as RangeSlider from '@wsagency/wseffect-primitives/range-slider'
 
 const initialThumbs = [{ id: 'low', value: 25 }, { id: 'high', value: 75 }]
 const baseConfig = { min: 0, max: 100, step: 1, orientation: 'horizontal' as const }
@@ -10,7 +10,6 @@ const Model = Schema.Struct({
   thumbs: Schema.Array(Schema.Struct({ id: Schema.String, value: Schema.Number })),
 })
 type Model = typeof Model.Type
-const Message = RangeSlider.Message
 
 const publishValues = (thumbs: ReadonlyArray<RangeSlider.Thumb>) => {
   ;(window as Window & { __thumbs?: ReadonlyArray<number> }).__thumbs = thumbs.map(thumb => thumb.value)
@@ -18,7 +17,6 @@ const publishValues = (thumbs: ReadonlyArray<RangeSlider.Thumb>) => {
 
 const application = makeElement({
   Model,
-  Message,
   init: () => {
     publishValues(initialThumbs)
     const config = { ...baseConfig, thumbs: initialThumbs }

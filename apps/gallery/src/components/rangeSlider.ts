@@ -11,6 +11,7 @@ import type { HtmlBuilder } from 'foldkit/html'
 
 const singleThumbs = [{ id: 'Minimum value', value: 48 }]
 const rangeThumbs = [{ id: 'Minimum value', value: 25 }, { id: 'Maximum value', value: 70 }]
+const pageThumbs = [{ id: 'Minimum value', value: 48 }, { id: 'Maximum value', value: 72 }]
 const rangeConfig = (thumbs = singleThumbs) => ({ min: 0, max: 100, step: 1, orientation: 'horizontal' as const, thumbs, props: { size: '2' as const, variant: 'surface' as const, color: 'indigo' as const } })
 export const Model = Schema.Struct({ range: SliderRange.Model, thumbs: Schema.Array(Schema.Struct({ id: Schema.String, value: Schema.Number })) })
 export const Message = defineMessageUnion({ RangeEvent: { message: SliderRange.Message } })
@@ -25,7 +26,7 @@ const foldRange = SliderRange.fold<Model, Message, typeof PageOutMessage.Type>({
 
 export const page = galleryPageContract.definePage({
   Model, Message,
-  init: () => ({ model: { range: SliderRange.init(rangeConfig()), thumbs: singleThumbs } }),
+  init: () => ({ model: { range: SliderRange.init(rangeConfig(pageThumbs)), thumbs: pageThumbs } }),
   update: (model: Model, message: Message) => Message.match(message, {
     RangeEvent: ({ message: child }) => foldRange(model, { config: rangeConfig([...model.thumbs]), message: child }),
   }),
