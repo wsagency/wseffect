@@ -43,7 +43,7 @@ export const OutMessage = defineMessageUnion({
 export type OutMessage = typeof OutMessage.Type
  
 const tableStates = new Map<string, TableState<unknown>>()
-const { observeDataTable, scrollToRow } = makeDataTableMounts(Message, tableStates)
+const { observeDataTable, scrollToRow, focusHeaderCell } = makeDataTableMounts(Message, tableStates)
 const FIXED_VIEWPORT_HEIGHT = 360
 const selectionColumnId = '$selection'
 const gridHeaderRowId = '$header'
@@ -347,6 +347,7 @@ function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrl
   const activeCell = { rowId, columnId }
   if (rowId === gridHeaderRowId) return {
     model: { ...model, activeCell },
+    commands: mapChildCommands([focusHeaderCell({ containerId: model.virtualList.id, columnIndex: nextColumn })]),
     outMessage: OutMessage.FocusCell(activeCell),
   }
   const rowIndex = nextRow - 1

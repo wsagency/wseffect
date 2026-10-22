@@ -62,5 +62,26 @@ export function makeDataTableMounts<State>(message: typeof Message, tableStates:
       })
     }),
   })
-  return { observeDataTable, scrollToRow }
+  const focusHeaderCell = Command.define('FocusDataTableHeaderCell', {
+    messages: [VirtualList.Message],
+    args: { containerId: Schema.String, columnIndex: Schema.Number },
+    execute: ({ containerId, columnIndex }) => Effect.gen(function* () {
+      yield* Render.afterCommit
+      const container = document.getElementById(containerId)
+      if (!(container instanceof HTMLElement)) return VirtualList.Message.ObservedContainerScroll({
+        scrollTop: 0,
+        scrollHeight: 0,
+        containerHeight: 0,
+        anchor: { _tag: 'None' },
+      })
+      container.querySelector<HTMLTableRowElement>('thead tr')?.cells.item(columnIndex)?.focus()
+      return VirtualList.Message.ObservedContainerScroll({
+        scrollTop: container.scrollTop,
+        scrollHeight: container.scrollHeight,
+        containerHeight: container.clientHeight,
+        anchor: { _tag: 'None' },
+      })
+    }),
+  })
+  return { observeDataTable, scrollToRow, focusHeaderCell }
 }
