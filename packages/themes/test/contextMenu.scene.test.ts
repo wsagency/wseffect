@@ -52,6 +52,7 @@ describe('themed ContextMenu', () => {
       Scene.keydown(Scene.selector('#source'), 'ContextMenu'),
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
       Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent rt-r-size-2 rt-variant-solid'),
+      Scene.expect(Scene.role('menu')).toHaveAttr('data-accent-color', 'indigo'),
       Scene.expect(Scene.selector('.rt-BaseMenuItem')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
       Scene.expect(Scene.selector('.rt-BaseMenuGroup')).toHaveAttr('class', 'rt-BaseMenuGroup rt-ContextMenuGroup'),
       Scene.expect(Scene.selector('.rt-BaseMenuSeparator')).toHaveAttr('class', 'rt-BaseMenuSeparator rt-ContextMenuSeparator'),

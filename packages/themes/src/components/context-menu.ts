@@ -10,6 +10,7 @@ import { Schema } from 'effect'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveClasses, responsiveProp } from '../props/responsive.js'
+import { defaults } from './theme.js'
 
 const contentSizes = ['1', '2'] as const
 const contentVariants = ['solid', 'soft'] as const
@@ -69,7 +70,7 @@ export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{
 export const create = <Value extends string>(): Bundle<Value> => {
   const contextMenu = LocalContextMenu.createContextMenu<Value>()
   const view = defineView<Model, Message, Config<Value>>((model, config, h) =>
-    brandViewResult(contextMenu.view(model, { ...config, classes: themedClasses(config) }, h), 'wseffect/ContextMenu')
+    brandViewResult(contextMenu.view(model, { ...config, color: config.color ?? defaults.accentColor, classes: themedClasses(config) }, h), 'wseffect/ContextMenu')
   )
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(
     config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Config<Value>, Message, OutMessage<Value>, ParentOutMessage>, 'update'>,

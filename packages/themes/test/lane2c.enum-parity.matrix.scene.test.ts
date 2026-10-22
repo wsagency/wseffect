@@ -27,6 +27,7 @@ import * as Spinner from '../src/components/spinner.js'
 import * as Strong from '../src/components/strong.js'
 import * as Table from '../src/components/table.js'
 import * as ThemePanel from '../src/components/theme-panel.js'
+import { defaults as themeDefaults } from '../src/components/theme.js'
 import { mountScrollArea } from '../src/components/scroll-area.mount.js'
 
 const Messages = defineMessageUnion({ Tick: {} })
@@ -66,8 +67,8 @@ const contextMenuModel = contextMenu.update(contextMenu.init(contextMenuConfig),
 for (const variant of ['solid', 'soft'] as const) enumRows.push({
   name: `ContextMenu variant=${variant}`, selector: '[role="menu"]',
   classes: [`rt-variant-${variant}`, 'rt-r-size-2'],
-  attrs: [['data-accent-color', 'crimson']],
-  render: h => contextMenu.view(contextMenuModel, { ...contextMenuConfig, variant, color: 'crimson' }, h as unknown as HtmlBuilder<ContextMenu.Message>),
+  attrs: [['data-accent-color', themeDefaults.accentColor]],
+  render: h => contextMenu.view(contextMenuModel, { ...contextMenuConfig, variant }, h as unknown as HtmlBuilder<ContextMenu.Message>),
 })
 
 add('Progress', 'div[role="progressbar"]', 'size', ['1', '2', '3'], 'rt-r-size', (v, h) => Progress.view({ size: v as '1' | '2' | '3' }, [], h))
