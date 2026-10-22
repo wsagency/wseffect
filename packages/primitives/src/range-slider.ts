@@ -111,6 +111,12 @@ const pointerMount = (config: Config): Mount.MountAction<Message> => ({
     const root = host.closest<HTMLElement>('[data-range-slider-root]') ?? host
     const document = host.ownerDocument
     let activePointer: { id: string; pointerId: number } | undefined
+    const releaseActivePointer = () => {
+      const active = activePointer
+      if (active === undefined) return
+      activePointer = undefined
+      if (host.hasPointerCapture?.(active.pointerId) === true) host.releasePointerCapture?.(active.pointerId)
+    }
     const pointerValue = (event: PointerEvent): number | undefined => {
       const rect = root.getBoundingClientRect()
       const extent = config.orientation === 'horizontal' ? rect.width : rect.height
@@ -143,6 +149,7 @@ const pointerMount = (config: Config): Mount.MountAction<Message> => ({
       event.preventDefault()
       nearest.focus({ preventScroll: true })
       activePointer = { id, pointerId: pointer.pointerId }
+      host.setPointerCapture?.(pointer.pointerId)
       Queue.offerUnsafe(queue, { _tag: 'DragStart', id })
       Queue.offerUnsafe(queue, { _tag: 'DragValue', id, value })
     }
@@ -155,24 +162,34 @@ const pointerMount = (config: Config): Mount.MountAction<Message> => ({
     const onPointerUp = (event: Event) => {
       const pointer = event as PointerEvent
       if (activePointer?.pointerId !== pointer.pointerId) return
-      activePointer = undefined
+      releaseActivePointer()
       Queue.offerUnsafe(queue, { _tag: 'DragEnd' })
     }
     const onPointerCancel = (event: Event) => {
       const pointer = event as PointerEvent
       if (activePointer?.pointerId !== pointer.pointerId) return
-      activePointer = undefined
+      releaseActivePointer()
       Queue.offerUnsafe(queue, { _tag: 'CancelDrag' })
+    }
+    const onKeyDown = (event: Event) => {
+      if ((event as KeyboardEvent).key !== 'Escape' || activePointer === undefined) return
+      releaseActivePointer()
+      if (!event.defaultPrevented) {
+        event.preventDefault()
+        Queue.offerUnsafe(queue, { _tag: 'CancelDrag' })
+      }
     }
     host.addEventListener('pointerdown', onPointerDown)
     document.addEventListener('pointermove', onPointerMove)
     document.addEventListener('pointerup', onPointerUp)
+    document.addEventListener('keydown', onKeyDown)
     document.addEventListener('pointercancel', onPointerCancel)
     yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
       host.removeEventListener('pointerdown', onPointerDown)
       document.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('pointerup', onPointerUp)
       document.removeEventListener('pointercancel', onPointerCancel)
+      document.removeEventListener('keydown', onKeyDown)
     }))
     return yield* Effect.never
   })),

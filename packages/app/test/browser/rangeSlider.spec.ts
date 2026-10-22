@@ -48,3 +48,23 @@ test('pointer drags each thumb and track clicks move the nearest thumb', async (
   await page.mouse.click(x + width * 0.55, centerY)
   await expect.poll(thumbs).toEqual([35, 55])
 })
+test('Escape cancels a pointer drag until pointerup across later moves', async ({ page }) => {
+  await page.goto(`${baseUrl}/packages/app/test/browser/rangeSlider.html`)
+  const slider = page.locator('#slider')
+  const bounds = await slider.boundingBox()
+  expect(bounds).not.toBeNull()
+  const { x, y, width, height } = bounds!
+  const centerY = y + height / 2
+  const thumbs = () => page.evaluate(() => (window as RangeSliderWindow).__thumbs)
+
+  await page.mouse.move(x + width * 0.25, centerY)
+  await page.mouse.down()
+  await page.mouse.move(x + width * 0.35, centerY)
+  await expect.poll(thumbs).toEqual([35, 75])
+  await page.keyboard.press('Escape')
+  await expect.poll(thumbs).toEqual([25, 75])
+  await page.mouse.move(x + width * 0.55, centerY)
+  await page.mouse.up()
+
+  await expect.poll(thumbs).toEqual([25, 75])
+})
