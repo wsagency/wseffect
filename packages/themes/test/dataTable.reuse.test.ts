@@ -100,22 +100,22 @@ describe('DataTable row view cache reuse', () => {
       caption: null,
       selectedRowIds: new Set(),
       isGrid: false,
-      rowHeight: 360,
+      rowHeight: 36,
       overscanRows: 0,
     }
     const view = (model: DataTable.Model, h: HtmlBuilder<DataTable.Message>) => DataTable.view(model, cfg, h)
     const update = (model: DataTable.Model, message: DataTable.Message) => DataTable.update(model, cfg, message)
     const resize = Scene.Mount.resolve(
       { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-      DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 1 }) }),
+      DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
     )
     const scrollSteps = Array.from({ length: data.length }, (_, offset) => {
       const index = offset === data.length - 1 ? 0 : offset + 1
       return Scene.Subscription.emit(DataTable.Message.VirtualList({
         message: VirtualList.Message.ObservedContainerScroll({
-          scrollTop: index * cfg.rowHeight,
+          scrollTop: index * cfg.rowHeight + 1,
           scrollHeight: data.length * cfg.rowHeight,
-          containerHeight: 1,
+          containerHeight: 180,
           anchor: { _tag: 'None' },
         }),
       }))
@@ -124,13 +124,34 @@ describe('DataTable row view cache reuse', () => {
       { update, view },
       Scene.given(DataTable.init(cfg)),
       resize,
-      Scene.tap(() => expect(renderCount.size).toBe(1)),
+      Scene.tap(() => expect(renderCount.size).toBe(10)),
+      Scene.Subscription.emit(DataTable.Message.VirtualList({
+        message: VirtualList.Message.ObservedContainerScroll({ scrollTop: 1, scrollHeight: data.length * cfg.rowHeight, containerHeight: 180, anchor: { _tag: 'None' } }),
+      })),
+      Scene.Subscription.emit(DataTable.Message.VirtualList({
+        message: VirtualList.Message.ObservedContainerScroll({ scrollTop: 2, scrollHeight: data.length * cfg.rowHeight, containerHeight: 180, anchor: { _tag: 'None' } }),
+      })),
+      Scene.tap(() => expect(renderCount.get('row-0')).toBe(1)),
       ...scrollSteps,
       Scene.tap(() => {
         expect(renderCount.get('row-0')).toBe(2)
         expect(renderCount.get('row-9999')).toBe(1)
       }),
     )
+  })
+
+  it('reuses cached row ids until RowsChanged rebuilds the table state', () => {
+    const getRowId = vi.fn((row: Row) => row.id)
+    const columns: ReadonlyArray<DataTable.Column<Row>> = [{ id: 'label', header: null, isSortable: true, accessor: row => row.label }]
+    const cfg = { ...makeConfig(originalRows, columns), id: 'data-table-cached-row-ids', getRowId }
+    let model = DataTable.init(cfg)
+    expect(getRowId).toHaveBeenCalledTimes(originalRows.length)
+    model = DataTable.update(model, cfg, DataTable.Message.FilterChanged({ value: 'a' })).model
+    model = DataTable.update(model, cfg, DataTable.Message.SortChanged({ columnId: 'label' })).model
+    expect(getRowId).toHaveBeenCalledTimes(originalRows.length)
+    const changed = { ...cfg, rows: originalRows.map(row => ({ ...row })) }
+    DataTable.update(model, changed, DataTable.Message.RowsChanged())
+    expect(getRowId).toHaveBeenCalledTimes(originalRows.length * 2)
   })
 
   it('changed row memo arg executes exactly 1 affected view', () => {

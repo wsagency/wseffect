@@ -90,7 +90,7 @@ const schemaMatrix = [
   ['Card', Theme.Card.Props, { variant: 'surface', size: '2' }, { variant: 'invalid' }],
   ['Button', Theme.Button.Props, { size: '2', variant: 'solid', color: 'crimson' }, { size: '99' }],
   ['TextField', Theme.TextField.Props, { id: 'email', label: 'Email', size: '2', variant: 'surface', color: 'crimson' }, { color: 'not-a-radix-color' }],
-  ['Checkbox', Checkbox.Props, { id: 'terms', size: { initial: '2', md: '3' }, variant: 'classic', color: 'crimson', checked: true }, { size: '99' }],
+  ['Checkbox', Checkbox.Props, { id: 'terms', size: { initial: '2', md: '3' }, variant: 'classic', color: 'crimson', checked: true, onCheckedChange: () => undefined }, { size: '99', onCheckedChange: () => undefined }],
   ['CheckboxGroup', CheckboxGroup.Props, { id: 'choices', size: { initial: '2', md: '3' }, variant: 'soft', color: 'crimson' }, { variant: 'invalid' }],
   ['CheckboxCards', CheckboxCards.Props, { id: 'plans', label: 'Plans', size: '3', variant: 'classic', columns: { md: '2' }, gap: { initial: '3', md: '4' } }, { size: '99' }],
   ['Radio', Radio.Props, { id: 'one', value: 'one', size: '2', variant: 'soft', checked: true }, { size: '99' }],

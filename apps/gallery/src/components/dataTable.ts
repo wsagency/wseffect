@@ -117,9 +117,7 @@ function applyTableMessage(model: Model, tableMessage: DataTable.Message, rows =
   const selectedRowIds = result.outMessage?._tag === 'SelectionChanged'
     ? result.outMessage.ids
     : model.selectedRowIds
-  const focusedCell = result.outMessage?._tag === 'FocusCell'
-    ? result.outMessage
-    : model.focusedCell
+  const focusedCell = result.model.activeCell
   return {
     model: { ...model, rows, table: result.model, selectedRowIds, focusedCell },
     commands: result.commands?.map(command => Command.mapMessage(command, childMessage => Message.TableEvent({ message: childMessage }))) ?? [],

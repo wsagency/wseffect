@@ -25,21 +25,21 @@ export const Props = Schema.Struct({
   readOnly: Schema.optional(Schema.Boolean),
   name: Schema.optional(Schema.String),
   value: Schema.optional(Schema.String),
-  onCheckedChange: Schema.optional(Schema.declare((input): input is (checked: boolean) => unknown => typeof input === 'function')),
+  onCheckedChange: Schema.declare((input): input is (checked: boolean) => unknown => typeof input === 'function'),
 })
 export type Props = typeof Props.Type
-export const view = <Message>(props: Props & { onCheckedChange?: (checked: boolean) => Message }, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
+export const view = <Message>(props: Omit<Props, 'onCheckedChange'> & { onCheckedChange: (checked: boolean) => Message }, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
   const size = props.size ?? '2'
   const classes = [
     'rt-reset', 'rt-BaseCheckboxRoot', 'rt-CheckboxRoot',
     ...(typeof size === 'string' ? [`rt-r-size-${size}`] : responsiveClasses(sizeProp, size).classes),
     variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : []),
   ].join(' ')
-  return brandViewResult(CheckboxUi.view({
+  return brandViewResult(CheckboxUi.view<Message>({
     id: props.id, isChecked: props.checked ?? props.defaultChecked ?? false,
     isIndeterminate: props.indeterminate, isDisabled: props.disabled, isReadOnly: props.readOnly,
     name: props.name, value: props.value,
-    onToggle: checked => props.onCheckedChange?.(checked) as Message,
+    onToggle: checked => props.onCheckedChange(checked),
     toView: attributes => {
       const attrs = [...attributes.checkbox, h.Class(classes)]
       if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
