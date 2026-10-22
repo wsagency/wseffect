@@ -34,6 +34,7 @@
     "./components/context-menu": { "types": "./dist/components/context-menu.d.ts", "default": "./dist/components/context-menu.js" },
     "./components/tab-nav": { "types": "./dist/components/tab-nav.d.ts", "default": "./dist/components/tab-nav.js" },
     "./styles.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/styles.css" },
+    "./components-base.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/components-base.css" },
     "./components.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/components.css" },
     "./utilities.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/utilities.css" },
     "./tokens.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/tokens.css" },

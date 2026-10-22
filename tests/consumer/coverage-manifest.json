@@ -1,4 +1,12 @@
 {
+  "css:@wsagency/wseffect-themes:dist/styles/components-base.css": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "css:@wsagency/wseffect-themes:dist/styles/components-base.layer.css": [
+    "public-surface",
+    "consumer-install"
+  ],
   "css:@wsagency/wseffect-themes:dist/styles/components.css": [
     "public-surface",
     "consumer-install"
@@ -1563,6 +1571,18 @@
     "gallery-build",
     "gallery-typecheck"
   ],
+  "subpath:@wsagency/wseffect-themes:./components-base.css": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-themes:./components-base.layer.css": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
   "subpath:@wsagency/wseffect-themes:./components.css": [
     "public-surface",
     "consumer-install",
@@ -2169,6 +2189,18 @@
     "gallery-typecheck"
   ],
   "subpath:@wsagency/wseffect-themes:./styles/*": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-themes:./styles/components-base.css": [
+    "public-surface",
+    "consumer-install",
+    "gallery-build",
+    "gallery-typecheck"
+  ],
+  "subpath:@wsagency/wseffect-themes:./styles/components-base.layer.css": [
     "public-surface",
     "consumer-install",
     "gallery-build",
@@ -4024,6 +4056,14 @@
     "public-surface",
     "gallery-typecheck"
   ],
+  "type:@wsagency/wseffect-themes:./components-base.css:default": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-themes:./components-base.layer.css:default": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
   "type:@wsagency/wseffect-themes:./components.css:default": [
     "public-surface",
     "gallery-typecheck"
@@ -4907,6 +4947,14 @@
     "gallery-typecheck"
   ],
   "type:@wsagency/wseffect-themes:./styles.layer.css:default": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-themes:./styles/components-base.css:default": [
+    "public-surface",
+    "gallery-typecheck"
+  ],
+  "type:@wsagency/wseffect-themes:./styles/components-base.layer.css:default": [
     "public-surface",
     "gallery-typecheck"
   ],

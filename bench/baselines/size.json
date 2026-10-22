@@ -3,12 +3,12 @@
   "compression": "brotli-q11",
   "entries": {
     "shell": {
-      "bytes": 98871,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 73455,
+      "reason": "The pre-SP2 component stylesheet set remains in the shell; entry plus framework are 873 B over the pinned 200a6a5 base."
     },
     "first-visit": {
-      "bytes": 161697,
-      "reason": "Global red/green Theme tokens support cold capability routes; first visit remains below 163,840 B and capability modules stay lazy."
+      "bytes": 150557,
+      "reason": "First visit loads the base stylesheet set; SP2 family styles remain lazy until family navigation."
     },
     "speculative-prefetch": {
       "bytes": 28911,
@@ -167,8 +167,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "styles.css": {
-      "bytes": 62486,
-      "reason": "The 2B/2C component-family pages add route-scoped stylesheets and themed component styles to the measured CSS set."
+      "bytes": 56739,
+      "reason": "The pre-SP2 aggregate remains eager via components-base.css; SP2 component CSS stays in lazy family chunks."
     }
   }
 }

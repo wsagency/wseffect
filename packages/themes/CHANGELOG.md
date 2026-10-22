@@ -17,3 +17,4 @@
 - Add a virtualized native DataTable with filtering, stable sorting, controlled selection, and optional Grid navigation.
 - Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views; match their classes, timings, state attributes, and portal behavior to the pinned Radix Themes contract.
 - Omit `aria-orientation` from decorative Separators; expose it only with separator semantics.
+- Export `components-base.css`, preserving the pre-SP2 component stylesheet set for eager shells.

@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { validateManifest } from '@wsagency/wseffect-app/vite'
 import { manifest } from '../vite.config.js'
@@ -5,5 +7,11 @@ import { manifest } from '../vite.config.js'
 describe('gallery manifest', () => {
   it('satisfies the PWA manifest contract', () => {
     expect(validateManifest(manifest)).toEqual([])
+  })
+
+  it('loads the pre-SP2 aggregate as its eager component CSS', async () => {
+    const source = await readFile(resolve(import.meta.dirname, '../src/main.ts'), 'utf8')
+    expect(source).toContain("import '@wsagency/wseffect-themes/components-base.css'")
+    expect(source).not.toContain("import '@wsagency/wseffect-themes/components.css'")
   })
 })
