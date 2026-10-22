@@ -31,7 +31,7 @@ const frequencyGroup = RadioGroup.create<string>()
 const billingGroup = RadioCards.create<string>()
 const segmented = SegmentedControl.create<string>()
 const draw = (h: HtmlBuilder<Message>, name: string, props: Record<string, unknown> = {}) => {
-  if (name === 'Checkbox') return Checkbox.view<Message>({ id: 'forms-extra-checkbox', checked: false, ...props } as Checkbox.Props & { onCheckedChange?: (checked: boolean) => Message }, ['Enable notifications'], h)
+  if (name === 'Checkbox') return Checkbox.view<Message>({ id: 'forms-extra-checkbox', checked: false, ...props, onCheckedChange: checked => Message.ToggleCheckbox({ checked }) } as Omit<Checkbox.Props, 'onCheckedChange'> & { onCheckedChange: (checked: boolean) => Message }, ['Enable notifications'], h)
   if (name === 'Switch') return Switch.view<Message>({ id: 'forms-extra-switch', checked: false, ...props } as Switch.Props & { onCheckedChange?: (checked: boolean) => Message }, ['Airplane mode'], h)
   if (name === 'CheckboxGroup') return CheckboxGroup.view<string, Message>({ id: 'forms-extra-group', label: h.span([], ['Notifications']), options: [{ value: 'updates', label: h.span([], ['Product updates']) }, { value: 'news', label: h.span([], ['Company news']) }], selected: new Set(['updates']), toggleMessage: (_value, checked) => Message.ToggleCheckbox({ checked }), variant: 'soft', ...props } as Parameters<typeof CheckboxGroup.view<string, Message>>[0], h)
   if (name === 'CheckboxCards') return CheckboxCards.view<string, Message>({ id: 'forms-extra-cards', label: 'Plans', options: [{ value: 'standard', label: ['Standard plan'] }, { value: 'premium', label: ['Premium plan'] }], selected: new Set(['standard']), toggleMessage: (_value, checked) => Message.ToggleCheckbox({ checked }), variant: 'classic', highContrast: true, ...props } as Parameters<typeof CheckboxCards.view<string, Message>>[0], h)
@@ -50,7 +50,7 @@ export const page = galleryPageContract.definePage({
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => h.div([], [
     Heading.view({ as: 'h1' }, ['Forms extra'], h),
-    h.section([], [Heading.view({ as: 'h2' }, ['Checkboxes'], h), draw(h, 'Checkbox', { checked: model.checked, onCheckedChange: (checked: boolean) => Message.ToggleCheckbox({ checked }) }), draw(h, 'Checkbox', { variant: 'classic', size: '3', highContrast: true }), draw(h, 'CheckboxGroup', { variant: 'soft' }), draw(h, 'CheckboxCards')]),
+    h.section([], [Heading.view({ as: 'h2' }, ['Checkboxes'], h), draw(h, 'Checkbox', { checked: model.checked }), draw(h, 'Checkbox', { variant: 'classic', size: '3', highContrast: true }), draw(h, 'CheckboxGroup', { variant: 'soft' }), draw(h, 'CheckboxCards')]),
     h.section([], [Heading.view({ as: 'h2' }, ['Radio controls'], h), draw(h, 'Radio'), draw(h, 'RadioGroup'), draw(h, 'RadioCards')]),
     h.section([], [Heading.view({ as: 'h2' }, ['Switch'], h), draw(h, 'Switch', { checked: model.enabled, variant: 'soft', size: '3', onCheckedChange: (enabled: boolean) => Message.ToggleSwitch({ enabled }) })]),
     h.section([], [Heading.view({ as: 'h2' }, ['Segmented control'], h), draw(h, 'SegmentedControl')]),
