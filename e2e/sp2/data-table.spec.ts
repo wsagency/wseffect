@@ -52,6 +52,7 @@ test('10,000-row virtualization restores the focused cell after filtering and fo
   const firstSelectionCell = grid.getByRole('row').nth(1).getByRole('gridcell').first()
   await firstSelectionCell.focus()
   await expect(page.locator('#data-table-active-cell')).toHaveText('Focused row-1 / $selection')
+  await expect(firstSelectionCell).toBeFocused()
   await page.keyboard.press('Control+End')
   const lastRow = grid.locator('[data-virtual-list-item-key="row-10000"]')
   const lastCell = lastRow.getByRole('gridcell').last()
