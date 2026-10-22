@@ -16,6 +16,7 @@ const outputFiles = [
   'css/common.css',
   'css/utilities.css',
   ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area'].map(name => `css/${name}.css`),
+  ...['checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'].map(name => `css/${name}.css`),
 ]
 
 describe('Themes CSS distribution', () => {
@@ -27,10 +28,23 @@ describe('Themes CSS distribution', () => {
     }
   })
 
-  it('limits component CSS to the foundation closure', async () => {
+  it('emits CSS targets for each implemented component', async () => {
     const files = await readdir(resolve(packageRoot, 'dist/styles/css'))
-    expect(files).toContain('button.css')
-    expect(files).not.toContain('checkbox.css')
+    for (const name of ['button', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider']) {
+      expect(files).toContain(`${name}.css`)
+    }
+  })
+  it('includes primitive styles in standalone grouped control sheets', async () => {
+    const dependencies = {
+      'checkbox-group': ['.rt-BaseCheckboxRoot'],
+      'radio-group': ['.rt-BaseRadioRoot'],
+      'radio-cards': ['.rt-BaseRadioRoot', '.rt-BaseCard'],
+      'segmented-control': ['.rt-BaseRadioRoot'],
+    }
+    for (const [component, selectors] of Object.entries(dependencies)) {
+      const css = await readFile(resolve(packageRoot, `dist/styles/css/${component}.css`), 'utf8')
+      for (const selector of selectors) expect(css, `${component}: ${selector}`).toContain(selector)
+    }
   })
   it('includes all 31 Radix Colors token files with layered siblings', async () => {
     const directory = resolve(packageRoot, 'dist/styles/tokens/colors')

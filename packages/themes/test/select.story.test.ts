@@ -3,7 +3,7 @@ import type { HtmlBuilder } from 'foldkit/html'
 import * as Listbox from '@foldkit/ui/listbox'
 import * as Scene from 'foldkit/scene'
 import { defineMessageUnion } from 'foldkit/message'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import * as Select from '../src/components/select.js'
 
 const SelectBox = Select.create<'one' | 'two' | 'three'>()
@@ -33,4 +33,22 @@ describe('Select', () => {
     Scene.Command.resolve(Listbox.ScrollIntoView, Listbox.Message.CompletedScrollIntoView()),
     Scene.expect(Scene.selector('#choice-option-three')).toHaveAttr('data-active', 'true'),
   ))
+  it('builds its parent fold adapter', () => {
+    const fold = SelectBox.fold<{ select: Select.Model }, Other, never>({
+      read: parent => Option.some(parent.select),
+      write: (parent, select) => ({ ...parent, select }),
+      toParentMessage: () => Other.Tick(),
+      foldOutMessage: () => model => ({ model }),
+    })
+    expect(fold).toBeDefined()
+  })
+  it('embeds under the supplied parent slot', () => {
+    const embeddedView = (model: Select.Model, h: HtmlBuilder<Select.Message | Other>) => SelectBox.embed(h, {
+      slotId: 'choice-select',
+      model,
+      toParentMessage: () => Other.Tick(),
+      viewInputs: { id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false },
+    })
+    Scene.scene({ update, view: embeddedView }, Scene.given(SelectBox.init({ id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false })), Scene.expect(Scene.role('combobox', { name: 'choice' })).toExist())
+  })
 })

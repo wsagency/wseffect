@@ -49,7 +49,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
   const view = (model: Model, config: Config<Value>, h: HtmlBuilder<Message>): Html => {
     const size = config.props?.size ?? '2'
     const sizeClasses = typeof size === 'string' ? `rt-r-size-${size}` : responsiveClasses(sizeProp, size).classes.join(' ')
-    const classes = ['rt-SelectRoot', sizeClasses, variantClasses[config.props?.variant ?? 'surface']].join(' ')
+    const classes = [sizeClasses, variantClasses[config.props?.variant ?? 'surface']].join(' ')
     if (config.position === 'popper') return brandViewResult(h.div([
       h.Class(classes),
       ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),

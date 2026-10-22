@@ -4,17 +4,19 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs'] as const
+const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'] as const
+const viewComponentNames = componentNames.filter(name => name !== 'radio-cards')
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',
   './layout.css', './layout/tokens.css', './layout/components.css', './layout/utilities.css',
   './css/common.css', './css/utilities.css',
   ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area'].map(name => `./css/${name}.css`),
+  ...['checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'].map(name => `./css/${name}.css`),
 ]
 
 describe('themes distribution', () => {
   it('brands every component view in the built package', async () => {
-    for (const name of componentNames) {
+    for (const name of viewComponentNames) {
       const code = await readFile(resolve(packageRoot, `dist/components/${name}.js`), 'utf8')
       expect(code, name).toContain("from 'foldkit/brand'")
     }
@@ -35,6 +37,12 @@ describe('themes distribution', () => {
       const subpath = `./tokens/colors/${color}`
       expect(packageJson.exports[subpath], color).toBeDefined()
       expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, `${color} layer`).toBeDefined()
+    }
+  })
+  it('registers form controls in the root barrel', async () => {
+    const source = await readFile(resolve(packageRoot, 'src/index.ts'), 'utf8')
+    for (const name of ['Checkbox', 'CheckboxGroup', 'CheckboxCards', 'Radio', 'RadioGroup', 'RadioCards', 'Switch', 'SegmentedControl', 'Select', 'TextArea', 'Slider']) {
+      expect(source).toContain(`export * as ${name} from`)
     }
   })
 

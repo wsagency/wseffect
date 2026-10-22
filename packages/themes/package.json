@@ -26,6 +26,7 @@
     "./components/text-field": { "types": "./dist/components/text-field.d.ts", "default": "./dist/components/text-field.js" },
     "./components/dialog": { "types": "./dist/components/dialog.d.ts", "default": "./dist/components/dialog.js" },
     "./components/dropdown-menu": { "types": "./dist/components/dropdown-menu.d.ts", "default": "./dist/components/dropdown-menu.js" },
+    "./components/tabs": { "types": "./dist/components/tabs.d.ts", "default": "./dist/components/tabs.js" },
     "./components/checkbox": { "types": "./dist/components/checkbox.d.ts", "default": "./dist/components/checkbox.js" },
     "./components/checkbox-group": { "types": "./dist/components/checkbox-group.d.ts", "default": "./dist/components/checkbox-group.js" },
     "./components/checkbox-cards": { "types": "./dist/components/checkbox-cards.d.ts", "default": "./dist/components/checkbox-cards.js" },

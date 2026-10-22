@@ -55,9 +55,9 @@ export const view = <Message>(props: Props & { onInput?: (value: string) => Mess
       ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
       ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
     ], [
-      h.label([...attributes.label, h.Class('rt-TextAreaLabel')], [props.label]),
+      h.label([...attributes.label], [props.label]),
       h.textarea([...attributes.textarea, h.Class('rt-reset rt-TextAreaInput')]),
-      ...(children.length > 0 ? [h.p([...attributes.description, h.Class('rt-TextAreaDescription')], children)] : []),
+      ...(children.length > 0 ? [h.p([...attributes.description], children)] : []),
     ]),
   }, h), 'wseffect/TextArea')
 }
