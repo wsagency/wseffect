@@ -64,7 +64,7 @@ describe('Gallery capture resolver', () => {
       expect(app.querySelector('[data-sp2-capture-error]')).toBeNull()
       const target = app.querySelector('[data-sp2-family="data-table"][data-sp2-component="DataTable"]')
       expect(target).not.toBeNull()
-      expect(target?.querySelectorAll('.rt-TableRootTable tbody tr')).toHaveLength(10)
+      expect(target?.querySelectorAll('.wse-data-table tbody tr[data-virtual-list-item-key]')).toHaveLength(10)
       expect(target?.textContent).toContain('Record 01')
       expect(target?.textContent).toContain('Record 10')
     } finally {
