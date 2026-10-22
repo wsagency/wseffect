@@ -15,6 +15,7 @@
 - Place the shared portal root inside the root Theme so portaled controls inherit its tokens.
 - Render the gallery shell with themed layout, navigation, date, and action controls.
 - Add a virtualized native DataTable with filtering, stable sorting, controlled selection, and optional Grid navigation.
+- Match ContextMenu content size, solid/soft variant, explicit or default accent color, and high-contrast props to the pinned Radix2Solid menu contract.
 - Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views; match their classes, timings, state attributes, and portal behavior to the pinned Radix Themes contract.
 - Omit `aria-orientation` from decorative Separators; expose it only with separator semantics.
 - Export `components-base.css`, preserving the pre-SP2 component stylesheet set for eager shells.

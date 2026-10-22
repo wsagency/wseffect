@@ -1,7 +1,10 @@
 import type { Html, HtmlBuilder } from 'foldkit/html'
+import { Option } from 'effect'
 import { defineMessageUnion } from 'foldkit/message'
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it } from 'vitest'
+import * as Menu from '@foldkit/ui/menu'
+import * as ContextMenu from '../src/components/context-menu.js'
 import * as Avatar from '../src/components/avatar.js'
 import * as Badge from '../src/components/badge.js'
 import * as Blockquote from '../src/components/blockquote.js'
@@ -24,10 +27,11 @@ import * as Spinner from '../src/components/spinner.js'
 import * as Strong from '../src/components/strong.js'
 import * as Table from '../src/components/table.js'
 import * as ThemePanel from '../src/components/theme-panel.js'
+import { defaults as themeDefaults } from '../src/components/theme.js'
 import { mountScrollArea } from '../src/components/scroll-area.mount.js'
 
 const Messages = defineMessageUnion({ Tick: {} })
-type Message = typeof Messages.Type | ThemePanel.Message
+type Message = typeof Messages.Type | ThemePanel.Message | ContextMenu.Message
 const update = (model: Readonly<Record<string, never>>, _message: Message) => ({ model })
 const text = 'Enum parity'
 type Row = {
@@ -56,6 +60,16 @@ const addRadius = (component: string, selector: string, render: (value: 'none' |
 }
 const sizes9 = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const colors = ['gray', 'custom'] as const
+const contextMenu = ContextMenu.create<'open'>()
+const contextMenuConfig = { id: 'parity', sourceId: 'parity-source', sourceToken: 'parity-token', longPressMs: 600 as const, items: [], toItem: () => null }
+const contextMenuModel = contextMenu.update(contextMenu.init(contextMenuConfig), Menu.Message.Opened({ maybeActiveItemIndex: Option.none() })).model
+// Pinned citations: R2S context-menu.tsx:31-45 and context-menu.props.ts:1-6.
+for (const variant of ['solid', 'soft'] as const) enumRows.push({
+  name: `ContextMenu variant=${variant}`, selector: '[role="menu"]',
+  classes: [`rt-variant-${variant}`, 'rt-r-size-2'],
+  attrs: [['data-accent-color', themeDefaults.accentColor]],
+  render: h => contextMenu.view(contextMenuModel, { ...contextMenuConfig, variant }, h as unknown as HtmlBuilder<ContextMenu.Message>),
+})
 
 add('Progress', 'div[role="progressbar"]', 'size', ['1', '2', '3'], 'rt-r-size', (v, h) => Progress.view({ size: v as '1' | '2' | '3' }, [], h))
 add('Progress', 'div[role="progressbar"]', 'variant', ['classic', 'surface', 'soft'], 'rt-variant', (v, h) => Progress.view({ variant: v as 'classic' | 'surface' | 'soft' }, [], h))
@@ -225,6 +239,10 @@ describe('Lane 2C exhaustive finite prop parity', () => {
     { update, view: (_model, h) => row.render(h) },
     Scene.given({}),
     ...(row.name.startsWith('ScrollArea') || row.name.startsWith('Table.Root') ? [Scene.Mount.resolve(mountScrollArea<Message>(), Messages.Tick())] : []),
+    ...(row.name.startsWith('ContextMenu') ? [
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+    ] : []),
     Scene.expect(Scene.selector(row.selector)).toExist(),
     ...(row.classes ?? []).map(className => Scene.expect(Scene.selector(row.selector)).toHaveClass(className)),
     ...(row.absentClasses ?? []).map(className => Scene.expect(Scene.selector(row.selector)).not.toHaveClass(className)),
