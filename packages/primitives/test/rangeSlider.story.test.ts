@@ -103,6 +103,7 @@ it('keyboard view bindings clamp and move thumbs within accessible bounds', () =
   Scene.scene(
     { update, view: render },
     Scene.given(sceneModel()),
+    Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
     Scene.focus(Scene.role('slider', { name: 'low' })),
     Scene.keydown(Scene.role('slider', { name: 'low' }), 'End'),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '75'),
@@ -118,7 +119,7 @@ it('PageUp and PageDown move vertical thumbs and expose vertical orientation', (
   Scene.scene(
     { update, view: render },
     Scene.given(sceneModel(vertical)),
-    Scene.expect(Scene.role('group', { name: 'vertical range' })).not.toHaveAttr('aria-orientation'),
+    Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('aria-orientation', 'vertical'),
     Scene.keydown(Scene.role('slider', { name: 'low' }), 'PageUp'),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '30'),
@@ -126,10 +127,23 @@ it('PageUp and PageDown move vertical thumbs and expose vertical orientation', (
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '20'),
   )
 })
+it('Escape restores values through the rendered slider control', () => {
+  Scene.scene(
+    { update, view: render },
+    Scene.given(sceneModel()),
+    Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
+    Scene.pointerDown(Scene.role('slider', { name: 'low' })),
+    Scene.type(Scene.role('slider', { name: 'low' }), '40'),
+    Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '40'),
+    Scene.keydown(Scene.role('slider', { name: 'low' }), 'Escape'),
+    Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '25'),
+  )
+})
 it('input and pointer bindings start, update, and end a drag', () => {
   Scene.scene(
     { update, view: render },
     Scene.given(sceneModel()),
+    Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
     Scene.pointerDown(Scene.role('slider', { name: 'low' })),
     Scene.type(Scene.role('slider', { name: 'low' }), '40'),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '40'),

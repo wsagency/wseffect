@@ -14,6 +14,7 @@ it('one accessible slider per thumb', () => {
   Scene.scene(
     { update, view: render },
     Scene.given(RangeSlider.init(config)),
+    Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
     Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '25'),
     Scene.expect(Scene.role('slider', { name: 'high' })).toHaveAttr('value', '75'),
   )

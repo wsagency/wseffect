@@ -107,7 +107,7 @@ const pointerMount = (config: Config): Mount.MountAction<Message> => ({
   name: 'RangeSliderPointer',
   f: element => Stream.callback<Message>(queue => Effect.gen(function* () {
     const host = element as HTMLElement
-    const root = host.closest<HTMLElement>('.rt-SliderRoot') ?? host
+    const root = host.closest<HTMLElement>('[data-range-slider-root]') ?? host
     const document = host.ownerDocument
     let activePointer: { id: string; pointerId: number } | undefined
     const pointerValue = (event: PointerEvent): number | undefined => {
@@ -189,14 +189,13 @@ export const view = (model: Model, config: Config, h: HtmlBuilder<Message>): Htm
   return h.div([
     h.Role('group'),
     h.AriaLabel(`${config.orientation} range`),
-    h.AriaOrientation(config.orientation),
-    h.Class('rt-SliderGroup'),
+    h.DataAttribute('slider-slot', 'group'),
     h.Attribute('data-disabled', String(config.isDisabled === true)),
-    h.OnMount(pointerMount(config)),
+h.OnMount(pointerMount(config)),
   ], [
-    h.div([h.Class('rt-SliderTrack'), ...(config.isDisabled ? [h.DataAttribute('disabled', '')] : [])], [
+    h.div([h.DataAttribute('slider-slot', 'track'), ...(config.isDisabled ? [h.DataAttribute('disabled', '')] : [])], [
       h.div([
-        h.Class('rt-SliderRange'),
+        h.DataAttribute('slider-slot', 'range'),
         h.Attribute('style', rangeStyle),
         ...(config.isDisabled ? [h.DataAttribute('disabled', '')] : []),
       ], []),
@@ -204,6 +203,7 @@ export const view = (model: Model, config: Config, h: HtmlBuilder<Message>): Htm
     ...config.thumbs.map((thumb, index) => {
       const bounds = limit(thumb, index, config)
       const messageForKey = (key: string): Message | undefined => {
+        if (key === 'Escape') return { _tag: 'CancelDrag' }
         if (key === 'Home') return { _tag: 'SetBoundary', id: thumb.id, boundary: 'min' }
         if (key === 'End') return { _tag: 'SetBoundary', id: thumb.id, boundary: 'max' }
         if (key === 'PageUp') return { _tag: 'Page', id: thumb.id, direction: 1 }
@@ -214,7 +214,7 @@ export const view = (model: Model, config: Config, h: HtmlBuilder<Message>): Htm
       }
       const position = percentage(thumb.value, min, max)
       const thumbStyle = horizontal ? `left:${position}%` : `bottom:${position}%`
-      return h.div([h.Class('rt-SliderThumbContainer')], [
+      return h.div([h.DataAttribute('slider-slot', 'thumb-container')], [
         h.input([
           h.Attribute('type', 'range'),
           h.Attribute('data-thumb-id', thumb.id),
@@ -235,7 +235,7 @@ export const view = (model: Model, config: Config, h: HtmlBuilder<Message>): Htm
           }),
         ]),
         h.div([
-          h.Class('rt-SliderThumb'),
+          h.DataAttribute('slider-slot', 'thumb'),
           h.Attribute('data-thumb-id', thumb.id),
           ...(config.isDisabled ? [h.DataAttribute('disabled', '')] : []),
           h.Attribute('style', thumbStyle),
