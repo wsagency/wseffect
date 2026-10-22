@@ -17,7 +17,7 @@ export const view = <Message>(props: ViewProps, _children: ReadonlyArray<Html | 
   const margin = marginClasses(props)
   const attrs: Attribute<Message>[] = [h.Class(['rt-Separator', ...orientation.classes, ...size.classes, ...margin.classes].join(' '))]
   if (typeof props.orientation !== 'object') attrs.push(h.Attribute('aria-orientation', props.orientation ?? 'horizontal'))
-  if (props.decorative !== true) attrs.push(h.Role('separator'))
+  if (props.decorative === false) attrs.push(h.Role('separator'))
   if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
   const styles = { ...orientation.style, ...size.style, ...margin.style }
   if (Object.keys(styles).length) attrs.push(h.Style(styles))

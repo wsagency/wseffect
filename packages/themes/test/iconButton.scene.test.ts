@@ -23,3 +23,17 @@ it('wires non-default IconButton props to R2S classes and attributes', () => Sce
   Scene.expect(Scene.role('button', { name: 'Save' })).toHaveAttr('data-accent-color', 'crimson'),
   Scene.expect(Scene.role('button', { name: 'Save' })).toHaveAttr('data-radius', 'full'),
 ))
+it('overlays the loading spinner over content', () => Scene.scene(
+  { update, view: (_model, h) => IconButton.view({ 'aria-label': 'Save', loading: true }, ['Save'], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-BaseButton')).toHaveClass('rt-loading'),
+  Scene.expect(Scene.selector('[aria-hidden="true"]')).toHaveStyle('position', 'absolute'),
+  Scene.expect(Scene.selector('[aria-hidden="true"]')).toHaveStyle('inset', '0'),
+  Scene.expect(Scene.selector('[aria-hidden="true"] .rt-Spinner')).toExist(),
+  Scene.expect(Scene.selector('.rt-ButtonContent')).toExist(),
+))
+it('maps button size four to the pinned larger loading spinner', () => Scene.scene(
+  { update, view: (_model, h) => IconButton.view({ size: '4', 'aria-label': 'Save', loading: true }, ['Save'], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-Spinner')).toHaveClass('rt-r-size-3'),
+))

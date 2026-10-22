@@ -11,6 +11,11 @@ describe('themed Separator', () => {
   it('uses separator semantics', () => Scene.scene({ update, view }, Scene.given({}),
     Scene.expect(Scene.selector('[role="separator"]')).toExist()))
 })
+it('defaults decorative to true without separator role', () => Scene.scene(
+  { update, view: (_model, h) => Separator.view({}, [], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('role', 'separator'),
+))
 it('wires non-default Separator props to R2S classes and attributes', () => Scene.scene(
   { update, view: (_model, h) => Separator.view({ orientation: 'vertical', size: '4', color: 'crimson', decorative: true, m: '2' }, [], h) },
   Scene.given({}),
