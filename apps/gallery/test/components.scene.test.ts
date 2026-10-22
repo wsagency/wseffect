@@ -1,4 +1,6 @@
 import { Schema } from 'effect'
+import { makePages, slotsSchema } from '@wsagency/wseffect-app'
+import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import { describe, expect, it } from 'vitest'
 import * as Components from '../src/pages/components.js'
 import { Message as DataTableMessage, page as dataTablePage } from '../src/components/dataTable.js'
@@ -34,15 +36,39 @@ describe('Gallery Components hub', () => {
     expect(Schema.decodeUnknownSync(modelCodec)(encodedModel)).toEqual(entered.model)
   })
 
-  it('keeps DataTable model and message codecs available to nested family state', () => {
+  it('round-trips pending DataTable focus through the APP-8 page-model codec', () => {
     const initial = dataTablePage.init()
     const message = DataTableMessage.UpdateCell()
-    const modelCodec = Schema.toCodecJson(dataTablePage.Model)
-    const messageCodec = Schema.toCodecJson(dataTablePage.Message)
-    const encodedModel = Schema.encodeSync(modelCodec)(initial.model)
-    const encodedMessage = Schema.encodeSync(messageCodec)(message)
+    const gridUpdate = dataTablePage.update(initial.model, DataTableMessage.TableEvent({
+      message: DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }),
+    }))
+    const model = gridUpdate.model
+    const expectedPendingFocus = { rowId: 'row-2', columnId: '$selection' }
+    expect(model.table.pendingFocus).toEqual(expectedPendingFocus)
 
-    expect(Schema.decodeUnknownSync(modelCodec)(encodedModel)).toEqual(initial.model)
+    const modelCodec = Schema.toCodecJson(dataTablePage.Model)
+    const encodedModel = Schema.encodeSync(modelCodec)(model)
+    expect(Schema.decodeUnknownSync(modelCodec)(encodedModel)).toEqual(model)
+
+    const pages = makePages({ dataTable: async () => dataTablePage })
+    pages.registry.register('dataTable', dataTablePage)
+    const slotCodec = Schema.toCodecJson(slotsSchema(pages))
+    const encodedSlots = Schema.encodeSync(slotCodec)({
+      dataTable: { _tag: 'Ready', model },
+    })
+    expect(encodedSlots).toMatchObject({
+      dataTable: {
+        _tag: 'Ready',
+        model: { table: { pendingFocus: expectedPendingFocus } },
+      },
+    })
+    const decodedSlots = Schema.decodeUnknownSync(slotCodec)(encodedSlots)
+    const restored = decodedSlots.dataTable
+    expect(restored._tag).toBe('Ready')
+    if (restored._tag === 'Ready') expect(restored.model).toEqual(model)
+
+    const messageCodec = Schema.toCodecJson(dataTablePage.Message)
+    const encodedMessage = Schema.encodeSync(messageCodec)(message)
     expect(Schema.decodeUnknownSync(messageCodec)(encodedMessage)).toEqual(message)
   })
 })
