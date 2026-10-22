@@ -220,10 +220,48 @@ test('GATE-S3 permits a seeded artifact only with a reason and an encompassing b
     failure.includes('shell was added without a baseline reason')))
 })
 
-test('measureSize reports the built Gallery shell and all initial server responses', async () => {
+test('capture resolver and matrix stay outside the built index.html static closure', async () => {
   const appDir = resolve(import.meta.dirname, '../../apps/gallery')
   execFileSync('pnpm', ['--dir', appDir, 'build'], { stdio: 'inherit' })
   const distDir = join(appDir, 'dist')
+  const manifest = JSON.parse(readFileSync(join(distDir, '.vite', 'manifest.json'), 'utf8')) as Record<string, {
+    file: string
+    imports?: string[]
+    isDynamicEntry?: boolean
+    assets?: string[]
+    dynamicImports?: string[]
+  }>
+  const staticKeys = new Set<string>()
+  const visitStaticImports = (key: string): void => {
+    if (staticKeys.has(key)) return
+    const entry = manifest[key]
+    assert.ok(entry, `manifest contains static import ${key}`)
+    staticKeys.add(key)
+    for (const importedFile of entry.imports ?? []) {
+      const importedKey = importedFile
+      assert.ok(importedKey, `manifest maps static import ${importedFile}`)
+      visitStaticImports(importedKey)
+    }
+  }
+  visitStaticImports('index.html')
+  const staticSources = new Set<string>()
+  for (const key of staticKeys) {
+    const file = manifest[key]!.file
+    if (!file.endsWith('.js')) continue
+    const sourceMap = JSON.parse(readFileSync(join(distDir, `${file}.map`), 'utf8')) as { sources: string[] }
+    for (const source of sourceMap.sources) staticSources.add(source)
+  }
+  assert.ok(
+    [...staticSources].every((source) => !source.endsWith('/src/capture.ts') && !source.includes('sp2-capture-matrix.json')),
+    'static index.html closure excludes Gallery capture resolver and matrix',
+  )
+  const captureEntry = Object.entries(manifest).find(([key, entry]) =>
+    key.endsWith('src/capture.ts') && entry.isDynamicEntry === true,
+  )?.[1]
+  assert.ok(captureEntry, 'Gallery capture module is emitted as a lazy dynamic entry')
+  assert.ok(captureEntry.assets?.some((asset) => asset.includes('sp2-capture-matrix-')), 'capture matrix is an asset of the lazy capture module')
+  assert.ok(captureEntry.dynamicImports?.some((module) => module.startsWith('src/pages/')), 'capture page modules are lazy imports')
+
   const assetsDir = join(distDir, 'assets')
   const assets = readdirSync(assetsDir)
   const entry = assets.find((name) => /^index-.*\.js$/.test(name))

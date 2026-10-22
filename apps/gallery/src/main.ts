@@ -42,4 +42,8 @@ const application = makeApp<Model, Message, Pages, KitMessageType>({
   },
 })
 
-run(application)
+if (location.search.includes('capture=')) {
+  void import('./capture.js').then(({ startCapture }) => startCapture(new URL(location.href)))
+} else {
+  run(application)
+}
