@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import * as DataTable from '../src/components/data-table.js'
+import * as VirtualList from '@foldkit/ui/virtualList'
 
 type Row = { id: string; label: string; rank: number }
 const rows: ReadonlyArray<Row> = [
@@ -115,12 +115,32 @@ describe('DataTable Grid model', () => {
     const result = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }))
     expect(result.model.activeCell).toEqual({ rowId: 'b', columnId: '$selection' })
     expect(result.model.pendingFocus).toEqual({ rowId: 'b', columnId: '$selection' })
-    expect(result.model.virtualList.pendingScroll).toMatchObject({
+    const pendingScroll = result.model.virtualList.pendingScroll
+    expect(pendingScroll).toMatchObject({
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
     expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
+    })
+    if (pendingScroll._tag !== 'Pending') throw new Error('expected a pending scroll')
+    const completed = update(result.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.CompletedApplyScroll({
+        version: pendingScroll.version,
+        outcome: {
+          _tag: 'Applied',
+          scrollTop: cfg.rowHeight,
+          scrollHeight: rows.length * cfg.rowHeight,
+          containerHeight: cfg.rowHeight,
+          anchor: { _tag: 'None' },
+        },
+      }),
+    }))
+    expect(completed.model.pendingFocus).toBeNull()
+    expect(completed.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'b',
+      columnIndex: 0,
+      shouldFocus: true,
     })
   })
 
