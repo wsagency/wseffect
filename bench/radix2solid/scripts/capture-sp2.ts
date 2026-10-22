@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser, type Page } from '@playwright/test'
 import { comparePixels, validatePairs, type PixelComparison, type PixelImage } from './compare-sp2.ts'
+import { captureBounds, captureTarget, type CaptureBounds } from './capture-target.ts'
 
 type Capture = { id: string; component: string; theme: 'light' | 'dark'; state: string; props: Record<string, unknown> }
 type CaptureResult = {
@@ -93,6 +94,89 @@ async function loadCaptureFont(page: Page): Promise<void> {
   }, matrix.font.face)
   assert.ok(result.count > 0 && result.loaded, `vendored ${matrix.font.family} did not load as ${matrix.font.face}`)
 }
+async function alignCaptureTarget(page: Page, position: Readonly<{ x: number; y: number }>): Promise<void> {
+  await page.locator('[data-sp2-capture-target]').evaluate((target, coordinates) => {
+    const element = target as HTMLElement
+    element.style.position = 'fixed'
+    element.style.left = `${coordinates.x}px`
+    element.style.top = `${coordinates.y}px`
+  }, position)
+}
+async function addCaptureInitScript(page: Page, theme: 'light' | 'dark', position?: Readonly<{ x: number; y: number }>): Promise<void> {
+  await page.addInitScript(({ theme, position }) => {
+    document.documentElement.dataset.appearance = theme
+    if (!position) return
+    const applyPosition = (root: Node) => {
+      const parent = root as ParentNode
+      const targets = root instanceof Element && root.matches('[data-sp2-capture-target]') ? [root] : []
+      if (typeof parent.querySelectorAll === 'function') targets.push(...parent.querySelectorAll('[data-sp2-capture-target]'))
+      for (const target of targets) {
+        target.style.setProperty('position', 'fixed', 'important')
+        target.style.setProperty('left', `${position.x}px`, 'important')
+        target.style.setProperty('top', `${position.y}px`, 'important')
+        target.style.setProperty('z-index', '0', 'important')
+      }
+    }
+    const observer = new MutationObserver(records => {
+      for (const record of records) {
+        applyPosition(record.target)
+        for (const node of record.addedNodes) applyPosition(node)
+      }
+    })
+    observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-sp2-capture-target'] })
+  }, { theme, position })
+}
+async function raiseCaptureOverlays(page: Page): Promise<void> {
+  await page.addStyleTag({ content: `
+    [data-sp2-capture-target] { z-index: 0 !important; }
+    [data-radix-popper-content-wrapper], .rt-PopperContent, .rt-TooltipContent,
+    .rt-BaseDialogContent, [role="dialog"] { z-index: 1 !important; }
+  ` })
+}
+function initialCapture(family: Family, capture: Capture): Capture {
+  const deferredOverlay = ['AlertDialog', 'Popover', 'HoverCard', 'Tooltip'].includes(capture.component)
+    && (capture.state === 'open' || capture.state === 'hover')
+  if (!deferredOverlay) return capture
+  const initial = family.captures.find(candidate =>
+    candidate.component === capture.component && candidate.theme === capture.theme && candidate.state === 'default',
+  )
+  assert.ok(initial, `missing default capture for ${capture.component} in ${family.family}`)
+  return initial
+}
+async function activateCaptureState(page: Page, capture: Capture, focus = false): Promise<void> {
+  if (focus && (capture.state === 'keyboard-focus' || capture.state === 'range-keyboard-focus')) {
+    const target = capture.component === 'Slider' ? 'input[type="range"], [role="slider"]' : capture.component === 'RadioGroup' ? '[role="radio"]' : capture.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
+    await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).first().focus()
+  }
+  if (capture.state === 'hover' && capture.props.hovered !== true) {
+    const target = capture.component === 'HoverCard' ? 'a[href="#profile"]' : 'button'
+    await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).hover()
+  }
+}
+
+function unionBounds(a: CaptureBounds, b: CaptureBounds): CaptureBounds {
+  const x = Math.min(a.x, b.x)
+  const y = Math.min(a.y, b.y)
+  const right = Math.max(a.x + a.width, b.x + b.width)
+  const bottom = Math.max(a.y + a.height, b.y + b.height)
+  return { x, y, width: right - x, height: bottom - y }
+}
+
+async function waitForOverlayPosition(page: Page, component: string, state: string): Promise<void> {
+  if (state !== 'open' && state !== 'hover') return
+  if (component !== 'Popover' && component !== 'HoverCard' && component !== 'Tooltip') return
+  await page.waitForFunction(() => {
+    const panels = document.querySelectorAll<HTMLElement>('[data-radix-popper-content-wrapper], .rt-PopperContent, .rt-TooltipContent')
+    return Array.from(panels).some(panel => {
+      if (panel.style.left === '' || panel.style.top === '') return false
+      const rect = panel.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0
+    })
+  }, undefined, { timeout: 5000 }).catch(error => {
+    throw new Error(`Unable to position ${component}/${state} overlay at ${page.url()}`, { cause: error })
+  })
+}
+
 
 validatePairs(matrix.families.flatMap(family => family.captures))
 await mkdir(captureDir, { recursive: true })
@@ -107,45 +191,64 @@ try {
   for (const family of matrix.families) for (const capture of family.captures) {
     const context = await browser.newContext({ viewport: matrix.viewport, deviceScaleFactor: matrix.viewport.deviceScaleFactor, reducedMotion: 'reduce', colorScheme: capture.theme })
     const page = await context.newPage()
-    await page.addInitScript(({ theme }) => {
-      document.documentElement.dataset.appearance = theme
-      const style = document.createElement('style')
-      style.textContent = '*,*::before,*::after{animation-duration:0s!important;transition-duration:0s!important;caret-color:transparent!important}'
-      document.head.appendChild(style)
-    }, { theme: capture.theme })
+    const renderedCapture = initialCapture(family, capture)
+    await addCaptureInitScript(page, capture.theme)
+    const renderedParams = new URLSearchParams({ appearance: capture.theme, capture: renderedCapture.id, state: renderedCapture.state, props: JSON.stringify(renderedCapture.props) })
     const params = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
     const url = `${solidBase}/${family.route}?${params}`
+    let capturePosition: { x: number; y: number } | undefined
+    if (renderedCapture.id !== capture.id) {
+      await page.goto(`${solidBase}/${family.route}?${renderedParams}`, { waitUntil: 'networkidle' })
+      await loadCaptureFont(page)
+      await page.locator(`[data-sp2-family="${family.family}"]`).waitFor()
+      await page.locator(`[data-sp2-component="${capture.component}"]`).waitFor()
+      capturePosition = await page.locator('[data-sp2-capture-target]').evaluate(target => {
+        const { x, y } = target.getBoundingClientRect()
+        return { x, y }
+      })
+      await addCaptureInitScript(page, capture.theme, capturePosition)
+    }
     await page.goto(url, { waitUntil: 'networkidle' })
     await loadCaptureFont(page)
     await page.locator(`[data-sp2-family="${family.family}"]`).waitFor()
     await page.locator(`[data-sp2-component="${capture.component}"]`).waitFor()
-    if (capture.state === 'keyboard-focus' || capture.state === 'range-keyboard-focus') {
-      const target = capture.component === 'Slider' ? '[role="slider"]' : capture.component === 'RadioGroup' ? '[role="radio"]' : capture.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
-      await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).first().focus()
-    }
-    if (capture.state === 'hover') {
-      const target = capture.component === 'HoverCard' ? 'a[href="#profile"]' : 'button'
-      await page.locator(`[data-sp2-component="${capture.component}"] ${target}`).hover()
-    }
-    await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
     const solidComponent = page.locator('[data-sp2-capture-target]')
+    capturePosition ??= await solidComponent.evaluate(target => {
+      const { x, y } = target.getBoundingClientRect()
+      return { x, y }
+    })
+    await alignCaptureTarget(page, capturePosition)
+    await raiseCaptureOverlays(page)
+    await activateCaptureState(page, capture, true)
+    await page.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
+    await waitForOverlayPosition(page, capture.component, capture.state)
+    const solidBounds = await captureBounds(page)
     const solidPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.solid.png`)
-    await solidComponent.screenshot({ path: solidPath, animations: 'disabled' })
     let galleryPath: string | undefined
     let comparison: PixelComparison | undefined
     if (galleryBase) {
       const galleryPage = await context.newPage()
+      await addCaptureInitScript(galleryPage, capture.theme, capturePosition)
       const galleryParams = new URLSearchParams({ appearance: capture.theme, capture: capture.id, state: capture.state, props: JSON.stringify(capture.props) })
       const galleryUrl = `${galleryBase}${family.galleryRoute}?${galleryParams}`
       await galleryPage.goto(galleryUrl, { waitUntil: 'networkidle' })
+      const galleryComponent = galleryPage.locator('[data-sp2-capture-target]')
+      await galleryComponent.waitFor()
+      await alignCaptureTarget(galleryPage, capturePosition)
+      await raiseCaptureOverlays(galleryPage)
+      await activateCaptureState(galleryPage, capture, true)
       await loadCaptureFont(galleryPage)
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
-      const pairedGalleryPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.gallery.png`)
-      galleryPath = pairedGalleryPath
-      const galleryComponent = galleryPage.locator('[data-sp2-capture-target]')
-      await galleryComponent.screenshot({ path: pairedGalleryPath, animations: 'disabled' })
-      comparison = comparePixels(await decodePng(page, solidPath), await decodePng(galleryPage, pairedGalleryPath))
+      await waitForOverlayPosition(galleryPage, capture.component, capture.state)
+      const galleryBounds = await captureBounds(galleryPage)
+      const sharedBounds = unionBounds(solidBounds, galleryBounds)
+      galleryPath = resolve(captureDir, `${capture.id.replaceAll('/', '--')}.gallery.png`)
+      await writeFile(solidPath, await captureTarget(page, sharedBounds))
+      await writeFile(galleryPath, await captureTarget(galleryPage, sharedBounds))
+      comparison = comparePixels(await decodePng(page, solidPath), await decodePng(galleryPage, galleryPath))
       await galleryPage.close()
+    } else {
+      await writeFile(solidPath, await captureTarget(page, solidBounds))
     }
     const solidSha256 = createHash('sha256').update(await readFile(solidPath)).digest('hex')
     const gallerySha256 = galleryPath ? createHash('sha256').update(await readFile(galleryPath)).digest('hex') : undefined
