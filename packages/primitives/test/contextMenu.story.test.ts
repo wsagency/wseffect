@@ -401,4 +401,3 @@ it('skips disabled rendered items during arrows and typeahead', () => {
     Scene.expect(Scene.role('menuitem', { name: 'Bravo' })).toHaveAttr('data-active', ''),
   )
 })
-
