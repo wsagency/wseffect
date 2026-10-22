@@ -2894,6 +2894,9 @@
   "type:@wsagency/wseffect-primitives:./select-position:mountSelectPosition": [
     "public-surface"
   ],
+  "type:@wsagency/wseffect-primitives:./select:SelectAppearance": [
+    "public-surface"
+  ],
   "type:@wsagency/wseffect-primitives:./select:SelectBundle": [
     "public-surface"
   ],
@@ -4160,6 +4163,7 @@
   "type:@wsagency/wseffect-themes:./components/select:OutMessage": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./components/select:Bundle": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./components/select:create": ["public-surface", "gallery-typecheck"],
+  "type:@wsagency/wseffect-themes:./components/text-area:ViewProps": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./components/text-area:Props": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./components/text-area:view": ["public-surface", "gallery-typecheck"],
   "type:@wsagency/wseffect-themes:./css/select.css:default": ["public-surface", "gallery-typecheck"],

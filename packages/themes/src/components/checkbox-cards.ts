@@ -1,7 +1,6 @@
 import { brandViewResult } from 'foldkit/brand'
 import { Schema } from 'effect'
 import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
-import * as Grid from './grid.js'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
@@ -11,6 +10,8 @@ const variants = ['surface', 'classic'] as const
 const columns = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 const gaps = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 const sizeProp = responsiveProp({ className: 'rt-r-size', values: sizes })
+const columnsProp = responsiveProp({ className: 'rt-r-gtc', values: columns, customProperties: ['--grid-template-columns'], parseValue: value => /^\d+$/.test(value) ? `repeat(${value}, minmax(0, 1fr))` : value })
+const gapProp = responsiveProp({ className: 'rt-r-gap', values: gaps, customProperties: ['--gap'] })
 export const Props = Schema.Struct({
   id: Schema.String,
   label: Schema.String,
@@ -19,7 +20,7 @@ export const Props = Schema.Struct({
   color: Schema.optional(Schema.Literals(accentColors)),
   highContrast: Schema.optional(Schema.Boolean),
   columns: Schema.optional(responsiveSchema(columns, true)),
-  gap: Schema.optional(responsiveSchema(gaps)),
+  gap: Schema.optional(responsiveSchema(gaps, true)),
   isDisabled: Schema.optional(Schema.Boolean),
 })
 export type Props = typeof Props.Type
@@ -30,9 +31,12 @@ export const view = <Value extends string, Message>(props: Props & {
   toggleMessage(value: Value, isChecked: boolean): Message
 }, h: HtmlBuilder<Message>): Html => {
   const sizeClasses = responsiveClasses(sizeProp, props.size ?? '2').classes
+  const columns = responsiveClasses(columnsProp, props.columns ?? 'repeat(auto-fit, minmax(200px, 1fr))')
+  const gap = responsiveClasses(gapProp, props.gap ?? '4')
   const rootAttributes: Attribute<Message>[] = [
     h.Id(props.id), h.Role('group'), h.AriaLabelledBy(`${props.id}-label`),
-    h.Class(['rt-CheckboxCardsRoot', ...sizeClasses, `rt-variant-${props.variant ?? 'surface'}`].join(' ')),
+    h.Class(['rt-Grid', 'rt-CheckboxCardsRoot', ...sizeClasses, ...columns.classes, ...gap.classes, `rt-variant-${props.variant ?? 'surface'}`, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+    ...(Object.keys({ ...columns.style, ...gap.style }).length === 0 ? [] : [h.Style({ ...columns.style, ...gap.style })]),
   ]
   if (props.color !== undefined) rootAttributes.push(h.DataAttribute('accent-color', props.color))
   const cards = props.options.map(option => {
@@ -53,6 +57,6 @@ export const view = <Value extends string, Message>(props: Props & {
   })
   return brandViewResult(h.div(rootAttributes, [
     h.span([h.Id(`${props.id}-label`)], [props.label]),
-    Grid.view({ columns: props.columns ?? 'repeat(auto-fit, minmax(200px, 1fr))', gap: props.gap ?? '4' }, cards, h),
+    ...cards,
   ]), 'wseffect/CheckboxCards')
 }

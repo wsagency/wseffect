@@ -86,7 +86,7 @@ it('drag lifecycle emits changed values, commits, and cancels to its start', () 
   expect(idleCancel.outMessage).toBeUndefined()
 })
 type SceneModel = { slider: RangeSlider.Model; config: RangeSlider.Config }
-const sceneModel = (): SceneModel => ({ slider: RangeSlider.init(config), config })
+const sceneModel = (sliderConfig: RangeSlider.Config = config): SceneModel => ({ slider: RangeSlider.init(sliderConfig), config: sliderConfig })
 const update = (model: SceneModel, message: RangeSlider.Message) => {
   const result = RangeSlider.update(model.slider, model.config, message)
   return {
@@ -111,6 +111,19 @@ it('keyboard view bindings clamp and move thumbs within accessible bounds', () =
     Scene.expect(Scene.role('slider', { name: 'high' })).toHaveAttr('value', '75'),
     Scene.keydown(Scene.role('slider', { name: 'high' }), 'ArrowRight'),
     Scene.expect(Scene.role('slider', { name: 'high' })).toHaveAttr('value', '76'),
+  )
+})
+it('PageUp and PageDown move vertical thumbs and expose vertical orientation', () => {
+  const vertical = { ...config, orientation: 'vertical' as const, thumbs: [{ id: 'low', value: 20 }, { id: 'high', value: 80 }] }
+  Scene.scene(
+    { update, view: render },
+    Scene.given(sceneModel(vertical)),
+    Scene.expect(Scene.role('group', { name: 'vertical range' })).toHaveAttr('aria-orientation', 'vertical'),
+    Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('aria-orientation', 'vertical'),
+    Scene.keydown(Scene.role('slider', { name: 'low' }), 'PageUp'),
+    Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '30'),
+    Scene.keydown(Scene.role('slider', { name: 'low' }), 'PageDown'),
+    Scene.expect(Scene.role('slider', { name: 'low' })).toHaveAttr('value', '20'),
   )
 })
 it('input and pointer bindings start, update, and end a drag', () => {

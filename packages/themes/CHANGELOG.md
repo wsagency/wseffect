@@ -15,3 +15,5 @@
 - Place the shared portal root inside the root Theme so portaled controls inherit its tokens.
 - Render the gallery shell with themed layout, navigation, date, and action controls.
 - Add themed Checkbox, Radio, Switch, SegmentedControl, Select, TextArea and single/range Slider controls.
+- Forward native name, required, placeholder, rows, and ARIA attributes to themed TextArea inputs.
+- Cover view reuse counters for CheckboxGroup, CheckboxCards, RadioGroup, RadioCards, SegmentedControl, and TextArea.

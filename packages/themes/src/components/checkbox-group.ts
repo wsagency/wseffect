@@ -27,9 +27,8 @@ export const view = <Value extends string, Message>(props: Props & {
   const sizeClasses = responsiveClasses(sizeProp, props.size ?? '2').classes
   const rootAttributes: Attribute<Message>[] = [
     h.Id(props.id), h.Role('group'), h.AriaLabelledBy(`${props.id}-label`),
-    h.Class(['rt-CheckboxGroupRoot', ...sizeClasses, `rt-variant-${props.variant ?? 'surface'}`].join(' ')),
+    h.Class(['rt-CheckboxGroupRoot'].join(' ')),
   ]
-  if (props.color !== undefined) rootAttributes.push(h.DataAttribute('accent-color', props.color))
   return brandViewResult(h.div(rootAttributes, [
     h.span([h.Id(`${props.id}-label`)], [props.label]),
     ...props.options.map(option => {
@@ -42,6 +41,7 @@ export const view = <Value extends string, Message>(props: Props & {
           h.AriaChecked(isChecked),
           h.Disabled(isDisabled),
           h.AriaDisabled(isDisabled),
+          ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
           h.Class(['rt-reset', 'rt-BaseCheckboxRoot', 'rt-CheckboxGroupItemCheckbox', ...sizeClasses, `rt-variant-${props.variant ?? 'surface'}`, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
           h.DataAttribute('state', isChecked ? 'checked' : 'unchecked'),
           h.OnChange(() => props.toggleMessage(option.value, !isChecked)),

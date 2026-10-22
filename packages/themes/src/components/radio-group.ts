@@ -1,8 +1,8 @@
 import { brandViewResult } from 'foldkit/brand'
+import { Option as EffectOption, Schema } from 'effect'
 import { childAttributes, type Html, type HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
-import { Schema } from 'effect'
 import * as RadioGroupUi from '@foldkit/ui/radioGroup'
 import type { ViewInputs as UiInputs } from '@foldkit/ui/radioGroup'
 import { accentColors } from '../props/color.props.js'
@@ -24,7 +24,7 @@ export type Model = RadioGroupUi.Model
 export type Message = RadioGroupUi.Message
 export type OutMessage<Value extends string> = RadioGroupUi.OutMessage<Value>
 export type Option<Value extends string> = Readonly<{ value: Value; label?: Html; isDisabled?: boolean }>
-export type ViewInputs<Value extends string> = Omit<UiInputs<Value>, 'toView' | 'options' | 'isOptionDisabled'> & Readonly<{ options: ReadonlyArray<Option<Value>>; optionToLabel?: (value: Value) => Html; props?: Props & { rootClass?: string; rootStyle?: Readonly<Record<string, string>>; itemClass?: string; itemInnerClass?: string } }>
+export type ViewInputs<Value extends string> = Omit<UiInputs<Value>, 'toView' | 'options' | 'isOptionDisabled'> & Readonly<{ options: ReadonlyArray<Option<Value>>; optionToLabel?: (value: Value) => Html; props?: Props & { rootClass?: string; rootStyle?: Readonly<Record<string, string>>; rootRadius?: string; rootAccentColor?: string; segmented?: boolean; cards?: boolean; itemClass?: string; itemInnerClass?: string } }>
 export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{ slotId: string; model: Model; toParentMessage(message: Message): ParentMessage; viewInputs: ViewInputs<Value> }>
 export type Bundle<Value extends string> = Readonly<{
   Model: typeof RadioGroupUi.Model
@@ -52,17 +52,39 @@ export const create = <Value extends string>(): Bundle<Value> => {
       isReadOnly: inputs.isReadOnly,
       name: inputs.name,
       toView: render => h.div([...render.group, ...childAttributes([
-        h.Class(['rt-RadioGroupRoot', props.rootClass, classes, variantClasses[props.variant ?? 'surface']].filter(Boolean).join(' ')),
-        ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+        h.Class(['rt-RadioGroupRoot', props.rootClass, ...(props.segmented ? [classes, variantClasses[props.variant ?? 'surface']] : [])].filter(Boolean).join(' ')),
+        ...(props.segmented && inputs.isDisabled ? [h.DataAttribute('disabled', '')] : []),
+        ...(props.rootRadius === undefined ? [] : [h.DataAttribute('radius', props.rootRadius)]),
+        ...(props.rootAccentColor === undefined ? [] : [h.DataAttribute('accent-color', props.rootAccentColor)]),
         ...(props.rootStyle === undefined ? [] : [h.Style(props.rootStyle)]),
-      ])], render.options.map((option, index) => {
+      ])], render.options.flatMap((option, index) => {
         const labelId = `${model.id}-option-${index}-label`
         const optionLabel = inputs.optionToLabel?.(option.value) ?? inputs.options[index]?.label ?? ''
-        return h.label([...childAttributes([h.Class(['rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
-          h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([h.Class(['rt-reset', 'rt-BaseRadioRoot', ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' '))])], []),
+        const selected = EffectOption.isSome(inputs.selectedValue) && inputs.selectedValue.value === option.value
+        if (props.cards) return [
+          h.button([...option.option, ...childAttributes([h.Class(props.itemClass ?? 'rt-reset rt-BaseCard rt-RadioCardsItem')])], [optionLabel]),
+        ]
+        if (props.segmented) return [
+          h.button([...option.option, h.AriaLabelledBy(labelId), ...(inputs.isDisabled ? [h.Disabled(true)] : []), ...childAttributes([
+            h.Class(['rt-reset', 'rt-SegmentedControlItem', classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+            ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+            h.DataAttribute('state', selected ? 'on' : 'off'),
+          ])], [
+            h.span([h.Id(labelId), h.Class('rt-SegmentedControlItemLabel')], [
+              h.span([h.Class('rt-SegmentedControlItemLabelInactive')], [optionLabel]),
+              h.span([h.Class('rt-SegmentedControlItemLabelActive')], [optionLabel]),
+            ]),
+            ...(index < render.options.length - 1 ? [h.span([h.Class('rt-SegmentedControlItemSeparator'), h.AriaHidden(true)], [])] : []),
+          ]),
+        ]
+        return [h.label([...childAttributes([h.Class(['rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
+          h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([
+            h.Class(['rt-reset', 'rt-BaseRadioRoot', classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+            ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+          ])], []),
           h.span([h.Id(labelId), ...childAttributes([h.Class(['rt-RadioGroupItemInner', props.itemInnerClass].filter(Boolean).join(' '))])], [optionLabel]),
-        ])
-      })),
+        ])]
+      }).concat(props.segmented ? [h.span([h.Class('rt-SegmentedControlIndicator')], [])] : [])),
     }, h), 'wseffect/RadioGroup')
   })
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage<Value>, ParentOutMessage>, 'update'>): Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage> => Update.foldChild({ ...config, update: group.update })

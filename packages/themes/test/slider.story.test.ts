@@ -28,6 +28,20 @@ describe('Slider', () => {
     const result = Slider.Range.update(Slider.Range.init(config), config, { _tag: 'Step', id: 'low', delta: 1 })
     expect(result.outMessage).toEqual({ _tag: 'ValuesChanged', thumbs: [{ id: 'low', value: 15 }, { id: 'high', value: 45 }] })
   })
+  it('moves a range thumb by ten steps on a page key', () => {
+    const config = { min: 0, max: 100, step: 5, orientation: 'horizontal' as const, thumbs: [{ id: 'low', value: 20 }, { id: 'high', value: 90 }] }
+    const result = Slider.Range.update(Slider.Range.init(config), config, { _tag: 'Page', id: 'low', direction: 1 })
+    expect(result.outMessage).toEqual({ _tag: 'ValuesChanged', thumbs: [{ id: 'low', value: 70 }, { id: 'high', value: 90 }] })
+  })
+
+  it('exposes vertical orientation for a range', () => {
+    const config = { ...rangeConfig, orientation: 'vertical' as const }
+    const view = (model: Slider.RangeModel, h: HtmlBuilder<Slider.RangeMessage | Other>) => Slider.Range.view(model, config, h as HtmlBuilder<Slider.RangeMessage>)
+    const update = (model: Slider.RangeModel, message: Slider.RangeMessage | Other) => message._tag === 'Tick' ? { model } : Slider.Range.update(model, config, message)
+    Scene.scene({ update, view }, Scene.given(Slider.Range.init(config)),
+      Scene.expect(Scene.role('group', { name: 'vertical range' })).toHaveAttr('aria-orientation', 'vertical'),
+      Scene.expect(Scene.selector('[data-thumb-id="low"]')).toHaveAttr('aria-orientation', 'vertical'))
+  })
   it('builds the single-value parent fold adapter', () => {
     const fold = Slider.fold<{ slider: Slider.Model }, Other, never>({
       read: parent => Option.some(parent.slider),

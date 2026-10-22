@@ -37,7 +37,7 @@ export type ViewInputs = Omit<UiInputs, 'toView'> & Readonly<{ props?: Props }>
 export type EmbedConfig<ParentMessage> = Readonly<{ slotId: string; model: Model; toParentMessage(message: Message): ParentMessage; viewInputs: ViewInputs }>
 const classes = (props: Props | undefined): ReadonlyArray<string> => {
   const size = props?.size ?? '2'
-  return [typeof size === 'string' ? `rt-r-size-${size}` : responsiveClasses(sizeProp, size).classes.join(' '), variantClasses[props?.variant ?? 'surface'], ...(props?.highContrast ? ['rt-high-contrast'] : [])]
+  return [typeof size === 'string' ? `rt-r-size-${size}` : responsiveClasses(sizeProp, size).classes.join(' '), variantClasses[props?.variant ?? 'surface']]
 }
 const renderSingle = (model: Model, inputs: ViewInputs, h: HtmlBuilder<Message>): Html => {
   const props = inputs.props
@@ -52,7 +52,7 @@ const renderSingle = (model: Model, inputs: ViewInputs, h: HtmlBuilder<Message>)
       ]),
     ], [
       h.div([...attributes.track, ...childAttributes([h.Class('rt-SliderTrack')])], [
-        h.div([...attributes.filledTrack, ...childAttributes([h.Class('rt-SliderRange')])], []),
+        h.div([...attributes.filledTrack, ...childAttributes([h.Class(['rt-SliderRange', ...(props?.highContrast ? ['rt-high-contrast'] : [])].join(' '))])], []),
       ]),
       h.div([...attributes.thumb, ...childAttributes([h.Class('rt-SliderThumb')])], []),
     ]),
