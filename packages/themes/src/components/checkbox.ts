@@ -46,8 +46,8 @@ export const view = <Message>(props: Props & { onCheckedChange?: (checked: boole
       if (props.radius !== undefined) attrs.push(h.DataAttribute('radius', props.radius))
       const mark = props.indeterminate ? '−' : '✓'
       return h.label([...attributes.label], [
-        h.button(attrs, [h.span([h.Class('rt-BaseCheckboxIndicator rt-CheckboxIndicator'), h.AriaHidden(true)], [mark])]),
-        h.span([h.Id(`${props.id}-label`), h.Class('rt-CheckboxLabel')], children),
+        h.button(attrs, [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [mark])]),
+        h.span([h.Id(`${props.id}-label`)], children),
         ...(attributes.hiddenInput.length > 0 ? [h.input([...attributes.hiddenInput])] : []),
       ])
     },
