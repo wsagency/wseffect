@@ -33,3 +33,9 @@
 @import './link.css';
 @import './data-list.css';
 @import './table.css';
+@import './alert-dialog.css';
+@import './popover.css';
+@import './hover-card.css';
+@import './tooltip.css';
+@import './context-menu.css';
+@import './tab-nav.css';

@@ -70,6 +70,7 @@ describe('themes distribution', () => {
     const semanticAliases = [
       'rt-DialogContent', 'rt-DialogOverlay', 'rt-DialogScroll', 'rt-DialogScrollPadding',
       'rt-DropdownMenuContent', 'rt-DropdownMenuItem', 'rt-DropdownMenuViewport',
+      'rt-BaseMenuGroup', 'rt-ContextMenuGroup', 'rt-ContextMenuItem', 'rt-ContextMenuLabel', 'rt-ContextMenuSeparator',
       'rt-TabsList', 'rt-TabsRoot', 'rt-TabsTrigger', 'rt-TabsTriggerInner', 'rt-TabsTriggerInnerHidden',
       // Pinned R2S callout.css has no rt-CalloutText selector by design.
       'rt-CalloutText',

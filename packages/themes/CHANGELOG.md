@@ -15,3 +15,4 @@
 - Place the shared portal root inside the root Theme so portaled controls inherit its tokens.
 - Render the gallery shell with themed layout, navigation, date, and action controls.
 - Add a virtualized native DataTable with filtering, stable sorting, controlled selection, and optional Grid navigation.
+- Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views; match their classes, timings, state attributes, and portal behavior to the pinned Radix Themes contract.

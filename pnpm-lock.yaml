@@ -214,6 +214,9 @@ importers:
       '@foldkit/ui':
         specifier: 0.168.0
         version: 0.168.0(effect@4.0.5)(foldkit@0.168.0(@effect/platform-browser@4.0.5(effect@4.0.5))(effect@4.0.5))
+      '@wsagency/wseffect-primitives':
+        specifier: workspace:*
+        version: link:../primitives
       effect:
         specifier: 4.0.5
         version: 4.0.5

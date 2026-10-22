@@ -11,28 +11,13 @@
 
   @media (prefers-reduced-motion: no-preference) {
     &:where([data-state='delayed-open']) {
-      &:where([data-side='top']) {
-        animation-name: rt-slide-from-top, rt-fade-in;
-      }
-      &:where([data-side='bottom']) {
-        animation-name: rt-slide-from-bottom, rt-fade-in;
-      }
-      &:where([data-side='left']) {
-        animation-name: rt-slide-from-left, rt-fade-in;
-      }
-      &:where([data-side='right']) {
-        animation-name: rt-slide-from-right, rt-fade-in;
-      }
+      &:where([data-side='top']) { animation-name: rt-slide-from-top, rt-fade-in; }
+      &:where([data-side='bottom']) { animation-name: rt-slide-from-bottom, rt-fade-in; }
+      &:where([data-side='left']) { animation-name: rt-slide-from-left, rt-fade-in; }
+      &:where([data-side='right']) { animation-name: rt-slide-from-right, rt-fade-in; }
     }
   }
 }
 
-.rt-TooltipText {
-  color: var(--gray-1);
-  user-select: none;
-  cursor: default;
-}
-
-.rt-TooltipArrow {
-  fill: var(--gray-12);
-}
+.rt-TooltipText { color: var(--gray-1); user-select: none; cursor: default; }
+.rt-TooltipArrow { fill: var(--gray-12); }

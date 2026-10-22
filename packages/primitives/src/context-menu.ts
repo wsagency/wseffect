@@ -10,6 +10,13 @@ import type * as Update from 'foldkit/update'
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
 export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }
 export type ContextMenuSeparator = { kind: 'separator'; id: string }
+type ContextMenuClasses = Readonly<{
+  panel?: string
+  item?: string
+  group?: string
+  groupLabel?: string
+  separator?: string
+}>
 export type ContextMenuConfig<Value extends string> = {
   id: string
   items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuGroup<Value> | ContextMenuSeparator>
@@ -17,6 +24,7 @@ export type ContextMenuConfig<Value extends string> = {
   sourceId: string
   sourceToken: string
   toItem(item: Value): Html
+  classes?: ContextMenuClasses
 }
 export const ContextMenuInvocationSchema = Schema.Struct({
   sourceId: Schema.String,
@@ -192,6 +200,34 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
     const items = flatten(config.items)
     const openAtKeyboard = model.invocation?.invocation === 'keyboard'
     const fallbackActive = openAtKeyboard ? firstEnabled(items) : undefined
+    let itemIndex = 0
+    const renderItem = (item: ContextMenuItem<Value> | ContextMenuSeparator): Html => {
+      const index = itemIndex++
+      if (isSeparator(item)) return h.div([
+        h.Id(`${config.id}-separator-${item.id}`), h.Role('separator'),
+        ...(config.classes?.separator === undefined ? [] : [h.Class(config.classes.separator)]),
+      ], [])
+      const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value === index : fallbackActive === index
+      return h.div([
+        h.Id(`${config.id}-item-${index}`), h.Role('menuitem'), h.Attribute('tabindex', '-1'),
+        ...(config.classes?.item === undefined ? [] : [h.Class(config.classes.item)]),
+        h.AriaDisabled(item.isDisabled), ...(active ? [h.Attribute('data-active', '')] : []),
+        ...(item.isDisabled ? [] : [
+          h.OnClick(Menu.Message.SelectedItem({ index, item: item.value })),
+          h.OnKeyDownPreventDefault(key => key === 'Enter' || key === ' ' ? Option.some(Menu.Message.SelectedItem({ index, item: item.value })) : Option.none()),
+          h.OnFocus(Menu.Message.CompletedFocusButton()),
+        ]),
+      ], [item.content])
+    }
+    const renderedItems = config.items.map(item => 'items' in item
+      ? h.div([
+        h.Role('group'),
+        ...(config.classes?.group === undefined ? [] : [h.Class(config.classes.group)]),
+      ], [
+        h.div(config.classes?.groupLabel === undefined ? [] : [h.Class(config.classes.groupLabel)], [item.label]),
+        ...item.items.map(renderItem),
+      ])
+      : renderItem(item))
     return h.div([
       h.Id(config.sourceId),
       h.Attribute('data-context-source-token', config.sourceToken),
@@ -206,7 +242,9 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
     ], [
       h.span([], [config.id]),
       model.isOpen ? h.div([
-        h.Id(`${config.id}-items`), h.Role('menu'), h.Attribute('tabindex', '-1'), h.OnMount(anchorMount(model, config)),
+        h.Id(`${config.id}-items`), h.Role('menu'), h.Attribute('tabindex', '-1'),
+        ...(config.classes?.panel === undefined ? [] : [h.Class(config.classes.panel)]),
+        h.OnMount(anchorMount(model, config)),
         h.OnKeyDownFocus((key, modifiers) => {
           const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value : fallbackActive ?? -1
           if (key === 'Escape') return Option.some({ focusSelector: `#${config.sourceId}`, message: Menu.Message.Closed() })
@@ -232,19 +270,7 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
           }
           return Option.none()
         }),
-      ], items.map((item, index) => {
-        if (isSeparator(item)) return h.div([h.Id(`${config.id}-separator-${item.id}`), h.Role('separator')], [])
-        const active = Option.isSome(model.maybeActiveItemIndex) ? model.maybeActiveItemIndex.value === index : fallbackActive === index
-        return h.div([
-          h.Id(`${config.id}-item-${index}`), h.Role('menuitem'), h.Attribute('tabindex', '-1'),
-          h.AriaDisabled(item.isDisabled), ...(active ? [h.Attribute('data-active', '')] : []),
-          ...(item.isDisabled ? [] : [
-            h.OnClick(Menu.Message.SelectedItem({ index, item: item.value })),
-            h.OnKeyDownPreventDefault(key => key === 'Enter' || key === ' ' ? Option.some(Menu.Message.SelectedItem({ index, item: item.value })) : Option.none()),
-            h.OnFocus(Menu.Message.CompletedFocusButton()),
-          ]),
-        ], [item.content])
-      })) : null,
+      ], renderedItems) : null,
     ])
   }
   const selectItem = (model: ContextMenuModel, item: Value, index: number) => update(model, Menu.Message.SelectedItem({ item, index }))
