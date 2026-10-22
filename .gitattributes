@@ -1,0 +1,9 @@
+# Treat vendored font binaries as binary data.
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Preserve the vendored upstream font license verbatim.
+bench/radix2solid/fixtures/fonts/OFL.txt whitespace=-trailing-space

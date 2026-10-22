@@ -12,4 +12,3 @@ export const paddingPropSchemas = {
   pb: Schema.optional(responsiveSchema(paddingValues, true)),
   pl: Schema.optional(responsiveSchema(paddingValues, true)),
 }
-
