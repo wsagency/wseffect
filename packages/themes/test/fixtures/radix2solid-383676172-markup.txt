@@ -35,3 +35,5 @@ function TabsTrigger(props: TabsTriggerProps): Element {
     <span class="rt-BaseTabListTriggerInnerHidden rt-TabsTriggerInnerHidden">{props.children}</span>
   </TabsPrimitive.Trigger>;
 }
+// R2S Callout.Text preserves the structural rt-CalloutText alias.
+<Text as="p" class="rt-Text rt-reset rt-CalloutText" />

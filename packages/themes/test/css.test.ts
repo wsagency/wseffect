@@ -65,4 +65,42 @@ describe('Themes CSS distribution', () => {
     expect(output).toBe(source)
   })
 
+
+  it('copies reset and component CSS import closure', async () => {
+    const source = resolve(packageRoot, 'src/css-components')
+    for (const file of ['reset.css', 'data-list.css', 'table.css', 'icon-button.css', '_internal/base-button.css']) {
+      expect((await stat(resolve(source, file))).isFile(), file).toBe(true)
+    }
+    expect(await readFile(resolve(source, 'icon-button.css'), 'utf8')).toContain("@import './_internal/base-button.css';")
+  })
 })
+
+  it('records every copied CSS and lane 2C source in UPSTREAM.md', async () => {
+    const cssDirectory = resolve(packageRoot, 'src/css-components')
+    const cssFiles = await readdir(cssDirectory, { recursive: true })
+    const sources = [
+      'accessible-icon.tsx', 'aspect-ratio.tsx', 'avatar.tsx', 'avatar.props.ts',
+      'badge.tsx', 'badge.props.ts', 'blockquote.tsx', 'blockquote.props.ts',
+      'callout.tsx', 'callout.props.ts', 'code.tsx', 'code.props.ts',
+      'container.tsx', 'container.props.ts', 'data-list.tsx', 'data-list.props.ts',
+      'em.tsx', 'em.props.ts', '_internal/base-button.tsx', '_internal/base-button.props.ts',
+      'icon-button.tsx', 'icon-button.props.ts', 'inset.tsx', 'inset.props.ts',
+      'kbd.tsx', 'kbd.props.ts', 'link.tsx', 'link.props.ts', 'progress.tsx',
+      'progress.props.ts', 'quote.tsx', 'quote.props.ts', 'scroll-area.tsx',
+      'scroll-area.props.ts', 'section.tsx', 'section.props.ts', 'separator.tsx',
+      'separator.props.ts', 'skeleton.tsx', 'skeleton.props.ts', 'spinner.tsx',
+      'spinner.props.ts', 'strong.tsx', 'strong.props.ts', 'table.tsx', 'table.props.ts',
+      'theme-panel.tsx', 'visually-hidden.tsx',
+    ]
+    const upstream = await readFile(resolve(packageRoot, 'UPSTREAM.md'), 'utf8')
+    for (const file of cssFiles.filter(file => file.endsWith('.css'))) {
+      if (file === 'index.css') {
+        expect(upstream).toContain('packages/themes/src/css-components/index.css')
+      } else {
+        expect(upstream, file).toContain(`packages/themes/src/components/${file}`)
+      }
+    }
+    for (const file of sources) {
+      expect(upstream, file).toContain(`packages/themes/src/components/${file}`)
+    }
+  })

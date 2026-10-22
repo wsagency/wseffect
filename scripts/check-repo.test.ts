@@ -33,6 +33,14 @@ test('checkManifest rejects missing files entries', () => {
   assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /files/)
 })
 
+test('Themes may package the pinned upstream provenance record', () => {
+  const fixture = manifest()
+  fixture.name = '@wsagency/wseffect-themes'
+  fixture.sideEffects = ['**/*.css']
+  fixture.files.push('UPSTREAM.md')
+  assert.deepEqual(checkManifest(fixture, 'packages/themes/package.json'), [])
+})
+
 test('checkManifest rejects sideEffects true', () => {
   const fixture = manifest()
   fixture.sideEffects = true
