@@ -203,3 +203,25 @@
 - `@wsagency/wseffect-themes` is a required peer dependency of app because breakpoints consume its public tokens.
 - Helpers that decode use `SchemaParser.decodeUnknownExit`; importing runtime `Schema` from the `effect` root pulls five unrelated modules absent from the Gallery baseline: `DateTime.js`, `Tuple.js`, `encoding/EncodingError.js`, `http/internal/urlParams.js`, and `internal/redacted.js`. This is the DEP-1 rule: use `SchemaParser.decodeUnknownExit`, never the runtime root `Schema` import.
 - DEP-1 production measurement: **B** is the packed consumer build with the lazy helper page present but no helper imported; **B+H** is the same build with exactly one helper imported by that lazy page. Compare B+H Effect modules to B (allowing only Persistence's `KeyValueStore`); measure bytes from B+H's lazy-only closure, excluding B's eager closure. The Gallery framework map is retained only as historical spike evidence, not as the gate baseline.
+
+## SP2 DT-4 — VirtualList elements in native tables
+
+- **Ruling:** DT-4: Foldkit 0.168.0 `VirtualList.view` hard-codes a `<ul role=list>` container and `<li>` spacers, which is invalid inside `<tbody>`. DataTable reuses VirtualList's Schema Model/init/update/commands/helpers and renders a local native-table view (scroll container, sticky thead, spacer `<tr>`s, keyed rows). Locally implemented pieces are only those not exported. Cost if wrong: a small local windowing surface to maintain until upstream supports element overrides.
+- **Task 4A.5 addition:** Add a sixth upstream proposal for VirtualList container/spacer element overrides, e.g. `containerElement`/`spacerElement` view inputs; actual upstream PRs remain subject to the existing maintainer-engagement gate.
+
+## SP2 BUD-1 measured shell baseline amendment
+
+- Replace the stale `200a6a5:bench/baselines/size.json` shell value with `bench/baselines/sp2-shell-base.json`, measured by building the pinned commit in a temporary worktree and measuring entry + framework with the size gate's Brotli-q11 method: entry 5,444 B, framework 67,138 B, total 72,582 B. The artifact is keyed to full commit `200a6a5fcb86f23846e490faddf07c3e67e2e313`; missing or mismatched base artifacts fail the gate.
+- Leave `bench/baselines/size.json` unchanged; its stale shell value does not govern BUD-1, which independently caps shell growth at +1,024 B.
+
+## SP2-TEST-6 visual comparator ruling
+
+- The comparator accepts a global ≤2-per-channel delta as compositor/encoder noise between apps rendering identical CSS, in addition to the 1 px symmetric edge tolerance (≤20 per channel on edge pixels from the union of both images' edge masks). A uniform ≤2-level shift is visually insignificant; any larger delta counts as changed.
+- **Cost if wrong:** a ≤2-level systematic colour shift could pass unnoticed.
+
+## SP2 GATE-S3 sub-kilobyte growth amendment
+
+- GATE-S3 now rejects a page/artifact only when growth exceeds `max(2%, 64 B)` against the previous or candidate baseline. Content-hashed import filenames can shift Brotli sizes by tens of bytes across sub-kilobyte pages with identical normalized code; with roughly 20 SP2 pages, a strict 2% threshold would create systematic false failures.
+- GATE-S1/S2/S4 absolute budgets and the independent BUD-1 shell cap are unchanged.
+- Refresh `page:persistence` to 2,119 B with reason `7f22e9a persist schema-encoded values (encode on save/migration)`.
+- **Cost if wrong:** up to 64 B of real growth per tiny chunk can pass without a reason.

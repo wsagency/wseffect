@@ -55,8 +55,8 @@
       "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
     },
     "page:persistence": {
-      "bytes": 2057,
-      "reason": "New lazy persistence demo; module remains outside the initial transfer."
+      "bytes": 2119,
+      "reason": "7f22e9a persist schema-encoded values (encode on save/migration)"
     },
     "page:sharedA": {
       "bytes": 536,
