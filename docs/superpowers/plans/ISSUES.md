@@ -207,7 +207,7 @@
 ## SP2 DT-4 — VirtualList elements in native tables
 
 - **Ruling:** DT-4: Foldkit 0.168.0 `VirtualList.view` hard-codes a `<ul role=list>` container and `<li>` spacers, which is invalid inside `<tbody>`. DataTable reuses VirtualList's Schema Model/init/update/commands/helpers and renders a local native-table view (scroll container, sticky thead, spacer `<tr>`s, keyed rows). Locally implemented pieces are only those not exported. Cost if wrong: a small local windowing surface to maintain until upstream supports element overrides.
-- **Task 4A.5 addition:** Add a sixth upstream proposal for VirtualList container/spacer element overrides, e.g. `containerElement`/`spacerElement` view inputs; actual upstream PRs remain subject to the existing maintainer-engagement gate.
+- **Task 4A.5 addition:** Keep six generic upstream proposal drafts in `docs/upstream/` (CheckboxGroup composition, Menu context invocation, multi-thumb Slider, TooltipGroup skip-delay, Listbox selected-item anchor, and VirtualList element overrides). These drafts are not PRs; do not open any corresponding real upstream PR until the maintainer has engaged with each pending PR #1699, #1700, #1703, and #1711.
 
 ## SP2 BUD-1 measured shell baseline amendment
 
