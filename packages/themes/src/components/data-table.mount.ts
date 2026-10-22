@@ -47,7 +47,9 @@ export function makeDataTableMounts<State>(message: typeof Message, tableStates:
         anchor: { _tag: 'None' },
       })
       container.scrollTop = scrollTop
-      if (shouldFocus && rowId !== null) {
+      if (shouldFocus && rowId === null) {
+        container.focus()
+      } else if (shouldFocus && rowId !== null) {
         const row = Array.from(container.querySelectorAll<HTMLTableRowElement>('tr[data-virtual-list-item-key]'))
           .find(candidate => candidate.dataset.virtualListItemKey === rowId)
         row?.cells.item(columnIndex)?.focus()

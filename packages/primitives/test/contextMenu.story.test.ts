@@ -131,6 +131,7 @@ it('source mount turns browser context and touch events into menu messages', asy
   await ready
   source.dispatchEvent(new MouseEvent('contextmenu', { clientX: 20, clientY: 30 }))
   source.dispatchEvent(Object.assign(new Event('pointerdown'), { pointerType: 'touch', clientX: 10, clientY: 20 }))
+  source.dispatchEvent(new MouseEvent('contextmenu', { clientX: 10, clientY: 20 }))
   source.dispatchEvent(Object.assign(new Event('pointermove'), { pointerType: 'touch', clientX: 40, clientY: 60 }))
   source.dispatchEvent(new Event('pointerup'))
   const messages = await collect
@@ -326,6 +327,40 @@ it('focuses the active rendered menu item and releases anchor resources on unmou
 })
 
 
+it('closes and restores source focus after an outside pointer press', async () => {
+  const source = document.createElement('button')
+  source.id = config.sourceId
+  const panel = document.createElement('div')
+  const outside = document.createElement('button')
+  document.body.append(source, panel, outside)
+  const stopAutoUpdate = vi.fn()
+  vi.mocked(Floating.autoUpdate).mockReturnValue(stopAutoUpdate)
+  vi.mocked(Floating.computePosition).mockResolvedValue({
+    x: 0, y: 0, strategy: 'fixed', placement: 'bottom-start', middlewareData: {},
+  })
+  const action = captureMounts(openPointer.model).find(mount => mount.name === 'ContextMenuAnchor')
+  expect(action).toBeDefined()
+  if (action === undefined) throw new Error('ContextMenuAnchor mount is required')
+  const messages = Effect.runPromise(Stream.runCollect(Stream.take(action.f(panel, Stream.never), 2)))
+  await vi.waitFor(() => expect(Floating.autoUpdate).toHaveBeenCalled())
+  outside.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+  try {
+    const [positioned, message] = await messages
+    expect(positioned).toEqual(Menu.Message.CompletedAnchorMenu())
+    if (message === undefined) throw new Error('Outside pointer press should emit Closed')
+    expect(message).toEqual(Menu.Message.Closed())
+    const closed = menu.update(openPointer.model, message)
+    expect(closed.model.isOpen).toBe(false)
+    expect(closed.commands?.some(command => command.name === 'FocusSource')).toBe(true)
+  } finally {
+    vi.mocked(Floating.autoUpdate).mockReset()
+    vi.mocked(Floating.computePosition).mockReset()
+    source.remove()
+    panel.remove()
+    outside.remove()
+  }
+})
+
 it('skips disabled rendered items during arrows and typeahead', () => {
   const navigationConfig: ContextMenu.ContextMenuConfig<'edit' | 'delete'> = {
     ...config,
@@ -360,7 +395,9 @@ it('skips disabled rendered items during arrows and typeahead', () => {
     Scene.Mount.resolve(sourceMount, Menu.Message.IgnoredMouseClick()),
     Scene.Mount.resolve(anchorMount, Menu.Message.CompletedAnchorMenu()),
     Scene.keydown(Scene.role('menu'), 'b'),
-    Scene.Command.resolve(Menu.DelayClearSearch({ version: 1 }), Menu.Message.CompletedDelayClearSearch({ version: 1 })),
+    Scene.Command.resolve(Menu.DelayClearSearch({ version: 1 }), Menu.Message.CompletedDelayClearSearch({ version: 0 })),
+    Scene.keydown(Scene.role('menu'), 'r'),
+    Scene.Command.resolve(Menu.DelayClearSearch({ version: 2 }), Menu.Message.CompletedDelayClearSearch({ version: 2 })),
     Scene.expect(Scene.role('menuitem', { name: 'Bravo' })).toHaveAttr('data-active', ''),
   )
 })

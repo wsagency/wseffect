@@ -94,6 +94,41 @@ describe('DataTable view semantics', () => {
     )
   })
 
+  it('selects visible rows when Space is pressed on the header selection cell', () => {
+    const cfg = config(true)
+    const initial = DataTable.init(cfg)
+    const model = { ...initial, activeCell: { rowId: '$header', columnId: '$selection' } }
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
+        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      ),
+      Scene.keydown(Scene.role('grid'), ' '),
+      Scene.expectOutMessage(DataTable.OutMessage.SelectionChanged({ ids: ['a', 'b'] })),
+    )
+  })
+
+  it('keeps the grid root tabbable when there is no active data cell', () => {
+    const cfg = config(true)
+    const model = { ...DataTable.init(cfg), activeCell: null }
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
+        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      ),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const root = simulation.html
+        if (root === undefined || !isVNode(root)) return simulation
+        expect(root.data?.props?.tabIndex).toBe(0)
+        return simulation
+      },
+    )
+  })
+
   it('gives Grid one tabbable cell and a labelled non-tabbable selection checkbox', () => {
     const cfg = config(true)
     Scene.scene(
