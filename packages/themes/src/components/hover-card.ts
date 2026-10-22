@@ -15,6 +15,7 @@ export const init = (config?: Parameters<typeof UiHoverIntent.init>[0]): UiHover
 export type ViewInputs<Message> = Readonly<{
   id: string
   anchor?: AnchorConfig
+  triggerHref?: string
   trigger: ReadonlyArray<Html | string>
   content: ReadonlyArray<Html | string>
 }>
@@ -28,10 +29,13 @@ export type EmbedConfig<Message> = Readonly<{
 
 const view = defineView<UiHoverIntent.Model, UiHoverIntent.Message, ViewInputs<UiHoverIntent.Message>>((model, inputs, h) => {
   const toView = (render: RenderInfo): Html => h.div([], [
-    h.button([
+    h.a([
       ...render.trigger,
       h.Id(`${inputs.id}-trigger`),
-      h.Type('button'),
+      h.Attribute('href', inputs.triggerHref ?? '#'),
+      h.DataAttribute('accent-color', ''),
+      h.DataAttribute('state', model.isOpen ? 'open' : 'closed'),
+      h.Class('rt-Text rt-reset rt-Link rt-underline-auto rt-HoverCardTrigger'),
     ], inputs.trigger),
     ...(render.isVisible ? [h.div([
       ...render.panel,

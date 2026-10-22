@@ -21,4 +21,21 @@ describe('gallery manifest', () => {
     expect(source).not.toContain("from '@wsagency/wseffect-themes/components/slider'")
     expect(rangeSource).not.toContain("from '@foldkit/ui/slider'")
   })
+  it('keeps capture renderers out of regular family chunks', async () => {
+    const manifest = JSON.parse(await readFile(resolve(import.meta.dirname, '../dist/.vite/manifest.json'), 'utf8')) as Record<string, {
+      imports?: ReadonlyArray<string>
+      dynamicImports?: ReadonlyArray<string>
+    }>
+    const captureEntry = manifest['src/capture.ts']
+    expect(captureEntry).toBeDefined()
+    const captureChunks = Object.keys(manifest).filter((key) => /^src\/components\/[^/]+\.capture\.ts$/.test(key))
+    expect(captureChunks.length).toBeGreaterThan(0)
+    expect(captureEntry?.dynamicImports).toEqual(expect.arrayContaining(captureChunks))
+    for (const [key, chunk] of Object.entries(manifest)) {
+      if (!/^src\/components\/[^/]+\.ts$/.test(key)) continue
+      for (const captureChunk of captureChunks) {
+        expect([...(chunk.imports ?? []), ...(chunk.dynamicImports ?? [])]).not.toContain(captureChunk)
+      }
+    }
+  })
 })

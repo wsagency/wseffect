@@ -8,7 +8,7 @@ async function assetNames(directory: string): Promise<ReadonlyArray<string>> {
   return (await readdir(resolve(directory, 'assets'))).filter((name) => name.endsWith('.js')).sort()
 }
 
-test('fixed build IDs rename the entry, changed component-family page, and capture loader while shared assets stay stable', async () => {
+test('fixed build IDs rename the entry and changed component-family page while capture chunks stay lazy', async () => {
   const fixture = await createGalleryBuildFixture()
   const dataTablePath = resolve(fixture.galleryDir, 'src/components/dataTable.ts')
   const first = resolve(fixture.rootDir, 'builds/first')
@@ -45,8 +45,8 @@ test('fixed build IDs rename the entry, changed component-family page, and captu
     const after = new Set(await assetNames(second))
     const removed = [...before].filter((name) => !after.has(name))
     const added = [...after].filter((name) => !before.has(name))
-    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['capture', 'components', 'dataTable', 'index'])
-    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['capture', 'components', 'dataTable', 'index'])
+    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['components', 'dataTable', 'index'])
+    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['components', 'dataTable', 'index'])
     const oldEntry = removed.find((name) => /^index-[^/]+\.js$/.test(name))
     const newEntry = added.find((name) => /^index-[^/]+\.js$/.test(name))
     const oldComponents = removed.find((name) => /^components-[^/]+\.js$/.test(name))
@@ -61,11 +61,11 @@ test('fixed build IDs rename the entry, changed component-family page, and captu
     assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldComponents), false)
     assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(newDataTable), true)
     assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(oldDataTable), false)
-    const oldCapture = removed.find((name) => /^capture-[^/]+\.js$/.test(name))
-    const newCapture = added.find((name) => /^capture-[^/]+\.js$/.test(name))
-    assert.ok(oldCapture && newCapture)
-    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(newDataTable), true)
-    assert.equal((await readFile(resolve(second, 'assets', newCapture), 'utf8')).includes(oldDataTable), false)
+    const captureAssets = [...before].filter((name) => name.includes('capture'))
+    assert.deepEqual([...after].filter((name) => name.includes('capture')), captureAssets)
+    for (const asset of captureAssets) {
+      assert.deepEqual(await readFile(resolve(first, 'assets', asset)), await readFile(resolve(second, 'assets', asset)))
+    }
     assert.deepEqual(
       [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),
       [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),

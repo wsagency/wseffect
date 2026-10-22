@@ -22,8 +22,29 @@ describe('themed Tooltip', () => {
       Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
       Scene.expect(Scene.role('tooltip')).toExist(),
       Scene.expect(Scene.selector('.rt-TooltipArrow')).toExist(),
+      Scene.expect(Scene.selector('.rt-TooltipContent span')).toExist(),
       Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-state', 'instant-open'),
       Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-side', 'bottom'),
+    )
+  })
+  it('marks a delayed hover state on its trigger and content', () => {
+    const tooltip = { ...Tooltip.init({ id: 'save' }), isHovered: true, isOpen: true }
+    Scene.scene(
+      { update, view }, Scene.given({ tooltip }),
+      Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
+      Scene.expect(Scene.selector('button')).toHaveAttr('data-state', 'delayed-open'),
+      Scene.expect(Scene.selector('[role="tooltip"]')).toHaveAttr('data-state', 'delayed-open'),
+    )
+  })
+  // Pinned R2S tooltip.tsx:16-20 renders a Text size-1 content paragraph and preserves caller Button styling.
+  it('matches the pinned trigger button and tooltip text classes', () => {
+    const tooltip = UiTooltip.update(Tooltip.init({ id: 'save' }), UiTooltip.Message.FocusedTrigger()).model
+    Scene.scene(
+      { update, view }, Scene.given({ tooltip }),
+      Scene.Mount.resolve(UiTooltip.AnchorTooltip, UiTooltip.Message.CompletedAnchorTooltip()),
+      Scene.expect(Scene.selector('button')).toHaveAttr('class', 'rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'),
+      Scene.expect(Scene.selector('button')).toHaveAttr('data-accent-color', ''),
+      Scene.expect(Scene.selector('.rt-TooltipText')).toHaveAttr('class', 'rt-Text rt-r-size-1 rt-TooltipText'),
     )
   })
 

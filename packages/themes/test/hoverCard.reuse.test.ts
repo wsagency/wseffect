@@ -24,11 +24,11 @@ describe('HoverCard execution-counter reuse', () => {
     renderHoverCard.mockClear()
     Scene.scene(
       { update, view }, Scene.given({ label: 'Ada Lovelace', tick: 0 }),
-      Scene.expect(Scene.role('button', { name: 'Ada Lovelace' })).toExist(),
+      Scene.expect(Scene.role('link', { name: 'Ada Lovelace' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Unrelated update' })),
-      Scene.expect(Scene.role('button', { name: 'Ada Lovelace' })).toExist(),
+      Scene.expect(Scene.role('link', { name: 'Ada Lovelace' })).toExist(),
       Scene.click(Scene.role('button', { name: 'Change trigger label' })),
-      Scene.expect(Scene.role('button', { name: 'Grace Hopper' })).toExist(),
+      Scene.expect(Scene.role('link', { name: 'Grace Hopper' })).toExist(),
     )
     expect(renderHoverCard).toHaveBeenCalledTimes(2)
   })

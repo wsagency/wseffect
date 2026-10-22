@@ -5,14 +5,9 @@ import { defineMessageUnion } from 'foldkit/message'
 import { Range as SliderRange } from '@wsagency/wseffect-themes/components/slider/range'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
-import type { HtmlBuilder } from 'foldkit/html'
 
-const singleThumbs = [{ id: 'Minimum value', value: 48 }]
-const rangeThumbs = [{ id: 'Minimum value', value: 25 }, { id: 'Maximum value', value: 70 }]
 const pageThumbs = [{ id: 'Minimum value', value: 48 }, { id: 'Maximum value', value: 72 }]
-const rangeConfig = (thumbs = singleThumbs) => ({ min: 0, max: 100, step: 1, orientation: 'horizontal' as const, thumbs, props: { size: '2' as const, variant: 'surface' as const, color: 'indigo' as const } })
+const rangeConfig = (thumbs: ReadonlyArray<{ id: string; value: number }>) => ({ min: 0, max: 100, step: 1, orientation: 'horizontal' as const, thumbs, props: { size: '2' as const, variant: 'surface' as const, color: 'indigo' as const } })
 export const Model = Schema.Struct({ range: SliderRange.Model, thumbs: Schema.Array(Schema.Struct({ id: Schema.String, value: Schema.Number })) })
 export const Message = defineMessageUnion({ RangeEvent: { message: SliderRange.Message } })
 type Model = typeof Model.Type
@@ -36,10 +31,3 @@ export const page = galleryPageContract.definePage({
     h.p([], ['Use the arrow keys to adjust either value; Home and End move to the bounds.']),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  const thumbs = request.state === 'range-keyboard-focus' ? rangeThumbs : singleThumbs
-  const baseProps = rangeConfig().props
-  const config = { ...rangeConfig(thumbs), props: { ...baseProps, ...request.props } }
-  renderCaptureView(root, request, h => SliderRange.view(SliderRange.init(config), config, h as unknown as HtmlBuilder<typeof SliderRange.Message.Type>))
-}

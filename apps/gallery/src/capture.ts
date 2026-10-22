@@ -1,3 +1,4 @@
+import './capture.css'
 import matrixUrl from '../../../bench/radix2solid/sp2-capture-matrix.json?url'
 
 type CaptureMatrix = {
@@ -36,7 +37,7 @@ export type CapturePageModule = {
   readonly renderCapture: (root: HTMLElement, request: CaptureRequest) => void | Promise<void>
 }
 
-const capturePages = import.meta.glob<CapturePageModule>('./components/*.ts')
+const capturePages = import.meta.glob<CapturePageModule>('./components/*.capture.ts')
 
 
 async function loadCaptureMatrix(): Promise<CaptureMatrix> {
@@ -125,11 +126,16 @@ export async function startCapture(url: URL): Promise<void> {
   try {
     const request = resolveCaptureRequest(url, await loadCaptureMatrix())
     const pageKey = pageKeyForFamily(request.family)
-    const pagePath = `./components/${pageKey}.ts`
+    const pagePath = `./components/${pageKey}.capture.ts`
     const loadPage = capturePages[pagePath]
     if (!loadPage) throw new Error(`Capture page module ${pageKey} for family ${request.family} has not been integrated`)
 
-    document.documentElement.dataset.appearance = request.theme
+    const html = document.documentElement
+    html.dataset.appearance = request.theme
+    html.dataset.sp2CaptureMode = 'true'
+    html.classList.add('radix-themes')
+    html.classList.toggle('dark', request.theme === 'dark')
+    html.classList.toggle('light', request.theme === 'light')
     const target = document.createElement('div')
     target.dataset.sp2Family = request.family
     target.dataset.sp2Component = request.component

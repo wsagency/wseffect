@@ -5,8 +5,6 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as Tooltip from '@wsagency/wseffect-themes/components/tooltip'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 
 export const Model = Schema.Struct({ tooltip: Tooltip.Model })
 export const Message = defineMessageUnion({ TooltipEvent: { message: Tooltip.Message } })
@@ -35,12 +33,3 @@ export const page = galleryPageContract.definePage({
     h.button([h.Type('button')], ['Continue']),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, (h) => Tooltip.embed(h, {
-    slotId: 'capture-tooltip',
-    model: { ...Tooltip.init({ id: 'capture-tooltip' }), ...(request.state === 'hover' ? { isHovered: true, isOpen: true } : {}) },
-    toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { ...tooltipInputs, trigger: ['Save'], content: [h.p([], ['Save your changes'])], anchor: { placement: 'top' } },
-  }))
-}

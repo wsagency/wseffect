@@ -47,7 +47,11 @@ export const view = <Message>(props: ViewProps, _children: ReadonlyArray<Html | 
         (props.id !== undefined || attribute._tag !== 'Id') &&
         (props.ariaLabel !== undefined || props.ariaLabelledBy !== undefined || attribute._tag !== 'AriaLabelledBy') &&
         !(attribute._tag === 'DataAttribute' && attribute.key === 'max')))
-      return h.div(attributes, [h.div([h.Class('rt-ProgressIndicator'), ...indicator], [])])
+      const indicatorAttributes: Attribute<Message>[] = [h.Class('rt-ProgressIndicator')]
+      for (const attribute of indicator) {
+        if (attribute._tag !== 'Style') indicatorAttributes.push(attribute)
+      }
+      return h.div(attributes, [h.div(indicatorAttributes, [])])
     },
   }, h), 'wseffect/Progress')
 }

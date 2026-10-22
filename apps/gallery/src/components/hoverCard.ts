@@ -5,8 +5,6 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as HoverCard from '@wsagency/wseffect-themes/components/hover-card'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 
 export const Model = Schema.Struct({ hoverCard: HoverCard.Model })
 export const Message = defineMessageUnion({ HoverCardEvent: { message: HoverCard.Message } })
@@ -18,7 +16,7 @@ const foldHoverCard = HoverCard.fold<Model, Message, typeof PageOutMessage.Type>
   toParentMessage: message => Message.HoverCardEvent({ message }),
   foldOutMessage: () => model => ({ model }),
 })
-const cardInputs = { id: 'gallery-person', trigger: ['@radix'], content: ['Radix2Solid profile card.'] }
+const cardInputs = { id: 'gallery-person', triggerHref: '#profile', trigger: ['@radix'], content: ['Radix2Solid profile card.'] }
 
 export const page = galleryPageContract.definePage({
   Model, Message,
@@ -31,12 +29,3 @@ export const page = galleryPageContract.definePage({
     HoverCard.embed(h, { slotId: 'gallery-hover-card', id: cardInputs.id, model: model.hoverCard, toParentMessage: message => Message.HoverCardEvent({ message }), viewInputs: cardInputs }),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, (h) => HoverCard.embed(h, {
-    slotId: 'capture-hover-card', id: 'capture-person',
-    model: { ...HoverCard.init(), ...(request.state === 'hover' ? { isOpen: true, isHovered: true } : {}) },
-    toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { id: 'capture-person', trigger: ['@radix'], content: [h.p([], ['Radix2Solid profile card.'])] },
-  }))
-}

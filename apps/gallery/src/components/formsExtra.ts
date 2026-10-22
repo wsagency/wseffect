@@ -22,8 +22,6 @@ import * as TextArea from '@wsagency/wseffect-themes/components/text-area'
 import * as SegmentedControl from '@wsagency/wseffect-themes/components/segmented-control'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 
 export const Model = Schema.Struct({ checked: Schema.Boolean, enabled: Schema.Boolean })
 export const Message = defineMessageUnion({ ToggleCheckbox: { checked: Schema.Boolean }, ToggleSwitch: { enabled: Schema.Boolean } })
@@ -60,7 +58,3 @@ export const page = galleryPageContract.definePage({
     h.section([], [Heading.view({ as: 'h2' }, ['Segmented control'], h), draw(h, 'SegmentedControl')]),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, h => draw(h as unknown as HtmlBuilder<Message>, request.component, request.props))
-}

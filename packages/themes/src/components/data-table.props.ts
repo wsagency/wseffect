@@ -21,6 +21,13 @@ export type Config<Row> = Readonly<{
   caption: Html
   selectedRowIds: ReadonlySet<string>
   isGrid: boolean
+  /** Whether to render the row-selection column. Defaults to true. */
+  showSelection?: boolean
+  /** Applies the shared Table size and variant styling to the table root. */
+  tableStyle?: Readonly<{
+    size: '1' | '2' | '3'
+    variant: 'surface' | 'ghost'
+  }>
   /**
    * Fixed pixel height for each virtualized data row. Cell content is kept to one line and truncated with an ellipsis.
    */

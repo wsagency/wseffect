@@ -69,6 +69,37 @@ describe('DataTable view semantics', () => {
       Scene.expect(Scene.text('Alpha')).toExist(),
     )
   })
+
+  it('renders a matching Table-style capture without the selection column', () => {
+    const cfg = Object.assign(config(), {
+      rowHeight: 44,
+      showSelection: false,
+      tableStyle: { size: '2' as const, variant: 'surface' as const },
+    })
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
+        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      ),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const table = simulation.html?.children?.[0]
+        if (!table || !isVNode(table)) return simulation
+        const body = table.children?.[2]
+        if (!body || !isVNode(body)) return simulation
+        const rows = (body.children ?? []).filter((row): row is VNode =>
+          isVNode(row) && row.data?.attrs?.['data-virtual-list-item-key'] !== undefined)
+        expect(rows[0]?.children).toHaveLength(2)
+        return simulation
+      },
+      Scene.expect(Scene.selector('.rt-TableRoot.rt-r-size-2.rt-variant-surface')).toExist(),
+      Scene.expect(Scene.selector('.rt-TableRootTable')).toExist(),
+      Scene.expect(Scene.selector('.rt-TableColumnHeaderCell')).toExist(),
+      Scene.expect(Scene.selector('input[type="checkbox"]')).not.toExist(),
+      Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).toHaveStyle('height', '44px'),
+    )
+  })
   it('sorts native table headers through buttons while keeping aria-sort on the header cell', () => {
     const cfg = config()
     Scene.scene(

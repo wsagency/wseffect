@@ -68,3 +68,10 @@ describe('themed Progress', () => {
     Scene.expect(Scene.selector('[role="progressbar"]')).toHaveAttr('data-max', '60'),
     Scene.expect(Scene.selector('.rt-ProgressRoot')).toHaveStyle('--progress-max', '60'),
   ))
+  // Pinned R2S progress.tsx:18-24 delegates the full-width indicator to ProgressPrimitive and scales it from the root value.
+  it('scales the full-width indicator from the progress root value', () => Scene.scene(
+    { update, view: (_model, h) => Progress.view({ value: 64, max: 100 }, [], h) },
+    Scene.given({}),
+    Scene.expect(Scene.selector('.rt-ProgressRoot')).toHaveStyle('--progress-value', '64'),
+    Scene.expect(Scene.selector('.rt-ProgressIndicator')).not.toHaveStyle('width', '64%'),
+  ))

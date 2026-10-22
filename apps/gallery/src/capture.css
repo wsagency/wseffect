@@ -1,0 +1,8 @@
+html[data-sp2-capture-mode='true'],
+html[data-sp2-capture-mode='true'] body {
+  background-color: var(--color-background);
+}
+
+.sp2-capture .radix-themes:where([data-is-root-theme='true']) {
+  background-color: var(--color-background);
+}

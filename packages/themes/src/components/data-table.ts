@@ -184,13 +184,14 @@ function invokeTableScroll(
 export function init<Row>(config: Config<Row>): Model {
   const state = buildTableState(config)
   const firstRowId = state.rowById.keys().next().value
+  const firstGridColumnId = config.showSelection === false ? state.visibleColumns[0]?.id : selectionColumnId
   tableStates.set(config.id, state as TableState<unknown>)
   return {
     filter: '',
     sort: null,
     orderedRowIds: computeOrder(state, '', null),
-    activeCell: config.isGrid && config.columns.length > 0 && firstRowId !== undefined
-      ? { rowId: firstRowId, columnId: selectionColumnId }
+    activeCell: config.isGrid && firstRowId !== undefined && firstGridColumnId !== undefined
+      ? { rowId: firstRowId, columnId: firstGridColumnId }
       : null,
     pendingFocus: null,
     virtualList: VirtualList.init({ id: `${config.id}-virtual-list`, rowHeightPx: config.rowHeight }),
@@ -222,7 +223,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusTarget = recoveredFocusTarget(model, activeCell)
       const focusColumnIndex = activeCell === null
         ? 0
-        : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
+        : gridColumnIds(config).indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
       return {
         model: { ...model, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
@@ -237,7 +238,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusTarget = recoveredFocusTarget(model, activeCell)
       const focusColumnIndex = activeCell === null
         ? 0
-        : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
+        : gridColumnIds(config).indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, true, config.rowHeight, focusTarget, focusColumnIndex)
       return {
         model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
@@ -256,7 +257,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusTarget = recoveredFocusTarget(model, activeCell)
       const focusColumnIndex = activeCell === null
         ? 0
-        : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
+        : gridColumnIds(config).indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
       return {
         model: { ...model, sort, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
@@ -281,7 +282,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
     ActiveCellChanged: ({ rowId, columnId }) => {
       if (!config.isGrid) return { model }
       if (model.activeCell?.rowId === rowId && model.activeCell.columnId === columnId) return { model }
-      const columns = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)]
+      const columns = gridColumnIds(config)
       const isHeader = rowId === gridHeaderRowId
       const rowIndex = isHeader ? -1 : model.orderedRowIds.indexOf(rowId)
       const columnIndex = columns.indexOf(columnId)
@@ -308,7 +309,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
         commands: mapChildCommands(result.commands),
       }
       const rowIndex = model.orderedRowIds.indexOf(focusTarget.rowId)
-      const columnIndex = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(focusTarget.columnId)
+      const columnIndex = gridColumnIds(config).indexOf(focusTarget.columnId)
       if (rowIndex < 0 || columnIndex < 0) return { model: modelWithList, commands: mapChildCommands(result.commands) }
       const focusCommands = mapChildCommands([scrollToRow({
         containerId: model.virtualList.id,
@@ -331,11 +332,17 @@ function visibleColumns<Row>(columns: ReadonlyArray<Column<Row>>): ReadonlyArray
   return columns.filter(column => column.isVisible !== false)
 }
 
+function gridColumnIds<Row>(config: Config<Row>): ReadonlyArray<string> {
+  const columns = visibleColumns(config.columns).map(column => column.id)
+  return config.showSelection === false ? columns : [selectionColumnId, ...columns]
+}
+
 function recoverActiveCell<Row>(model: Model, config: Config<Row>, ids: ReadonlyArray<string>) {
   if (!config.isGrid || model.activeCell === null) return model.activeCell
-  const columns = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)]
+  const columns = gridColumnIds(config)
+  if (columns.length === 0) return null
   if (model.activeCell.rowId === gridHeaderRowId) {
-    const columnId = columns.includes(model.activeCell.columnId) ? model.activeCell.columnId : selectionColumnId
+    const columnId = columns.includes(model.activeCell.columnId) ? model.activeCell.columnId : columns[0]!
     return columnId === model.activeCell.columnId ? model.activeCell : { rowId: gridHeaderRowId, columnId }
   }
   const previousRowOrdinal = model.orderedRowIds.indexOf(model.activeCell.rowId)
@@ -359,7 +366,8 @@ function focusOutMessage(model: Model, activeCell: Model['activeCell'], isGrid: 
 function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrlKey: boolean): Update.ReturnWithOutMessage<Model, Message, OutMessage> {
   if (!config.isGrid || model.activeCell === null || key === 'Tab') return { model }
   const visible = visibleColumns(config.columns)
-  const columns = [selectionColumnId, ...visible.map(column => column.id)]
+  const columnIds = visible.map(column => column.id)
+  const columns = config.showSelection === false ? columnIds : [selectionColumnId, ...columnIds]
   const isHeader = model.activeCell.rowId === gridHeaderRowId
   const rowOrdinal = isHeader ? 0 : model.orderedRowIds.indexOf(model.activeCell.rowId) + 1
   const columnOrdinal = columns.indexOf(model.activeCell.columnId)
@@ -427,39 +435,48 @@ function rowVNode<Row>(
   rowIndex: number,
   rowHeight: number,
   grid: boolean,
+  showSelection: boolean,
+  hasTableStyle: boolean,
   activeCell: Model['activeCell'],
   h: HtmlBuilder<Message>,
 ): Html {
   const activeColumnId = activeCell?.rowId === rowId ? activeCell.columnId : null
   const rowAttributes = [
+    ...(hasTableStyle ? [h.Class('rt-TableRow')] : []),
     ...(grid ? [h.Role('row'), h.AriaRowindex(rowIndex + 2)] : []),
     h.DataAttribute('virtual-list-item-key', rowId),
     h.DataAttribute('virtual-list-item-index', String(rowIndex)),
     h.Style({ height: `${rowHeight}px` }),
   ]
   const cells = columns.map((column, index) => {
-    const attributes = grid ? [
-      h.Role('gridcell'),
-      h.AriaColindex(index + 2),
-      h.Tabindex(activeColumnId === column.id ? 0 : -1),
-      h.Autofocus(activeColumnId === column.id),
-      h.OnFocus(Message.ActiveCellChanged({ rowId, columnId: column.id })),
-    ] : []
+    const attributes = [
+      ...(hasTableStyle ? [h.Class(index === 0 ? 'rt-TableRowHeaderCell rt-TableCell' : 'rt-TableCell')] : []),
+      ...(grid ? [
+        h.Role('gridcell'),
+        h.AriaColindex(index + (showSelection ? 2 : 1)),
+        h.Tabindex(activeColumnId === column.id ? 0 : -1),
+        h.Autofocus(activeColumnId === column.id),
+        h.OnFocus(Message.ActiveCellChanged({ rowId, columnId: column.id })),
+      ] : []),
+    ]
     return h.td(attributes, [cellContent(row, column)])
   })
-  const selectionCell = h.td(grid ? [
-    h.Role('gridcell'),
-    h.AriaColindex(1),
-    h.Tabindex(activeColumnId === selectionColumnId ? 0 : -1),
-    h.OnFocus(Message.ActiveCellChanged({ rowId, columnId: selectionColumnId })),
-  ] : [], [h.input([
+  const selectionCells = showSelection ? [h.td([
+    ...(hasTableStyle ? [h.Class('rt-TableCell')] : []),
+    ...(grid ? [
+      h.Role('gridcell'),
+      h.AriaColindex(1),
+      h.Tabindex(activeColumnId === selectionColumnId ? 0 : -1),
+      h.OnFocus(Message.ActiveCellChanged({ rowId, columnId: selectionColumnId })),
+    ] : []),
+  ], [h.input([
     h.Type('checkbox'),
     h.AriaLabel(`Select row ${rowId}`),
     h.Checked(selected),
     ...(grid ? [h.Tabindex(-1)] : []),
     h.OnClick(Message.ToggleRow({ rowId })),
-  ])])
-  return h.tr(rowAttributes, [selectionCell, ...cells])
+  ])])] : []
+  return h.tr(rowAttributes, [...selectionCells, ...cells])
 }
 
 function rowRenderer<Row>(
@@ -470,10 +487,12 @@ function rowRenderer<Row>(
   rowIndex: number,
   rowHeight: number,
   grid: boolean,
+  showSelection: boolean,
+  hasTableStyle: boolean,
   activeCell: Model['activeCell'],
   h: HtmlBuilder<Message>,
 ): Html {
-  return rowVNode(rowId, row, columns, selected, rowIndex, rowHeight, grid, activeCell, h)
+  return rowVNode(rowId, row, columns, selected, rowIndex, rowHeight, grid, showSelection, hasTableStyle, activeCell, h)
 }
 
 function rangeFor(model: Model, config: Config<unknown>): Readonly<{ start: number; end: number; top: number; bottom: number }> {
@@ -520,6 +539,9 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
   const state = stateFor(config)
   const columns = state.visibleColumns
   const range = rangeFor(model, config as Config<unknown>)
+  const showSelection = config.showSelection !== false
+  const tableStyle = config.tableStyle
+  const hasTableStyle = tableStyle !== undefined
   const renderedRows: Html[] = []
   for (let index = range.start; index < range.end; index++) {
     const rowId = model.orderedRowIds[index]!
@@ -531,7 +553,19 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
       state.rowViews.set(rowId, rowView)
     }
     const selected = config.selectedRowIds.has(rowId)
-    const vnode = rowView(rowRenderer, [rowId, row, columns, selected, index, config.rowHeight, config.isGrid, model.activeCell, h]) as Html
+    const vnode = rowView(rowRenderer, [
+      rowId,
+      row,
+      columns,
+      selected,
+      index,
+      config.rowHeight,
+      config.isGrid,
+      showSelection,
+      hasTableStyle,
+      model.activeCell,
+      h,
+    ]) as Html
     state.rowViews.delete(rowId)
     state.rowViews.set(rowId, rowView)
     renderedRows.push(vnode)
@@ -540,9 +574,10 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
   while (state.rowViews.size > capacity) state.rowViews.delete(state.rowViews.keys().next().value!)
 
   const headerCells = columns.map((column, index) => h.th([
+    ...(hasTableStyle ? [h.Class('rt-TableColumnHeaderCell rt-TableCell')] : []),
     ...(config.isGrid ? [
       h.Role('columnheader'),
-      h.AriaColindex(index + 2),
+      h.AriaColindex(index + (showSelection ? 2 : 1)),
       h.Tabindex(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === column.id ? 0 : -1),
       h.Autofocus(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === column.id),
       h.OnFocus(Message.ActiveCellChanged({ rowId: gridHeaderRowId, columnId: column.id })),
@@ -555,47 +590,65 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
   ], column.isSortable && !config.isGrid
     ? [h.button([h.Type('button'), h.OnClick(Message.SortChanged({ columnId: column.id }))], [column.header])]
     : [column.header]))
-  const selectionHeader = h.th(config.isGrid ? [
-    h.Role('columnheader'),
-    h.AriaColindex(1),
-    h.Tabindex(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId ? 0 : -1),
-    h.Autofocus(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId),
-    h.OnFocus(Message.ActiveCellChanged({ rowId: gridHeaderRowId, columnId: selectionColumnId })),
-  ] : [], [h.input([
+  const selectionHeader = showSelection ? h.th([
+    ...(hasTableStyle ? [h.Class('rt-TableCell')] : []),
+    ...(config.isGrid ? [
+      h.Role('columnheader'),
+      h.AriaColindex(1),
+      h.Tabindex(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId ? 0 : -1),
+      h.Autofocus(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId),
+      h.OnFocus(Message.ActiveCellChanged({ rowId: gridHeaderRowId, columnId: selectionColumnId })),
+    ] : []),
+  ], [h.input([
     h.Type('checkbox'),
     h.AriaLabel('Select all visible rows'),
     h.Tabindex(-1),
     h.Checked(model.orderedRowIds.length > 0 && model.orderedRowIds.every(rowId => config.selectedRowIds.has(rowId))),
     h.OnClick(Message.SelectVisible({ selected: !model.orderedRowIds.every(rowId => config.selectedRowIds.has(rowId)) })),
-  ])])
-  const header = h.thead([], [h.tr(config.isGrid ? [h.Role('row'), h.AriaRowindex(1)] : [], [selectionHeader, ...headerCells])])
+  ])]) : null
+  const header = h.thead(
+    hasTableStyle ? [h.Class('rt-TableHeader')] : [],
+    [h.tr([
+      ...(hasTableStyle ? [h.Class('rt-TableRow')] : []),
+      ...(config.isGrid ? [h.Role('row'), h.AriaRowindex(1)] : []),
+    ], [...(selectionHeader === null ? [] : [selectionHeader]), ...headerCells])],
+  )
+  const columnCount = columns.length + (showSelection ? 1 : 0)
   const topSpacer = h.tr([h.AriaHidden(true), h.DataAttribute('virtual-list-spacer', 'top')], [h.td([
-    h.Colspan(columns.length + 1),
+    h.Colspan(columnCount),
     h.Style({ height: `${range.top}px`, padding: '0', border: '0' }),
   ])])
   const bottomSpacer = h.tr([h.AriaHidden(true), h.DataAttribute('virtual-list-spacer', 'bottom')], [h.td([
-    h.Colspan(columns.length + 1),
+    h.Colspan(columnCount),
     h.Style({ height: `${range.bottom}px`, padding: '0', border: '0' }),
   ])])
-  const table = h.table([h.Class('wse-data-table'), ...(config.isGrid ? [
-    h.Role('grid'),
-    h.AriaRowcount(model.orderedRowIds.length + 1),
-    h.AriaColcount(columns.length + 1),
-    h.Tabindex(model.activeCell === null ? 0 : -1),
-    h.OnKeyDownPreventDefault((key, modifiers) => {
-      if (key === 'Tab') return Option.none()
-      const handled = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' '].includes(key)
-      return handled ? Option.some(Message.GridKey({ key, ctrlKey: modifiers.ctrlKey || modifiers.metaKey })) : Option.none()
-    }),
-  ] : [])], [
+  const table = h.table([
+    h.Class(hasTableStyle
+      ? 'wse-data-table rt-TableRootTable wse-data-table--table-style'
+      : 'wse-data-table'),
+    ...(config.isGrid ? [
+      h.Role('grid'),
+      h.AriaRowcount(model.orderedRowIds.length + 1),
+      h.AriaColcount(columnCount),
+      h.Tabindex(model.activeCell === null ? 0 : -1),
+      h.OnKeyDownPreventDefault((key, modifiers) => {
+        if (key === 'Tab') return Option.none()
+        const handled = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' '].includes(key)
+        return handled ? Option.some(Message.GridKey({ key, ctrlKey: modifiers.ctrlKey || modifiers.metaKey })) : Option.none()
+      }),
+    ] : []),
+  ], [
     h.caption([], [config.caption]),
     header,
-    h.tbody([], [topSpacer, ...renderedRows, bottomSpacer]),
+    h.tbody(hasTableStyle ? [h.Class('rt-TableBody')] : [], [topSpacer, ...renderedRows, bottomSpacer]),
   ])
   const containerId = model.virtualList.id
+  const rootClasses = tableStyle === undefined
+    ? 'wse-data-table__scroll'
+    : `wse-data-table__scroll rt-TableRoot rt-r-size-${tableStyle.size} rt-variant-${tableStyle.variant}`
   return brandViewResult(h.div([
     h.Id(containerId),
-    h.Class('wse-data-table__scroll'),
+    h.Class(rootClasses),
     h.Style({ overflow: 'auto', maxHeight: `${FIXED_VIEWPORT_HEIGHT}px` }),
     h.DataAttribute('virtual-list-scroll-version', String(model.virtualList.pendingScrollVersion)),
     h.OnMount(observeDataTable({ id: containerId, tableId: config.id })),

@@ -5,8 +5,6 @@ import { Submodel } from 'foldkit'
 import { Schema } from 'effect'
 import { defineMessageUnion } from 'foldkit/message'
 import { galleryPageContract, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 
 const items = [
   { value: 'overview', href: '#overview', label: 'Overview' },
@@ -31,10 +29,3 @@ export const page = galleryPageContract.definePage({
     h.section([h.Id('api')], [Heading.view({ as: 'h2' }, ['API'], h), h.p([], ['Gallery API reference.'])]),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, (h) => h.div([], [
-    TabNav.view(tabs('overview'), [], h),
-  ]))
-  if (request.state === 'keyboard-focus') root.querySelector<HTMLAnchorElement>('a[href="#overview"]')?.focus()
-}

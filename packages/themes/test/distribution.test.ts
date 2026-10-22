@@ -93,7 +93,10 @@ describe('themes distribution', () => {
       // Pinned R2S callout.css has no rt-CalloutText selector by design.
       'rt-CalloutText',
     ] as const
-    const unstyledStructuralClasses = new Set(['rt-ScrollAreaCorner', 'rt-underline-none', 'rt-SelectGroup', 'rt-SelectItemText'])
+    const unstyledStructuralClasses: Record<string, true> = {
+      'rt-ScrollAreaCorner': true, 'rt-underline-none': true, 'rt-SelectGroup': true, 'rt-SelectItemText': true,
+      'rt-AlertDialogOverlay': true, 'rt-AlertDialogScroll': true, 'rt-AlertDialogScrollPadding': true, 'rt-AlertDialogContent': true, 'rt-HoverCardTrigger': true,
+    }
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
     const upstreamClasses = new Set([...radix2solidMarkup.matchAll(/\b(rt-[A-Za-z0-9_-]+)\b/g)].map(([, className]) => className))
@@ -101,12 +104,14 @@ describe('themes distribution', () => {
       expect(upstreamClasses.has(alias), `upstream semantic alias ${alias}`).toBe(true)
       expect(emittedClasses.has(alias), `emitted semantic alias ${alias}`).toBe(true)
     }
-    const css = await readFile(resolve(packageRoot, 'dist/styles/styles.css'), 'utf8')
-    for (const structuralClass of unstyledStructuralClasses) {
+    const css = (await Promise.all(['styles.css', 'components.css', 'components-base.css', 'utilities.css'].map(
+      fileName => readFile(resolve(packageRoot, 'dist/styles', fileName), 'utf8'),
+    ))).join('\n')
+    for (const structuralClass of Object.keys(unstyledStructuralClasses)) {
       expect(emittedClasses.has(structuralClass), `emitted structural alias ${structuralClass}`).toBe(true)
     }
     for (const className of emittedClasses) {
-      if (!semanticAliases.includes(className as typeof semanticAliases[number]) && !unstyledStructuralClasses.has(className)) {
+      if (!semanticAliases.includes(className as typeof semanticAliases[number]) && !Object.hasOwn(unstyledStructuralClasses, className)) {
         expect(css, `.${className}`).toContain(`.${className}`)
       }
     }

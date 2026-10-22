@@ -21,6 +21,7 @@ export type EmbedConfig<ParentMessage> = Readonly<{
   description?: string
   cancelLabel: string
   content?: ReadonlyArray<Html | string>
+  actions?: ReadonlyArray<Html | string>
 }>
 
 type ViewInputs = Readonly<{
@@ -28,6 +29,7 @@ type ViewInputs = Readonly<{
   description?: string
   cancelLabel: string
   content: ReadonlyArray<Html | string>
+  actions: ReadonlyArray<Html | string>
 }>
 
 const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, inputs, h) => {
@@ -36,25 +38,36 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
     ...render.dialog,
     h.Attribute('role', 'alertdialog'),
     h.Class('rt-BaseDialog'),
+    h.Style({
+      color: 'var(--gray-12)',
+      width: '100%',
+      height: '100%',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      margin: '0',
+      border: '0',
+      padding: '0',
+      backgroundColor: 'transparent',
+      overflow: 'visible',
+    }),
   ], render.isVisible ? [
     h.div([
-      h.Class('rt-BaseDialogOverlay rt-DialogOverlay'),
+      h.Class('rt-BaseDialogOverlay rt-AlertDialogOverlay'),
       h.DataAttribute('state', 'open'),
     ], []),
-    h.div([h.Class('rt-BaseDialogScroll rt-DialogScroll')], [
-      h.div([h.Class('rt-BaseDialogScrollPadding rt-DialogScrollPadding rt-r-align-center')], [
+    h.div([h.Class('rt-BaseDialogScroll rt-AlertDialogScroll')], [
+      h.div([h.Class('rt-BaseDialogScrollPadding rt-AlertDialogScrollPadding rt-r-align-center')], [
         h.div([
           ...render.panel,
-          h.Class('rt-BaseDialogContent rt-DialogContent rt-r-size-3 rt-r-max-w'),
+          h.Class('rt-BaseDialogContent rt-AlertDialogContent rt-r-size-3 rt-r-max-w'),
           h.DataAttribute('state', 'open'),
           h.Style({ '--max-width': '600px' }),
         ], [
-          h.h2([...render.title, h.Class('rt-Heading rt-r-size-5 rt-r-mb-3')], [inputs.title]),
+          h.h1([...render.title, h.Class('rt-Heading rt-r-size-5 rt-r-lt-start rt-r-mb-3')], [inputs.title]),
           ...(hasDescription ? [h.p([...render.description, h.Class('rt-Text rt-r-size-3')], [inputs.description!])] : []),
           ...inputs.content,
-          h.div([h.Class('rt-Flex rt-r-jc-end')], [
-            h.button([...render.closeButton, ...render.initialFocus, h.Id(`${model.id}-cancel`), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-soft rt-Button')], [inputs.cancelLabel]),
-          ]),
+          h.button([...render.closeButton, ...render.initialFocus, h.Id(`${model.id}-cancel`), h.Class('rt-reset rt-BaseButton rt-r-size-2 rt-variant-outline rt-Button'), h.DataAttribute('accent-color', '')], [inputs.cancelLabel]),
+          ...inputs.actions,
         ]),
       ]),
     ]),
@@ -77,6 +90,7 @@ export const embed = <ParentMessage>(h: HtmlBuilder<ParentMessage>, config: Embe
     description: config.description,
     cancelLabel: config.cancelLabel,
     content: config.content ?? [],
+    actions: config.actions ?? [],
   },
   toParentMessage: config.toParentMessage,
 })

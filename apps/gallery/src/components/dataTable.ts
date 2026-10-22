@@ -7,8 +7,6 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
-import type { CaptureRequest } from '../capture.js'
-import { renderCaptureView } from '../captureView.js'
 
 const RowSchema = Schema.Struct({
   id: Schema.String,
@@ -182,44 +180,3 @@ export const page = galleryPageContract.definePage({
     ])
   }),
 })
-
-function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
-  if (request.component !== 'DataTable' || request.fixtureId !== 'sp2-data-table' || request.visualReference !== 'Table') {
-    throw new Error('DataTable capture requires the sp2-data-table fixture and Table visual reference')
-  }
-  if (request.fixture === null || typeof request.props.rows !== 'number' || request.fixture.length !== request.props.rows) {
-    throw new Error('DataTable capture fixture does not match the requested row count')
-  }
-  return request.fixture.map(row => {
-    const { id, name, status } = row
-    if (typeof id !== 'string' || typeof name !== 'string' || (status !== 'Active' && status !== 'Pending')) {
-      throw new Error('DataTable capture fixture contains an invalid row')
-    }
-    return { id, name, status }
-  })
-}
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  const rows = captureRows(request)
-  const rowHeight = request.props.rowHeight
-  const viewportHeight = request.props.viewportHeight
-  if (typeof rowHeight !== 'number' || typeof viewportHeight !== 'number') {
-    throw new Error('DataTable capture requires matching rowHeight and viewportHeight props')
-  }
-  renderCaptureView(root, request, (h) => {
-    const tableBuilder = h as unknown as HtmlBuilder<DataTable.Message>
-    const decorations = tableDecorations(tableBuilder)
-    const modelInputs = { rows, selectedRowIds: [] as ReadonlyArray<string> }
-    const config = tableConfig(
-      modelInputs,
-      tableColumns(decorations.nameHeader, decorations.statusHeader),
-      null,
-      rowHeight,
-    )
-    return DataTable.view(DataTable.init(config), config, tableBuilder)
-  })
-  const scroll = root.querySelector<HTMLElement>('.wse-data-table__scroll')
-  if (!scroll) throw new Error('DataTable capture scroll viewport is missing')
-  scroll.style.height = `${viewportHeight}px`
-  scroll.style.maxHeight = `${viewportHeight}px`
-}

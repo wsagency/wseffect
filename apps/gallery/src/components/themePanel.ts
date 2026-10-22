@@ -6,8 +6,6 @@ import * as ThemePanel from '@wsagency/wseffect-themes/components/theme-panel'
 import * as Button from '@wsagency/wseffect-themes/components/button'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 export const Model = Schema.Struct({ isOpen: Schema.Boolean, settings: Schema.Unknown })
 export const Message = defineMessageUnion({ Toggle: {}, SettingsChanged: { settings: Schema.Unknown } })
 type Model = typeof Model.Type; type Message = typeof Message.Type
@@ -28,7 +26,3 @@ export const page = galleryPageContract.definePage({ Model, Message, init: () =>
     toSettingsChanged: settings => ({ _tag: 'SettingsChanged', settings }),
   }, [], h),
 ])) })
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  const settings = { accentColor: 'indigo', grayColor: 'gray', radius: 'medium', scaling: '100%', appearance: request.theme, panelBackground: 'translucent', hasBackground: true } as const
-  renderCaptureView(root, request, h => ThemePanel.view({ isOpen: false, settings, toSettingsChanged: settings => ({ _tag: 'SettingsChanged', settings }) as never }, [], h))
-}

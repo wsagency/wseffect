@@ -43,7 +43,7 @@ export const Props = Schema.Struct({
   loading: Schema.optional(Schema.Boolean),
   type: Schema.optional(Schema.Literals(['button', 'submit', 'reset'])),
 })
-export type ViewProps<Message> = typeof Props.Type & Readonly<{ onClick?: Message }>
+export type ViewProps<Message> = typeof Props.Type & Readonly<{ onClick?: Message; 'data-state'?: string }>
 
 export const view = <Message>(
   props: ViewProps<Message>,
@@ -66,7 +66,8 @@ export const view = <Message>(
     type: props.type,
     toView: ({ button }) => {
       const attributes = [...button, h.Class(classes)]
-      if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
+      attributes.push(h.DataAttribute('accent-color', props.color ?? ''))
+      if (props['data-state'] !== undefined) attributes.push(h.DataAttribute('state', props['data-state']))
       if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
       const content = h.span([h.Class('rt-ButtonContent'), h.Style({ display: 'contents' })], children)
       if (props.loading !== true) return h.button(attributes, [content])

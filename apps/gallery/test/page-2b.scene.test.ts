@@ -47,7 +47,7 @@ describe('Gallery lane 2B pages', () => {
     const initial = hoverCardPage.init()
     Scene.scene({ update: hoverCardPage.update, view: (model, h) => hoverCardPage.view(model, inputs, h) }, Scene.given(initial.model),
       Scene.expect(Scene.role('heading', { name: 'Hover card' })).toExist(),
-      Scene.focus(Scene.role('button', { name: '@radix' })),
+      Scene.focus(Scene.role('link', { name: '@radix' })),
       Scene.Mount.resolve({ name: 'AnchorHoverCard' }, HoverCard.Message.CompletedWaitBeforeClosing({ version: -1 })),
       Scene.expect(Scene.text('Radix2Solid profile card.')).toExist())
   })

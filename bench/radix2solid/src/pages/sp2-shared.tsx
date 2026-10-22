@@ -2,6 +2,7 @@ import { For, type Component } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import * as R2S from '@wsagency/radix2solid-themes'
 import type { AppPageProps } from '../types'
+import './sp2-capture.css'
 
 type VisualProps = Record<string, unknown>
 const FAMILY_COMPONENTS: Record<string, ReadonlyArray<string>> = {
@@ -99,6 +100,14 @@ export function Sp2Page(props: AppPageProps & { family: string; title: string })
   let visualProps: VisualProps = {}
   try { visualProps = JSON.parse(new URLSearchParams(window.location.search).get('props') ?? '{}') as VisualProps } catch { visualProps = {} }
   const components = captureId ? [componentId] : FAMILY_COMPONENTS[props.family] ?? []
+  if (captureId) {
+    const html = document.documentElement
+    const appearance = props.appearance()
+    html.classList.add('radix-themes')
+    html.classList.toggle('light', appearance === 'light')
+    html.classList.toggle('dark', appearance === 'dark')
+    html.dataset.sp2CaptureMode = 'true'
+  }
   return <main class="page-content" data-page={props.family} data-sp2-family={props.family}>
     <section class="bench-section">
       <R2S.Heading as="h2">{props.title}</R2S.Heading>

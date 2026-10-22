@@ -33,3 +33,8 @@
 - Restore DataTable Grid selection, first-cell Home navigation, replacement-cell focus, and visible-range-bounded row caching.
 - Require Checkbox toggle callbacks to match Foldkit's controlled checkbox contract.
 - Keep AlertDialog under the containing root Theme portal so its content inherits root tokens.
+- Match AlertDialog action layout and HoverCard link-trigger markup to the pinned reference; preserve Radix Progress indicator widths without double scaling.
+- Match Tooltip arrow positioning, default Link accent context, AlertDialog title trimming, and Popover trigger active styling to the pinned Radix Themes contract.
+- Match open trigger states, HoverCard trigger sizing, AlertDialog dialog text color, default Button accent attributes, and instant Tooltip capture state to the pinned Radix Themes contract.
+- Match the native AlertDialog viewport wrapper and Tooltip Arrow spacing to the pinned overlay geometry.
+- Add optional DataTable selection-column control and Table-style size/variant rendering for shared styling captures.

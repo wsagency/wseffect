@@ -56,10 +56,10 @@ test('all overlay portal contents stay contained and inherit root Theme tokens',
   await page.mouse.move(0, 0)
   await page.getByRole('button', { name: 'Open alert dialog' }).click()
   await expect(page.locator('dialog[open][role="alertdialog"]')).toBeVisible()
-  await expect(page.locator('.rt-DialogContent')).toBeVisible()
+  await expect(page.locator('.rt-AlertDialogContent')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(page.locator('dialog[open][role="alertdialog"]')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Hover for card' }).hover()
+  await page.getByRole('link', { name: 'Hover for card' }).hover()
   await assertPortalTokens(page, 'HoverCard', '#overlay-hover-card-panel')
   await page.mouse.move(0, 0)
 

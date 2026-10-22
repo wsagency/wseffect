@@ -16,8 +16,6 @@ import * as Skeleton from '@wsagency/wseffect-themes/components/skeleton'
 import * as Spinner from '@wsagency/wseffect-themes/components/spinner'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 export const Model = Schema.Struct({}); export const Message = defineMessageUnion({ Tick: {} }); type Model = typeof Model.Type; type Message = typeof Message.Type
 const draw = <M>(h: HtmlBuilder<M>, name: string, props: Record<string, unknown> = {}) => {
   if (name === 'Badge') return Badge.view(props as Badge.ViewProps, ['New'], h)
@@ -28,12 +26,3 @@ const draw = <M>(h: HtmlBuilder<M>, name: string, props: Record<string, unknown>
   return Spinner.view(props as Spinner.ViewProps, [], h)
 }
 export const page = galleryPageContract.definePage({ Model, Message, init: () => ({ model: {} }), update: (model: Model, message: Message) => Message.match(message, { Tick: () => ({ model }) }), view: Submodel.defineView<Model, Message, PageInputs>((_m, _i, h) => h.div([], [Heading.view({ as: 'h1' }, ['Feedback'], h), draw(h, 'Badge'), draw(h, 'Badge', { variant: 'outline' }), draw(h, 'Callout'), draw(h, 'Progress', { ariaLabel: 'Loading progress' }), draw(h, 'Progress', { variant: 'classic', value: 64, max: 100, ariaLabel: 'Upload progress' }), draw(h, 'Separator'), draw(h, 'Skeleton'), draw(h, 'Spinner')])) })
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, h => {
-    if (request.component === 'Badge') return Badge.view(request.props as Badge.ViewProps, [], h)
-    if (request.component === 'Callout') return Callout.Root.view(request.props as Callout.RootProps, [Callout.Icon.view({}, ['ⓘ'], h), Callout.Text.view({}, ['Changes saved successfully.'], h)], h)
-    if (request.component === 'Progress') return Progress.view({ ...request.props, value: 64, max: 100 } as Progress.ViewProps, [], h)
-    if (request.component === 'Separator') return Separator.view({ ...request.props, orientation: 'horizontal' } as Separator.ViewProps, [], h)
-    return draw(h, request.component, request.props)
-  })
-}

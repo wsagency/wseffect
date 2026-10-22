@@ -254,6 +254,7 @@ test('capture resolver and matrix stay outside the built index.html static closu
   assert.ok(
     [...staticSources].every((source) =>
       !source.endsWith('/src/capture.ts') &&
+      !source.endsWith('.capture.ts') &&
       !source.includes('sp2-capture-matrix.json') &&
       !source.endsWith('/packages/themes/dist/components/data-table.js') &&
       !source.endsWith('/packages/themes/dist/components/data-table.mount.js') &&
@@ -285,11 +286,17 @@ test('capture resolver and matrix stay outside the built index.html static closu
   assert.equal(result.shellRaw, expectedShellRaw)
   assert.deepEqual(Object.keys(result.pages).sort(), [
     'browser', 'buttons', 'capabilities', 'cards',
-    'component:accessibility', 'component:alertDialog', 'component:avatar', 'component:contextMenu',
-    'component:data', 'component:dataTable', 'component:feedback', 'component:formsExtra', 'component:hoverCard',
-    'component:iconButton', 'component:layoutExtra', 'component:links', 'component:popover', 'component:rangeSlider', 'component:select',
-    'component:scrollArea', 'component:tabNav', 'component:themePanel', 'component:tooltip',
-    'component:typographyExtra', 'components', 'dialog', 'dropdownMenu', 'form', 'island',
+    'component:accessibility', 'component:accessibility.capture', 'component:alertDialog', 'component:alertDialog.capture',
+    'component:avatar', 'component:avatar.capture', 'component:contextMenu', 'component:contextMenu.capture',
+    'component:data', 'component:data.capture', 'component:dataTable', 'component:dataTable.capture',
+    'component:feedback', 'component:feedback.capture', 'component:formsExtra', 'component:formsExtra.capture',
+    'component:hoverCard', 'component:hoverCard.capture', 'component:iconButton', 'component:iconButton.capture',
+    'component:layoutExtra', 'component:layoutExtra.capture', 'component:links', 'component:links.capture',
+    'component:popover', 'component:popover.capture', 'component:rangeSlider', 'component:rangeSlider.capture',
+    'component:scrollArea', 'component:scrollArea.capture', 'component:select', 'component:select.capture',
+    'component:tabNav', 'component:tabNav.capture', 'component:themePanel', 'component:themePanel.capture',
+    'component:tooltip', 'component:tooltip.capture', 'component:typographyExtra', 'component:typographyExtra.capture',
+    'components', 'dialog', 'dropdownMenu', 'form', 'island',
     'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField',
     'theme', 'typography', 'validation', 'virtualList',
   ].sort())

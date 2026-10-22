@@ -6,8 +6,6 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as ContextMenu from '@wsagency/wseffect-themes/components/context-menu'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
 
 const Menu = ContextMenu.create<'Open' | 'Rename' | 'Delete'>()
 export const Model = Schema.Struct({ menu: Menu.Model, selected: Schema.Option(Schema.String) })
@@ -49,15 +47,3 @@ export const page = galleryPageContract.definePage({
     h.p([], [Option.match(model.selected, { onNone: () => 'No action selected', onSome: value => `Selected: ${value}` })]),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, (h) => h.div([], [
-    h.p([], ['Right-click for actions']),
-    Menu.embed(h, {
-      slotId: 'capture-context-menu',
-      model: Menu.init({ id: 'Actions', sourceId: 'capture-context-source', sourceToken: 'capture-context-token', longPressMs: 600, items: [], toItem: () => null }),
-      config: { ...createConfig(h), id: 'Actions', sourceId: 'capture-context-source', sourceToken: 'capture-context-token' },
-      toParentMessage: () => ({ _tag: 'Noop' }),
-    }),
-  ]))
-}

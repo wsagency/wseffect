@@ -5,9 +5,6 @@ import { defineMessageUnion } from 'foldkit/message'
 import * as Popover from '@wsagency/wseffect-themes/components/popover'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import { renderCaptureView } from '../captureView.js'
-import type { CaptureRequest } from '../capture.js'
-
 export const Model = Schema.Struct({ popover: Popover.Model })
 export const Message = defineMessageUnion({ Open: {}, PopoverEvent: { message: Popover.Message } })
 type Model = typeof Model.Type
@@ -32,12 +29,3 @@ export const page = galleryPageContract.definePage({
     Popover.embed(h, { slotId: 'gallery-popover', model: model.popover, toParentMessage: message => Message.PopoverEvent({ message }), viewInputs }),
   ])),
 })
-
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
-  renderCaptureView(root, request, (h) => Popover.embed(h, {
-    slotId: 'capture-popover',
-    model: { ...Popover.init({ id: 'capture-popover' }), ...(request.state === 'open' ? { isOpen: true } : {}) },
-    toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { ...viewInputs, trigger: ['Details'], content: [h.p([], ['Popover content for comparison.'])] },
-  }))
-}

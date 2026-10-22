@@ -17,6 +17,10 @@
   background: var(--color-panel, white);
 }
 
+.wse-data-table--table-style thead {
+  background: transparent;
+}
+
 .wse-data-table th,
 .wse-data-table td {
   box-sizing: border-box;
@@ -27,6 +31,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: start;
+}
+
+.wse-data-table--table-style {
+  table-layout: auto;
+}
+
+.wse-data-table--table-style .rt-TableCell {
+  padding: var(--table-cell-padding);
+  border-bottom: 0;
+  line-height: inherit;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 .wse-data-table [data-virtual-list-spacer] > td {
   min-height: 0;

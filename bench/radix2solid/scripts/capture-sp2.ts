@@ -126,6 +126,27 @@ async function addCaptureInitScript(page: Page, theme: 'light' | 'dark', positio
     })
     observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-sp2-capture-target'] })
   }, { theme, position })
+  if (!position) return
+  await page.route('**/*', async route => {
+    if (!route.request().isNavigationRequest() || route.request().frame() !== page.mainFrame()) {
+      await route.continue()
+      return
+    }
+    const response = await route.fetch()
+    const html = await response.text()
+    const positionStyles = `
+      [data-sp2-capture-target] {
+        position: fixed !important;
+        left: ${position.x}px !important;
+        top: ${position.y}px !important;
+        z-index: 0 !important;
+      }
+    `
+    const style = `<style data-sp2-capture-init>${fontStylesheet}${positionStyles}</style>`
+    const injectedHtml = html.replace(/<head([^>]*)>/i, (_head, attributes: string) => `<head${attributes}>${style}`)
+    if (injectedHtml === html) throw new Error(`Unable to inject capture positioning into ${route.request().url()}`)
+    await route.fulfill({ response, body: injectedHtml })
+  })
 }
 async function raiseCaptureOverlays(page: Page): Promise<void> {
   await page.addStyleTag({ content: `
@@ -237,8 +258,8 @@ try {
       await galleryComponent.waitFor()
       await alignCaptureTarget(galleryPage, capturePosition)
       await raiseCaptureOverlays(galleryPage)
-      await activateCaptureState(galleryPage, capture, true)
       await loadCaptureFont(galleryPage)
+      await activateCaptureState(galleryPage, capture, true)
       await galleryPage.evaluate(async () => { await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))) })
       await waitForOverlayPosition(galleryPage, capture.component, capture.state)
       const galleryBounds = await captureBounds(galleryPage)
