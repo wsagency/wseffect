@@ -52,7 +52,7 @@ describe('DataTable Grid model', () => {
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: false })).model
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'rank' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
   })
@@ -110,19 +110,17 @@ describe('DataTable Grid model', () => {
     })
   })
 
-  it('scrolls to a stable VirtualList key before restoring focus after row remount', () => {
+  it('scrolls to a stable VirtualList key before focusing the target after commit', () => {
     const cfg = config()
     const result = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }))
     expect(result.model.activeCell).toEqual({ rowId: 'b', columnId: '$selection' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'b', columnId: '$selection' })
     expect(result.model.virtualList.pendingScroll).toMatchObject({
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
-    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
-      rowId: 'b',
-      rowIndex: 1,
-      columnIndex: 0,
-      shouldFocus: true,
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
   })
 
@@ -143,11 +141,11 @@ describe('DataTable Grid model', () => {
     expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'rank' })
   })
 
-  it('uses the header for Ctrl+Home and the last data cell for Ctrl+End', () => {
+  it('uses the first data cell for Ctrl+Home and the last data cell for Ctrl+End', () => {
     const cfg = config()
     let model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
   })

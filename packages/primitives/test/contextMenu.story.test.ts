@@ -228,6 +228,16 @@ const render = (model: ContextMenu.ContextMenuModel, h: HtmlBuilder<ContextMenu.
       : 'kind' in item ? item : { ...item, content: h.span([], [item.textValue]) }),
   }, h)
 
+it('marks the first enabled item active for pointer invocation', () => {
+  Scene.scene(
+    { update: (model, message) => menu.update(model, message), view: render },
+    Scene.given(openPointer.model),
+    Scene.Mount.resolve(sourceMount, Menu.Message.IgnoredMouseClick()),
+    Scene.Mount.resolve(anchorMount, Menu.Message.CompletedAnchorMenu()),
+    Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toHaveAttr('data-active', ''),
+  )
+})
+
 it('keyboard invocation comes from the focusable rendered source', () => {
   Scene.scene(
     { update: (model, message) => menu.update(model, message), view: render },

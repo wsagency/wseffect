@@ -5,6 +5,7 @@ import { autoUpdate, computePosition, flip, shift, type VirtualElement } from '@
 import { portalToContainingRoot } from '@foldkit/ui/anchor'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import type * as Mount from 'foldkit/mount'
+import * as Render from 'foldkit/render'
 import type * as Update from 'foldkit/update'
 
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
@@ -64,7 +65,8 @@ const LongPress = Command.define('LongPress', {
 const FocusSource = Command.define('FocusSource', {
   args: { sourceId: Schema.String, sourceToken: Schema.String },
   messages: [Menu.Message.CompletedFocusButton],
-  execute: ({ sourceId, sourceToken }) => Effect.sync(() => {
+  execute: ({ sourceId, sourceToken }) => Effect.gen(function* () {
+    yield* Render.afterCommit
     const source = document.getElementById(sourceId)
     if (source?.getAttribute('data-context-source-token') === sourceToken && source instanceof HTMLElement) source.focus()
     return Menu.Message.CompletedFocusButton()
@@ -192,7 +194,6 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
           panel.style.left = `${x}px`
           panel.style.top = `${y}px`
           Queue.offerUnsafe(queue, Menu.Message.CompletedAnchorMenu())
-          if (model.invocation?.invocation === 'keyboard') panel.querySelector<HTMLElement>('[data-active]')?.focus()
         })
       }
       const document = panel.ownerDocument
@@ -208,14 +209,14 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
         stopAutoUpdate()
         portalCleanup()
       }))
+      panel.querySelector<HTMLElement>('[data-active]')?.focus()
       position()
       return yield* Effect.never
     })),
   })
   const view = (model: ContextMenuModel, config: ContextMenuConfig<Value>, h: HtmlBuilder<ContextMenuMessage>): Html => {
     const items = flatten(config.items)
-    const openAtKeyboard = model.invocation?.invocation === 'keyboard'
-    const fallbackActive = openAtKeyboard ? firstEnabled(items) : undefined
+    const fallbackActive = model.isOpen ? firstEnabled(items) : undefined
     let itemIndex = 0
     const renderItem = (item: ContextMenuItem<Value> | ContextMenuSeparator): Html => {
       const index = itemIndex++

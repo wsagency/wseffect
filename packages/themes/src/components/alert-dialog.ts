@@ -1,5 +1,6 @@
 import { PortalAlertDialog } from './alert-dialog.mount.js'
 import { brandViewResult } from 'foldkit/brand'
+import { PortalAlertDialog } from './alert-dialog.mount.js'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
@@ -7,6 +8,7 @@ import * as UiDialog from '@foldkit/ui/dialog'
 import type { RenderInfo } from '@foldkit/ui/dialog'
 export { Model, Message, OutMessage, update, open, close, titleId, descriptionId } from '@foldkit/ui/dialog'
 import { init as initDialog } from '@foldkit/ui/dialog'
+
 export const init = (config: UiDialog.InitConfig): UiDialog.Model => initDialog({
   ...config,
   focusSelector: `#${config.id}-cancel`,
