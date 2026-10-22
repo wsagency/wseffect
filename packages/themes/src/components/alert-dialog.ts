@@ -1,6 +1,5 @@
 import { PortalAlertDialog } from './alert-dialog.mount.js'
 import { brandViewResult } from 'foldkit/brand'
-import { PortalAlertDialog } from './alert-dialog.mount.js'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import { defineView } from 'foldkit/submodel'
