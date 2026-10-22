@@ -34,3 +34,9 @@ describe('themed Progress', () => {
     Scene.given({}),
     Scene.expect(Scene.selector('[role="progressbar"]')).toHaveAttr('aria-labelledby', 'progress-label'),
   ))
+  it('does not synthesize an id or label relationship that R2S leaves unset', () => Scene.scene(
+    { update, view: (_model, h) => Progress.view({}, [], h) },
+    Scene.given({}),
+    Scene.expect(Scene.selector('[id]')).not.toExist(),
+    Scene.expect(Scene.selector('[aria-labelledby]')).not.toExist(),
+  ))

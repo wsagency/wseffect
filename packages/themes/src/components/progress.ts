@@ -26,8 +26,13 @@ export const view = <Message>(props: ViewProps, _children: ReadonlyArray<Html | 
   if (props.radius !== undefined) progressAttributes.push(h.DataAttribute('radius', props.radius))
   if (props.duration !== undefined) progressAttributes.push(h.Style({ '--progress-duration': props.duration }))
   return brandViewResult(ProgressUi.view({
-    id: props.id ?? 'wseffect-progress', value: props.value, min: props.min, max: props.max,
+    id: props.id ?? '', value: props.value, min: props.min, max: props.max,
     valueText: props.valueText, ariaLabel: props.ariaLabel, ariaLabelledBy: props.ariaLabelledBy,
-    toView: ({ progress, indicator }) => h.div(progressAttributes.concat(progress), [h.div([h.Class('rt-ProgressIndicator'), ...indicator], [])]),
+    toView: ({ progress, indicator }) => {
+      const attributes = progressAttributes.concat(progress.filter(attribute =>
+        (props.id !== undefined || attribute._tag !== 'Id') &&
+        (props.ariaLabel !== undefined || props.ariaLabelledBy !== undefined || attribute._tag !== 'AriaLabelledBy')))
+      return h.div(attributes, [h.div([h.Class('rt-ProgressIndicator'), ...indicator], [])])
+    },
   }, h), 'wseffect/Progress')
 }
