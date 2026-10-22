@@ -141,6 +141,28 @@ it('source mount turns browser context and touch events into menu messages', asy
     Menu.Message.IgnoredMouseClick(),
   ])
 })
+it('source mount removes every event listener when interrupted', async () => {
+  const source = document.createElement('button')
+  const action = captureMounts(menu.init(config)).find(mount => mount.name === 'ContextMenuSourceEvents')
+  expect(action).toBeDefined()
+  if (action === undefined) throw new Error('ContextMenuSourceEvents mount is required')
+  const added: string[] = []
+  const removed: string[] = []
+  const addEventListener = source.addEventListener.bind(source)
+  const removeEventListener = source.removeEventListener.bind(source)
+  source.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) => {
+    added.push(type)
+    if (listener !== null) addEventListener(type, listener, options)
+  }) as typeof source.addEventListener
+  source.removeEventListener = ((type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | EventListenerOptions) => {
+    removed.push(type)
+    if (listener !== null) removeEventListener(type, listener, options)
+  }) as typeof source.removeEventListener
+  const fiber = Effect.runFork(Stream.runDrain(action.f(source, Stream.never)))
+  await vi.waitFor(() => expect(added).toEqual(['contextmenu', 'pointerdown', 'pointermove', 'pointerup', 'pointercancel']))
+  await Effect.runPromise(Fiber.interrupt(fiber))
+  expect(removed).toEqual(added)
+})
 it('bundle helper methods open, select, and close with menu semantics', () => {
   const initialized = menu.init(config)
   const opened = menu.open(initialized)
