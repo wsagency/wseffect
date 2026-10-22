@@ -104,9 +104,66 @@ test('performance scenarios retain the GATE-P2 ceilings and use trusted input ev
     ['vl-select', 50, 'click'],
     ['form-field', 30, 'keydown'],
     ['menus-tick', 30, 'click'],
+    ['dt-update', 50, 'click'],
+    ['dt-filter', 50, 'keydown'],
+    ['dt-sort', 50, 'click'],
+    ['dt-select', 50, 'click'],
   ])
   assert.ok(SCENARIOS.every(({ prepare, warmup, reset, act }) =>
     typeof prepare === 'function' && typeof warmup === 'function' && typeof reset === 'function' && typeof act === 'function'))
+})
+test('DataTable 10k scenarios wire the data-table operations at the proposed 4× ceiling', async () => {
+  const dataTableScenarios = SCENARIOS.filter(({ id }) => id.startsWith('dt-'))
+  assert.deepEqual(dataTableScenarios.map(({ id, route, inputEventType, hook, ceilingMs, ceilingStatus }) =>
+    [id, route, inputEventType, hook, ceilingMs, ceilingStatus]), [
+    ['dt-update', '/data-table', 'click', 'data-table-update', 50, 'proposed-not-runner-validated'],
+    ['dt-filter', '/data-table', 'keydown', 'data-table-filter', 50, 'proposed-not-runner-validated'],
+    ['dt-sort', '/data-table', 'click', 'data-table-sort', 50, 'proposed-not-runner-validated'],
+    ['dt-select', '/data-table', 'click', 'data-table-select', 50, 'proposed-not-runner-validated'],
+  ])
+
+  const calls: string[] = []
+  const locator = (selector: string) => ({
+    fill: async (value: string) => { calls.push(`${selector}.fill(${value})`) },
+    press: async (key: string) => { calls.push(`${selector}.press(${key})`) },
+    click: async () => { calls.push(`${selector}.click`) },
+  })
+  const page = {
+    locator,
+    getByRole: (role: string, options: { readonly name: string; readonly exact?: boolean }) =>
+      locator(`${role}:${options.name}${options.exact ? ':exact' : ''}`),
+  } as never
+  const expectedCalls = [
+    [
+      '[data-perf="data-table-update"].click',
+      '[data-perf="data-table-update"].click',
+      '[data-perf="data-table-update"].click',
+    ],
+    [
+      '[data-perf="data-table-filter"].fill()',
+      '[data-perf="data-table-filter"].press(x)',
+      '[data-perf="data-table-filter"].fill()',
+      '[data-perf="data-table-filter"].press(9)',
+    ],
+    [
+      '[data-perf="data-table-sort"].click',
+      '[data-perf="data-table-sort"].click',
+      '[data-perf="data-table-sort"].click',
+    ],
+    [
+      'checkbox:Select row row-1:exact.click',
+      'checkbox:Select row row-1:exact.click',
+      'checkbox:Select row row-1:exact.click',
+    ],
+  ]
+  for (const [index, scenario] of dataTableScenarios.entries()) {
+    calls.length = 0
+    await scenario.prepare(page)
+    await scenario.warmup(page)
+    await scenario.reset(page)
+    await scenario.act(page)
+    assert.deepEqual(calls, expectedCalls[index])
+  }
 })
 
 test('CPU throttle helper sends the CDP 4x command', async () => {

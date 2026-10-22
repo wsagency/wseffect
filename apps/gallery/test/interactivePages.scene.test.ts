@@ -49,6 +49,37 @@ describe('gallery interactive pages', () => {
     } as typeof dataTablePage.Message.Type)
     expect(moved.model.table.activeCell).toEqual({ rowId: 'row-2', columnId: '$selection' })
   })
+  it('exposes benchmark operations and updates the first DataTable cell', () => {
+    const initial = dataTablePage.init()
+    Scene.scene(
+      { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
+      Scene.given(initial.model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: 'gallery-data-table-virtual-list', tableId: 'gallery-data-table' } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
+        }),
+      ),
+      Scene.expect(Scene.selector('[data-perf="data-table-update"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-filter"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-sort"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-select"]')).toExist(),
+      Scene.click(Scene.selector('[data-perf="data-table-update"]')),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+        return command === undefined
+          ? simulation
+          : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
+            scrollTop: 0,
+            scrollHeight: 360,
+            containerHeight: 360,
+            anchor: { _tag: 'None' },
+          }))(simulation)
+      },
+      Scene.expect(Scene.text('Record 01*')).toExist(),
+    )
+  })
+
 
   it('opens and closes the accessible dialog demo', () => {
     const initial = dialogPage.init()

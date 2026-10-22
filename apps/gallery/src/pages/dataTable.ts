@@ -43,7 +43,7 @@ function tableDecorations(h: HtmlBuilder<Message>): TableDecorations {
   const cached = decorationsByBuilder.get(h)
   if (cached) return cached
   const decorations = {
-    nameHeader: h.span([], ['Name']),
+    nameHeader: h.span([h.DataAttribute('perf', 'data-table-sort')], ['Name']),
     statusHeader: h.span([], ['Status']),
     caption: h.span([], [`Records (${initialRows.length} total)`]),
   }
@@ -100,10 +100,29 @@ export const Model = Schema.Struct({
   focusedCell: FocusedCell,
 })
 export const Message = defineMessageUnion({
+  UpdateCell: {},
   TableEvent: { message: DataTable.Message },
 })
 type Model = typeof Model.Type
 type Message = typeof Message.Type
+function applyTableMessage(model: Model, tableMessage: DataTable.Message, rows = model.rows) {
+  const result = DataTable.update(
+    model.table,
+    tableConfig({ rows, selectedRowIds: model.selectedRowIds }, columnsByModel.get(model) ?? baseColumns),
+    tableMessage,
+  )
+  const selectedRowIds = result.outMessage?._tag === 'SelectionChanged'
+    ? result.outMessage.ids
+    : model.selectedRowIds
+  const focusedCell = result.outMessage?._tag === 'FocusCell'
+    ? result.outMessage
+    : model.focusedCell
+  return {
+    model: { ...model, rows, table: result.model, selectedRowIds, focusedCell },
+    commands: result.commands?.map(command => Command.mapMessage(command, childMessage => Message.TableEvent({ message: childMessage }))) ?? [],
+  }
+}
+
 
 
 export const page = galleryPageContract.definePage({
@@ -115,17 +134,14 @@ export const page = galleryPageContract.definePage({
     return { model: { ...model, table, focusedCell: table.activeCell } }
   },
   update: (model: Model, message: Message) => Message.match(message, {
-    TableEvent: ({ message: tableMessage }) => {
-      const result = DataTable.update(model.table, tableConfig(model, columnsByModel.get(model) ?? baseColumns), tableMessage)
-      let selectedRowIds = model.selectedRowIds
-      let focusedCell = model.focusedCell
-      if (result.outMessage?._tag === 'SelectionChanged') selectedRowIds = result.outMessage.ids
-      if (result.outMessage?._tag === 'FocusCell') focusedCell = result.outMessage
-      return {
-        model: { ...model, table: result.model, selectedRowIds, focusedCell },
-        commands: result.commands?.map(command => Command.mapMessage(command, childMessage => Message.TableEvent({ message: childMessage }))) ?? [],
-      }
+    UpdateCell: () => {
+      const first = model.rows[0]
+      if (first === undefined) return { model }
+      const name = first.name.endsWith('*') ? first.name.slice(0, -1) : `${first.name}*`
+      const rows = [{ ...first, name }, ...model.rows.slice(1)]
+      return applyTableMessage(model, DataTable.Message.RowsChanged(), rows)
     },
+    TableEvent: ({ message: tableMessage }) => applyTableMessage(model, tableMessage),
   }),
   view: Submodel.defineView<Model, Message, PageInputs>((model, _inputs, h) => {
     const decorations = tableDecorations(h)
@@ -134,24 +150,30 @@ export const page = galleryPageContract.definePage({
     return h.div([], [
       Heading.view({ as: 'h1' }, ['Data table'], h),
       h.p([], ['A virtualized, filterable 10,000-record table with stable row identities and keyboard grid navigation.']),
+      h.button([
+        h.Type('button'),
+        h.DataAttribute('perf', 'data-table-update'),
+        h.OnClick(Message.UpdateCell()),
+      ], ['Update first cell']),
       h.label([], [
         h.span([], ['Filter rows']),
         h.input([
           h.Type('search'),
           h.Id('data-table-filter'),
+          h.DataAttribute('perf', 'data-table-filter'),
           h.AriaLabel('Filter rows'),
           h.Value(model.table.filter),
           h.OnInput(value => Message.TableEvent({ message: DataTable.Message.FilterChanged({ value }) })),
         ]),
       ]),
       h.output([h.Id('data-table-row-count')], [`${model.table.orderedRowIds.length} rows shown`]),
-      h.submodel({
+      h.div([h.DataAttribute('perf', 'data-table-select')], [h.submodel({
         slotId: 'data-table',
         model: model.table,
         view: tableView,
         viewInputs: { rows: model.rows, selectedRowIds: model.selectedRowIds, ...decorations },
         toParentMessage: childMessage => Message.TableEvent({ message: childMessage }),
-      }),
+      })]),
       h.output([h.Id('data-table-selection')], [`${model.selectedRowIds.length} rows selected`]),
       h.output([h.Id('data-table-active-cell')], [model.focusedCell
         ? `Focused ${model.focusedCell.rowId} / ${model.focusedCell.columnId}`

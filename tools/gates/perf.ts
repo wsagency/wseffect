@@ -19,6 +19,10 @@ const HOOK_BY_SCENARIO: Record<PerfScenario['id'], string> = {
   'vl-select': 'vl-select',
   'form-field': 'form-field-0',
   'menus-tick': 'menus-tick',
+  'dt-update': 'data-table-update',
+  'dt-filter': 'data-table-filter',
+  'dt-sort': 'data-table-sort',
+  'dt-select': 'data-table-select',
 }
 
 const SESSIONS = 10
@@ -738,6 +742,7 @@ async function runCli(): Promise<void> {
           failed ||= result.regressed || ceilingFailed
           reports.push({
             scenario: scenario.id,
+            ceilingStatus: scenario.ceilingStatus,
             ceilingMs: scenario.ceilingMs,
             baseline: {
               eventMedianMs: median(baseEvent),

@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 
 export interface PerfScenario {
-  readonly id: 'vl-cell' | 'vl-filter' | 'vl-sort' | 'vl-select' | 'form-field' | 'menus-tick'
+  readonly id: 'vl-cell' | 'vl-filter' | 'vl-sort' | 'vl-select' | 'form-field' | 'menus-tick' | 'dt-update' | 'dt-filter' | 'dt-sort' | 'dt-select'
   readonly route: string
   readonly inputEventType: 'click' | 'keydown'
   readonly prepare: (page: Page) => Promise<void>
@@ -10,8 +10,9 @@ export interface PerfScenario {
   readonly act: (page: Page) => Promise<void>
   readonly ceilingMs: 50 | 30
   readonly hook?: string
+  readonly ceilingStatus?: 'proposed-not-runner-validated'
 }
-
+ 
 export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   {
     id: 'vl-cell',
@@ -76,5 +77,53 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     },
     act: async (page) => page.locator('[data-perf="menus-tick"]').click(),
     ceilingMs: 30,
+  },
+  {
+    id: 'dt-update',
+    route: '/data-table',
+    inputEventType: 'click',
+    hook: 'data-table-update',
+    prepare: async () => {},
+    warmup: async (page) => page.locator('[data-perf="data-table-update"]').click(),
+    reset: async (page) => page.locator('[data-perf="data-table-update"]').click(),
+    act: async (page) => page.locator('[data-perf="data-table-update"]').click(),
+    ceilingMs: 50,
+    ceilingStatus: 'proposed-not-runner-validated',
+  },
+  {
+    id: 'dt-filter',
+    route: '/data-table',
+    inputEventType: 'keydown',
+    hook: 'data-table-filter',
+    prepare: async (page) => page.locator('[data-perf="data-table-filter"]').fill(''),
+    warmup: async (page) => page.locator('[data-perf="data-table-filter"]').press('x'),
+    reset: async (page) => page.locator('[data-perf="data-table-filter"]').fill(''),
+    act: async (page) => page.locator('[data-perf="data-table-filter"]').press('9'),
+    ceilingMs: 50,
+    ceilingStatus: 'proposed-not-runner-validated',
+  },
+  {
+    id: 'dt-sort',
+    route: '/data-table',
+    inputEventType: 'click',
+    hook: 'data-table-sort',
+    prepare: async () => {},
+    warmup: async (page) => page.locator('[data-perf="data-table-sort"]').click(),
+    reset: async (page) => page.locator('[data-perf="data-table-sort"]').click(),
+    act: async (page) => page.locator('[data-perf="data-table-sort"]').click(),
+    ceilingMs: 50,
+    ceilingStatus: 'proposed-not-runner-validated',
+  },
+  {
+    id: 'dt-select',
+    route: '/data-table',
+    inputEventType: 'click',
+    hook: 'data-table-select',
+    prepare: async () => {},
+    warmup: async (page) => page.getByRole('checkbox', { name: 'Select row row-1', exact: true }).click(),
+    reset: async (page) => page.getByRole('checkbox', { name: 'Select row row-1', exact: true }).click(),
+    act: async (page) => page.getByRole('checkbox', { name: 'Select row row-1', exact: true }).click(),
+    ceilingMs: 50,
+    ceilingStatus: 'proposed-not-runner-validated',
   },
 ]
