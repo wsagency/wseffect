@@ -28,9 +28,9 @@ test('Grid roves focus through data and header cells; Ctrl+Home reaches the firs
 test('Space on the selection header toggles every visible row', async ({ page }) => {
   await page.goto('/components/data-table')
   const filter = page.getByRole('searchbox', { name: 'Filter rows' })
-  await filter.fill('Record 01')
+  await filter.fill('Record 1')
   const count = page.locator('#data-table-row-count')
-  await expect(count).toHaveText('1 rows shown')
+  await expect(count).toHaveText('1111 rows shown')
   const visibleRows = Number((await count.textContent())?.match(/\d+/)?.[0])
   expect(visibleRows).toBeGreaterThan(0)
 
