@@ -3,6 +3,7 @@ import { Option, Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as SwitchUi from '@foldkit/ui/switch'
 import { accentColors } from '../props/color.props.js'
+import { radii } from '../props/radius.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 
@@ -15,6 +16,7 @@ export const Props = Schema.Struct({
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
   color: Schema.optional(Schema.Literals(accentColors)),
+  radius: Schema.optional(Schema.Literals(radii)),
   highContrast: Schema.optional(Schema.Boolean),
   checked: Schema.optional(Schema.Boolean),
   defaultChecked: Schema.optional(Schema.Boolean),
@@ -40,6 +42,7 @@ export const view = <Message>(props: Props & { onCheckedChange?: (checked: boole
       ...attributes.button,
       h.Class(['rt-reset', 'rt-SwitchRoot', ...(props.size === undefined || typeof props.size === 'string' ? [`rt-r-size-${props.size ?? '2'}`] : responsiveClasses(sizeProp, props.size).classes), variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
       ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+      ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
       ...(props.onCheckedChange === undefined ? [] : [h.OnKeyDownPreventDefault(key => props.readOnly === true ? Option.none() : key === ' ' || key === 'Enter' ? Option.some(props.onCheckedChange?.(!isChecked) as Message) : Option.none())]),
     ], [h.span([h.Class('rt-SwitchThumb'), h.AriaHidden(true)], [])]),
     h.label([...attributes.label], children),

@@ -1,6 +1,6 @@
 import { brandViewResult } from 'foldkit/brand'
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder, TextareaAttribute } from 'foldkit/html'
 import * as TextareaUi from '@foldkit/ui/textarea'
 import { accentColors } from '../props/color.props.js'
 import { radii } from '../props/radius.props.js'
@@ -27,11 +27,17 @@ export const Props = Schema.Struct({
   readOnly: Schema.optional(Schema.Boolean),
   invalid: Schema.optional(Schema.Boolean),
   autofocus: Schema.optional(Schema.Boolean),
+  name: Schema.optional(Schema.String),
+  required: Schema.optional(Schema.Boolean),
   rows: Schema.optional(Schema.Number),
   placeholder: Schema.optional(Schema.String),
 })
 export type Props = typeof Props.Type
-export const view = <Message>(props: Props & { onInput?: (value: string) => Message }, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
+export type ViewProps<Message> = Props & Readonly<{
+  onInput?: (value: string) => Message
+  textareaAttributes?: ReadonlyArray<TextareaAttribute<Message>>
+}>
+export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
   const size = props.size ?? '2'
   const resize = props.resize
   const classes = [
@@ -49,6 +55,7 @@ export const view = <Message>(props: Props & { onInput?: (value: string) => Mess
     isInvalid: props.invalid,
     isAutofocus: props.autofocus,
     rows: props.rows,
+    placeholder: props.placeholder,
     hasDescription: children.length > 0,
     toView: attributes => h.div([
       h.Class(classes),
@@ -56,7 +63,13 @@ export const view = <Message>(props: Props & { onInput?: (value: string) => Mess
       ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
     ], [
       h.label([...attributes.label], [props.label]),
-      h.textarea([...attributes.textarea, h.Class('rt-reset rt-TextAreaInput')]),
+      h.textarea([
+        ...attributes.textarea,
+        ...(props.name === undefined ? [] : [h.Name(props.name)]),
+        ...(props.required ? [h.Attribute('required', '')] : []),
+        ...(props.textareaAttributes ?? []),
+        h.Class('rt-reset rt-TextAreaInput'),
+      ]),
       ...(children.length > 0 ? [h.p([...attributes.description], children)] : []),
     ]),
   }, h), 'wseffect/TextArea')

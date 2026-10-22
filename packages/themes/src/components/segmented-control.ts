@@ -5,14 +5,17 @@ import * as RadioGroupUi from '@foldkit/ui/radioGroup'
 import * as RadioGroup from './radio-group.js'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
+import { radii } from '../props/radius.props.js'
 
 const sizes = ['1', '2', '3'] as const
-const variants = ['classic', 'surface', 'soft'] as const
+const variants = ['classic', 'surface'] as const
 export const Props = Schema.Struct({
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
   color: Schema.optional(Schema.Literals(accentColors)),
   highContrast: Schema.optional(Schema.Boolean),
+  disabled: Schema.optional(Schema.Boolean),
+  radius: Schema.optional(Schema.Literals(radii)),
 })
 export type Props = typeof Props.Type
 export type Model = RadioGroup.Model
@@ -26,7 +29,8 @@ export const create = <Value extends string>(): Bundle<Value> => {
   const group = RadioGroup.create<Value>()
   const view = (model: Model, inputs: ViewInputs<Value>, h: HtmlBuilder<Message>): Html => brandViewResult(group.view(model, {
     ...inputs,
-    props: { ...inputs.props, rootClass: 'rt-SegmentedControlRoot', itemClass: 'rt-SegmentedControlItem', itemInnerClass: 'rt-SegmentedControlItemLabel' },
+    isDisabled: inputs.props?.disabled ?? inputs.isDisabled,
+    props: { ...inputs.props, segmented: true, rootRadius: inputs.props?.radius, rootClass: 'rt-SegmentedControlRoot', itemClass: 'rt-SegmentedControlItem', itemInnerClass: 'rt-SegmentedControlItemLabel' },
   }, h), 'wseffect/SegmentedControl')
   return { ...group, view }
 }

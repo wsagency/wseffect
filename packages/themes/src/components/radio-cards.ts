@@ -16,7 +16,9 @@ const columnsProp = responsiveProp({
   customProperties: ['--grid-template-columns'],
   parseValue: value => /^\d+$/.test(value) ? `repeat(${value}, minmax(0, 1fr))` : value,
 })
-const gapProp = responsiveProp({ className: 'rt-r-gap', values: gaps })
+const sizeProp = responsiveProp({ className: 'rt-r-size', values: sizes })
+const variantClasses = Object.freeze({ surface: 'rt-variant-surface', classic: 'rt-variant-classic' })
+const gapProp = responsiveProp({ className: 'rt-r-gap', values: gaps, customProperties: ['--gap'] })
 export const Props = Schema.Struct({
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
@@ -36,15 +38,20 @@ export type Bundle<Value extends string> = Omit<RadioGroup.Bundle<Value>, 'view'
 export const create = <Value extends string>(): Bundle<Value> => {
   const group = RadioGroup.create<Value>()
   const view = (model: Model, inputs: ViewInputs<Value>, h: HtmlBuilder<Message>): Html => {
-    const columns = responsiveClasses(columnsProp, inputs.props?.columns ?? 'repeat(auto-fit, minmax(200px, 1fr))')
-    const gap = responsiveClasses(gapProp, inputs.props?.gap ?? '4')
-    const rootClass = ['rt-Grid', 'rt-RadioCardsRoot', ...columns.classes, ...gap.classes].join(' ')
+    const props = inputs.props ?? {}
+    const size = responsiveClasses(sizeProp, props.size ?? '2')
+    const columns = responsiveClasses(columnsProp, props.columns ?? 'repeat(auto-fit, minmax(160px, 1fr))')
+    const gap = responsiveClasses(gapProp, props.gap ?? '4')
+    const rootClass = ['rt-Grid', 'rt-RadioCardsRoot', ...size.classes, ...columns.classes, ...gap.classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')
     return brandViewResult(group.view(model, {
       ...inputs,
       props: {
-        ...inputs.props,
+        ...props,
+        color: undefined,
         rootClass,
-        rootStyle: { ...columns.style, ...gap.style },
+        rootStyle: { ...size.style, ...columns.style, ...gap.style },
+        rootAccentColor: props.color,
+        cards: true,
         itemClass: 'rt-reset rt-BaseCard rt-RadioCardsItem',
       },
     }, h), 'wseffect/RadioCards')
