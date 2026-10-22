@@ -6,7 +6,6 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
-import * as Table from '@wsagency/wseffect-themes/components/table'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 import type { CaptureRequest } from '../capture.js'
 import { renderCaptureView } from '../captureView.js'
@@ -203,23 +202,14 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   const rows = captureRows(request)
-  renderCaptureView(root, request, (h) => Table.Root.view(
-    {
-      size: request.props.size as '1' | '2' | '3',
-      variant: request.props.variant as 'surface' | 'ghost',
-    },
-    [
-      Table.Header.view({}, [
-        Table.Row.view({}, [
-          Table.ColumnHeaderCell.view({}, ['Name'], h),
-          Table.ColumnHeaderCell.view({}, ['Status'], h),
-        ], h),
-      ], h),
-      Table.Body.view({}, rows.map((row) => Table.Row.view({}, [
-        Table.RowHeaderCell.view({}, [row.name], h),
-        Table.Cell.view({}, [row.status], h),
-      ], h)), h),
-    ],
-    h,
-  ))
+  renderCaptureView(root, request, (h) => {
+    const decorations = tableDecorations(h)
+    const modelInputs = { rows, selectedRowIds: [] as ReadonlyArray<string> }
+    const config = tableConfig(
+      modelInputs,
+      tableColumns(decorations.nameHeader, decorations.statusHeader),
+      decorations.caption,
+    )
+    return DataTable.view(DataTable.init(config), config, h)
+  })
 }
