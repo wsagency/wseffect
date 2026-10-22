@@ -24,7 +24,7 @@ export type Model = RadioGroupUi.Model
 export type Message = RadioGroupUi.Message
 export type OutMessage<Value extends string> = RadioGroupUi.OutMessage<Value>
 export type Option<Value extends string> = Readonly<{ value: Value; label?: Html; isDisabled?: boolean }>
-export type ViewInputs<Value extends string> = Omit<UiInputs<Value>, 'toView' | 'options' | 'isOptionDisabled'> & Readonly<{ options: ReadonlyArray<Option<Value>>; optionToLabel?: (value: Value) => Html; props?: Props & { rootClass?: string } }>
+export type ViewInputs<Value extends string> = Omit<UiInputs<Value>, 'toView' | 'options' | 'isOptionDisabled'> & Readonly<{ options: ReadonlyArray<Option<Value>>; optionToLabel?: (value: Value) => Html; props?: Props & { rootClass?: string; rootStyle?: Readonly<Record<string, string>>; itemClass?: string; itemInnerClass?: string } }>
 export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{ slotId: string; model: Model; toParentMessage(message: Message): ParentMessage; viewInputs: ViewInputs<Value> }>
 export type Bundle<Value extends string> = Readonly<{
   Model: typeof RadioGroupUi.Model
@@ -51,12 +51,16 @@ export const create = <Value extends string>(): Bundle<Value> => {
       isDisabled: inputs.isDisabled,
       isReadOnly: inputs.isReadOnly,
       name: inputs.name,
-      toView: render => h.div([...render.group, ...childAttributes([h.Class(['rt-RadioGroupRoot', props.rootClass, classes, variantClasses[props.variant ?? 'surface']].filter(Boolean).join(' '))])], render.options.map((option, index) => {
+      toView: render => h.div([...render.group, ...childAttributes([
+        h.Class(['rt-RadioGroupRoot', props.rootClass, classes, variantClasses[props.variant ?? 'surface']].filter(Boolean).join(' ')),
+        ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+        ...(props.rootStyle === undefined ? [] : [h.Style(props.rootStyle)]),
+      ])], render.options.map((option, index) => {
         const labelId = `${model.id}-option-${index}-label`
         const optionLabel = inputs.optionToLabel?.(option.value) ?? inputs.options[index]?.label ?? ''
-        return h.label([...childAttributes([h.Class('rt-RadioGroupItem')])], [
-          h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([h.Class('rt-reset rt-BaseRadioRoot')])], []),
-          h.span([h.Id(labelId), ...childAttributes([h.Class('rt-RadioGroupItemInner')])], [optionLabel]),
+        return h.label([...childAttributes([h.Class(['rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
+          h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([h.Class(['rt-reset', 'rt-BaseRadioRoot', ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' '))])], []),
+          h.span([h.Id(labelId), ...childAttributes([h.Class(['rt-RadioGroupItemInner', props.itemInnerClass].filter(Boolean).join(' '))])], [optionLabel]),
         ])
       })),
     }, h), 'wseffect/RadioGroup')

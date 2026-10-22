@@ -1,3 +1,4 @@
+@import './_internal/base-radio.css';
 .rt-RadioGroupRoot {
   display: flex;
   flex-direction: column;

@@ -10,5 +10,5 @@ type Message = typeof Message.Type
 const update = (model: RadioCards.Model, _message: Message | RadioCards.Message) => ({ model })
 const view = (model: RadioCards.Model, h: HtmlBuilder<Message | RadioCards.Message>) => Group.view(model, { options: [{ value: 'free', label: h.span([], ['Free']) }, { value: 'pro', label: h.span([], ['Pro']) }], selectedValue: Option.some('pro'), ariaLabel: 'Plan' }, h as HtmlBuilder<RadioCards.Message>)
 describe('RadioCards', () => {
-  it('retains radio semantics', () => Scene.scene({ update, view }, Scene.given(Group.init({ id: 'plan' })), Scene.expect(Scene.role('radiogroup', { name: 'Plan' })).toExist(), Scene.expect(Scene.selector('[role="radio"][aria-checked="true"]')).toExist()))
+  it('retains radio semantics and styles card options', () => Scene.scene({ update, view }, Scene.given(Group.init({ id: 'plan' })), Scene.expect(Scene.role('radiogroup', { name: 'Plan' })).toExist(), Scene.expect(Scene.selector('.rt-RadioCardsRoot')).toExist(), Scene.expect(Scene.selector('.rt-RadioCardsItem')).toExist(), Scene.expect(Scene.selector('[role="radio"][aria-checked="true"]')).toExist()))
 })
