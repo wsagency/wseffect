@@ -48,11 +48,11 @@ export const create = <Value extends string>(): Bundle<Value> => {
       ariaLabel: inputs.ariaLabel,
       orientation: inputs.orientation,
       isOptionDisabled: (_value, index) => inputs.options[index]?.isDisabled ?? false,
-      isDisabled: inputs.isDisabled,
+      isDisabled: props.segmented ? false : inputs.isDisabled,
       isReadOnly: inputs.isReadOnly,
       name: inputs.name,
       toView: render => h.div([...render.group, ...childAttributes([
-        h.Class(['rt-RadioGroupRoot', props.rootClass, ...(props.segmented ? [classes, variantClasses[props.variant ?? 'surface']] : [])].filter(Boolean).join(' ')),
+        h.Class([...(props.segmented ? [] : ['rt-RadioGroupRoot']), props.rootClass, ...(props.segmented ? [classes, variantClasses[props.variant ?? 'surface']] : [])].filter(Boolean).join(' ')),
         ...(props.segmented && inputs.isDisabled ? [h.DataAttribute('disabled', '')] : []),
         ...(props.rootRadius === undefined ? [] : [h.DataAttribute('radius', props.rootRadius)]),
         ...(props.rootAccentColor === undefined ? [] : [h.DataAttribute('accent-color', props.rootAccentColor)]),
@@ -65,19 +65,18 @@ export const create = <Value extends string>(): Bundle<Value> => {
           h.button([...option.option, ...childAttributes([h.Class(props.itemClass ?? 'rt-reset rt-BaseCard rt-RadioCardsItem')])], [optionLabel]),
         ]
         if (props.segmented) return [
-          h.button([...option.option, h.AriaLabelledBy(labelId), ...(inputs.isDisabled ? [h.Disabled(true)] : []), ...childAttributes([
-            h.Class(['rt-reset', 'rt-SegmentedControlItem', classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
-            ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+          h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([
+            h.Class('rt-reset rt-SegmentedControlItem'),
             h.DataAttribute('state', selected ? 'on' : 'off'),
           ])], [
+            h.span([h.Class('rt-SegmentedControlItemSeparator'), h.AriaHidden(true)], []),
             h.span([h.Id(labelId), h.Class('rt-SegmentedControlItemLabel')], [
-              h.span([h.Class('rt-SegmentedControlItemLabelInactive')], [optionLabel]),
               h.span([h.Class('rt-SegmentedControlItemLabelActive')], [optionLabel]),
+              h.span([h.Class('rt-SegmentedControlItemLabelInactive'), h.AriaHidden(true)], [optionLabel]),
             ]),
-            ...(index < render.options.length - 1 ? [h.span([h.Class('rt-SegmentedControlItemSeparator'), h.AriaHidden(true)], [])] : []),
           ]),
         ]
-        return [h.label([...childAttributes([h.Class(['rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
+        return [h.label([...childAttributes([h.Class(['rt-Text', classes, 'rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
           h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([
             h.Class(['rt-reset', 'rt-BaseRadioRoot', classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
             ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
