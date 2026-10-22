@@ -1,6 +1,6 @@
 # Upstream CSS provenance
 
-The CSS files listed below are copied verbatim from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port). The corresponding files are under `src/css-components/` in this package; `_internal/base-button.css` is the transitive import required by `icon-button.css`. Component behavior and prop mappings were independently ported from the pinned `.tsx` and `.props.ts` source files listed below; their TypeScript implementation is not copied verbatim.
+The CSS files listed below originate from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port) and are copied under `src/css-components/`; `_internal/base-button.css` is the transitive import required by `icon-button.css`. The lane adds local scrollbar-hiding rules to `scroll-area.css` to preserve native overflow scrolling while displaying synchronized custom thumbs. The locally authored aggregate `src/css-components/index.css` is inventoried separately and is not an upstream copy. Component behavior and prop mappings were independently ported from the pinned `.tsx` and `.props.ts` source files listed below; their TypeScript implementation is not copied verbatim.
 
 ## Exhaustive R2S source-file list
 
@@ -28,7 +28,46 @@ The CSS files listed below are copied verbatim from Radix2Solid at commit `38367
 - `packages/themes/src/components/table.css`
 - `packages/themes/src/components/theme-panel.css`
 - `packages/themes/src/components/_internal/base-button.css` (transitive import of `icon-button.css`)
+- `packages/themes/src/components/animations.css`
+- `packages/themes/src/components/shared.css`
 
+- `packages/themes/src/css-components/index.css` (locally-authored aggregate import manifest; not copied from R2S)
+- `packages/themes/src/components/alert-dialog.css`
+- `packages/themes/src/components/box.css`
+- `packages/themes/src/components/button.css`
+- `packages/themes/src/components/card.css`
+- `packages/themes/src/components/checkbox-cards.css`
+- `packages/themes/src/components/checkbox-group.css`
+- `packages/themes/src/components/checkbox.css`
+- `packages/themes/src/components/context-menu.css`
+- `packages/themes/src/components/dialog.css`
+- `packages/themes/src/components/dropdown-menu.css`
+- `packages/themes/src/components/flex.css`
+- `packages/themes/src/components/grid.css`
+- `packages/themes/src/components/heading.css`
+- `packages/themes/src/components/hover-card.css`
+- `packages/themes/src/components/layout.css`
+- `packages/themes/src/components/popover.css`
+- `packages/themes/src/components/radio-cards.css`
+- `packages/themes/src/components/radio-group.css`
+- `packages/themes/src/components/radio.css`
+- `packages/themes/src/components/segmented-control.css`
+- `packages/themes/src/components/select.css`
+- `packages/themes/src/components/slider.css`
+- `packages/themes/src/components/switch.css`
+- `packages/themes/src/components/tab-nav.css`
+- `packages/themes/src/components/tabs.css`
+- `packages/themes/src/components/text-area.css`
+- `packages/themes/src/components/text-field.css`
+- `packages/themes/src/components/text.css`
+- `packages/themes/src/components/_internal/base-card.css`
+- `packages/themes/src/components/_internal/base-checkbox.css`
+- `packages/themes/src/components/_internal/base-dialog.css`
+- `packages/themes/src/components/_internal/base-menu.css`
+- `packages/themes/src/components/_internal/base-radio.css`
+- `packages/themes/src/components/_internal/base-tab-list.css`
+- `packages/themes/src/components/_adapters/menu.css`
+- `packages/themes/src/components/tooltip.css`
 ### Ported component and prop-definition sources
 
 - `packages/themes/src/components/accessible-icon.tsx`
