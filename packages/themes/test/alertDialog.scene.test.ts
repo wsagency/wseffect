@@ -25,7 +25,7 @@ describe('themed AlertDialog', () => {
       Scene.Mount.resolve(UiDialog.AcquireResources, AlertDialog.Message.SucceededAcquireResources()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete item?' })).toExist(),
       Scene.expect(Scene.role('button', { name: 'Cancel' })).toHaveAttr('data-foldkit-dialog-initial-focus', ''),
-      Scene.click(Scene.selector('.rt-AlertDialogOverlay')),
+      Scene.click(Scene.selector('.rt-BaseDialogOverlay')),
     )).toThrow(/neither it nor any ancestor has a click handler/)
   })
 })
