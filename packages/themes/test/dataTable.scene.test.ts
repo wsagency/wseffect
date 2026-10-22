@@ -69,6 +69,30 @@ describe('DataTable view semantics', () => {
       Scene.expect(Scene.text('Alpha')).toExist(),
     )
   })
+  it('sorts native table headers through buttons while keeping aria-sort on the header cell', () => {
+    const cfg = config()
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
+        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      ),
+      Scene.click(Scene.role('button', { name: 'Name' })),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+        return command === undefined
+          ? simulation
+          : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
+            scrollTop: 0,
+            scrollHeight: 180,
+            containerHeight: 180,
+            anchor: { _tag: 'None' },
+          }))(simulation)
+      },
+      Scene.expect(Scene.selector('th[aria-sort="ascending"] button')).toExist(),
+    )
+  })
 
   it('gives Grid one tabbable cell and a labelled non-tabbable selection checkbox', () => {
     const cfg = config(true)
@@ -103,6 +127,29 @@ describe('DataTable view semantics', () => {
       Scene.expectOutMessage(DataTable.OutMessage.SelectionChanged({ ids: ['a'] })),
       Scene.keydown(Scene.role('grid'), 'Tab'),
       Scene.expectIgnored(),
+    )
+  })
+  it('puts active Grid header cells in the header row with the correct column indices', () => {
+    const cfg = config(true)
+    const model = { ...DataTable.init(cfg), activeCell: { rowId: '$header', columnId: 'name' } }
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
+        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      ),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const table = simulation.html.children?.[0]
+        const head = table && isVNode(table) ? table.children?.[1] : undefined
+        const row = head && isVNode(head) ? head.children?.[0] : undefined
+        const cells = row && isVNode(row) ? row.children ?? [] : []
+        expect(row && isVNode(row) ? row.data?.attrs?.['aria-rowindex'] : undefined).toBe('1')
+        expect(cells[1] && isVNode(cells[1]) ? cells[1].data?.attrs?.['aria-colindex'] : undefined).toBe('2')
+        expect(cells[1] && isVNode(cells[1]) ? cells[1].data?.props?.tabIndex : undefined).toBe(0)
+        expect(cells[2] && isVNode(cells[2]) ? cells[2].data?.props?.tabIndex : undefined).toBe(-1)
+        return simulation
+      },
     )
   })
 })

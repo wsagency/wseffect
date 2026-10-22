@@ -21,6 +21,9 @@ export type Config<Row> = Readonly<{
   caption: Html
   selectedRowIds: ReadonlySet<string>
   isGrid: boolean
+  /**
+   * Fixed pixel height for each virtualized data row. Cell content is kept to one line and truncated with an ellipsis.
+   */
   rowHeight: number
   overscanRows: number
 }>

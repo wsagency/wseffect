@@ -46,6 +46,7 @@ const tableStates = new Map<string, TableState<unknown>>()
 const { observeDataTable, scrollToRow } = makeDataTableMounts(Message, tableStates)
 const FIXED_VIEWPORT_HEIGHT = 360
 const selectionColumnId = '$selection'
+const gridHeaderRowId = '$header'
 const sortValueCollator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 type RowCacheEntry = ReturnType<typeof createLazy>
 type TableState<Row> = {
@@ -249,11 +250,14 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       if (!config.isGrid) return { model }
       if (model.activeCell?.rowId === rowId && model.activeCell.columnId === columnId) return { model }
       const columns = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)]
-      const rowIndex = model.orderedRowIds.indexOf(rowId)
+      const isHeader = rowId === gridHeaderRowId
+      const rowIndex = isHeader ? -1 : model.orderedRowIds.indexOf(rowId)
       const columnIndex = columns.indexOf(columnId)
-      if (rowIndex < 0 || columnIndex < 0) return { model }
+      if ((!isHeader && rowIndex < 0) || columnIndex < 0) return { model }
       const activeCell = { rowId, columnId }
-      const list = invokeTableScroll(model.virtualList, rowId, rowIndex, config.rowHeight, columnIndex, false)
+      const list = isHeader
+        ? { model: model.virtualList, commands: undefined }
+        : invokeTableScroll(model.virtualList, rowId, rowIndex, config.rowHeight, columnIndex, false)
       return {
         model: { ...model, activeCell, virtualList: list.model },
         commands: mapChildCommands(list.commands),
@@ -277,19 +281,20 @@ function visibleColumns<Row>(columns: ReadonlyArray<Column<Row>>): ReadonlyArray
 
 function recoverActiveCell<Row>(model: Model, config: Config<Row>, ids: ReadonlyArray<string>) {
   if (!config.isGrid || model.activeCell === null) return model.activeCell
+  const columns = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)]
+  if (model.activeCell.rowId === gridHeaderRowId) {
+    const columnId = columns.includes(model.activeCell.columnId) ? model.activeCell.columnId : selectionColumnId
+    return columnId === model.activeCell.columnId ? model.activeCell : { rowId: gridHeaderRowId, columnId }
+  }
   const previousRowOrdinal = model.orderedRowIds.indexOf(model.activeCell.rowId)
   const rowId = ids.includes(model.activeCell.rowId)
     ? model.activeCell.rowId
     : ids[Math.min(Math.max(previousRowOrdinal, 0), ids.length - 1)]
   if (rowId === undefined) return null
-  const columns = visibleColumns(config.columns)
-  if (columns.length === 0) return null
-  const previousColumnOrdinal = config.columns.findIndex(column => column.id === model.activeCell!.columnId)
-  const columnId = columns.some(column => column.id === model.activeCell!.columnId)
+  const previousColumnOrdinal = columns.indexOf(model.activeCell.columnId)
+  const columnId = columns.includes(model.activeCell.columnId)
     ? model.activeCell.columnId
-    : previousColumnOrdinal < 0
-      ? selectionColumnId
-      : columns[Math.min(previousColumnOrdinal, columns.length - 1)]!.id
+    : columns[Math.min(Math.max(previousColumnOrdinal, 0), columns.length - 1)]!
   if (rowId === model.activeCell.rowId && columnId === model.activeCell.columnId) return model.activeCell
   return { rowId, columnId }
 }
@@ -303,17 +308,24 @@ function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrl
   if (!config.isGrid || model.activeCell === null || key === 'Tab') return { model }
   const visible = visibleColumns(config.columns)
   const columns = [selectionColumnId, ...visible.map(column => column.id)]
-  const rowOrdinal = model.orderedRowIds.indexOf(model.activeCell.rowId)
+  const isHeader = model.activeCell.rowId === gridHeaderRowId
+  const rowOrdinal = isHeader ? 0 : model.orderedRowIds.indexOf(model.activeCell.rowId) + 1
   const columnOrdinal = columns.indexOf(model.activeCell.columnId)
-  if (rowOrdinal < 0 || columnOrdinal < 0) return { model }
+  if (rowOrdinal < (isHeader ? 0 : 1) || columnOrdinal < 0) return { model }
+  if (isHeader && (key === 'Enter' || key === ' ')) {
+    const column = visible.find(candidate => candidate.id === model.activeCell!.columnId)
+    return column?.isSortable
+      ? update(model, config, Message.SortChanged({ columnId: column.id }))
+      : { model }
+  }
   let nextRow = rowOrdinal
   let nextColumn = columnOrdinal
   if (key === 'ArrowUp') nextRow = Math.max(0, rowOrdinal - 1)
-  else if (key === 'ArrowDown') nextRow = Math.min(model.orderedRowIds.length - 1, rowOrdinal + 1)
+  else if (key === 'ArrowDown') nextRow = Math.min(model.orderedRowIds.length, rowOrdinal + 1)
   else if (key === 'ArrowLeft') nextColumn = Math.max(0, columnOrdinal - 1)
   else if (key === 'ArrowRight') nextColumn = Math.min(columns.length - 1, columnOrdinal + 1)
-  else if (key === 'Home') nextColumn = ctrlKey ? 0 : 0
-  else if (key === 'End') nextColumn = ctrlKey ? columns.length - 1 : columns.length - 1
+  else if (key === 'Home') nextColumn = 0
+  else if (key === 'End') nextColumn = columns.length - 1
   else if (key === ' ') {
     if (model.activeCell.columnId !== selectionColumnId) return { model }
     const selected = new Set(config.selectedRowIds)
@@ -326,14 +338,19 @@ function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrl
     nextRow = 0
     nextColumn = 0
   } else if (ctrlKey && key === 'End') {
-    nextRow = model.orderedRowIds.length - 1
+    nextRow = model.orderedRowIds.length
     nextColumn = columns.length - 1
   }
-  const rowId = model.orderedRowIds[nextRow]
+  const rowId = nextRow === 0 ? gridHeaderRowId : model.orderedRowIds[nextRow - 1]
   const columnId = columns[nextColumn]
   if (rowId === undefined || columnId === undefined) return { model }
   const activeCell = { rowId, columnId }
-  const list = invokeTableScroll(model.virtualList, rowId, nextRow, config.rowHeight, nextColumn, true)
+  if (rowId === gridHeaderRowId) return {
+    model: { ...model, activeCell },
+    outMessage: OutMessage.FocusCell(activeCell),
+  }
+  const rowIndex = nextRow - 1
+  const list = invokeTableScroll(model.virtualList, rowId, rowIndex, config.rowHeight, nextColumn, true)
   return {
     model: { ...model, activeCell, virtualList: list.model },
     commands: mapChildCommands(list.commands),
@@ -467,14 +484,28 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
   while (state.rowViews.size > capacity) state.rowViews.delete(state.rowViews.keys().next().value!)
 
   const headerCells = columns.map((column, index) => h.th([
-    ...(config.isGrid ? [h.Role('columnheader'), h.AriaColindex(index + 2), h.Tabindex(model.activeCell?.rowId === '$header' && model.activeCell.columnId === column.id ? 0 : -1)] : []),
+    ...(config.isGrid ? [
+      h.Role('columnheader'),
+      h.AriaColindex(index + 2),
+      h.Tabindex(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === column.id ? 0 : -1),
+      h.Autofocus(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === column.id),
+      h.OnFocus(Message.ActiveCellChanged({ rowId: gridHeaderRowId, columnId: column.id })),
+    ] : []),
     ...(column.width ? [h.Style({ width: column.width })] : []),
     ...(column.minWidth ? [h.Style({ minWidth: column.minWidth })] : []),
     ...(column.align ? [h.Style({ textAlign: column.align })] : []),
     ...(model.sort?.columnId === column.id ? [h.AriaSort(model.sort.direction)] : []),
-    ...(column.isSortable ? [h.OnClick(Message.SortChanged({ columnId: column.id }))] : []),
-  ], [column.header]))
-  const selectionHeader = h.th(config.isGrid ? [h.Role('columnheader'), h.AriaColindex(1)] : [], [h.input([
+    ...(column.isSortable && config.isGrid ? [h.OnClick(Message.SortChanged({ columnId: column.id }))] : []),
+  ], column.isSortable && !config.isGrid
+    ? [h.button([h.Type('button'), h.OnClick(Message.SortChanged({ columnId: column.id }))], [column.header])]
+    : [column.header]))
+  const selectionHeader = h.th(config.isGrid ? [
+    h.Role('columnheader'),
+    h.AriaColindex(1),
+    h.Tabindex(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId ? 0 : -1),
+    h.Autofocus(model.activeCell?.rowId === gridHeaderRowId && model.activeCell.columnId === selectionColumnId),
+    h.OnFocus(Message.ActiveCellChanged({ rowId: gridHeaderRowId, columnId: selectionColumnId })),
+  ] : [], [h.input([
     h.Type('checkbox'),
     h.AriaLabel('Select all visible rows'),
     h.Tabindex(-1),
@@ -496,7 +527,7 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
     h.AriaColcount(columns.length + 1),
     h.OnKeyDownPreventDefault((key, modifiers) => {
       if (key === 'Tab') return Option.none()
-      const handled = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', ' '].includes(key)
+      const handled = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter', ' '].includes(key)
       return handled ? Option.some(Message.GridKey({ key, ctrlKey: modifiers.ctrlKey || modifiers.metaKey })) : Option.none()
     }),
   ] : [])], [

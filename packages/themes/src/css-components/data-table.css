@@ -19,11 +19,15 @@
 
 .wse-data-table th,
 .wse-data-table td {
+  box-sizing: border-box;
   padding: var(--space-2, 8px);
   border-bottom: 1px solid var(--gray-a6, #d9d9d9);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   text-align: start;
 }
-
 .wse-data-table [data-virtual-list-spacer] > td {
   min-height: 0;
   padding: 0;

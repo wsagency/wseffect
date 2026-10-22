@@ -38,6 +38,8 @@ describe('DataTable Grid model', () => {
     expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
     model = setCell(model, cfg, 'a', 'label')
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowUp', ctrlKey: false })).model
+    expect(model.activeCell).toEqual({ rowId: '$header', columnId: 'label' })
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false })).model
     expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
     expect(update(model, cfg, DataTable.Message.GridKey({ key: 'Tab', ctrlKey: false })).model).toEqual(model)
   })
@@ -50,9 +52,23 @@ describe('DataTable Grid model', () => {
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: false })).model
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'rank' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: '$header', columnId: '$selection' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+  })
+  it('navigates from a header into data and sorts sortable header cells with Enter or Space', () => {
+    const cfg = config()
+    let model = setCell(DataTable.init(cfg), cfg, 'a', 'label')
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowUp', ctrlKey: false })).model
+    expect(model.activeCell).toEqual({ rowId: '$header', columnId: 'label' })
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false })).model
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
+
+    model = setCell(model, cfg, '$header', 'rank')
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'Enter', ctrlKey: false })).model
+    expect(model.sort).toEqual({ columnId: 'rank', direction: 'ascending' })
+    model = update(model, cfg, DataTable.Message.GridKey({ key: ' ', ctrlKey: false })).model
+    expect(model.sort).toEqual({ columnId: 'rank', direction: 'descending' })
   })
 
   it('preserves active row and column identity through sort and filtering', () => {
@@ -99,5 +115,34 @@ describe('DataTable Grid model', () => {
     const dataCell = setCell(selection.model, cfg, 'a', 'label')
     const ignored = update(dataCell, cfg, DataTable.Message.GridKey({ key: ' ', ctrlKey: false }))
     expect(ignored.outMessage).toBeUndefined()
+  })
+  it('moves from the first data row into the header and back in the same column', () => {
+    const cfg = config()
+    let model = setCell(DataTable.init(cfg), cfg, 'a', 'rank')
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowUp', ctrlKey: false })).model
+    expect(model.activeCell).toEqual({ rowId: '$header', columnId: 'rank' })
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false })).model
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'rank' })
+  })
+
+  it('uses the header for Ctrl+Home and the last data cell for Ctrl+End', () => {
+    const cfg = config()
+    let model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
+    expect(model.activeCell).toEqual({ rowId: '$header', columnId: '$selection' })
+    model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
+    expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+  })
+
+  it('sorts the active header on Enter and Space while retaining header focus', () => {
+    const cfg = config()
+    let model = setCell(DataTable.init(cfg), cfg, '$header', 'rank')
+    let result = update(model, cfg, DataTable.Message.GridKey({ key: 'Enter', ctrlKey: false }))
+    expect(result.model.sort).toEqual({ columnId: 'rank', direction: 'ascending' })
+    expect(result.model.activeCell).toEqual({ rowId: '$header', columnId: 'rank' })
+    model = result.model
+    result = update(model, cfg, DataTable.Message.GridKey({ key: ' ', ctrlKey: false }))
+    expect(result.model.sort).toEqual({ columnId: 'rank', direction: 'descending' })
+    expect(result.model.activeCell).toEqual({ rowId: '$header', columnId: 'rank' })
   })
 })
