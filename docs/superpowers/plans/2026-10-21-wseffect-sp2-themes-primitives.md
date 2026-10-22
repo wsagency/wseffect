@@ -28,6 +28,7 @@
 - Other immovable rules: existing perf job and `tools/gates/perf.ts` are present; stable runner host/noise floors in `perf-noise.json` and SP2 scenario wiring remain prerequisites. BENCH is reporting-only; proposed ceilings are not measurements. No icons (SP3), charts (SP4), general validation, spreadsheet, pagination policy, editing, or unrelated API.
 
 ## Review Focus
+- **Director ruling:** Select item content stays behind exactly one generic wrapper with `display: contents`; Foldkit `@foldkit/ui@0.168.0` Listbox accepts a single `Html` item-content slot, so the primitive must remove its extra outer span and the themed wrapper supplies the pinned indicator/text structure inside the required slot wrapper.
 
 1. **A replacement node reuses a stale ContextMenu source ID.** A mounted trigger gets a unique `sourceToken`; restoration occurs only if source ID and token still match, and source unmount closes without restoring focus. Test: `contextMenu.story.test.ts` › `does not focus a replacement source after source unmount`; `context-menu.spec.ts` › same behavior in browser.
 2. **Filtering/sorting removes or relocates the active virtual Grid cell.** Preserve row/column identity when possible and choose the nearest surviving ordinal otherwise; restore focus only after the target virtual row mounts. Test: `dataTable.story.test.ts` › `recovers active cell after filter removes its row`; `data-table.spec.ts` › `restores focus after virtual row remount`.

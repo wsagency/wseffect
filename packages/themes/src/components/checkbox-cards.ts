@@ -4,6 +4,7 @@ import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
+import { thickCheckIcon } from './icons.js'
 
 const sizes = ['1', '2', '3'] as const
 const variants = ['surface', 'classic'] as const
@@ -14,7 +15,8 @@ const columnsProp = responsiveProp({ className: 'rt-r-gtc', values: columns, cus
 const gapProp = responsiveProp({ className: 'rt-r-gap', values: gaps, customProperties: ['--gap'] })
 export const Props = Schema.Struct({
   id: Schema.String,
-  label: Schema.String,
+  label: Schema.optional(Schema.String),
+  ariaLabel: Schema.optional(Schema.String),
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
   color: Schema.optional(Schema.Literals(accentColors)),
@@ -34,29 +36,33 @@ export const view = <Value extends string, Message>(props: Props & {
   const columns = responsiveClasses(columnsProp, props.columns ?? 'repeat(auto-fit, minmax(200px, 1fr))')
   const gap = responsiveClasses(gapProp, props.gap ?? '4')
   const rootAttributes: Attribute<Message>[] = [
-    h.Id(props.id), h.Role('group'), h.AriaLabelledBy(`${props.id}-label`),
+    h.Id(props.id), h.Role('group'),
+    ...(props.ariaLabel === undefined ? [h.AriaLabelledBy(`${props.id}-label`)] : [h.AriaLabel(props.ariaLabel)]),
     h.Class(['rt-Grid', 'rt-CheckboxCardsRoot', ...sizeClasses, ...columns.classes, ...gap.classes, `rt-variant-${props.variant ?? 'surface'}`, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
     ...(Object.keys({ ...columns.style, ...gap.style }).length === 0 ? [] : [h.Style({ ...columns.style, ...gap.style })]),
   ]
   if (props.color !== undefined) rootAttributes.push(h.DataAttribute('accent-color', props.color))
-  const cards = props.options.map(option => {
+  const cards = props.options.map((option, index) => {
     const isChecked = props.selected.has(option.value)
+    const isDisabled = props.isDisabled === true || option.isDisabled === true
+    const labelId = `${props.id}-option-${index}-label`
     return h.label([h.Class('rt-BaseCard rt-CheckboxCardsItem')], [
-      h.input([
-        h.Type('checkbox'),
-        h.Checked(isChecked),
+      h.span([h.Id(labelId)], option.label),
+      h.button([
+        h.Type('button'),
+        h.Role('checkbox'),
         h.AriaChecked(isChecked),
-        h.Disabled(props.isDisabled === true || option.isDisabled === true),
-        h.AriaDisabled(props.isDisabled === true || option.isDisabled === true),
+        h.AriaLabelledBy(labelId),
+        h.Disabled(isDisabled),
+        h.AriaDisabled(isDisabled),
         h.Class(['rt-reset', 'rt-BaseCheckboxRoot', 'rt-CheckboxCardCheckbox', ...sizeClasses, 'rt-variant-surface', ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
         h.DataAttribute('state', isChecked ? 'checked' : 'unchecked'),
-        h.OnChange(() => props.toggleMessage(option.value, !isChecked)),
-      ]),
-      ...option.label,
+        ...(!isDisabled ? [h.OnClick(props.toggleMessage(option.value, !isChecked))] : []),
+      ], isChecked ? [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [thickCheckIcon(h)])] : []),
     ])
   })
   return brandViewResult(h.div(rootAttributes, [
-    h.span([h.Id(`${props.id}-label`)], [props.label]),
+    ...(props.label === undefined ? [] : [h.span([h.Id(`${props.id}-label`)], [props.label])]),
     ...cards,
   ]), 'wseffect/CheckboxCards')
 }

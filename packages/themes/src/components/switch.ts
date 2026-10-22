@@ -24,6 +24,7 @@ export const Props = Schema.Struct({
   readOnly: Schema.optional(Schema.Boolean),
   name: Schema.optional(Schema.String),
   value: Schema.optional(Schema.String),
+  ariaLabel: Schema.optional(Schema.String),
   onCheckedChange: Schema.optional(Schema.declare((input): input is (checked: boolean) => unknown => typeof input === 'function')),
 })
 export type Props = typeof Props.Type
@@ -39,12 +40,14 @@ export const view = <Message>(props: Props & { onCheckedChange?: (checked: boole
   onToggle: checked => props.onCheckedChange?.(checked) as Message,
   toView: attributes => h.div([], [
     h.button([
-      ...attributes.button,
+      ...attributes.button.filter(attribute => props.ariaLabel === undefined || attribute._tag !== 'AriaLabelledBy'),
+      ...(props.ariaLabel === undefined ? [] : [h.AriaLabel(props.ariaLabel)]),
+      h.DataAttribute('state', isChecked ? 'checked' : 'unchecked'),
       h.Class(['rt-reset', 'rt-SwitchRoot', ...(props.size === undefined || typeof props.size === 'string' ? [`rt-r-size-${props.size ?? '2'}`] : responsiveClasses(sizeProp, props.size).classes), variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
       ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
       ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
       ...(props.onCheckedChange === undefined ? [] : [h.OnKeyDownPreventDefault(key => props.readOnly === true ? Option.none() : key === ' ' || key === 'Enter' ? Option.some(props.onCheckedChange?.(!isChecked) as Message) : Option.none())]),
-    ], [h.span([h.Class('rt-SwitchThumb'), h.AriaHidden(true)], [])]),
+    ], [h.span([h.Class('rt-SwitchThumb'), h.AriaHidden(true), h.DataAttribute('state', isChecked ? 'checked' : 'unchecked')], [])]),
     h.label([...attributes.label], children),
     ...(attributes.hiddenInput.length === 0 ? [] : [h.input([...attributes.hiddenInput])]),
   ]),

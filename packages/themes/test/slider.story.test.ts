@@ -39,8 +39,13 @@ describe('Slider', () => {
     const view = (model: Slider.RangeModel, h: HtmlBuilder<Slider.RangeMessage | Other>) => Slider.Range.view(model, config, h as HtmlBuilder<Slider.RangeMessage>)
     const update = (model: Slider.RangeModel, message: Slider.RangeMessage | Other) => message._tag === 'Tick' ? { model } : Slider.Range.update(model, config, message)
     Scene.scene({ update, view }, Scene.given(Slider.Range.init(config)),
+      Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
       Scene.expect(Scene.role('group', { name: 'vertical range' })).not.toHaveAttr('aria-orientation'),
-      Scene.expect(Scene.selector('[data-thumb-id="low"]')).toHaveAttr('aria-orientation', 'vertical'))
+      Scene.expect(Scene.selector('[data-thumb-id="low"]')).toHaveAttr('aria-orientation', 'vertical'),
+      // Pin radix2solid@383676172abb84b4a1d2e54a087d290437ee8848: packages/themes/src/components/slider.tsx:13-16.
+      Scene.expect(Scene.selector('[data-slider-slot="track"]')).toExist(),
+      Scene.expect(Scene.selector('[data-slider-slot="range"]')).toExist(),
+      Scene.expect(Scene.selector('[data-slider-slot="thumb"]')).toExist())
   })
   it('builds the single-value parent fold adapter', () => {
     const fold = Slider.fold<{ slider: Slider.Model }, Other, never>({
@@ -77,6 +82,9 @@ describe('Slider', () => {
       viewInputs: rangeConfig,
     })
     const update = (model: Slider.RangeModel, message: Slider.RangeMessage | Other) => message._tag === 'Tick' ? { model } : Slider.Range.update(model, rangeConfig, message)
-    Scene.scene({ update, view }, Scene.given(parent.range), Scene.expect(Scene.role('slider')).toExist())
+    Scene.scene({ update, view },
+      Scene.given(parent.range),
+      Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'low' }),
+      Scene.expect(Scene.role('slider')).toExist())
   })
 })

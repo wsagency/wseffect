@@ -52,7 +52,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
       isReadOnly: inputs.isReadOnly,
       name: inputs.name,
       toView: render => h.div([...render.group, ...childAttributes([
-        h.Class([...(props.segmented ? [] : ['rt-RadioGroupRoot']), props.rootClass, ...(props.segmented ? [classes, variantClasses[props.variant ?? 'surface']] : [])].filter(Boolean).join(' ')),
+        h.Class([...(props.segmented || props.cards ? [] : ['rt-RadioGroupRoot']), props.rootClass, ...(props.segmented ? [classes, variantClasses[props.variant ?? 'surface']] : [])].filter(Boolean).join(' ')),
         ...(props.segmented && inputs.isDisabled ? [h.DataAttribute('disabled', '')] : []),
         ...(props.rootRadius === undefined ? [] : [h.DataAttribute('radius', props.rootRadius)]),
         ...(props.rootAccentColor === undefined ? [] : [h.DataAttribute('accent-color', props.rootAccentColor)]),
@@ -62,7 +62,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
         const optionLabel = inputs.optionToLabel?.(option.value) ?? inputs.options[index]?.label ?? ''
         const selected = EffectOption.isSome(inputs.selectedValue) && inputs.selectedValue.value === option.value
         if (props.cards) return [
-          h.button([...option.option, ...childAttributes([h.Class(props.itemClass ?? 'rt-reset rt-BaseCard rt-RadioCardsItem')])], [optionLabel]),
+          h.button([...option.option, ...childAttributes([h.Class(props.itemClass ?? 'rt-reset rt-BaseCard rt-RadioCardsItem'), h.DataAttribute('state', selected ? 'checked' : 'unchecked')])], [optionLabel]),
         ]
         if (props.segmented) return [
           h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([
@@ -79,6 +79,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
         return [h.label([...childAttributes([h.Class(['rt-Text', classes, 'rt-RadioGroupItem', props.itemClass].filter(Boolean).join(' '))])], [
           h.button([...option.option, h.AriaLabelledBy(labelId), ...childAttributes([
             h.Class(['rt-reset', 'rt-BaseRadioRoot', classes, variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+            h.DataAttribute('state', selected ? 'checked' : 'unchecked'),
             ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
           ])], []),
           h.span([h.Id(labelId), ...childAttributes([h.Class(['rt-RadioGroupItemInner', props.itemInnerClass].filter(Boolean).join(' '))])], [optionLabel]),

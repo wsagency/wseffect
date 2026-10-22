@@ -16,6 +16,10 @@ The capture harness injects the same vendored Noto Sans test stylesheet into Sol
 
 ### Symmetric component crops
 
-Each paired capture places only the component under test inside `data-sp2-capture-target`; the route headings, gallery shell, and benchmark shell are excluded. Solid and Gallery use the same target geometry: 480px wide, at least 160px tall, 24px padding, and the current theme’s `--gray-2` surface (with `#f6f7f9` fallback). `capture:sp2` and `compare-sp2` screenshot that target on both sides, so the numeric comparison covers matching component, padding, and background pixels rather than one component against a full page.
+Each paired capture places only the component under test inside `data-sp2-capture-target`; the route headings, gallery shell, and benchmark shell are excluded. Solid and Gallery use the same target geometry: 480px wide, at least 160px tall, 24px padding, and the current theme’s `--gray-2` surface (with `#f6f7f9` fallback). The harness takes viewport screenshots clipped to the shared union of both target boxes and their visible portaled-panel boxes, preserving complete panels while excluding surrounding page content.
+Before each open/hover capture, the harness measures the default Solid target and pins both capture targets at those viewport coordinates before rendering the interactive state; this lets each portal calculate its position against its final trigger geometry. It raises floating panel layers above the target surface and waits for positioned panels on both pages without changing comparator tolerances.
+
+
+For keyboard-focused states, Gallery and Solid both focus the first slider for `Slider`, first radio for `RadioGroup`, the overview link for `TabNav`, or the first button otherwise. This includes `range-keyboard-focus` slider captures.
 
 The DataTable visual pair uses the shared matrix's same 10 rows, Name/Status headers, 44px body-row height, and 486px table viewport on each side (480×534 capture including 24px padding). The Gallery side renders the real virtualized DataTable grid and includes its selection column; the Solid reference is a native, non-virtualized Table, so the pair cannot match structure, virtualization, selection, or behavior exactly. Treat it as a styling comparison only.

@@ -10,6 +10,18 @@ const SelectBox = Select.create<'one' | 'two' | 'three'>()
 const Other = defineMessageUnion({ Tick: {} })
 type Other = typeof Other.Type
 const update = (model: Select.Model, message: Select.Message | Other | undefined) => message === undefined ? { model } : message._tag === 'Tick' ? { model } : SelectBox.update(model, message)
+type SceneNode = { data?: { class?: Record<string, boolean> }; children?: Array<SceneNode | string> }
+const hasClass = (node: SceneNode, className: string): boolean => node.data?.class?.[className] === true
+const findClass = (node: SceneNode, className: string): SceneNode | undefined => {
+  if (hasClass(node, className)) return node
+  for (const child of node.children ?? []) {
+    if (typeof child !== 'string') {
+      const found = findClass(child, className)
+      if (found !== undefined) return found
+    }
+  }
+  return undefined
+}
 const makeView = (position: Select.Config<'one' | 'two' | 'three'>['position']) => (model: Select.Model, h: HtmlBuilder<Select.Message | Other | undefined>) => SelectBox.view(model, {
   id: 'choice',
   selectedValue: Option.none(),
@@ -42,6 +54,7 @@ describe('Select', () => {
     Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
     Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
     Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+    Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
     Scene.expect(Scene.role('listbox', { name: 'choice' })).toExist(),
     Scene.expect(Scene.selector('.rt-SelectContent')).toExist(),
     Scene.expect(Scene.selector('.rt-SelectViewport')).toExist(),
@@ -70,7 +83,7 @@ describe('Select', () => {
   it.each(['item-aligned', 'popper'] as const)('matches the pinned Select content structure in %s position', position => {
     const config: Select.Config<'one' | 'two' | 'three'> = {
       id: 'choice',
-      selectedValue: Option.none(),
+      selectedValue: Option.some('one'),
       position,
       isModal: false,
       props: { variant: 'classic', contentVariant: 'soft', highContrast: true },
@@ -96,6 +109,7 @@ describe('Select', () => {
         ? [
           Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
           Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+          Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
         ]
         : [Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never)]),
       Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-variant-classic'),
@@ -108,6 +122,17 @@ describe('Select', () => {
       Scene.expect(Scene.selector('.rt-SelectViewport.rt-ScrollAreaViewport')).toExist(),
       Scene.expect(Scene.selector('.rt-ScrollAreaScrollbar')).toExist(),
       Scene.expect(Scene.selector('.rt-ScrollAreaThumb')).toExist(),
+      Scene.expect(Scene.selector('.rt-SelectItemContent')).toExist(),
+      Scene.expect(Scene.selector('.rt-SelectItemIndicator')).toExist(),
+      Scene.expect(Scene.selector('.rt-SelectItemText')).toExist(),
+      Scene.tap(simulation => {
+        const item = findClass(simulation.html, 'rt-SelectItem')
+        expect(item).toBeDefined()
+        const content = item?.children?.[0]
+        expect(content === undefined || typeof content === 'string' ? undefined : hasClass(content, 'rt-SelectItemContent')).toBe(true)
+        const children = content === undefined || typeof content === 'string' ? [] : content.children ?? []
+        expect(children.map(child => typeof child === 'string' ? 'text' : hasClass(child, 'rt-SelectItemIndicator') ? 'rt-SelectItemIndicator' : hasClass(child, 'rt-SelectItemText') ? 'rt-SelectItemText' : 'other')).toEqual(['rt-SelectItemIndicator', 'rt-SelectItemText'])
+      }),
       ...(position === 'popper'
         ? [Scene.expect(Scene.selector('.rt-SelectContent')).toHaveClass('rt-PopperContent')]
         : [Scene.expect(Scene.selector('.rt-SelectContent')).not.toHaveClass('rt-PopperContent')]),

@@ -35,7 +35,12 @@ const itemsFor = <M>(h: HtmlBuilder<M>): ReadonlyArray<Select.Item<string>> => {
 const captureItemsFor = <M>(h: HtmlBuilder<M>): ReadonlyArray<Select.Item<string>> => {
   const cached = captureItemsByBuilder.get(h)
   if (cached !== undefined) return cached
-  const items = makeItems(h, captureOptions)
+  const items = captureOptions.map(item => ({
+    value: item.value,
+    textValue: item.textValue,
+    isDisabled: item.isDisabled,
+    content: item.label,
+  }))
   captureItemsByBuilder.set(h, items)
   return items
 }
@@ -71,8 +76,12 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
   } as Select.Props
   renderCaptureView(root, request, h => {
     const config = selectConfig(Option.some('indigo'), captureItemsFor(h), props)
+    const initialModel = Picker.init(config)
+    const model = request.state === 'open'
+      ? Picker.update(initialModel, Picker.Message.Opened({ maybeActiveItemIndex: Option.some(0) })).model
+      : initialModel
     return Picker.view(
-      request.state === 'open' ? { ...Picker.init(config), isOpen: true } : Picker.init(config),
+      model,
       config,
       h as unknown as HtmlBuilder<typeof Picker.Message.Type>,
     )

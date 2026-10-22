@@ -27,6 +27,9 @@
 - Add accessibility, layout, avatar, feedback, typography, data, navigation, and theme-panel views from the pinned Radix Themes API.
 - Add virtualized, keyboard-navigable DataTable views and publish the complete component stylesheet subpaths with provenance notices.
 - Preserve DataTable keyboard focus after row filtering and sorting while virtualized rows update.
-- Restore DataTable Grid selection, Ctrl+Home navigation to the first data cell, replacement-cell focus, and visible-range-bounded row caching.
+- Match Forms Extra fixtures and checkbox/radio states, TextArea captures, Select trigger/popover visuals, and Slider.Range tracks to pinned Radix2Solid.
+- Reserve the Select popup's scrollbar gutter only when its options overflow.
+- Match Select option indicator and text layout to the pinned item geometry across popper and item-aligned positions.
+- Restore DataTable Grid selection, first-cell Home navigation, replacement-cell focus, and visible-range-bounded row caching.
 - Require Checkbox toggle callbacks to match Foldkit's controlled checkbox contract.
 - Keep AlertDialog under the containing root Theme portal so its content inherits root tokens.

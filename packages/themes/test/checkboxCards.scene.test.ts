@@ -19,7 +19,7 @@ describe('CheckboxCards', () => {
       Scene.expect(Scene.role('group', { name: 'Plans' })).toExist(),
       Scene.expect(Scene.selector('.rt-CheckboxCardsItem')).toExist(),
       Scene.expect(Scene.selector('.rt-CheckboxCardCheckbox')).toExist(),
-      Scene.expect(Scene.selector('input[type="checkbox"]')).toHaveAttr('aria-checked', 'true'),
+      Scene.expect(Scene.role('checkbox', { name: 'Pro' })).toHaveAttr('aria-checked', 'true'),
     )
   })
 })

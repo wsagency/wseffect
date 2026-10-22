@@ -168,6 +168,9 @@ importers:
       '@starfederation/datastar-sdk':
         specifier: 1.0.0
         version: 1.0.0
+      '@wsagency/wseffect-primitives':
+        specifier: workspace:*
+        version: link:../primitives
       '@wsagency/wseffect-themes':
         specifier: workspace:*
         version: link:../themes

@@ -12,6 +12,8 @@ import { radii } from '../props/radius.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { defaults } from './themeAttributes.js'
+import { chevronDownIcon, thickCheckIcon } from './icons.js'
+import { mountScrollArea } from './scroll-area.mount.js'
 type SelectScrollNode = { key: PropertyKey | undefined; children: Array<SelectScrollNode | string> | undefined }
 
 const sizes = ['1', '2', '3'] as const
@@ -57,9 +59,19 @@ export const create = <Value extends string>(): Bundle<Value> => {
       if (node.key === `${id}-items-container`) {
         const viewport = node.children?.[0]
         if (viewport === undefined) return false
-        node.children = [h.div([h.Class('rt-ScrollAreaRoot')], [
+        node.children = [h.div([
+          h.Class('rt-ScrollAreaRoot'),
+          h.Style({ position: 'relative' }),
+          h.OnMount(mountScrollArea()),
+        ], [
           viewport as unknown as Html,
-          h.div([h.DataAttribute('orientation', 'vertical'), h.Class('rt-ScrollAreaScrollbar rt-r-size-1')], [
+          h.div([
+            h.DataAttribute('orientation', 'vertical'),
+            h.DataAttribute('state', 'hidden'),
+            h.Attribute('aria-hidden', 'true'),
+            h.Class('rt-ScrollAreaScrollbar rt-r-size-1'),
+            h.Style({ top: '0', bottom: '0', right: '0' }),
+          ], [
             h.div([h.Class('rt-ScrollAreaThumb')], []),
           ]),
         ])! as unknown as SelectScrollNode]
@@ -96,13 +108,17 @@ export const create = <Value extends string>(): Bundle<Value> => {
       scrollAreaClassName: 'rt-ScrollAreaRoot',
       scrollbarClassName: 'rt-ScrollAreaScrollbar rt-r-size-1',
       scrollThumbClassName: 'rt-ScrollAreaThumb',
+      itemContentClassName: 'rt-SelectItemContent',
       itemIndicatorClassName: 'rt-SelectItemIndicator',
-      itemIndicatorContent: h.span([h.Class('rt-SelectItemIndicatorIcon'), h.Attribute('aria-hidden', 'true')], ['✓']),
+      itemIndicatorContent: thickCheckIcon(h, 'rt-SelectItemIndicatorIcon', true),
+      itemTextClassName: 'rt-SelectItemText',
       triggerAttributes: [
+        h.DataAttribute('state', model.isOpen ? 'open' : 'closed'),
         ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),
         ...(config.props?.radius === undefined ? [] : [h.DataAttribute('radius', config.props.radius)]),
       ],
       contentAttributes: [
+        h.DataAttribute('state', model.isOpen ? 'open' : 'closed'),
         h.DataAttribute('accent-color', config.props?.color ?? defaults.accentColor),
         ...(config.props?.radius === undefined ? [] : [h.DataAttribute('radius', config.props.radius)]),
       ],
@@ -110,9 +126,9 @@ export const create = <Value extends string>(): Bundle<Value> => {
     const flatItems = config.items.flatMap(item => 'items' in item ? item.items : [item])
     const selectedValue = Option.isSome(config.selectedValue) ? config.selectedValue.value : undefined
     const selected = selectedValue === undefined ? undefined : flatItems.find((item): item is SelectItem<Value> => !('kind' in item) && item.value === selectedValue)
-    const triggerContent = h.span([h.Class('rt-SelectTriggerInner')], [
-      selected !== undefined ? selected.content : config.props?.placeholder ?? config.id,
-      h.span([h.Class('rt-SelectIcon'), h.Attribute('aria-hidden', 'true')], ['⌄']),
+    const triggerContent = h.span([h.Style({ display: 'contents' })], [
+      h.span([h.Class('rt-SelectTriggerInner')], [selected !== undefined ? selected.content : config.props?.placeholder ?? config.id]),
+      chevronDownIcon(h, 'rt-SelectIcon', true),
     ])
     if (config.position === 'popper') {
       const result = adapter.view(model, { ...config, appearance: { ...appearance, triggerContent } }, h)

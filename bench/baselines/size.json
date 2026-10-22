@@ -39,16 +39,16 @@
       "reason": "Accessibility demo is independently imported by the nested /components route and remains lazy."
     },
     "page:component:alertDialog": {
-      "bytes": 1104,
-      "reason": "AlertDialog demo is independently imported by the nested /components route and remains lazy."
+      "bytes": 1253,
+      "reason": "AlertDialog portal mount isolation adds 149 B to this lazy page (03a68fa)."
     },
     "page:component:avatar": {
       "bytes": 1263,
       "reason": "Avatar demo is independently imported by the nested /components route and remains lazy."
     },
     "page:component:contextMenu": {
-      "bytes": 3701,
-      "reason": "ContextMenu variant coverage expands its lazy family module; the nested /components route remains lazy."
+      "bytes": 3781,
+      "reason": "ContextMenu outside-press dismissal and accumulated typeahead add 80 B to this lazy page (1226135)."
     },
     "page:component:data": {
       "bytes": 1811,
@@ -63,8 +63,8 @@
       "reason": "Feedback demo is independently imported by the nested /components route and remains lazy."
     },
     "page:component:formsExtra": {
-      "bytes": 5165,
-      "reason": "Form-control matrix capture support remains in its independently loaded family chunk."
+      "bytes": 5860,
+      "reason": "Forms Extra control-state and fixture parity changes add 695 B to this lazy page (548a640, 6c0050d)."
     },
     "page:component:hoverCard": {
       "bytes": 2363,
@@ -95,8 +95,8 @@
       "reason": "ScrollArea demo is independently imported by the nested /components route and remains lazy."
     },
     "page:component:select": {
-      "bytes": 8537,
-      "reason": "Select state and capture coverage remain in the independently loaded family chunk."
+      "bytes": 8778,
+      "reason": "Pinned Select option indicator and text layout changes add 241 B to this lazy page (548a640)."
     },
     "page:component:tabNav": {
       "bytes": 1267,

@@ -301,6 +301,7 @@ describe('Lane 2A Select prop-to-DOM parity', () => {
       ? [
         Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
         Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+        Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
       ]
       : [Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never)]),
     Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-r-size-3'),

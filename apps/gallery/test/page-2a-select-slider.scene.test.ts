@@ -17,6 +17,7 @@ describe('Gallery lane 2A Select and range slider pages', () => {
       Scene.Command.resolve(UiListbox.FocusItems, UiListbox.Message.CompletedFocusItems()),
       Scene.Mount.resolve(UiListbox.AnchorListbox, UiListbox.Message.CompletedAnchorListbox()),
       Scene.Mount.resolve(UiListbox.PortalListboxBackdrop, UiListbox.Message.CompletedPortalListboxBackdrop()),
+      Scene.Mount.resolve({ name: 'ScrollAreaSync' }, UiListbox.Message.CompletedPortalListboxBackdrop()),
       Scene.expect(Scene.selector('[data-perf="select-choose"]')).toExist(),
       Scene.expect(Scene.role('option', { name: 'Indigo' })).toExist(),
       Scene.expect(Scene.role('option', { name: 'Blue' })).toExist(),
@@ -24,12 +25,14 @@ describe('Gallery lane 2A Select and range slider pages', () => {
       Scene.Command.resolve(UiListbox.FocusButton, UiListbox.Message.CompletedFocusButton()),
       Scene.Mount.expectEnded(UiListbox.PortalListboxBackdrop),
       Scene.Mount.expectEnded(UiListbox.AnchorListbox),
-      Scene.expect(Scene.role('combobox', { name: 'Gallery color' })).toHaveText('Blue⌄'))
+      Scene.Mount.expectEnded({ name: 'ScrollAreaSync' }),
+      Scene.expect(Scene.role('combobox', { name: 'Gallery color' })).toHaveText('Blue'))
   })
 
   it('renders a two-thumb range with keyboard support and visual modifiers', () => {
     const initial = rangeSliderPage.init()
     Scene.scene({ update: rangeSliderPage.update, view: (model, h) => rangeSliderPage.view(model, inputs, h) }, Scene.given(initial.model),
+      Scene.Mount.resolve({ name: 'RangeSliderPointer' }, { _tag: 'FocusThumb', id: 'Minimum value' }),
       Scene.expect(Scene.role('heading', { name: 'Range slider' })).toExist(),
       Scene.expect(Scene.selector('[data-perf="slider-drag"]')).toExist(),
       Scene.expect(Scene.role('group', { name: 'horizontal range' })).toExist(),
