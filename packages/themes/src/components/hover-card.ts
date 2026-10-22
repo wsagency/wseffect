@@ -35,7 +35,7 @@ const view = defineView<UiHoverIntent.Model, UiHoverIntent.Message, ViewInputs<U
       h.Attribute('href', inputs.triggerHref ?? '#'),
       h.DataAttribute('accent-color', ''),
       h.DataAttribute('state', model.isOpen ? 'open' : 'closed'),
-      h.Class('rt-Text rt-reset rt-Link rt-HoverCardTrigger'),
+      h.Class('rt-Text rt-reset rt-Link rt-underline-auto rt-HoverCardTrigger'),
     ], inputs.trigger),
     ...(render.isVisible ? [h.div([
       ...render.panel,
