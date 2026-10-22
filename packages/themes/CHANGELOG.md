@@ -14,3 +14,4 @@
 - Apply the active Theme settings to portaled DropdownMenu panels so their panel tokens resolve outside the page Theme root.
 - Place the shared portal root inside the root Theme so portaled controls inherit its tokens.
 - Render the gallery shell with themed layout, navigation, date, and action controls.
+- Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views.

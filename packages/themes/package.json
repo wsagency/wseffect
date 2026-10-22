@@ -27,6 +27,12 @@
     "./components/dialog": { "types": "./dist/components/dialog.d.ts", "default": "./dist/components/dialog.js" },
     "./components/dropdown-menu": { "types": "./dist/components/dropdown-menu.d.ts", "default": "./dist/components/dropdown-menu.js" },
     "./components/tabs": { "types": "./dist/components/tabs.d.ts", "default": "./dist/components/tabs.js" },
+    "./components/alert-dialog": { "types": "./dist/components/alert-dialog.d.ts", "default": "./dist/components/alert-dialog.js" },
+    "./components/popover": { "types": "./dist/components/popover.d.ts", "default": "./dist/components/popover.js" },
+    "./components/hover-card": { "types": "./dist/components/hover-card.d.ts", "default": "./dist/components/hover-card.js" },
+    "./components/tooltip": { "types": "./dist/components/tooltip.d.ts", "default": "./dist/components/tooltip.js" },
+    "./components/context-menu": { "types": "./dist/components/context-menu.d.ts", "default": "./dist/components/context-menu.js" },
+    "./components/tab-nav": { "types": "./dist/components/tab-nav.d.ts", "default": "./dist/components/tab-nav.js" },
     "./styles.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/styles.css" },
     "./components.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/components.css" },
     "./utilities.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/utilities.css" },
@@ -82,6 +88,12 @@
     "./css/tabs.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/tabs.css" },
     "./css/spinner.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/spinner.css" },
     "./css/scroll-area.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/scroll-area.css" },
+    "./css/alert-dialog.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/alert-dialog.css" },
+    "./css/popover.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/popover.css" },
+    "./css/hover-card.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/hover-card.css" },
+    "./css/tooltip.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/tooltip.css" },
+    "./css/context-menu.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/context-menu.css" },
+    "./css/tab-nav.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/tab-nav.css" },
     "./*.layer.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/*.layer.css" },
     "./styles/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/*" },
     "./tokens/colors/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/tokens/colors/*" },
@@ -93,6 +105,9 @@
     "build:css": "node scripts/build-css.js",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@wsagency/wseffect-primitives": "workspace:*"
   },
   "peerDependencies": {
     "foldkit": "0.168.0",
