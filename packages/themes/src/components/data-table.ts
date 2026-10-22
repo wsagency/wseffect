@@ -130,30 +130,43 @@ function informRowsChanged(
   rowHeight: number,
   focusTarget?: Model['activeCell'],
   focusColumnIndex = 0,
+  overscanRows = 0,
 ) {
   const informed = VirtualList.informItemsChanged(model.virtualList, ids)
-  if (!reset && !informed.commands?.length && focusTarget === undefined) return informed
   const next = reset ? VirtualList.scrollToIndex(informed.model, 0) : informed
   const viewportHeight = next.model.measurement._tag === 'Measured'
     ? next.model.measurement.containerHeight
     : FIXED_VIEWPORT_HEIGHT
   const nextModel = { ...model, orderedRowIds: ids, virtualList: next.model }
-  const scrollTop = focusTarget !== undefined
-    ? focusTarget === null ? 0 : ids.indexOf(focusTarget.rowId) * rowHeight
+  const rangeScrollTop = reset ? 0 : effectiveScrollTop(nextModel, rowHeight, viewportHeight)
+  const firstVisible = Math.floor(rangeScrollTop / rowHeight)
+  const lastVisible = Math.ceil((rangeScrollTop + viewportHeight) / rowHeight)
+  const rangeStart = Math.max(0, firstVisible - overscanRows)
+  const rangeEnd = Math.min(ids.length, lastVisible + overscanRows)
+  const activeIndex = model.activeCell === null ? -1 : ids.indexOf(model.activeCell.rowId)
+  const retainedCell = focusTarget === undefined && activeIndex >= 0 &&
+    (activeIndex < rangeStart || activeIndex >= rangeEnd)
+    ? model.activeCell
+    : undefined
+  const target = focusTarget !== undefined ? focusTarget : retainedCell
+  if (!reset && !informed.commands?.length && target === undefined) return { ...informed, focusTarget: undefined }
+  const scrollTop = target !== undefined
+    ? target === null ? 0 : activeIndex >= 0 && target === retainedCell ? activeIndex * rowHeight : ids.indexOf(target.rowId) * rowHeight
     : reset ? 0 : effectiveScrollTop(nextModel, rowHeight, viewportHeight)
-  const rowIndex = focusTarget !== undefined && focusTarget !== null
-    ? ids.indexOf(focusTarget.rowId)
+  const rowIndex = target !== undefined && target !== null
+    ? ids.indexOf(target.rowId)
     : ids.length === 0 ? 0 : Math.min(Math.floor(scrollTop / rowHeight), ids.length - 1)
   return {
     model: next.model,
+    focusTarget: target,
     commands: [scrollToRow({
       containerId: model.virtualList.id,
       rowIndex,
       rowHeight,
-      rowId: focusTarget === null ? null : focusTarget?.rowId ?? ids[rowIndex] ?? null,
+      rowId: target === null ? null : target?.rowId ?? ids[rowIndex] ?? null,
       scrollTop,
       columnIndex: focusColumnIndex,
-      shouldFocus: focusTarget === null,
+      shouldFocus: target === null,
     })],
   }
 }
@@ -224,9 +237,9 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusColumnIndex = activeCell === null
         ? 0
         : gridColumnIds(config).indexOf(activeCell.columnId)
-      const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
+      const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex, config.overscanRows)
       return {
-        model: { ...model, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
+        model: { ...model, orderedRowIds, activeCell, pendingFocus: list.focusTarget ?? null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -239,9 +252,9 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusColumnIndex = activeCell === null
         ? 0
         : gridColumnIds(config).indexOf(activeCell.columnId)
-      const list = informRowsChanged(model, orderedRowIds, true, config.rowHeight, focusTarget, focusColumnIndex)
+      const list = informRowsChanged(model, orderedRowIds, true, config.rowHeight, focusTarget, focusColumnIndex, config.overscanRows)
       return {
-        model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
+        model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: list.focusTarget ?? null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -258,9 +271,9 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const focusColumnIndex = activeCell === null
         ? 0
         : gridColumnIds(config).indexOf(activeCell.columnId)
-      const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
+      const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex, config.overscanRows)
       return {
-        model: { ...model, sort, orderedRowIds, activeCell, pendingFocus: focusTarget ?? null, virtualList: list.model },
+        model: { ...model, sort, orderedRowIds, activeCell, pendingFocus: list.focusTarget ?? null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }

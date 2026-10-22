@@ -136,11 +136,21 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
     name: 'ContextMenuSourceEvents',
     f: element => Stream.callback<ContextMenuMessage>(queue => Effect.gen(function* () {
       let precedingPointerType = ''
+      let touchLongPressExpired = false
+      let touchStartX = 0
+      let touchStartY = 0
+      let touchLongPressTimer: number | undefined
+      const clearTouchLongPressTimer = () => {
+        clearTimeout(touchLongPressTimer)
+        touchLongPressTimer = undefined
+      }
       const onContextMenu = (event: Event) => {
         const pointer = event as MouseEvent
-        pointer.preventDefault()
+        if (precedingPointerType !== 'touch' || touchLongPressExpired) pointer.preventDefault()
         if (precedingPointerType === 'touch') {
           precedingPointerType = ''
+          touchLongPressExpired = false
+          clearTouchLongPressTimer()
           return
         }
         precedingPointerType = ''
@@ -149,19 +159,33 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
       const onPointerDown = (event: Event) => {
         const pointer = event as PointerEvent
         precedingPointerType = pointer.pointerType
-        if (pointer.pointerType === 'touch') Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'touch', point: { x: pointer.clientX, y: pointer.clientY } } })
+        clearTouchLongPressTimer()
+        touchLongPressExpired = false
+        if (pointer.pointerType === 'touch') {
+          touchStartX = pointer.clientX
+          touchStartY = pointer.clientY
+          touchLongPressTimer = window.setTimeout(() => { touchLongPressExpired = true }, 600)
+          Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'touch', point: { x: pointer.clientX, y: pointer.clientY } } })
+        }
       }
       const onPointerMove = (event: Event) => {
         const pointer = event as PointerEvent
-        if (pointer.pointerType === 'touch') Queue.offerUnsafe(queue, Menu.Message.MovedPointerOverItem({ index: -1, screenX: pointer.clientX, screenY: pointer.clientY }))
+        if (pointer.pointerType === 'touch') {
+          if (Math.abs(pointer.clientX - touchStartX) > 8 || Math.abs(pointer.clientY - touchStartY) > 8) clearTouchLongPressTimer()
+          Queue.offerUnsafe(queue, Menu.Message.MovedPointerOverItem({ index: -1, screenX: pointer.clientX, screenY: pointer.clientY }))
+        }
       }
-      const onPointerUp = () => Queue.offerUnsafe(queue, Menu.Message.IgnoredMouseClick())
+      const onPointerUp = () => {
+        clearTouchLongPressTimer()
+        Queue.offerUnsafe(queue, Menu.Message.IgnoredMouseClick())
+      }
       element.addEventListener('contextmenu', onContextMenu)
       element.addEventListener('pointerdown', onPointerDown)
       element.addEventListener('pointermove', onPointerMove)
       element.addEventListener('pointerup', onPointerUp)
       element.addEventListener('pointercancel', onPointerUp)
       yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
+        clearTouchLongPressTimer()
         element.removeEventListener('contextmenu', onContextMenu)
         element.removeEventListener('pointerdown', onPointerDown)
         element.removeEventListener('pointermove', onPointerMove)
@@ -202,10 +226,10 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
         if (!(target instanceof Node) || panel.contains(target) || source.contains(target)) return
         Queue.offerUnsafe(queue, Menu.Message.Closed())
       }
-      document.addEventListener('pointerdown', onDocumentPointerDown)
+      document.addEventListener('pointerdown', onDocumentPointerDown, { capture: true })
       const stopAutoUpdate = autoUpdate(virtualReference, panel, position)
       yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
-        document.removeEventListener('pointerdown', onDocumentPointerDown)
+        document.removeEventListener('pointerdown', onDocumentPointerDown, { capture: true })
         stopAutoUpdate()
         portalCleanup()
       }))

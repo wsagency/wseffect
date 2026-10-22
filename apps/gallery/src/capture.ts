@@ -143,7 +143,7 @@ export async function startCapture(url: URL): Promise<void> {
     await (await loadPage()).renderCapture(target, request)
     if (request.state === 'keyboard-focus' || request.state === 'range-keyboard-focus') {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-      const selector = request.component === 'Slider' ? '[role="slider"]' : request.component === 'RadioGroup' ? '[role="radio"]' : request.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
+      const selector = request.component === 'Slider' ? 'input[type="range"]' : request.component === 'RadioGroup' ? '[role="radio"]' : request.component === 'TabNav' ? 'a[href="#overview"]' : 'button'
       target.querySelector<HTMLElement>(selector)?.focus()
     }
   } catch (error) {

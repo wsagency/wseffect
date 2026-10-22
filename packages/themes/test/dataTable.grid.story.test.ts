@@ -144,6 +144,39 @@ describe('DataTable Grid model', () => {
       shouldFocus: true,
     })
   })
+  it('restores focus to a surviving active row outside the reset rendered range', () => {
+    const manyRows = Array.from({ length: 20 }, (_, index) => ({
+      id: `row-${index}`,
+      label: `Record ${index}`,
+      rank: index,
+    }))
+    const cfg = config({ rows: manyRows, overscanRows: 1 })
+    const model = setCell(DataTable.init(cfg), cfg, 'row-19', 'rank')
+    const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'Record' }))
+    expect(result.model.activeCell).toEqual({ rowId: 'row-19', columnId: 'rank' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'row-19', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'row-19',
+      rowIndex: 19,
+      columnIndex: 2,
+      shouldFocus: false,
+    })
+    const committed = update(result.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ObservedContainerScroll({
+        scrollTop: 19 * cfg.rowHeight,
+        scrollHeight: manyRows.length * cfg.rowHeight,
+        containerHeight: cfg.rowHeight,
+        anchor: { _tag: 'Row', key: 'row-19', index: 19, viewportOffset: 0 },
+      }),
+    }))
+    expect(committed.model.pendingFocus).toBeNull()
+    expect(committed.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'row-19',
+      rowIndex: 19,
+      columnIndex: 2,
+      shouldFocus: true,
+    })
+  })
 
   it('focuses the grid root when filtering removes every active row', () => {
     const cfg = config()

@@ -169,6 +169,29 @@ describe('Gallery capture resolver', () => {
     expect(() => resolveCaptureRequest(dataTableUrl(), inconsistentMatrix)).toThrow(/capture id.*component/i)
   })
 
+  it('focuses the native range input in a keyboard-focused Slider capture', async () => {
+    const family = captureMatrix.families.find((candidate) => candidate.family === 'range-slider')!
+    const capture = family.captures.find((candidate) => candidate.state === 'keyboard-focus')!
+    const url = new URL(family.galleryRoute, 'https://gallery.test')
+    url.search = new URLSearchParams({
+      capture: capture.id,
+      state: capture.state,
+      props: JSON.stringify(capture.props),
+      appearance: capture.theme,
+    }).toString()
+    document.body.innerHTML = '<div id="app"></div>'
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 })))
+    try {
+      await startCapture(url)
+      const slider = document.querySelector<HTMLInputElement>('input[type="range"]')
+      expect(slider).not.toBeNull()
+      expect(document.activeElement).toBe(slider)
+    } finally {
+      vi.unstubAllGlobals()
+      document.body.replaceChildren()
+    }
+  })
+
   it('renders an integrated family capture without an error or missing target', async () => {
     const capture = captureMatrix.families
       .find((family: { family: string }) => family.family === 'forms-extra')!

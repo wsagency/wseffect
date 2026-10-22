@@ -142,6 +142,39 @@ it('source mount turns browser context and touch events into menu messages', asy
     Menu.Message.IgnoredMouseClick(),
   ])
 })
+it('does not suppress a touch context menu before long-press activation', async () => {
+  const source = document.createElement('button')
+  const action = captureMounts(menu.init(config)).find(mount => mount.name === 'ContextMenuSourceEvents')
+  expect(action).toBeDefined()
+  if (action === undefined) throw new Error('ContextMenuSourceEvents mount is required')
+  let resolveReady!: () => void
+  const ready = new Promise<void>(resolve => { resolveReady = resolve })
+  const addEventListener = source.addEventListener.bind(source)
+  source.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject | null, options?: boolean | AddEventListenerOptions) => {
+    if (listener !== null) addEventListener(type, listener, options)
+    if (type === 'pointercancel') resolveReady()
+  }) as typeof source.addEventListener
+  const fiber = Effect.runFork(Stream.runDrain(action.f(source, Stream.never)))
+  try {
+    await ready
+    vi.useFakeTimers()
+    source.dispatchEvent(Object.assign(new Event('pointerdown'), { pointerType: 'touch', clientX: 10, clientY: 20 }))
+    const contextMenuBeforeActivation = new Event('contextmenu', { cancelable: true })
+    source.dispatchEvent(contextMenuBeforeActivation)
+    expect(contextMenuBeforeActivation.defaultPrevented).toBe(false)
+    expect(menu.update(menu.init(config), {
+      _tag: 'OpenedAt', invocation: { sourceId: 'source', sourceToken: 'token-1', invocation: 'touch', point: { x: 10, y: 20 } },
+    }).model.isOpen).toBe(false)
+    source.dispatchEvent(Object.assign(new Event('pointerdown'), { pointerType: 'touch', clientX: 10, clientY: 20 }))
+    vi.advanceTimersByTime(600)
+    const contextMenuAfterActivation = new Event('contextmenu', { cancelable: true })
+    source.dispatchEvent(contextMenuAfterActivation)
+    expect(contextMenuAfterActivation.defaultPrevented).toBe(true)
+  } finally {
+    await Effect.runPromise(Fiber.interrupt(fiber))
+    vi.useRealTimers()
+  }
+})
 it('source mount removes every event listener when interrupted', async () => {
   const source = document.createElement('button')
   const action = captureMounts(menu.init(config)).find(mount => mount.name === 'ContextMenuSourceEvents')
@@ -337,11 +370,14 @@ it('focuses the active rendered menu item and releases anchor resources on unmou
 })
 
 
-it('closes and restores source focus after an outside pointer press', async () => {
+it('closes after an outside pointer press stopped by an inner handler', async () => {
   const source = document.createElement('button')
   source.id = config.sourceId
   const panel = document.createElement('div')
-  const outside = document.createElement('button')
+  const outside = document.createElement('div')
+  const inner = document.createElement('button')
+  outside.append(inner)
+  inner.addEventListener('pointerdown', event => event.stopPropagation())
   document.body.append(source, panel, outside)
   const stopAutoUpdate = vi.fn()
   vi.mocked(Floating.autoUpdate).mockReturnValue(stopAutoUpdate)
@@ -353,7 +389,7 @@ it('closes and restores source focus after an outside pointer press', async () =
   if (action === undefined) throw new Error('ContextMenuAnchor mount is required')
   const messages = Effect.runPromise(Stream.runCollect(Stream.take(action.f(panel, Stream.never), 2)))
   await vi.waitFor(() => expect(Floating.autoUpdate).toHaveBeenCalled())
-  outside.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+  inner.dispatchEvent(new Event('pointerdown', { bubbles: true }))
   try {
     const [positioned, message] = await messages
     expect(positioned).toEqual(Menu.Message.CompletedAnchorMenu())
