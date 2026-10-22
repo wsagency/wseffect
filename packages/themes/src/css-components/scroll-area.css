@@ -22,6 +22,11 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   &:where(:focus-visible) + :where(.rt-ScrollAreaViewportFocusRing) {
     position: absolute;
@@ -44,6 +49,8 @@
 }
 
 .rt-ScrollAreaScrollbar {
+  position: absolute;
+  z-index: 1;
   display: flex;
   /* Ensures no selection */
   user-select: none;

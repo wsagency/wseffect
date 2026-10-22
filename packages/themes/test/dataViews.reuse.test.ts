@@ -5,6 +5,7 @@ import * as Scene from 'foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import * as DataList from '../src/components/data-list.js'
 import * as Table from '../src/components/table.js'
+import { mountScrollArea } from '../src/components/scroll-area.mount.js'
 const Messages = defineMessageUnion({ Tick: {}, Change: {} })
 type Message = typeof Messages.Type
 type Model = { changed: boolean }
@@ -19,7 +20,7 @@ describe('data views execution counters', () => it('unrelated update reuses view
     lazy.dataList(views.dataList, [model.changed ? '2' : '1', h]), lazy.table(views.table, ['1', h]),
     h.button([h.OnClick(Messages.Tick())], ['unrelated']), h.button([h.OnClick(Messages.Change())], ['change']),
   ])
-  Scene.scene({ update, view }, Scene.given({ changed: false }), Scene.click(Scene.role('button', { name: 'unrelated' })), Scene.expect(Scene.selector('dd.rt-DataListValue')).toHaveText('Ada'), Scene.click(Scene.role('button', { name: 'change' })), Scene.expect(Scene.role('cell', { name: '42' })).toExist())
+  Scene.scene({ update, view }, Scene.given({ changed: false }), Scene.Mount.resolve(mountScrollArea<Message>(), Messages.Tick()), Scene.click(Scene.role('button', { name: 'unrelated' })), Scene.expect(Scene.selector('dd.rt-DataListValue')).toHaveText('Ada'), Scene.click(Scene.role('button', { name: 'change' })), Scene.expect(Scene.role('cell', { name: '42' })).toExist())
   expect(views.dataList).toHaveBeenCalledTimes(2)
   expect(views.table).toHaveBeenCalledTimes(1)
 }))

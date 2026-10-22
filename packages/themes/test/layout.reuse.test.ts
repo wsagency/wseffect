@@ -8,6 +8,7 @@ import * as Container from '../src/components/container.js'
 import * as Inset from '../src/components/inset.js'
 import * as Section from '../src/components/section.js'
 import * as ScrollArea from '../src/components/scroll-area.js'
+import { mountScrollArea } from '../src/components/scroll-area.mount.js'
 const Message = defineMessageUnion({ Tick: {}, Change: {} })
 type Message = typeof Message.Type
 type Model = { changed: boolean }
@@ -27,7 +28,7 @@ describe('layout view execution counters', () => {
       lazy.inset(views.inset, ['x', h]), lazy.section(views.section, ['1', h]), lazy.scrollArea(views.scrollArea, ['vertical', h]),
       h.button([h.OnClick(Message.Tick())], ['unrelated']), h.button([h.OnClick(Message.Change())], ['change']),
     ])
-    Scene.scene({ update, view }, Scene.given({ changed: false }), Scene.click(Scene.role('button', { name: 'unrelated' })), Scene.expect(Scene.text('A')).toExist(), Scene.click(Scene.role('button', { name: 'change' })), Scene.expect(Scene.text('A')).toExist())
+    Scene.scene({ update, view }, Scene.given({ changed: false }), Scene.Mount.resolve(mountScrollArea<Message>(), Message.Tick()), Scene.click(Scene.role('button', { name: 'unrelated' })), Scene.expect(Scene.text('A')).toExist(), Scene.click(Scene.role('button', { name: 'change' })), Scene.expect(Scene.text('A')).toExist())
     for (const name of Object.keys(views) as Array<keyof typeof views>) expect(views[name]).toHaveBeenCalledTimes(name === 'aspect' ? 2 : 1)
   })
 })
