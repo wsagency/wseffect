@@ -39,11 +39,21 @@ describe('themes distribution', () => {
       expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, `${color} layer`).toBeDefined()
     }
   })
-  it('registers form controls in the root barrel', async () => {
+  it('exports every top-level component subpath from the root barrel', async () => {
+    const packageJson = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')) as { exports: Record<string, unknown> }
     const source = await readFile(resolve(packageRoot, 'src/index.ts'), 'utf8')
-    for (const name of ['Checkbox', 'CheckboxGroup', 'CheckboxCards', 'Radio', 'RadioGroup', 'RadioCards', 'Switch', 'SegmentedControl', 'Select', 'TextArea', 'Slider']) {
-      expect(source).toContain(`export * as ${name} from`)
-    }
+    const componentSlugs = Object.keys(packageJson.exports)
+      .flatMap(subpath => {
+        const match = /^\.\/components\/([^/]+)$/.exec(subpath)
+        return match ? [match[1]] : []
+      })
+    const expected = componentSlugs
+      .map(slug => `${slug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')}:${slug}`)
+      .sort()
+    const actual = [...source.matchAll(/^export \* as (\w+) from '\.\/components\/([a-z0-9-]+)\.js'$/gm)]
+      .map(([, name, slug]) => `${name}:${slug}`)
+      .sort()
+    expect(actual).toEqual(expected)
   })
 
   it('ships selectors for the upstream structural classes used by stateful views', async () => {
