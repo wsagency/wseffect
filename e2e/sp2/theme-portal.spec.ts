@@ -66,6 +66,8 @@ for (const overlayCase of overlays) {
     expect(lightTheme.accent).toBe(lightTheme.themeAccent)
     expect(lightTheme.radius).toBe(lightTheme.themeRadius)
     await expect(page.locator('.radix-themes > #foldkit-portal-root')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(overlay).not.toBeVisible()
     const nav = page.getByRole('navigation', { name: 'Gallery pages', exact: true })
     await nav.getByRole('link', { name: 'theme', exact: true }).click()
     await page.getByRole('button', { name: 'Appearance' }).click()
