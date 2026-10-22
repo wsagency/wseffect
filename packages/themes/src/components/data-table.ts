@@ -20,6 +20,7 @@ export const Model = Schema.Struct({
   sort: Sort,
   orderedRowIds: Schema.Array(Schema.String),
   activeCell: ActiveCell,
+  pendingFocus: ActiveCell,
   virtualList: VirtualList.Model,
 })
 export type Model = typeof Model.Type
@@ -191,6 +192,7 @@ export function init<Row>(config: Config<Row>): Model {
     activeCell: config.isGrid && config.columns.length > 0 && firstRowId !== undefined
       ? { rowId: firstRowId, columnId: selectionColumnId }
       : null,
+    pendingFocus: null,
     virtualList: VirtualList.init({ id: `${config.id}-virtual-list`, rowHeightPx: config.rowHeight }),
   }
 }
@@ -223,7 +225,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
         : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
       return {
-        model: { ...model, orderedRowIds, activeCell, virtualList: list.model },
+        model: { ...model, orderedRowIds, activeCell, pendingFocus: null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -238,7 +240,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
         : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, true, config.rowHeight, focusTarget, focusColumnIndex)
       return {
-        model: { ...model, filter: value, orderedRowIds, activeCell, virtualList: list.model },
+        model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -257,7 +259,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
         : [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(activeCell.columnId)
       const list = informRowsChanged(model, orderedRowIds, false, config.rowHeight, focusTarget, focusColumnIndex)
       return {
-        model: { ...model, sort, orderedRowIds, activeCell, virtualList: list.model },
+        model: { ...model, sort, orderedRowIds, activeCell, pendingFocus: null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -289,7 +291,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
         ? { model: model.virtualList, commands: undefined }
         : invokeTableScroll(model.virtualList, rowId, rowIndex, config.rowHeight, columnIndex, false)
       return {
-        model: { ...model, activeCell, virtualList: list.model },
+        model: { ...model, activeCell, pendingFocus: null, virtualList: list.model },
         commands: mapChildCommands(list.commands),
         outMessage: OutMessage.FocusCell(activeCell),
       }
@@ -297,9 +299,29 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
     GridKey: ({ key, ctrlKey }) => handleGridKey(model, config, key, ctrlKey),
     VirtualList: ({ message: childMessage }) => {
       const result = VirtualList.update(model.virtualList, childMessage)
-      return {
-        model: { ...model, virtualList: result.model },
+      const completedScroll = childMessage._tag === 'CompletedApplyScroll'
+      const focusTarget = completedScroll && childMessage.outcome._tag === 'Applied' ? model.pendingFocus : null
+      const pendingFocus = completedScroll ? null : model.pendingFocus
+      const modelWithList = { ...model, pendingFocus, virtualList: result.model }
+      if (focusTarget === null) return {
+        model: modelWithList,
         commands: mapChildCommands(result.commands),
+      }
+      const rowIndex = model.orderedRowIds.indexOf(focusTarget.rowId)
+      const columnIndex = [selectionColumnId, ...visibleColumns(config.columns).map(column => column.id)].indexOf(focusTarget.columnId)
+      if (rowIndex < 0 || columnIndex < 0) return { model: modelWithList, commands: mapChildCommands(result.commands) }
+      const focusCommands = mapChildCommands([scrollToRow({
+        containerId: model.virtualList.id,
+        rowIndex,
+        rowHeight: config.rowHeight,
+        rowId: focusTarget.rowId,
+        scrollTop: rowIndex * config.rowHeight,
+        columnIndex,
+        shouldFocus: true,
+      })])
+      return {
+        model: modelWithList,
+        commands: [...(mapChildCommands(result.commands) ?? []), ...(focusCommands ?? [])],
       }
     },
   })
@@ -380,14 +402,14 @@ function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrl
   if (rowId === undefined || columnId === undefined) return { model }
   const activeCell = { rowId, columnId }
   if (rowId === gridHeaderRowId) return {
-    model: { ...model, activeCell },
+    model: { ...model, activeCell, pendingFocus: null },
     commands: mapChildCommands([focusHeaderCell({ containerId: model.virtualList.id, columnIndex: nextColumn })]),
     outMessage: OutMessage.FocusCell(activeCell),
   }
   const rowIndex = nextRow - 1
-  const list = invokeTableScroll(model.virtualList, rowId, rowIndex, config.rowHeight, nextColumn, true)
+  const list = VirtualList.scrollToKey(model.virtualList, rowId)
   return {
-    model: { ...model, activeCell, virtualList: list.model },
+    model: { ...model, activeCell, pendingFocus: activeCell, virtualList: list.model },
     commands: mapChildCommands(list.commands),
     outMessage: OutMessage.FocusCell(activeCell),
   }

@@ -110,19 +110,17 @@ describe('DataTable Grid model', () => {
     })
   })
 
-  it('scrolls to a stable VirtualList key before restoring focus after row remount', () => {
+  it('scrolls to a stable VirtualList key before focusing the target after commit', () => {
     const cfg = config()
     const result = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }))
     expect(result.model.activeCell).toEqual({ rowId: 'b', columnId: '$selection' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'b', columnId: '$selection' })
     expect(result.model.virtualList.pendingScroll).toMatchObject({
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
-    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
-      rowId: 'b',
-      rowIndex: 1,
-      columnIndex: 0,
-      shouldFocus: true,
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
   })
 
