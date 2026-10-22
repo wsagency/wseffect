@@ -39,7 +39,7 @@ export const view = <Value extends string, Message>(props: Props & {
       const isChecked = props.selected.has(option.value)
       const isDisabled = props.isDisabled === true || option.isDisabled === true
       const labelId = `${props.id}-option-${index}-label`
-      return h.label([h.Class('rt-CheckboxGroupItem')], [
+      return h.label([h.Class(['rt-CheckboxGroupItem', 'rt-Text', ...sizeClasses].join(' '))], [
         h.button([
           h.Type('button'),
           h.Role('checkbox'),

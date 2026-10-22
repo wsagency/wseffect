@@ -22,8 +22,8 @@ describe('CheckboxGroup', () => {
       Scene.expect(Scene.selector('.rt-CheckboxGroupRoot')).toExist(),
       Scene.expect(Scene.selector('.rt-CheckboxGroupItemCheckbox')).toExist(),
       Scene.expect(Scene.selector('#topics-label span span')).not.toExist(),
-      Scene.change(Scene.selector('input[type="checkbox"]'), ''),
-      Scene.expect(Scene.selector('input[type="checkbox"]')).toHaveAttr('aria-checked', 'false'),
+      Scene.click(Scene.role('checkbox', { name: 'News' })),
+      Scene.expect(Scene.role('checkbox', { name: 'News' })).toHaveAttr('aria-checked', 'false'),
       Scene.expect(Scene.text('Toggles: 1')).toExist(),
     )
   })
