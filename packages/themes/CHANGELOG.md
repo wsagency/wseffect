@@ -17,3 +17,4 @@
 - Add themed Checkbox, Radio, Switch, SegmentedControl, Select, TextArea and single/range Slider controls.
 - Forward native name, required, placeholder, rows, and ARIA attributes to themed TextArea inputs.
 - Cover view reuse counters for CheckboxGroup, CheckboxCards, RadioGroup, RadioCards, SegmentedControl, and TextArea.
+- Allow TextArea labels to be omitted when native ARIA labeling is supplied.

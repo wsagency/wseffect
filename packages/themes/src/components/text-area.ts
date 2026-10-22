@@ -15,7 +15,7 @@ const resizeProp = responsiveProp({ className: 'rt-r-resize', values: resizeValu
 const variantClasses = Object.freeze({ classic: 'rt-variant-classic', surface: 'rt-variant-surface', soft: 'rt-variant-soft' })
 export const Props = Schema.Struct({
   id: Schema.String,
-  label: Schema.String,
+  label: Schema.optional(Schema.String),
   size: Schema.optional(responsiveSchema(sizes)),
   variant: Schema.optional(Schema.Literals(variants)),
   resize: Schema.optional(responsiveSchema(resizeValues)),
@@ -62,7 +62,7 @@ export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray
       ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
       ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
     ], [
-      h.label([...attributes.label], [props.label]),
+      ...(props.label === undefined ? [] : [h.label([...attributes.label], [props.label])]),
       h.textarea([
         ...attributes.textarea,
         ...(props.name === undefined ? [] : [h.Name(props.name)]),

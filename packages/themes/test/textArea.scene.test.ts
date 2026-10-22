@@ -29,4 +29,15 @@ describe('TextArea', () => {
     Scene.expect(Scene.selector('textarea')).toHaveAttr('aria-describedby', 'notes-help'),
     Scene.expect(Scene.selector('textarea')).toHaveAttr('aria-label', 'Notes input'),
   ))
+  it('does not require a label when the textarea has its own accessible name', () => Scene.scene(
+    { update, view: (_model, h) => TextArea.view({
+      id: 'notes',
+      value: '',
+      textareaAttributes: [h.AriaLabel('Notes input')],
+    }, [], h) },
+    Scene.given({ value: '' }),
+    Scene.expect(Scene.selector('label')).not.toExist(),
+    Scene.expect(Scene.role('textbox', { name: 'Notes input' })).toExist(),
+  ))
+
 })
