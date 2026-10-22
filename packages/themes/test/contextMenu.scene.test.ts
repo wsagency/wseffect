@@ -13,6 +13,7 @@ const config: ContextMenu.Config<'edit' | 'delete'> = {
   ],
   toItem: () => null,
 }
+const selectedEdit: ContextMenu.OutMessage<'edit' | 'delete'> = { _tag: 'Selected', value: 'edit', index: 0 }
 const focusReturnCommand = contextMenu.update({
   ...contextMenu.init(config),
   invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' },
@@ -23,7 +24,7 @@ const view = (model: ContextMenu.Model, h: HtmlBuilder<ContextMenu.Message>) => 
 
 describe('themed ContextMenu', () => {
   it('opens from focused source and activates a focused menuitem with Enter', () => {
-    Scene.scene(
+    Scene.scene<ContextMenu.Model, ContextMenu.Message, ContextMenu.OutMessage<'edit' | 'delete'>>(
       { update, view },
       Scene.given(contextMenu.init(config)),
       Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
@@ -35,6 +36,7 @@ describe('themed ContextMenu', () => {
       Scene.expect(Scene.selector('#actions-item-0')).toHaveAttr('role', 'menuitem'),
       Scene.focus(Scene.selector('#actions-item-0')),
       Scene.keydown(Scene.selector('#actions-item-0'), 'Enter'),
+      Scene.expectOutMessage(selectedEdit),
       Scene.Command.resolve(focusReturnCommand, Menu.Message.CompletedFocusButton()),
       Scene.expect(Scene.role('menu')).not.toExist(),
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
@@ -42,7 +44,7 @@ describe('themed ContextMenu', () => {
   })
 
   it('activates a focused menuitem with Space', () => {
-    Scene.scene(
+    Scene.scene<ContextMenu.Model, ContextMenu.Message, ContextMenu.OutMessage<'edit' | 'delete'>>(
       { update, view },
       Scene.given(contextMenu.init(config)),
       Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
@@ -52,6 +54,7 @@ describe('themed ContextMenu', () => {
       Scene.expect(Scene.role('menu')).toExist(),
       Scene.focus(Scene.selector('#actions-item-0')),
       Scene.keydown(Scene.selector('#actions-item-0'), ' '),
+      Scene.expectOutMessage(selectedEdit),
       Scene.Command.resolve(focusReturnCommand, Menu.Message.CompletedFocusButton()),
       Scene.expect(Scene.role('menu')).not.toExist(),
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),

@@ -1,3 +1,4 @@
+import * as Option from 'effect/Option'
 import type { HtmlBuilder } from 'foldkit/html'
 import { createLazy } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
@@ -15,7 +16,11 @@ const lazy = createLazy()
 const renderMenu = vi.fn((label: string, h: HtmlBuilder<Message>) => {
   const config: ContextMenu.Config<'edit'> = {
     id: 'actions', sourceId: 'source', sourceToken: 'live-source-token', longPressMs: 600,
-    items: [{ value: 'edit', textValue: label, isDisabled: false, content: h.span([], [label]) }],
+    items: [{
+      id: 'main-actions',
+      label: h.span([], ['Main actions']),
+      items: [{ value: 'edit', textValue: label, isDisabled: false, content: h.span([], [label]) }],
+    }],
     toItem: () => null,
   }
   return contextMenu.embed(h, { slotId: 'context-menu', model: contextMenu.init(config), config, toParentMessage: () => Message.Tick() })
@@ -38,5 +43,17 @@ describe('ContextMenu execution-counter reuse', () => {
       Scene.expect(Scene.text('actions')).toExist(),
     )
     expect(renderMenu).toHaveBeenCalledTimes(2)
+  })
+  it('constructs a parent fold for its child messages', () => {
+    const ParentMessage = defineMessageUnion({ Menu: { message: contextMenu.Message } })
+    type ParentMessage = typeof ParentMessage.Type
+    type ParentModel = { menu: ContextMenu.Model }
+    const fold = contextMenu.fold<ParentModel, ParentMessage, never>({
+      read: model => Option.some(model.menu),
+      write: (model, menu) => ({ ...model, menu }),
+      toParentMessage: message => ParentMessage.Menu({ message }),
+      foldOutMessage: () => model => ({ model }),
+    })
+    expect(fold).toBeTypeOf('function')
   })
 })
