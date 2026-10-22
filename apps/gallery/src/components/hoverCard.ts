@@ -18,7 +18,7 @@ const foldHoverCard = HoverCard.fold<Model, Message, typeof PageOutMessage.Type>
   toParentMessage: message => Message.HoverCardEvent({ message }),
   foldOutMessage: () => model => ({ model }),
 })
-const cardInputs = { id: 'gallery-person', trigger: ['@radix'], content: ['Radix2Solid profile card.'] }
+const cardInputs = { id: 'gallery-person', triggerHref: '#profile', trigger: ['@radix'], content: ['Radix2Solid profile card.'] }
 
 export const page = galleryPageContract.definePage({
   Model, Message,
@@ -37,6 +37,6 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
     slotId: 'capture-hover-card', id: 'capture-person',
     model: { ...HoverCard.init(), ...(request.state === 'hover' ? { isOpen: true, isHovered: true } : {}) },
     toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { id: 'capture-person', trigger: ['@radix'], content: [h.p([], ['Radix2Solid profile card.'])] },
+    viewInputs: { id: 'capture-person', triggerHref: '#profile', trigger: ['@radix'], content: ['Radix2Solid profile card.'] },
   }))
 }

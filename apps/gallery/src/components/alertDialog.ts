@@ -33,6 +33,7 @@ export const page = galleryPageContract.definePage({
     AlertDialog.embed(h, {
       slotId: 'gallery-alert-dialog', model: model.dialog, toParentMessage: message => Message.DialogEvent({ message }),
       title: 'Delete record?', description: 'This action cannot be undone.', cancelLabel: 'Cancel',
+      actions: [Button.view({}, ['Delete'], h)],
     }),
   ])),
 })
@@ -45,6 +46,7 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
       model: request.state === 'open' ? { ...AlertDialog.init({ id: 'capture-alert-dialog' }), isOpen: true } : AlertDialog.init({ id: 'capture-alert-dialog' }),
       toParentMessage: () => ({ _tag: 'Noop' }),
       title: 'Delete record?', description: 'This action cannot be undone.', cancelLabel: 'Cancel',
+      actions: [Button.view({}, ['Delete'], h)],
     }),
   ]))
 }

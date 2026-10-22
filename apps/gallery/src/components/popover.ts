@@ -38,6 +38,6 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
     slotId: 'capture-popover',
     model: { ...Popover.init({ id: 'capture-popover' }), ...(request.state === 'open' ? { isOpen: true } : {}) },
     toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { ...viewInputs, trigger: ['Details'], content: [h.p([], ['Popover content for comparison.'])] },
+    viewInputs: { ...viewInputs, trigger: ['Details'], content: ['Popover content for comparison.'] },
   }))
 }

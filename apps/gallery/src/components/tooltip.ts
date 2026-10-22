@@ -41,6 +41,6 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
     slotId: 'capture-tooltip',
     model: { ...Tooltip.init({ id: 'capture-tooltip' }), ...(request.state === 'hover' ? { isHovered: true, isOpen: true } : {}) },
     toParentMessage: () => ({ _tag: 'Noop' }),
-    viewInputs: { ...tooltipInputs, trigger: ['Save'], content: [h.p([], ['Save your changes'])], anchor: { placement: 'top' } },
+    viewInputs: { ...tooltipInputs, trigger: ['Save'], content: ['Save your changes'], anchor: { placement: 'top' } },
   }))
 }

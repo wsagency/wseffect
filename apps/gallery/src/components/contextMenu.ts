@@ -4,6 +4,7 @@ import { Submodel } from 'foldkit'
 import type { HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as ContextMenu from '@wsagency/wseffect-themes/components/context-menu'
+import * as Button from '@wsagency/wseffect-themes/components/button'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
 import { renderCaptureView } from '../captureView.js'
@@ -52,11 +53,11 @@ export const page = galleryPageContract.definePage({
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   renderCaptureView(root, request, (h) => h.div([], [
-    h.p([], ['Right-click for actions']),
+    Button.view({ variant: 'outline' }, ['Right-click for actions'], h),
     Menu.embed(h, {
       slotId: 'capture-context-menu',
-      model: Menu.init({ id: 'Actions', sourceId: 'capture-context-source', sourceToken: 'capture-context-token', longPressMs: 600, items: [], toItem: () => null }),
-      config: { ...createConfig(h), id: 'Actions', sourceId: 'capture-context-source', sourceToken: 'capture-context-token' },
+      model: Menu.init({ id: '', sourceId: 'capture-context-source', sourceToken: 'capture-context-token', longPressMs: 600, items: [], toItem: () => null }),
+      config: { ...createConfig(h), id: '', sourceId: 'capture-context-source', sourceToken: 'capture-context-token' },
       toParentMessage: () => ({ _tag: 'Noop' }),
     }),
   ]))

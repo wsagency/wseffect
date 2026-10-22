@@ -93,6 +93,15 @@ describe('Gallery capture resolver', () => {
       expect(target).not.toBeNull()
       expect(target?.querySelectorAll('[data-is-root-theme="true"]')).toHaveLength(1)
       expect(target?.querySelectorAll('#foldkit-portal-root')).toHaveLength(1)
+      if (component === 'ContextMenu') {
+        const trigger = target?.querySelector('button')
+        expect(trigger?.textContent).toBe('Right-click for actions')
+        expect(trigger?.classList.contains('rt-variant-outline')).toBe(true)
+        expect(target?.textContent).not.toContain('Actions')
+      }
+      if (component === 'AlertDialog' && state === 'open') {
+        expect(target?.querySelector('dialog[open][role="alertdialog"]')).not.toBeNull()
+      }
       if (state === 'keyboard-focus') {
         const focusTarget = target?.querySelector<HTMLElement>(component === 'TabNav' ? 'a[href="#overview"]' : 'button')
         expect(focusTarget).not.toBeNull()
@@ -139,6 +148,31 @@ describe('Gallery capture resolver', () => {
       expect(app.querySelector('[data-sp2-capture-error]')).toBeNull()
       expect(app.querySelector('[data-sp2-family]')?.getAttribute('data-sp2-family')).toBe('forms-extra')
       expect(app.querySelector('[data-sp2-capture-target]')).not.toBeNull()
+    } finally {
+      vi.unstubAllGlobals()
+      document.body.replaceChildren()
+    }
+  })
+
+  it('renders the complete open AlertDialog capture', async () => {
+    const family = captureMatrix.families.find((candidate) => candidate.family === 'alert-dialog')!
+    const capture = family.captures.find((candidate) => candidate.state === 'open')!
+    const url = new URL(family.galleryRoute, 'https://gallery.test')
+    url.search = new URLSearchParams({
+      capture: capture.id,
+      state: capture.state,
+      props: JSON.stringify(capture.props),
+      appearance: capture.theme,
+    }).toString()
+    document.body.innerHTML = '<div id="app"></div>'
+    const app = document.getElementById('app')!
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(captureMatrix), { status: 200 })))
+    try {
+      await startCapture(url)
+      const dialog = app.querySelector<HTMLDialogElement>('[role="alertdialog"]')
+      expect(dialog).not.toBeNull()
+      expect(Array.from(dialog?.querySelectorAll('button') ?? []).map((button) => button.textContent?.trim())).toEqual(['Cancel', 'Delete'])
+      expect(dialog?.hasAttribute('open')).toBe(true)
     } finally {
       vi.unstubAllGlobals()
       document.body.replaceChildren()
