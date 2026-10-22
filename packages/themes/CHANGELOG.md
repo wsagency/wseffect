@@ -28,3 +28,4 @@
 - Match AlertDialog action layout and HoverCard link-trigger markup to the pinned reference; preserve Radix Progress indicator widths without double scaling.
 - Match Tooltip arrow positioning, default Link accent context, AlertDialog title trimming, and Popover trigger active styling to the pinned Radix Themes contract.
 - Match open trigger states, HoverCard trigger sizing, AlertDialog dialog text color, default Button accent attributes, and instant Tooltip capture state to the pinned Radix Themes contract.
+- Match the native AlertDialog viewport wrapper and Tooltip Arrow spacing to the pinned overlay geometry.

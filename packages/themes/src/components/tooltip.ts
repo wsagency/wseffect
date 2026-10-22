@@ -76,7 +76,7 @@ const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip
     ])
   }
   const viewInputs: UiViewInputs = {
-    anchor: { placement: 'top', gap: 4, portal: true, ...inputs.anchor },
+    anchor: { placement: 'top', gap: 9, portal: true, ...inputs.anchor },
     toView,
     isDisabled: inputs.isDisabled,
     ariaLabel: inputs.ariaLabel,
