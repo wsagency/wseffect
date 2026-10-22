@@ -5,7 +5,8 @@ wseffect is an independent, unofficial project. It is not endorsed by Foldkit, W
 This repository contains:
 
 - `@wsagency/wseffect-app` — a Foldkit application foundation for lazy pages, PWA behavior, and deployment-version checks.
-- `@wsagency/wseffect-themes` — Radix Themes foundation styles and typed Foldkit view helpers.
+- `@wsagency/wseffect-themes` — Radix Themes foundation styles and typed Foldkit view helpers for the pinned component families.
+- `@wsagency/wseffect-primitives` — local, headless Select, ContextMenu, CheckboxGroup, RangeSlider, TooltipGroup, and SelectPosition primitives.
 - `apps/gallery` — the integration gallery and browser-test fixture.
 - `bench/radix2solid` — a comparison app built from the radix2solid library.
 

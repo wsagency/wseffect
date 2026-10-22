@@ -22,3 +22,5 @@
 - Forward native name, required, placeholder, rows, and ARIA attributes to themed TextArea inputs.
 - Cover view reuse counters for CheckboxGroup, CheckboxCards, RadioGroup, RadioCards, SegmentedControl, and TextArea.
 - Allow TextArea labels to be omitted when native ARIA labeling is supplied.
+- Add accessibility, layout, avatar, feedback, typography, data, navigation, and theme-panel views from the pinned Radix Themes API.
+- Add virtualized, keyboard-navigable DataTable views and publish the complete component stylesheet subpaths with provenance notices.

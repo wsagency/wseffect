@@ -361,7 +361,7 @@ describe('wseffect Vite plugin', () => {
         }
         const sharedMap = JSON.parse(readFileSync(join(first.output, 'assets', `${appShared}.map`), 'utf8')) as { sources: string[] }
         expect(sharedMap.sources.some((source) => source.endsWith('/src/sharedContract.ts'))).toBe(true)
-        expect(sharedMap.sources.some((source) => source.endsWith('/packages/themes/dist/components/box.js'))).toBe(true)
+        expect(sharedMap.sources.some((source) => source.endsWith('/packages/themes/dist/components/box.props.js'))).toBe(true)
       } finally {
         rmSync(second.directory, { recursive: true, force: true })
       }

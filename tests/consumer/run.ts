@@ -12,6 +12,7 @@ import { discoverPackagePublicSurface } from './discover-public-surface.ts'
 import type { CoverageManifest } from './check-coverage-manifest.ts'
 import { checkEffectCopies } from '../../scripts/check-repo.ts'
 import { checkPackedAppCapabilities } from './check-app-capabilities.ts'
+import { checkPackedSp2Artifacts, checkPrimitiveTreeShaking, disallowedEffectModules } from './check-sp2.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
@@ -208,6 +209,13 @@ export default defineConfig({
   build: { outDir: 'tree-shaking-out', emptyOutDir: true, minify: false,
     lib: { entry: 'tree-shaking.ts', formats: ['es'], fileName: 'tree-shaking' } },
 })\n`)
+  await cp(resolve(consumerDir, 'fixtures/sp2'), resolve(root, 'sp2'), { recursive: true })
+  await writeFile(resolve(root, 'vite.sp2.config.ts'), `
+import { defineConfig } from 'vite'
+export default defineConfig({
+  build: { outDir: process.env.WSEFFECT_SP2_OUT_DIR, emptyOutDir: true, sourcemap: true, minify: false,
+    lib: { entry: process.env.WSEFFECT_SP2_ENTRY, formats: ['es'], fileName: 'bundle' } },
+})\n`)
 }
 
 async function main(): Promise<void> {
@@ -265,6 +273,37 @@ async function main(): Promise<void> {
     const treeBundle = await readFile(resolve(root, 'tree-shaking-out/tree-shaking.js'), 'utf8')
     for (const marker of forbiddenTreeShakingMarkers) fail(checkTreeShaking(treeBundle, marker))
     passedChecks.push('tree-shaking')
+    const themesPackage = resolve(root, 'node_modules/@wsagency/wseffect-themes')
+    await checkPackedSp2Artifacts(themesPackage)
+    passedChecks.push('sp2-packed')
+
+    const sp2Bundles = [
+      { entry: 'sp2/primitive.ts', outDir: 'sp2-primitive-out' },
+      { entry: 'sp2/box-heading.ts', outDir: 'sp2-box-heading-out' },
+    ]
+    for (const bundle of sp2Bundles) {
+      run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.sp2.config.ts'], root, packedBuildEnvironment({
+        ...process.env,
+        WSEFFECT_SP2_ENTRY: bundle.entry,
+        WSEFFECT_SP2_OUT_DIR: bundle.outDir,
+      }))
+    }
+    const primitiveMaps = await filesUnder(resolve(root, sp2Bundles[0]!.outDir), '.js.map')
+    const primitiveSources = (await Promise.all(primitiveMaps.map(async (path) => {
+      const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
+      return map.sources ?? []
+    }))).flat()
+    fail(checkPrimitiveTreeShaking(primitiveSources))
+    passedChecks.push('sp2-primitive-tree-shaking')
+
+    const boxHeadingMaps = await filesUnder(resolve(root, sp2Bundles[1]!.outDir), '.js.map')
+    const boxHeadingSources = (await Promise.all(boxHeadingMaps.map(async (path) => {
+      const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
+      return map.sources ?? []
+    }))).flat()
+    const effectModules = disallowedEffectModules(boxHeadingSources)
+    if (effectModules.length) throw new Error(`packed SP2 Box+Heading includes Effect modules: ${effectModules.join(', ')}`)
+    passedChecks.push('sp2-box-heading-effect')
 
     const e2eFiles = (await filesUnder(resolve(root, 'e2e'), '.spec.ts'))
       .filter((path) => !path.endsWith('/buildId.spec.ts') && !path.endsWith('/chunks.spec.ts') && !path.endsWith('/devReload.spec.ts'))
