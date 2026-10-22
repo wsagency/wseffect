@@ -35,3 +35,16 @@ it('wires non-default Table part props to their R2S-equivalent output', () => Sc
   Scene.expect(Scene.selector('.rt-TableColumnHeaderCell')).toHaveAttr('scope', 'col'),
   Scene.expect(Scene.selector('.rt-TableRowHeaderCell')).toHaveAttr('scope', 'row'),
 ))
+it('retains the default table size below responsive overrides and supports cell width constraints', () => Scene.scene(
+  { update, view: (_model, h) => Table.Root.view({ size: { md: '3' } }, [Table.Body.view({}, [Table.Row.view({}, [Table.Cell.view({ minWidth: '0px', maxWidth: '20rem' }, ['cell'], h)], h)], h)], h) },
+  Scene.given({}),
+  Scene.Mount.resolve(mountScrollArea<Message>(), Messages.Tick()),
+  Scene.expect(Scene.selector('.rt-TableRoot')).toHaveClass('rt-r-size-2'),
+  Scene.expect(Scene.selector('.rt-TableRoot')).toHaveClass('md:rt-r-size-3'),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewport [data-radix-scroll-area-content]')).toExist(),
+  Scene.expect(Scene.selector('[data-radix-scroll-area-content] table.rt-TableRootTable')).toExist(),
+  Scene.expect(Scene.selector('td.rt-TableCell')).toHaveClass('rt-r-min-w'),
+  Scene.expect(Scene.selector('td.rt-TableCell')).toHaveClass('rt-r-max-w'),
+  Scene.expect(Scene.selector('td.rt-TableCell')).toHaveStyle('--min-width', '0px'),
+  Scene.expect(Scene.selector('td.rt-TableCell')).toHaveStyle('--max-width', '20rem'),
+))

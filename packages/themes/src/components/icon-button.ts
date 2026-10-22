@@ -17,7 +17,7 @@ const classes = Object.freeze(Object.fromEntries(sizes.flatMap(size => variants.
 export const Props = Schema.Struct({ size: Schema.optional(responsiveSchema(sizes)), variant: Schema.optional(Schema.Literals(variants)), color: Schema.optional(Schema.Literals(accentColors)), radius: Schema.optional(Schema.Literals(radii)), highContrast: Schema.optional(Schema.Boolean), disabled: Schema.optional(Schema.Boolean), loading: Schema.optional(Schema.Boolean), type: Schema.optional(Schema.Literals(['button', 'submit', 'reset'])), 'aria-label': Schema.optional(Schema.String), ...marginPropSchemas })
 export type ViewProps<Message> = typeof Props.Type & Readonly<{ onClick?: Message }>
 export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
-  const size = props.size ?? '2'
+  const size = typeof props.size === 'object' ? { ...props.size, initial: props.size.initial ?? '2' } : props.size ?? '2'
   const variant = props.variant ?? 'solid'
   const margin = marginClasses(props)
   const responsive = typeof size !== 'string'
@@ -28,7 +28,7 @@ export const view = <Message>(props: ViewProps<Message>, children: ReadonlyArray
   const isDisabled = props.disabled ?? props.loading ?? false
   const attributes: Attribute<Message>[] = [h.Class([baseClass, ...margin.classes].join(' '))]
   if (props['aria-label'] !== undefined) attributes.push(h.AriaLabel(props['aria-label']))
-  if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
+  attributes.push(h.DataAttribute('accent-color', props.color ?? ''))
   if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
   if (Object.keys(margin.style).length) attributes.push(h.Style(margin.style))
   const spinner = h.span([h.AriaHidden(true), h.Style({ position: 'absolute', inset: '0', display: 'flex', 'align-items': 'center', 'justify-content': 'center' })], [

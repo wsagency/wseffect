@@ -24,3 +24,8 @@ it('wires non-default Separator props to R2S classes and attributes', () => Scen
   Scene.expect(Scene.selector('.rt-Separator')).not.toHaveAttr('role', 'separator'),
   Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('data-accent-color', 'crimson'),
 ))
+it('defaults the accent marker to gray', () => Scene.scene(
+  { update, view: (_model, h) => Separator.view({}, [], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-Separator')).toHaveAttr('data-accent-color', 'gray'),
+))

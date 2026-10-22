@@ -15,10 +15,9 @@ export const view = <Message>(props: ViewProps, _children: ReadonlyArray<Html | 
   const orientation = responsiveClasses(orientationProp, props.orientation ?? 'horizontal')
   const size = responsiveClasses(sizeProp, props.size ?? '1')
   const margin = marginClasses(props)
-  const attrs: Attribute<Message>[] = [h.Class(['rt-Separator', ...orientation.classes, ...size.classes, ...margin.classes].join(' '))]
+  const attrs: Attribute<Message>[] = [h.Class(['rt-Separator', ...orientation.classes, ...size.classes, ...margin.classes].join(' ')), h.DataAttribute('accent-color', props.color ?? 'gray')]
   if (typeof props.orientation !== 'object') attrs.push(h.Attribute('aria-orientation', props.orientation ?? 'horizontal'))
   if (props.decorative === false) attrs.push(h.Role('separator'))
-  if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
   const styles = { ...orientation.style, ...size.style, ...margin.style }
   if (Object.keys(styles).length) attrs.push(h.Style(styles))
   return brandViewResult(h.span(attrs, []), 'wseffect/Separator')

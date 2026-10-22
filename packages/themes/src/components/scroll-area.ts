@@ -32,9 +32,10 @@ export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | s
       : { top: '0', bottom: '0', right: '0' }),
     ...(props.radius === undefined ? [] : [h.DataAttribute('radius', props.radius)]),
   ], [h.div([h.Class('rt-ScrollAreaThumb')], [])])
-  const content: Html[] = [h.div(viewportAttributes, children), focusRing]
-  if (scrollbars !== 'vertical') content.push(scrollbar('horizontal'))
-  if (scrollbars !== 'horizontal') content.push(scrollbar('vertical'))
-  if (scrollbars === 'both') content.push(h.div([h.Class('rt-ScrollAreaCorner')], []))
-  return brandViewResult(h.div(attributes, content), 'wseffect/ScrollArea')
+  const contentNode = h.div([h.Attribute('data-radix-scroll-area-content', ''), h.Style({ 'min-width': '100%', display: 'table' })], children)
+  const viewport: Html[] = [h.div(viewportAttributes, [contentNode]), focusRing]
+  if (scrollbars !== 'vertical') viewport.push(scrollbar('horizontal'))
+  if (scrollbars !== 'horizontal') viewport.push(scrollbar('vertical'))
+  if (scrollbars === 'both') viewport.push(h.div([h.Class('rt-ScrollAreaCorner')], []))
+  return brandViewResult(h.div(attributes, viewport), 'wseffect/ScrollArea')
 }

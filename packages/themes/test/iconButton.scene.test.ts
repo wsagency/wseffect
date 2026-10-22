@@ -37,3 +37,10 @@ it('maps button size four to the pinned larger loading spinner', () => Scene.sce
   Scene.given({}),
   Scene.expect(Scene.selector('.rt-Spinner')).toHaveClass('rt-r-size-3'),
 ))
+it('keeps the initial default size under responsive overrides and emits the default accent marker', () => Scene.scene(
+  { update, view: (_model, h) => IconButton.view({ size: { md: '4' }, 'aria-label': 'Save' }, ['Save'], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('button.rt-IconButton')).toHaveClass('rt-r-size-2'),
+  Scene.expect(Scene.selector('button.rt-IconButton')).toHaveClass('md:rt-r-size-4'),
+  Scene.expect(Scene.selector('button.rt-IconButton')).toHaveAttr('data-accent-color', ''),
+))

@@ -14,5 +14,5 @@ it('wires every non-default Badge prop to the R2S-equivalent output', () => Scen
   Scene.expect(Scene.selector('.rt-Badge')).toHaveAttr('class', 'rt-Badge rt-r-size-2 rt-variant-outline rt-high-contrast rt-r-m-2'),
   Scene.expect(Scene.selector('.rt-Badge')).toHaveAttr('role', 'status'),
   Scene.expect(Scene.selector('.rt-Badge')).toHaveAttr('data-accent-color', 'crimson'),
-  Scene.expect(Scene.selector('.rt-Badge')).toHaveAttr('data-radius', 'full'),
+  Scene.expect(Scene.selector('.rt-Badge')).toHaveAttr('radius', 'full'),
 ))

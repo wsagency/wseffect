@@ -23,3 +23,11 @@ describe('themed ScrollArea', () => it('wires size, radius, and scrollbars to th
   Scene.expect(Scene.selector('.rt-ScrollAreaCorner')).not.toExist(),
   Scene.expect(Scene.text('scroll content')).toExist(),
 )))
+it('wraps viewport children in the pinned content element', () => Scene.scene(
+  { update, view: (_model, h) => ScrollArea.view({}, ['content'], h) },
+  Scene.given({}),
+  Scene.Mount.resolve(mountScrollArea<Message>(), Message.Tick()),
+  Scene.expect(Scene.selector('.rt-ScrollAreaViewport [data-radix-scroll-area-content]')).toExist(),
+  Scene.expect(Scene.selector('[data-radix-scroll-area-content]')).toHaveStyle('min-width', '100%'),
+  Scene.expect(Scene.selector('[data-radix-scroll-area-content]')).toHaveStyle('display', 'table'),
+))

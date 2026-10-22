@@ -28,7 +28,7 @@ export const view = <M>(props: ViewProps, _children: ReadonlyArray<Html | string
     })
     return h.div([h.Role('group'), h.AriaLabel(label)], [h.h3([], [label]), ...options])
   }
-  const panel = h.div([h.Role('region'), h.AriaLabel('Theme settings'), h.Attribute('hidden', String(!props.isOpen))], [
+  const panel = h.div([h.Role('region'), h.AriaLabel('Theme settings'), ...(props.isOpen ? [] : [h.Attribute('hidden', '')])], [
     group('Accent color', 'accentColor', accentColors.filter(color => color !== 'custom') as ReadonlyArray<ThemeSettings['accentColor']>),
     group('Gray color', 'grayColor', grayColors), group('Appearance', 'appearance', appearances),
     group('Radius', 'radius', radii), group('Scaling', 'scaling', scalings),

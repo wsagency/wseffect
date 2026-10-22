@@ -13,12 +13,13 @@ const variantClasses = Object.freeze({ solid: 'rt-variant-solid', soft: 'rt-vari
 export const Props = Schema.Struct({ role: Schema.optional(Schema.String), size: Schema.optional(responsiveSchema(sizes)), variant: Schema.optional(Schema.Literals(variants)), color: Schema.optional(Schema.Literals(accentColors)), highContrast: Schema.optional(Schema.Boolean), radius: Schema.optional(Schema.Literals(radii)), ...marginPropSchemas })
 export type ViewProps = typeof Props.Type
 export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
-  const size = responsiveClasses(sizeProp, props.size ?? '1')
+  const sizeValue = typeof props.size === 'object' ? { ...props.size, initial: props.size.initial ?? '1' } : props.size ?? '1'
+  const size = responsiveClasses(sizeProp, sizeValue)
   const margin = marginClasses(props)
   const attrs: Attribute<Message>[] = [h.Class(['rt-Badge', ...size.classes, variantClasses[props.variant ?? 'soft'], ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
   if (props.role !== undefined) attrs.push(h.Role(props.role))
-  if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
-  if (props.radius !== undefined) attrs.push(h.DataAttribute('radius', props.radius))
+  attrs.push(h.DataAttribute('accent-color', props.color ?? ''))
+  if (props.radius !== undefined) attrs.push(h.Attribute('radius', props.radius))
   const style = { ...size.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.span(attrs, children), 'wseffect/Badge')

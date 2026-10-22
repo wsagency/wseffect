@@ -20,8 +20,8 @@ export const view = <Message>(props: ViewProps, children: ReadonlyArray<Html | s
   const weight = responsiveClasses(weightProp, props.weight)
   const wrap = responsiveClasses(wrapProp, props.wrap)
   const margin = marginClasses(props)
-  const attrs: Attribute<Message>[] = [h.Class(['rt-reset', 'rt-Code', ...size.classes, ...weight.classes, ...wrap.classes, variantClasses[props.variant ?? 'soft'], ...(props.truncate ? ['rt-truncate'] : []), ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
-  if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
+  const attrs: Attribute<Message>[] = [h.Class(['rt-reset', 'rt-Code', ...size.classes, variantClasses[props.variant ?? 'soft'], ...weight.classes, ...(props.highContrast ? ['rt-high-contrast'] : []), ...(props.truncate ? ['rt-truncate'] : []), ...wrap.classes, ...margin.classes].join(' '))]
+  if (props.variant !== 'ghost' || props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color ?? ''))
   const style = { ...size.style, ...weight.style, ...wrap.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.code(attrs, children), 'wseffect/Code')

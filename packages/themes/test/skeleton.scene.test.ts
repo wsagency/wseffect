@@ -29,3 +29,30 @@ it('suppresses Skeleton attributes when loading is false', () => Scene.scene(
   Scene.expect(Scene.selector('[aria-hidden="true"]')).not.toExist(),
   Scene.expect(Scene.text('loaded')).toExist(),
 ))
+it('marks loading skeletons as inline and supports responsive minimum and maximum dimensions', () => Scene.scene(
+  { update, view: (_model, h) => Skeleton.view({
+    loading: true,
+    width: { initial: '100%', md: '80%' },
+    minWidth: { initial: '10rem', md: '12rem' },
+    maxWidth: { initial: '40rem', md: '36rem' },
+    height: { initial: '2rem', md: '3rem' },
+    minHeight: { initial: '1rem', md: '1.5rem' },
+    maxHeight: { initial: '4rem', md: '5rem' },
+  }, ['placeholder'], h) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveAttr('data-inline-skeleton', ''),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--min-width', '10rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--min-width-md', '12rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--max-width', '40rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--max-width-md', '36rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--min-height', '1rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--min-height-md', '1.5rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--max-height', '4rem'),
+  Scene.expect(Scene.selector('.rt-Skeleton')).toHaveStyle('--max-height-md', '5rem'),
+))
+it('returns loaded children without a skeleton wrapper', () => Scene.scene(
+  { update, view: (_model, h) => h.div([], [Skeleton.view({ loading: false }, [h.em([], ['loaded'])], h)]) },
+  Scene.given({}),
+  Scene.expect(Scene.selector('div em')).toExist(),
+  Scene.expect(Scene.selector('div span')).not.toExist(),
+))

@@ -6,31 +6,47 @@ import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 const sizes = ['1', '2', '3'] as const
+const textSizes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
+const weights = ['light', 'regular', 'medium', 'bold'] as const
+const alignments = ['left', 'center', 'right'] as const
+const trims = ['normal', 'start', 'end', 'both'] as const
+const wraps = ['wrap', 'nowrap', 'pretty', 'balance'] as const
 const variants = ['soft', 'surface', 'outline'] as const
 const sizeProp = responsiveProp({ className: 'rt-r-size', values: sizes })
+const textSizeProp = responsiveProp({ className: 'rt-r-size', values: textSizes })
+const weightProp = responsiveProp({ className: 'rt-r-weight', values: weights })
+const alignProp = responsiveProp({ className: 'rt-r-ta', values: alignments })
+const trimProp = responsiveProp({ className: 'rt-r-lt', values: trims })
+const wrapProp = responsiveProp({ className: 'rt-r-tw', values: wraps })
 const variantClasses = Object.freeze({ soft: 'rt-variant-soft', surface: 'rt-variant-surface', outline: 'rt-variant-outline' })
 const rootProps = Schema.Struct({ size: Schema.optional(responsiveSchema(sizes)), variant: Schema.optional(Schema.Literals(variants)), color: Schema.optional(Schema.Literals(accentColors)), highContrast: Schema.optional(Schema.Boolean), ...marginPropSchemas })
 const iconProps = Schema.Struct({})
-const textProps = Schema.Struct({ size: Schema.optional(responsiveSchema(sizes)), color: Schema.optional(Schema.Literals(accentColors)), ...marginPropSchemas })
+const textProps = Schema.Struct({ size: Schema.optional(responsiveSchema(textSizes)), weight: Schema.optional(responsiveSchema(weights)), align: Schema.optional(responsiveSchema(alignments)), trim: Schema.optional(responsiveSchema(trims)), wrap: Schema.optional(responsiveSchema(wraps)), truncate: Schema.optional(Schema.Boolean), highContrast: Schema.optional(Schema.Boolean), color: Schema.optional(Schema.Literals(accentColors)), ...marginPropSchemas })
 export type RootProps = typeof rootProps.Type
 export type IconProps = typeof iconProps.Type
 export type TextProps = typeof textProps.Type
 const rootView = <Message>(props: RootProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
-  const size = responsiveClasses(sizeProp, props.size ?? '2')
+  const sizeValue = typeof props.size === 'object' ? { ...props.size, initial: props.size.initial ?? '2' } : props.size ?? '2'
+  const size = responsiveClasses(sizeProp, sizeValue)
   const margin = marginClasses(props)
   const attrs: Attribute<Message>[] = [h.Class(['rt-CalloutRoot', ...size.classes, variantClasses[props.variant ?? 'soft'], ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
-  if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
+  attrs.push(h.DataAttribute('accent-color', props.color ?? ''))
   const style = { ...size.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.div(attrs, children), 'wseffect/Callout.Root')
 }
 const iconView = <Message>(_props: IconProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => brandViewResult(h.div([h.Class('rt-CalloutIcon')], children), 'wseffect/Callout.Icon')
 const textView = <Message>(props: TextProps, children: ReadonlyArray<Html | string>, h: HtmlBuilder<Message>): Html => {
-  const size = responsiveClasses(sizeProp, props.size ?? '2')
+  const sizeValue = typeof props.size === 'object' ? { ...props.size, initial: props.size.initial ?? '2' } : props.size ?? '2'
+  const size = responsiveClasses(textSizeProp, sizeValue)
+  const weight = responsiveClasses(weightProp, props.weight)
+  const align = responsiveClasses(alignProp, props.align)
+  const trim = responsiveClasses(trimProp, props.trim)
+  const wrap = responsiveClasses(wrapProp, props.wrap)
   const margin = marginClasses(props)
-  const attrs: Attribute<Message>[] = [h.Class(['rt-CalloutText', ...size.classes, ...margin.classes].join(' '))]
+  const attrs: Attribute<Message>[] = [h.Class(['rt-Text', 'rt-CalloutText', ...size.classes, ...weight.classes, ...align.classes, ...trim.classes, ...(props.truncate ? ['rt-truncate'] : []), ...wrap.classes, ...(props.highContrast ? ['rt-high-contrast'] : []), ...margin.classes].join(' '))]
   if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
-  const style = { ...size.style, ...margin.style }
+  const style = { ...size.style, ...weight.style, ...align.style, ...trim.style, ...wrap.style, ...margin.style }
   if (Object.keys(style).length) attrs.push(h.Style(style))
   return brandViewResult(h.p(attrs, children), 'wseffect/Callout.Text')
 }
