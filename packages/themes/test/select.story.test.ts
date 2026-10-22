@@ -9,8 +9,8 @@ import * as Select from '../src/components/select.js'
 const SelectBox = Select.create<'one' | 'two' | 'three'>()
 const Other = defineMessageUnion({ Tick: {} })
 type Other = typeof Other.Type
-const update = (model: Select.Model, message: Select.Message | Other) => message._tag === 'Tick' ? { model } : SelectBox.update(model, message)
-const view = (model: Select.Model, h: HtmlBuilder<Select.Message | Other>) => SelectBox.view(model, {
+const update = (model: Select.Model, message: Select.Message | Other | undefined) => message === undefined ? { model } : message._tag === 'Tick' ? { model } : SelectBox.update(model, message)
+const view = (model: Select.Model, h: HtmlBuilder<Select.Message | Other | undefined>) => SelectBox.view(model, {
   id: 'choice',
   selectedValue: Option.none(),
   position: 'item-aligned',
@@ -27,6 +27,7 @@ describe('Select', () => {
     Scene.given(SelectBox.init({ id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false })),
     Scene.click(Scene.selector('[role="combobox"]')),
     Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
+    Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never),
     Scene.expect(Scene.role('listbox', { name: 'choice' })).toExist(),
     Scene.keydown(Scene.role('listbox', { name: 'choice' }), 't'),
     Scene.Command.resolve(Listbox.ScrollIntoView, Listbox.Message.CompletedScrollIntoView()),

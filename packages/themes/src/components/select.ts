@@ -4,8 +4,9 @@ import { defineView } from 'foldkit/submodel'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
 import * as Listbox from '@foldkit/ui/listbox'
-import * as SelectPrimitive from '@wsagency/wseffect-primitives/select'
+import * as SelectPosition from '@wsagency/wseffect-primitives/select-position'
 import type { SelectConfig as PrimitiveConfig, SelectItem, SelectGroup, SelectSeparator } from '@wsagency/wseffect-primitives/select'
+import * as SelectPrimitive from '@wsagency/wseffect-primitives/select'
 import { accentColors } from '../props/color.props.js'
 import { radii } from '../props/radius.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
@@ -65,9 +66,20 @@ export const create = <Value extends string>(): Bundle<Value> => {
       h.button([
         h.Id(`${config.id}-trigger`), h.Type('button'), h.Role('combobox'), h.AriaLabel(config.id), h.Attribute('aria-haspopup', 'listbox'),
         h.AriaExpanded(model.isOpen), h.OnClick(Message.Opened({ maybeActiveItemIndex: Option.none() })),
-        h.Class(['rt-reset', 'rt-SelectTrigger', 'rt-r-size-2', variantClasses[config.props?.variant ?? 'surface']].join(' ')),
+        h.Class(['rt-reset', 'rt-SelectTrigger', sizeClasses, variantClasses[config.props?.variant ?? 'surface']].join(' ')),
       ], [selected !== undefined ? selected.content : config.props?.placeholder ?? config.id]),
-      ...(model.isOpen ? [adapter.view(model, config, h)] : []),
+      ...(model.isOpen ? [h.div([
+        h.Class(['rt-SelectContent', sizeClasses, 'rt-variant-solid', ...(config.props?.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+        h.OnMount(SelectPosition.mountSelectPosition({
+          panelId: `${config.id}-listbox`,
+          triggerId: `${config.id}-trigger`,
+          selectedItemId: `${config.id}-option-${selected?.value ?? ''}`,
+          ...(Option.isSome(model.maybeActiveItemIndex) ? (() => {
+            const active = flatItems[model.maybeActiveItemIndex.value]
+            return active !== undefined && !('kind' in active) && !active.isDisabled ? { activeItemId: `${config.id}-option-${active.value}` } : {}
+          })() : {}),
+        })),
+      ], [adapter.view(model, config, h)])] : []),
     ]), 'wseffect/Select')
   }
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage<Value>, ParentOutMessage>, 'update'>): Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage> => Update.foldChild({ ...config, update: adapter.update })
