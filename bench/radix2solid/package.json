@@ -9,7 +9,10 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test": "node --test scripts/*.test.ts"
+    "test": "node --test scripts/*.test.ts",
+    "capture:sp2": "node scripts/capture-sp2.ts",
+    "compare-sp2": "node scripts/capture-sp2.ts --compare",
+    "generate:sp2-matrix": "node scripts/generate-sp2-matrix.ts"
   },
   "dependencies": {
     "@solidjs/web": "2.0.0-rc.15",

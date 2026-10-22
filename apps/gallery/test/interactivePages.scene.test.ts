@@ -1,6 +1,8 @@
 import * as UiDialog from '@foldkit/ui/dialog'
 import * as UiMenu from '@foldkit/ui/menu'
 import * as UiTabs from '@foldkit/ui/tabs'
+import * as VirtualList from '@foldkit/ui/virtualList'
+import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import * as Scene from 'foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import { PageOutMessage, type PageInputs } from '../src/contract.js'
@@ -10,8 +12,10 @@ import { page as tabsPage } from '../src/pages/tabs.js'
 import { page as themePage } from '../src/pages/theme.js'
 import { page as sharedAPage } from '../src/pages/sharedA.js'
 import { page as sharedBPage } from '../src/pages/sharedB.js'
+import { page as dataTablePage } from '../src/components/dataTable.js'
 
 const inputs: PageInputs = {
+  path: '/components/data-table',
   date: '2026-10-19',
   accentColor: 'indigo',
   grayColor: 'auto',
@@ -22,6 +26,62 @@ const inputs: PageInputs = {
 }
 
 describe('gallery interactive pages', () => {
+  it('renders the 10k-row data table with labelled grid keyboard navigation', () => {
+    const initial = dataTablePage.init()
+    expect(initial.model.rows).toHaveLength(10_000)
+    Scene.scene(
+      { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
+      Scene.given(initial.model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: 'gallery-data-table-virtual-list', tableId: 'gallery-data-table' } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
+        }),
+      ),
+      Scene.expect(Scene.role('heading', { name: 'Data table' })).toExist(),
+      Scene.expect(Scene.role('searchbox', { name: 'Filter rows' })).toExist(),
+      Scene.expect(Scene.role('grid')).toExist(),
+      Scene.expect(Scene.selector('[data-virtual-list-item-key="row-1"]')).toExist(),
+      Scene.expect(Scene.selector('[data-virtual-list-item-key="row-10000"]')).toBeAbsent(),
+    )
+    const moved = dataTablePage.update(initial.model, {
+      _tag: 'TableEvent',
+      message: DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }),
+    } as typeof dataTablePage.Message.Type)
+    expect(moved.model.table.activeCell).toEqual({ rowId: 'row-2', columnId: '$selection' })
+  })
+  it('exposes benchmark operations and updates the first DataTable cell', () => {
+    const initial = dataTablePage.init()
+    Scene.scene(
+      { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
+      Scene.given(initial.model),
+      Scene.Mount.resolve(
+        { name: 'ObserveDataTable', args: { id: 'gallery-data-table-virtual-list', tableId: 'gallery-data-table' } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
+        }),
+      ),
+      Scene.expect(Scene.selector('[data-perf="data-table-update"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-filter"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-sort"]')).toExist(),
+      Scene.expect(Scene.selector('[data-perf="data-table-select"]')).toExist(),
+      Scene.click(Scene.selector('[data-perf="data-table-update"]')),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+        return command === undefined
+          ? simulation
+          : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
+            scrollTop: 0,
+            scrollHeight: 360,
+            containerHeight: 360,
+            anchor: { _tag: 'None' },
+          }))(simulation)
+      },
+      Scene.expect(Scene.text('Record 01*')).toExist(),
+    )
+  })
+
+
   it('opens and closes the accessible dialog demo', () => {
     const initial = dialogPage.init()
     Scene.scene({ update: dialogPage.update, view: (model, h) => dialogPage.view(model, inputs, h) }, Scene.given(initial.model),

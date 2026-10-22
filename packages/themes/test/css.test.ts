@@ -6,7 +6,7 @@ const packageRoot = resolve(import.meta.dirname, '..')
 const outputFiles = [
   'styles.css',
   'components.css',
-  'utilities.css',
+  'components-base.css',
   'tokens.css',
   'tokens/base.css',
   'layout.css',
@@ -16,6 +16,7 @@ const outputFiles = [
   'css/common.css',
   'css/utilities.css',
   ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area'].map(name => `css/${name}.css`),
+  ...['checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'].map(name => `css/${name}.css`),
 ]
 
 describe('Themes CSS distribution', () => {
@@ -26,11 +27,45 @@ describe('Themes CSS distribution', () => {
       expect(await readFile(output.replace(/\.css$/, '.layer.css'), 'utf8'), relativePath).toMatch(/^@layer radix \{/)
     }
   })
+  it('keeps the components-base aggregate equal to the pre-SP2 file list and order', async () => {
+    const source = await readFile(resolve(packageRoot, 'src/css-components/index-base.css'), 'utf8')
+    const files = [...source.matchAll(/^@import '\.\/([\w-]+)\.css';$/gm)].map(([, name]) => name)
+    expect(files).toEqual([
+      'reset',
+      'animations',
+      'layout',
+      'skeleton',
+      'text',
+      'button',
+      'card',
+      'dialog',
+      'dropdown-menu',
+      'heading',
+      'scroll-area',
+      'spinner',
+      'tabs',
+      'text-field',
+      'shared',
+    ])
+  })
 
-  it('limits component CSS to the foundation closure', async () => {
+  it('emits CSS targets for each implemented component', async () => {
     const files = await readdir(resolve(packageRoot, 'dist/styles/css'))
-    expect(files).toContain('button.css')
-    expect(files).not.toContain('checkbox.css')
+    for (const name of ['button', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider']) {
+      expect(files).toContain(`${name}.css`)
+    }
+  })
+  it('includes primitive styles in standalone grouped control sheets', async () => {
+    const dependencies = {
+      'checkbox-group': ['.rt-BaseCheckboxRoot'],
+      'radio-group': ['.rt-BaseRadioRoot'],
+      'radio-cards': ['.rt-BaseRadioRoot', '.rt-BaseCard'],
+      'segmented-control': ['.rt-BaseRadioRoot'],
+    }
+    for (const [component, selectors] of Object.entries(dependencies)) {
+      const css = await readFile(resolve(packageRoot, `dist/styles/css/${component}.css`), 'utf8')
+      for (const selector of selectors) expect(css, `${component}: ${selector}`).toContain(selector)
+    }
   })
   it('includes all 31 Radix Colors token files with layered siblings', async () => {
     const directory = resolve(packageRoot, 'dist/styles/tokens/colors')
@@ -65,4 +100,46 @@ describe('Themes CSS distribution', () => {
     expect(output).toBe(source)
   })
 
+
+  it('copies reset and component CSS import closure', async () => {
+    const source = resolve(packageRoot, 'src/css-components')
+    for (const file of ['reset.css', 'data-list.css', 'table.css', 'icon-button.css', '_internal/base-button.css']) {
+      expect((await stat(resolve(source, file))).isFile(), file).toBe(true)
+    }
+    expect(await readFile(resolve(source, 'icon-button.css'), 'utf8')).toContain("@import './_internal/base-button.css';")
+  })
 })
+
+  it('records every copied CSS and lane 2C source in UPSTREAM.md', async () => {
+    const cssDirectory = resolve(packageRoot, 'src/css-components')
+    const cssFiles = await readdir(cssDirectory, { recursive: true })
+    const sources = [
+      'accessible-icon.tsx', 'aspect-ratio.tsx', 'avatar.tsx', 'avatar.props.ts',
+      'badge.tsx', 'badge.props.ts', 'blockquote.tsx', 'blockquote.props.ts',
+      'callout.tsx', 'callout.props.ts', 'code.tsx', 'code.props.ts',
+      'container.tsx', 'container.props.ts', 'data-list.tsx', 'data-list.props.ts',
+      'em.tsx', 'em.props.ts', '_internal/base-button.tsx', '_internal/base-button.props.ts',
+      'icon-button.tsx', 'icon-button.props.ts', 'inset.tsx', 'inset.props.ts',
+      'kbd.tsx', 'kbd.props.ts', 'link.tsx', 'link.props.ts', 'progress.tsx',
+      'progress.props.ts', 'quote.tsx', 'quote.props.ts', 'scroll-area.tsx',
+      'scroll-area.props.ts', 'section.tsx', 'section.props.ts', 'separator.tsx',
+      'separator.props.ts', 'skeleton.tsx', 'skeleton.props.ts', 'spinner.tsx',
+      'spinner.props.ts', 'strong.tsx', 'strong.props.ts', 'table.tsx', 'table.props.ts',
+      'theme-panel.tsx', 'visually-hidden.tsx',
+    ]
+    const upstream = await readFile(resolve(packageRoot, 'UPSTREAM.md'), 'utf8')
+    for (const file of cssFiles.filter(file => file.endsWith('.css'))) {
+      if (file === 'index.css') {
+        expect(upstream).toContain('packages/themes/src/css-components/index.css')
+      } else if (file === 'index-base.css') {
+        expect(upstream).toContain('packages/themes/src/css-components/index-base.css')
+      } else if (file === 'data-table.css') {
+        expect(upstream).toContain('`data-table.css` is locally authored')
+      } else {
+        expect(upstream, file).toContain(`packages/themes/src/components/${file}`)
+      }
+    }
+    for (const file of sources) {
+      expect(upstream, file).toContain(`packages/themes/src/components/${file}`)
+    }
+  })

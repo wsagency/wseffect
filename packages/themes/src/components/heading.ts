@@ -1,11 +1,11 @@
 import { brandViewResult } from 'foldkit/brand'
-import { Schema } from 'effect'
 import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
-import { accentColors } from '../props/color.props.js'
-import { marginClasses, marginPropSchemas } from '../props/margin.props.js'
+import { marginClasses } from '../props/margin.classes.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
-import { responsiveSchema } from '../props/componentSchema.js'
+import type { ViewProps } from './heading.props.js'
 import { element } from './element.js'
+export { Props } from './heading.props.js'
+export type { ViewProps } from './heading.props.js'
 const sizes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'] as const
 const weights = ['light', 'regular', 'medium', 'bold'] as const
 const alignments = ['left', 'center', 'right'] as const
@@ -21,15 +21,6 @@ const scalarHeadingClasses = Object.freeze(Object.fromEntries(
     return [`${size}:${weight}:${align}`, values.join(' ')] as const
   }))),
 ))
-export const Props = Schema.Struct({
-  as: Schema.optional(Schema.Literals(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])),
-  size: Schema.optional(responsiveSchema(sizes)),
-  weight: Schema.optional(responsiveSchema(weights)),
-  align: Schema.optional(responsiveSchema(alignments)),
-  color: Schema.optional(Schema.Literals(accentColors)),
-  ...marginPropSchemas,
-})
-export type ViewProps = typeof Props.Type
 
 export const view = <Message>(
   props: ViewProps,

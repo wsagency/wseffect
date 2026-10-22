@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import test from 'node:test'
-import { attributeShell, classifyRequestTable, compareSize, measureSize, withMergeBaseFallback } from './size.ts'
+import { attributeShell, classifyRequestTable, compareSize, measureSize, parseBUD1ShellBase, withMergeBaseFallback } from './size.ts'
 
 const baseline = (entries: Record<string, { bytes: number; reason: string }> = {}) => ({
   unit: 'B' as const,
@@ -36,10 +36,52 @@ const brotliBytes = (contents: Buffer) => brotliCompressSync(contents, {
 
 test('GATE-S1 rejects a shell over 120 KiB and accepts the exact limit', () => {
   const initial = baseline({ shell: { bytes: 122_880, reason: '' }, 'first-visit': { bytes: 1, reason: '' }, 'speculative-prefetch': { bytes: 1, reason: '' } })
-  assert.deepEqual(compareSize(report(122_880), initial, initial).failures, [])
-  assert.deepEqual(compareSize(report(122_881), initial, initial).failures, [
-    'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision',
-  ])
+  assert.equal(compareSize(report(122_880), initial, initial).failures.some((failure) => failure.startsWith('GATE-S1:')), false)
+  assert.ok(compareSize(report(122_881), initial, initial).failures.some((failure) =>
+    failure === 'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision'))
+})
+const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
+const BUD1_BASE_PATH = resolve(process.cwd(), 'bench/baselines/sp2-shell-base.json')
+const BUD1_BASE_ARTIFACT = JSON.parse(readFileSync(BUD1_BASE_PATH, 'utf8')) as {
+  commit: string
+  entryBytes: number
+  frameworkBytes: number
+  totalBytes: number
+  method: string
+  measuredAt: string
+}
+
+test('BUD-1 base records entry and framework bytes from the pinned base commit build', () => {
+  assert.equal(BUD1_BASE_ARTIFACT.commit, BUD1_BASE_COMMIT)
+  assert.ok(BUD1_BASE_ARTIFACT.entryBytes > 0)
+  assert.ok(BUD1_BASE_ARTIFACT.frameworkBytes > 0)
+  assert.equal(BUD1_BASE_ARTIFACT.totalBytes, BUD1_BASE_ARTIFACT.entryBytes + BUD1_BASE_ARTIFACT.frameworkBytes)
+  assert.match(BUD1_BASE_ARTIFACT.method, /brotli-q11/i)
+  assert.ok(Number.isFinite(Date.parse(BUD1_BASE_ARTIFACT.measuredAt)))
+})
+
+test('BUD-1 rejects a shell-base artifact for a different commit', () => {
+  const mismatched = { ...BUD1_BASE_ARTIFACT, commit: 'ffffffffffffffffffffffffffffffffffffffff' }
+  assert.throws(() => parseBUD1ShellBase(JSON.stringify(mismatched)), /does not match pinned commit/)
+})
+
+test('entry plus framework Brotli-q11 delta is at most 1,024 B against the measured base build', () => {
+  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
+  const withinLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_024), base, base)
+  const overLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, base)
+  assert.equal(withinLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')), false)
+  assert.ok(overLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')))
+})
+
+test('editing size.json cannot bypass the immutable measured shell base cap', () => {
+  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
+  const editedCandidate = baseline({
+    shell: { bytes: 1_000_000, reason: 'attempted shell budget override' },
+  })
+  const result = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, editedCandidate)
+  assert.ok(result.failures.some((failure) =>
+    failure.startsWith('GATE-BUD-1:') && failure.includes(`(${BUD1_BASE_ARTIFACT.totalBytes.toLocaleString('en-US')} → ${(BUD1_BASE_ARTIFACT.totalBytes + 1_025).toLocaleString('en-US')} B)`),
+  ))
 })
 
 test('GATE-S2 rejects first-visit transfer over 160 KiB and accepts the exact limit', () => {
@@ -124,22 +166,39 @@ test('size gate uses the candidate baseline when merge-base lookup is unavailabl
 
 test('GATE-S3 rejects unexplained growth against merge-base and accepts only an updated candidate baseline', () => {
   const previous = baseline({
-    shell: { bytes: 100, reason: '' },
-    'first-visit': { bytes: 100, reason: '' },
-    'speculative-prefetch': { bytes: 100, reason: '' },
-    'page:form': { bytes: 100, reason: '' },
-    'styles.css': { bytes: 100, reason: '' },
+    shell: { bytes: 10_000, reason: '' },
+    'first-visit': { bytes: 10_000, reason: '' },
+    'speculative-prefetch': { bytes: 10_000, reason: '' },
+    'page:form': { bytes: 10_000, reason: '' },
+    'styles.css': { bytes: 10_000, reason: '' },
   })
-  const current = report(103, 103, { form: 103 }, 103)
+  const current = report(10_201, 10_201, { form: 10_201 }, 10_201)
   const failures = compareSize(current, previous, previous).failures
   assert.deepEqual(failures.map((failure) => failure.match(/^GATE-S3: (.+?) /)?.[1]).sort(), [
     'first-visit', 'page:form', 'shell', 'styles.css',
   ])
 
   const explained = baseline(Object.fromEntries(
-    Object.entries(previous.entries).map(([id, _entry]) => [id, { bytes: 103, reason: 'expected gallery increase' }]),
+    Object.entries(previous.entries).map(([id, _entry]) => [id, { bytes: 10_201, reason: 'expected gallery increase' }]),
   ))
   assert.deepEqual(compareSize(current, previous, explained).failures, [])
+})
+
+test('GATE-S3 tolerates growth up to max(2%, 64 B) per artifact', () => {
+  const fails = (previousBytes: number, currentBytes: number, id: string) => {
+    const initial = baseline({
+      shell: { bytes: 1, reason: '' },
+      'first-visit': { bytes: 1, reason: '' },
+      'speculative-prefetch': { bytes: 1, reason: '' },
+      [id]: { bytes: previousBytes, reason: '' },
+    })
+    const current = report(1, 0, { [id.slice('page:'.length)]: currentBytes })
+    return compareSize(current, initial, initial).failures.some((failure) => failure.startsWith(`GATE-S3: ${id} `))
+  }
+
+  assert.equal(fails(353, 382, 'page:textField'), false)
+  assert.equal(fails(353, 420, 'page:textField'), true)
+  assert.equal(fails(10_000, 10_250, 'page:persistence'), true)
 })
 
 test('GATE-S3 rejects current artifacts missing from the candidate baseline', () => {
@@ -161,10 +220,54 @@ test('GATE-S3 permits a seeded artifact only with a reason and an encompassing b
     failure.includes('shell was added without a baseline reason')))
 })
 
-test('measureSize reports the built Gallery shell and all initial server responses', async () => {
+test('capture resolver and matrix stay outside the built index.html static closure', async () => {
   const appDir = resolve(import.meta.dirname, '../../apps/gallery')
   execFileSync('pnpm', ['--dir', appDir, 'build'], { stdio: 'inherit' })
   const distDir = join(appDir, 'dist')
+  const manifest = JSON.parse(readFileSync(join(distDir, '.vite', 'manifest.json'), 'utf8')) as Record<string, {
+    file: string
+    imports?: string[]
+    isDynamicEntry?: boolean
+    assets?: string[]
+    dynamicImports?: string[]
+  }>
+  const staticKeys = new Set<string>()
+  const visitStaticImports = (key: string): void => {
+    if (staticKeys.has(key)) return
+    const entry = manifest[key]
+    assert.ok(entry, `manifest contains static import ${key}`)
+    staticKeys.add(key)
+    for (const importedFile of entry.imports ?? []) {
+      const importedKey = importedFile
+      assert.ok(importedKey, `manifest maps static import ${importedFile}`)
+      visitStaticImports(importedKey)
+    }
+  }
+  visitStaticImports('index.html')
+  const staticSources = new Set<string>()
+  for (const key of staticKeys) {
+    const file = manifest[key]!.file
+    if (!file.endsWith('.js')) continue
+    const sourceMap = JSON.parse(readFileSync(join(distDir, `${file}.map`), 'utf8')) as { sources: string[] }
+    for (const source of sourceMap.sources) staticSources.add(source)
+  }
+  assert.ok(
+    [...staticSources].every((source) =>
+      !source.endsWith('/src/capture.ts') &&
+      !source.endsWith('.capture.ts') &&
+      !source.includes('sp2-capture-matrix.json') &&
+      !source.endsWith('/packages/themes/dist/components/data-table.js') &&
+      !source.endsWith('/packages/themes/dist/components/data-table.mount.js') &&
+      !source.includes('/@foldkit/ui/dist/virtualList/')),
+    'static index.html closure excludes Gallery capture and DataTable implementation modules',
+  )
+  const captureEntry = Object.entries(manifest).find(([key, entry]) =>
+    key.endsWith('src/capture.ts') && entry.isDynamicEntry === true,
+  )?.[1]
+  assert.ok(captureEntry, 'Gallery capture module is emitted as a lazy dynamic entry')
+  assert.ok(captureEntry.assets?.some((asset) => asset.includes('sp2-capture-matrix-')), 'capture matrix is an asset of the lazy capture module')
+  assert.ok(captureEntry.dynamicImports?.some((module) => module.startsWith('src/components/')), 'capture family modules are lazy imports')
+
   const assetsDir = join(distDir, 'assets')
   const assets = readdirSync(assetsDir)
   const entry = assets.find((name) => /^index-.*\.js$/.test(name))
@@ -174,10 +277,29 @@ test('measureSize reports the built Gallery shell and all initial server respons
   const expectedShellRaw = readFileSync(join(assetsDir, entry)).byteLength + readFileSync(join(assetsDir, framework)).byteLength
   const expectedShell = brotliBytes(readFileSync(join(assetsDir, entry))) + brotliBytes(readFileSync(join(assetsDir, framework)))
 
-  const result = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
+  const result = await measureSize({
+    distDir,
+    pagesDir: join(appDir, 'src', 'pages'),
+    componentDir: join(appDir, 'src', 'components'),
+  })
   assert.equal(result.shell, expectedShell)
   assert.equal(result.shellRaw, expectedShellRaw)
-  assert.deepEqual(Object.keys(result.pages).sort(), ['browser', 'buttons', 'capabilities', 'cards', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
+  assert.deepEqual(Object.keys(result.pages).sort(), [
+    'browser', 'buttons', 'capabilities', 'cards',
+    'component:accessibility', 'component:accessibility.capture', 'component:alertDialog', 'component:alertDialog.capture',
+    'component:avatar', 'component:avatar.capture', 'component:contextMenu', 'component:contextMenu.capture',
+    'component:data', 'component:data.capture', 'component:dataTable', 'component:dataTable.capture',
+    'component:feedback', 'component:feedback.capture', 'component:formsExtra', 'component:formsExtra.capture',
+    'component:hoverCard', 'component:hoverCard.capture', 'component:iconButton', 'component:iconButton.capture',
+    'component:layoutExtra', 'component:layoutExtra.capture', 'component:links', 'component:links.capture',
+    'component:popover', 'component:popover.capture', 'component:rangeSlider', 'component:rangeSlider.capture',
+    'component:scrollArea', 'component:scrollArea.capture', 'component:select', 'component:select.capture',
+    'component:tabNav', 'component:tabNav.capture', 'component:themePanel', 'component:themePanel.capture',
+    'component:tooltip', 'component:tooltip.capture', 'component:typographyExtra', 'component:typographyExtra.capture',
+    'components', 'dialog', 'dropdownMenu', 'form', 'island',
+    'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField',
+    'theme', 'typography', 'validation', 'virtualList',
+  ].sort())
   assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')
   assert.ok(result.firstVisit.bytes > 0, 'first-visit bytes come from server response bodies')

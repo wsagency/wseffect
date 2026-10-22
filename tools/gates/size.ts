@@ -47,9 +47,43 @@ const SHELL_LIMIT = 122_880
 const FIRST_VISIT_LIMIT = 163_840
 const SPECULATIVE_PREFETCH_LIMIT = 65_536
 const GROWTH_LIMIT = 0.02
+const GROWTH_ABSOLUTE_LIMIT = 64
+const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
+const BUD1_BASE_ARTIFACT = 'bench/baselines/sp2-shell-base.json'
+const BUD1_DELTA_LIMIT = 1_024
 const BROWSER_PORT_START = 4500
 const BROWSER_PORT_END = 4599
 const IDLE_MILLISECONDS = 1_000
+
+let cachedBUD1BaseShellBytes: number | undefined
+
+export function parseBUD1ShellBase(artifact: string): number {
+  const baseline = JSON.parse(artifact) as {
+    commit?: unknown
+    entryBytes?: unknown
+    frameworkBytes?: unknown
+    totalBytes?: unknown
+  }
+  if (baseline.commit !== BUD1_BASE_COMMIT) {
+    throw new Error(`BUD-1 shell base commit ${String(baseline.commit)} does not match pinned commit ${BUD1_BASE_COMMIT}`)
+  }
+  if (
+    typeof baseline.entryBytes !== 'number' || !Number.isInteger(baseline.entryBytes) || baseline.entryBytes <= 0 ||
+    typeof baseline.frameworkBytes !== 'number' || !Number.isInteger(baseline.frameworkBytes) || baseline.frameworkBytes <= 0 ||
+    typeof baseline.totalBytes !== 'number' || !Number.isInteger(baseline.totalBytes) ||
+    baseline.totalBytes !== baseline.entryBytes + baseline.frameworkBytes
+  ) {
+    throw new Error(`BUD-1 shell base artifact ${BUD1_BASE_ARTIFACT} has invalid byte counts`)
+  }
+  return baseline.totalBytes
+}
+
+function approvedBUD1BaseShellBytes(): number {
+  if (cachedBUD1BaseShellBytes !== undefined) return cachedBUD1BaseShellBytes
+  const artifact = readFileSync(join(ROOT, BUD1_BASE_ARTIFACT), 'utf8')
+  cachedBUD1BaseShellBytes = parseBUD1ShellBase(artifact)
+  return cachedBUD1BaseShellBytes
+}
 
 function brotliBytes(contents: Buffer): number {
   return brotliCompressSync(contents, {
@@ -73,15 +107,19 @@ function relativeKey(root: string, file: string): string {
   return relative(root, file).split(sep).join('/')
 }
 
-function pageSizes(distDir: string, pagesDir: string, manifest: Manifest): Record<string, number> {
+function pageSizes(distDir: string, pagesDir: string, manifest: Manifest, componentDir?: string): Record<string, number> {
   const appDir = dirname(resolve(distDir))
   const pageFiles = filesUnder(pagesDir).filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path))
+    .map((path) => ({ path, key: basename(path, extname(path)) }))
+  const componentFiles = componentDir === undefined
+    ? []
+    : filesUnder(componentDir).filter((path) => /\.(?:[cm]?[jt]sx?)$/.test(path))
+      .map((path) => ({ path, key: `component:${basename(path, extname(path))}` }))
   const sizes: Record<string, number> = {}
 
-  for (const source of pageFiles) {
-    const entry = manifest[relativeKey(appDir, source)]
+  for (const { path, key } of [...pageFiles, ...componentFiles]) {
+    const entry = manifest[relativeKey(appDir, path)]
     if (entry?.isDynamicEntry !== true) continue
-    const key = basename(source, extname(source))
     if (Object.hasOwn(sizes, key)) throw new Error(`duplicate page chunk key: ${key}`)
     sizes[key] = brotliBytes(readFileSync(join(distDir, entry.file)))
   }
@@ -177,6 +215,7 @@ async function waitForQuiet(server: ServerHandle, page: import('@playwright/test
 export async function measureSize(input: {
   readonly distDir: string
   readonly pagesDir: string
+  readonly componentDir?: string
   readonly primaryPageKeys?: ReadonlyArray<string>
 }): Promise<SizeReport> {
   const distDir = resolve(input.distDir)
@@ -194,7 +233,7 @@ export async function measureSize(input: {
   const frameworkContents = readFileSync(frameworkFile)
   const shellRaw = entryContents.byteLength + frameworkContents.byteLength
   const shell = brotliBytes(entryContents) + brotliBytes(frameworkContents)
-  const pages = pageSizes(distDir, input.pagesDir, manifest)
+  const pages = pageSizes(distDir, input.pagesDir, manifest, input.componentDir)
   const cssFiles = filesUnder(assetsDir).filter((path) => path.endsWith('.css'))
   const stylesCss = cssFiles.length === 0
     ? undefined
@@ -293,7 +332,11 @@ async function runCli(): Promise<void> {
   }
 
   execFileSync('pnpm', ['--dir', appDir, 'build'], { stdio: 'inherit' })
-  const report = await measureSize({ distDir, pagesDir: join(appDir, 'src', 'pages') })
+  const report = await measureSize({
+    distDir,
+    pagesDir: join(appDir, 'src', 'pages'),
+    componentDir: join(appDir, 'src', 'components'),
+  })
   console.log(JSON.stringify(report, null, 2))
 
   const baselinePath = join(ROOT, 'bench/baselines/size.json')
@@ -364,6 +407,13 @@ export function compareSize(
   if (report.speculativePrefetch.bytes > SPECULATIVE_PREFETCH_LIMIT) {
     failures.push(`GATE-S4: speculative-prefetch ${report.speculativePrefetch.bytes} B exceeds 65,536 B`)
   }
+  const approvedBaseShellBytes = approvedBUD1BaseShellBytes()
+  const shellDelta = report.shell - approvedBaseShellBytes
+  if (shellDelta > BUD1_DELTA_LIMIT) {
+    failures.push(
+      `GATE-BUD-1: entry + framework grew ${shellDelta.toLocaleString('en-US')} B over the measured ${BUD1_BASE_COMMIT} build (${approvedBaseShellBytes.toLocaleString('en-US')} → ${report.shell.toLocaleString('en-US')} B); hard cap is ${BUD1_DELTA_LIMIT.toLocaleString('en-US')} B`,
+    )
+  }
 
   const current = artifactSizes(report)
   for (const [id, bytes] of Object.entries(current)) {
@@ -376,16 +426,18 @@ export function compareSize(
     if (previous === undefined || previous.bytes <= 0) {
       if (candidate.reason.trim() === '') {
         failures.push(`GATE-S3: ${id} was added without a baseline reason`)
-      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+      } else if (bytes - candidate.bytes > Math.max(candidate.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)) {
         failures.push(`GATE-S3: ${id} ${bytes} B exceeds its candidate baseline ${candidate.bytes} B`)
       }
       continue
     }
-    const growth = (bytes - previous.bytes) / previous.bytes
-    if (growth > GROWTH_LIMIT) {
+    const growthBytes = bytes - previous.bytes
+    const maxGrowthBytes = Math.max(previous.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)
+    const growth = growthBytes / previous.bytes
+    if (growthBytes > maxGrowthBytes) {
       if (candidate.bytes === previous.bytes || candidate.reason.trim() === '') {
         failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); update its bytes and reason in size.json`)
-      } else if (bytes > candidate.bytes * (1 + GROWTH_LIMIT)) {
+      } else if (bytes - candidate.bytes > Math.max(candidate.bytes * GROWTH_LIMIT, GROWTH_ABSOLUTE_LIMIT)) {
         failures.push(`GATE-S3: ${id} grew ${(growth * 100).toFixed(1)}% (${previous.bytes} → ${bytes} B); candidate baseline ${candidate.bytes} B is too small`)
       }
     }

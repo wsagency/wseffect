@@ -1,9 +1,10 @@
 import { Schema } from 'effect'
 import { pageContract } from '@wsagency/wseffect-app'
-import { Theme } from '@wsagency/wseffect-themes'
+import * as Theme from '@wsagency/wseffect-themes/components/theme'
 import { defineMessageUnion } from 'foldkit/message'
 
 export type PageInputs = Readonly<{
+  path: string
   date: string
   accentColor: Theme.Settings['accentColor']
   grayColor: Theme.Settings['grayColor']
@@ -26,7 +27,7 @@ export const themeSettingsFrom = (inputs: PageInputs): Theme.Settings => ({
 export const PageOutMessage = defineMessageUnion({
   RequestedShiftDay: { days: Schema.Number },
   ChangedThemeSetting: {
-    setting: Schema.Literals(['accentColor', 'grayColor', 'radius', 'scaling', 'appearance', 'panelBackground']),
+    setting: Schema.Literals(['accentColor', 'grayColor', 'radius', 'scaling', 'appearance', 'panelBackground', 'hasBackground']),
     value: Schema.String,
   },
 })

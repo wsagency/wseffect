@@ -16,6 +16,8 @@ describe('gallery shell', () => {
       Scene.expect(Scene.selector('[data-perf="nav-cold"]')).toHaveAttr('href', '/menus'),
       Scene.expect(Scene.selector('[data-perf="nav-prefetch"]')).toHaveAttr('href', '/dialog'),
       Scene.expect(Scene.selector('#more-pages')).toBeAbsent(),
+      Scene.expect(Scene.selector('#link-components')).toHaveAttr('href', '/components'),
+      Scene.expect(Scene.selector('#link-components')).toHaveText('Components'),
       Scene.expect(Scene.selector('#build-id')).toHaveText(BUILD_ID))
   })
 

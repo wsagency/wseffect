@@ -12,11 +12,12 @@ import { discoverPackagePublicSurface } from './discover-public-surface.ts'
 import type { CoverageManifest } from './check-coverage-manifest.ts'
 import { checkEffectCopies } from '../../scripts/check-repo.ts'
 import { checkPackedAppCapabilities } from './check-app-capabilities.ts'
+import { checkPackedSp2Artifacts, checkPrimitiveTreeShaking, disallowedEffectModules } from './check-sp2.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(consumerDir, '../..')
-const packageNames = ['app', 'themes'] as const
+const packageNames = ['app', 'primitives', 'themes'] as const
 const forbiddenTreeShakingMarkers = ['viewPage', 'ServiceWorker', 'makeApp', 'prefetchOnVisible']
 const passedChecks: string[] = []
 
@@ -136,6 +137,11 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
         && !rel.endsWith('.tsbuildinfo'))
     },
   })
+  await mkdir(resolve(root, '..', '..', 'bench/radix2solid'), { recursive: true })
+  await cp(
+    resolve(repoRoot, 'bench/radix2solid/sp2-capture-matrix.json'),
+    resolve(root, '..', '..', 'bench/radix2solid/sp2-capture-matrix.json'),
+  )
   const rootManifest = JSON.parse(await readFile(resolve(repoRoot, 'package.json'), 'utf8')) as {
     packageManager: string
     engines: { node: string }
@@ -148,9 +154,11 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
   const dependencies = {
     ...galleryManifest.dependencies,
     '@wsagency/wseffect-app': `file:${tarballs.app}`,
+    '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
     '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
   }
   delete dependencies['@wsagency/wseffect-app']
+  delete dependencies['@wsagency/wseffect-primitives']
   delete dependencies['@wsagency/wseffect-themes']
   const packageJson = {
     packageManager: rootManifest.packageManager,
@@ -160,6 +168,7 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     dependencies: {
       ...dependencies,
       '@wsagency/wseffect-app': `file:${tarballs.app}`,
+      '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
       '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
     },
     devDependencies: rootManifest.devDependencies,
@@ -200,6 +209,16 @@ export default defineConfig({
   build: { outDir: 'tree-shaking-out', emptyOutDir: true, minify: false,
     lib: { entry: 'tree-shaking.ts', formats: ['es'], fileName: 'tree-shaking' } },
 })\n`)
+  await cp(resolve(consumerDir, 'fixtures/sp2'), resolve(root, 'sp2'), { recursive: true })
+  await mkdir(resolve(root, 'src/consumer'), { recursive: true })
+  await cp(resolve(consumerDir, 'fixtures/themes-root-types.ts'), resolve(root, 'src/consumer/themes-root-types.ts'))
+  await cp(resolve(consumerDir, 'fixtures/themes-root-consumer.mjs'), resolve(root, 'themes-root-consumer.mjs'))
+  await writeFile(resolve(root, 'vite.sp2.config.ts'), `
+import { defineConfig } from 'vite'
+export default defineConfig({
+  build: { outDir: process.env.WSEFFECT_SP2_OUT_DIR, emptyOutDir: true, sourcemap: true, minify: false,
+    lib: { entry: process.env.WSEFFECT_SP2_ENTRY, formats: ['es'], fileName: 'bundle' } },
+})\n`)
 }
 
 async function main(): Promise<void> {
@@ -208,12 +227,19 @@ async function main(): Promise<void> {
   await mkdir(packsDir, { recursive: true })
   try {
     const tarballs = await packPackages(packsDir)
-    const root = join(scratch, 'consumer')
+    const root = join(scratch, 'apps', 'gallery')
     await mkdir(root, { recursive: true })
     await copyConsumerFixture(root, tarballs)
     const readme = await readFile(resolve(repoRoot, 'README.md'), 'utf8')
     const workspaceYaml = await readFile(resolve(root, 'pnpm-workspace.yaml'), 'utf8')
     fail(checkUp8(readme, workspaceYaml))
+    const primitiveOverrideAnchor = "  '@effect/platform-browser': 4.0.5\n"
+    if (!workspaceYaml.includes(primitiveOverrideAnchor)) throw new Error('consumer fixture: could not locate UP-8 dependency overrides')
+    const workspaceYamlWithPrimitive = workspaceYaml.replace(
+      primitiveOverrideAnchor,
+      `${primitiveOverrideAnchor}  '@wsagency/wseffect-primitives': file:${tarballs.primitives}\n`,
+    )
+    await writeFile(resolve(root, 'pnpm-workspace.yaml'), workspaceYamlWithPrimitive)
 
     run('pnpm', ['install', '--lockfile-only'], root)
     run('pnpm', ['install', '--frozen-lockfile'], root)
@@ -224,12 +250,21 @@ async function main(): Promise<void> {
       requireAll: process.env.WSEFFECT_REQUIRE_APP_CAPABILITIES === '1',
     })
     run('pnpm', ['exec', 'tsc', '--noEmit'], root)
+    passedChecks.push('themes-root-types')
+    run('node', ['themes-root-consumer.mjs'], root)
+    passedChecks.push('themes-root-api')
     passedChecks.push('consumer-install', 'gallery-build', 'app-capabilities', 'gallery-typecheck', 'up8')
 
     const lockfile = await readFile(resolve(root, 'pnpm-lock.yaml'), 'utf8')
     fail(checkEffectCopies(lockfile))
     const effectDirs = (await readdir(resolve(root, 'node_modules/.pnpm'))).filter((entry) => entry.startsWith('effect@'))
     if (effectDirs.length !== 1) throw new Error(`packed consumer: expected one effect package directory, found ${effectDirs.length}`)
+    const primitiveDirs = (await readdir(resolve(root, 'node_modules/.pnpm')))
+      .filter((entry) => entry.startsWith('@wsagency+wseffect-primitives@'))
+    if (primitiveDirs.length !== 1) {
+      throw new Error(`packed consumer: expected one primitives package directory, found ${primitiveDirs.length}`)
+    }
+    passedChecks.push('single-primitives')
     passedChecks.push('single-effect')
 
     const packageDistModules: { path: string; source: string }[] = []
@@ -244,6 +279,37 @@ async function main(): Promise<void> {
     const treeBundle = await readFile(resolve(root, 'tree-shaking-out/tree-shaking.js'), 'utf8')
     for (const marker of forbiddenTreeShakingMarkers) fail(checkTreeShaking(treeBundle, marker))
     passedChecks.push('tree-shaking')
+    const themesPackage = resolve(root, 'node_modules/@wsagency/wseffect-themes')
+    await checkPackedSp2Artifacts(themesPackage)
+    passedChecks.push('sp2-packed')
+
+    const sp2Bundles = [
+      { entry: 'sp2/primitive.ts', outDir: 'sp2-primitive-out' },
+      { entry: 'sp2/box-heading.ts', outDir: 'sp2-box-heading-out' },
+    ]
+    for (const bundle of sp2Bundles) {
+      run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.sp2.config.ts'], root, packedBuildEnvironment({
+        ...process.env,
+        WSEFFECT_SP2_ENTRY: bundle.entry,
+        WSEFFECT_SP2_OUT_DIR: bundle.outDir,
+      }))
+    }
+    const primitiveMaps = await filesUnder(resolve(root, sp2Bundles[0]!.outDir), '.js.map')
+    const primitiveSources = (await Promise.all(primitiveMaps.map(async (path) => {
+      const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
+      return map.sources ?? []
+    }))).flat()
+    fail(checkPrimitiveTreeShaking(primitiveSources))
+    passedChecks.push('sp2-primitive-tree-shaking')
+
+    const boxHeadingMaps = await filesUnder(resolve(root, sp2Bundles[1]!.outDir), '.js.map')
+    const boxHeadingSources = (await Promise.all(boxHeadingMaps.map(async (path) => {
+      const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
+      return map.sources ?? []
+    }))).flat()
+    const effectModules = disallowedEffectModules(boxHeadingSources)
+    if (effectModules.length) throw new Error(`packed SP2 Box+Heading includes Effect modules: ${effectModules.join(', ')}`)
+    passedChecks.push('sp2-box-heading-effect')
 
     const e2eFiles = (await filesUnder(resolve(root, 'e2e'), '.spec.ts'))
       .filter((path) => !path.endsWith('/buildId.spec.ts') && !path.endsWith('/chunks.spec.ts') && !path.endsWith('/devReload.spec.ts'))
@@ -260,6 +326,7 @@ async function main(): Promise<void> {
 
     const publicSurface = [
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-app'), '@wsagency/wseffect-app'),
+      ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-primitives'), '@wsagency/wseffect-primitives'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-themes'), '@wsagency/wseffect-themes'),
     ]
     passedChecks.push('public-surface')

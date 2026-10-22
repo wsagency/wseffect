@@ -61,6 +61,7 @@
     "@wsagency/wseffect-themes": "workspace:*"
   },
   "devDependencies": {
+    "@wsagency/wseffect-primitives": "workspace:*",
     "@wsagency/wseffect-themes": "workspace:*",
     "@foldkit/ui": "0.168.0",
     "@foldkit/vite-plugin": "0.27.1",

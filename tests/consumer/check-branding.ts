@@ -8,7 +8,9 @@ export function checkBranding(distModules: ReadonlyArray<{ readonly path: string
     const exportsFactory = /\bexport\s+(?:const|let|var|function)\s+create\b/.test(source)
       && /\b(?:defineView|brandViewResult)\b/.test(source)
     const importsBrand = /\bfrom\s*(['"])foldkit\/brand\1|\bimport\s*(['"])foldkit\/brand\2/.test(source)
-    return (declarationExportsView || listExportsView || exportsFactory) && !importsBrand
+    const delegatesToFoldkitSlider = path.replaceAll('\\', '/').endsWith('/components/slider.js')
+      && /\bfrom\s*(['"])@foldkit\/ui\/slider\1|\bimport\s*(['"])@foldkit\/ui\/slider\2/.test(source)
+    return (declarationExportsView || listExportsView || exportsFactory) && !importsBrand && !delegatesToFoldkitSlider
       ? [`${path}: exported view or view factory is missing a foldkit/brand import`]
       : []
   })

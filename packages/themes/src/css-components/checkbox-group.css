@@ -1,3 +1,4 @@
+@import './_internal/base-checkbox.css';
 .rt-CheckboxGroupRoot {
   display: flex;
   flex-direction: column;

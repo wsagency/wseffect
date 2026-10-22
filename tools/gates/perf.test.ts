@@ -9,8 +9,17 @@ const syntheticNoiseFloors = {
   'vl-filter': 42,
   'vl-sort': 26,
   'vl-select': 20,
+  'dt-update': 36,
+  'dt-filter': 38,
+  'dt-sort': 39,
+  'dt-select': 35,
   'form-field': 26,
   'menus-tick': 29,
+  'select-open': 25,
+  'select-choose': 25,
+  'tooltip-open': 18,
+  'tooltip-close': 18,
+  'slider-drag': 20,
 } as const
 const regression = (overrides: Partial<Parameters<typeof regressed>[0]> = {}) => ({
   scenarioId: 'vl-sort' as const,
@@ -56,8 +65,17 @@ test('GATE-P3 keeps an 8 ms absolute script threshold when the synthetic noise f
     'vl-filter': 0,
     'vl-sort': 0,
     'vl-select': 0,
+    'dt-update': 0,
+    'dt-filter': 0,
+    'dt-sort': 0,
+    'dt-select': 0,
     'form-field': 0,
     'menus-tick': 0,
+    'select-open': 0,
+    'select-choose': 0,
+    'tooltip-open': 0,
+    'tooltip-close': 0,
+    'slider-drag': 0,
   }
   assert.equal(regressed(regression({ candScript: [18] }), zeroNoiseFloors), false)
   assert.equal(regressed(regression({ candScript: [18.1] }), zeroNoiseFloors), true)
@@ -104,9 +122,132 @@ test('performance scenarios retain the GATE-P2 ceilings and use trusted input ev
     ['vl-select', 50, 'click'],
     ['form-field', 30, 'keydown'],
     ['menus-tick', 30, 'click'],
+    ['dt-update', 50, 'click'],
+    ['dt-filter', 50, 'keydown'],
+    ['dt-sort', 50, 'click'],
+    ['dt-select', 50, 'click'],
+    ['select-open', 50, 'click'],
+    ['select-choose', 50, 'click'],
+    ['tooltip-open', 30, 'keydown'],
+    ['tooltip-close', 30, 'keydown'],
+    ['slider-drag', 30, 'click'],
   ])
   assert.ok(SCENARIOS.every(({ prepare, warmup, reset, act }) =>
     typeof prepare === 'function' && typeof warmup === 'function' && typeof reset === 'function' && typeof act === 'function'))
+})
+test('DataTable 10k scenarios wire the data-table operations at the proposed 4× ceiling', async () => {
+  const dataTableScenarios = SCENARIOS.filter(({ id }) => id.startsWith('dt-'))
+  assert.deepEqual(dataTableScenarios.map(({ id, route, inputEventType, hook, ceilingMs, ceilingStatus }) =>
+    [id, route, inputEventType, hook, ceilingMs, ceilingStatus]), [
+    ['dt-update', '/components/data-table', 'click', 'data-table-update', 50, 'proposed-not-runner-validated'],
+    ['dt-filter', '/components/data-table', 'keydown', 'data-table-filter', 50, 'proposed-not-runner-validated'],
+    ['dt-sort', '/components/data-table', 'click', 'data-table-sort', 50, 'proposed-not-runner-validated'],
+    ['dt-select', '/components/data-table', 'click', 'data-table-select', 50, 'proposed-not-runner-validated'],
+  ])
+
+  const calls: string[] = []
+  const locator = (selector: string) => ({
+    fill: async (value: string) => { calls.push(`${selector}.fill(${value})`) },
+    press: async (key: string) => { calls.push(`${selector}.press(${key})`) },
+    click: async () => { calls.push(`${selector}.click`) },
+  })
+  const page = {
+    locator,
+    getByRole: (role: string, options: { readonly name: string; readonly exact?: boolean }) =>
+      locator(`${role}:${options.name}${options.exact ? ':exact' : ''}`),
+  } as never
+  const expectedCalls = [
+    [
+      '[data-perf="data-table-update"].click',
+      '[data-perf="data-table-update"].click',
+      '[data-perf="data-table-update"].click',
+    ],
+    [
+      '[data-perf="data-table-filter"].fill()',
+      '[data-perf="data-table-filter"].press(x)',
+      '[data-perf="data-table-filter"].fill()',
+      '[data-perf="data-table-filter"].press(9)',
+    ],
+    [
+      '[data-perf="data-table-sort"].click',
+      '[data-perf="data-table-sort"].click',
+      '[data-perf="data-table-sort"].click',
+    ],
+    [
+      'checkbox:Select row row-1:exact.click',
+      'checkbox:Select row row-1:exact.click',
+      'checkbox:Select row row-1:exact.click',
+    ],
+  ]
+  for (const [index, scenario] of dataTableScenarios.entries()) {
+    calls.length = 0
+    await scenario.prepare(page)
+    await scenario.warmup(page)
+    await scenario.reset(page)
+    await scenario.act(page)
+    assert.deepEqual(calls, expectedCalls[index])
+  }
+})
+test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag scenarios', async () => {
+  const sp2Scenarios = SCENARIOS.filter(({ id }) => id.startsWith('select-') || id.startsWith('tooltip-') || id === 'slider-drag')
+  assert.deepEqual(sp2Scenarios.map(({ id, route, inputEventType, hook, ceilingMs, ceilingStatus }) =>
+    [id, route, inputEventType, hook, ceilingMs, ceilingStatus]), [
+    ['select-open', '/components/select', 'click', 'select-open', 50, 'proposed-not-runner-validated'],
+    ['select-choose', '/components/select', 'click', 'select-open', 50, 'proposed-not-runner-validated'],
+    ['tooltip-open', '/components/tooltip', 'keydown', 'tooltip-open', 30, 'proposed-not-runner-validated'],
+    ['tooltip-close', '/components/tooltip', 'keydown', 'tooltip-close', 30, 'proposed-not-runner-validated'],
+    ['slider-drag', '/components/range-slider', 'click', 'slider-drag', 30, 'proposed-not-runner-validated'],
+  ])
+
+  const calls: string[] = []
+  const locator = (selector: string) => ({
+    click: async () => { calls.push(`${selector}.click`) },
+    focus: async () => { calls.push(`${selector}.focus`) },
+    press: async (key: string) => { calls.push(`${selector}.press(${key})`) },
+    boundingBox: async () => {
+      calls.push(`${selector}.boundingBox`)
+      return { x: 10, y: 20, width: 10, height: 10 }
+    },
+  })
+  const page = {
+    locator,
+    mouse: {
+      move: async (x: number, y: number) => { calls.push(`mouse.move(${x},${y})`) },
+      down: async () => { calls.push('mouse.down') },
+      up: async () => { calls.push('mouse.up') },
+    },
+  } as never
+  const expectedCalls = [
+    ['[data-perf="select-open"] button.click', '[data-perf="select-open"] button.click', '[data-perf="select-open"] button.click'],
+    ['[data-perf="select-open"] button.click', '[data-perf="select-choose"].click'],
+    [
+      '[data-perf="tooltip-open"].focus',
+      '[data-perf="tooltip-open"].press(Tab)',
+      '[data-perf="tooltip-open"].focus',
+      '[data-perf="tooltip-open"].press(Tab)',
+    ],
+    [
+      '[data-perf="tooltip-open"].focus',
+      '[data-perf="tooltip-open"].press(Tab)',
+      '[data-perf="tooltip-open"].focus',
+      '[data-perf="tooltip-open"].press(Tab)',
+      '[data-perf="tooltip-close"] button.press(Tab)',
+    ],
+    [
+      '[data-perf="slider-drag"] input[data-thumb-id="Minimum value"].boundingBox',
+      'mouse.move(15,25)', 'mouse.down', 'mouse.move(35,25)', 'mouse.up',
+      '[data-perf="slider-drag"] input[data-thumb-id="Minimum value"].boundingBox',
+      'mouse.move(15,25)', 'mouse.down', 'mouse.move(-5,25)', 'mouse.up',
+    ],
+  ]
+  for (const [index, scenario] of sp2Scenarios.entries()) {
+    calls.length = 0
+    await scenario.prepare(page)
+    await scenario.warmup(page)
+    await scenario.reset(page)
+    await scenario.act(page)
+    assert.deepEqual(calls, expectedCalls[index])
+  }
 })
 
 test('CPU throttle helper sends the CDP 4x command', async () => {
@@ -267,6 +408,15 @@ test('trace window without ET bounds rAF search to the first frame after input',
   ]
   assert.equal(traceScriptingDuration(events, 'click'), 10)
   assert.equal(traceAnimationFrameCount(events, 'click'), 1)
+})
+test('trace window ignores Paint events before the matched input when Event Timing bounds it', () => {
+  const events = [
+    { name: 'Paint', ph: 'X', ts: 90_000, dur: 1_000 },
+    { name: 'EventDispatch', ph: 'X', ts: 100_000, dur: 5_000, args: { data: { type: 'click' } } },
+    { name: 'FireAnimationFrame', ph: 'X', ts: 110_000, dur: 5_000 },
+  ]
+  assert.equal(traceScriptingDuration(events, 'click', 40), 10)
+  assert.equal(traceAnimationFrameCount(events, 'click', 40), 1)
 })
 test('rejects a trace flush boundary that precedes the matched input instead of returning zero', () => {
   assert.throws(() => traceScriptingDuration([

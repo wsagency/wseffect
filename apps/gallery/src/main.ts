@@ -2,7 +2,7 @@ import '@wsagency/wseffect-themes/tokens/base.css'
 import '@wsagency/wseffect-themes/tokens/colors/indigo.css'
 import '@wsagency/wseffect-themes/tokens/colors/slate.css'
 import '@wsagency/wseffect-themes/tokens/colors/gray.css'
-import '@wsagency/wseffect-themes/components.css'
+import '@wsagency/wseffect-themes/components-base.css'
 import '@wsagency/wseffect-themes/utilities.css'
 import './shell.css'
 import { makeApp } from '@wsagency/wseffect-app'
@@ -42,4 +42,8 @@ const application = makeApp<Model, Message, Pages, KitMessageType>({
   },
 })
 
-run(application)
+if (location.search.includes('capture=')) {
+  void import('./capture.js').then(({ startCapture }) => startCapture(new URL(location.href)))
+} else {
+  run(application)
+}

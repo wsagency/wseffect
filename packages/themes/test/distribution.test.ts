@@ -4,19 +4,20 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs'] as const
+const componentNames = ['theme', 'box', 'flex', 'grid', 'text', 'heading', 'card', 'button', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'data-table', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'] as const
+const viewComponentNames = [...componentNames.filter(name => name !== 'radio-cards'), 'slider/range'] as const
 const cssSubpaths = [
   './styles.css', './components.css', './utilities.css', './tokens.css', './tokens/base.css',
   './layout.css', './layout/tokens.css', './layout/components.css', './layout/utilities.css',
   './css/common.css', './css/utilities.css',
-  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area'].map(name => `./css/${name}.css`),
+  ...['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 'text-field', 'dialog', 'dropdown-menu', 'tabs', 'spinner', 'scroll-area', 'data-table', 'checkbox', 'checkbox-group', 'checkbox-cards', 'radio', 'radio-group', 'radio-cards', 'switch', 'segmented-control', 'select', 'text-area', 'slider'].map(name => `./css/${name}.css`),
 ]
 
 describe('themes distribution', () => {
-  it('brands every component view in the built package', async () => {
-    for (const name of componentNames) {
+  it('brands or delegates every component view in the built package', async () => {
+    for (const name of viewComponentNames) {
       const code = await readFile(resolve(packageRoot, `dist/components/${name}.js`), 'utf8')
-      expect(code, name).toContain("from 'foldkit/brand'")
+      expect(code, name).toContain(name === 'slider' ? "from '@foldkit/ui/slider'" : "from 'foldkit/brand'")
     }
   })
 
@@ -24,6 +25,7 @@ describe('themes distribution', () => {
     const packageJson = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')) as { exports: Record<string, unknown> }
     expect(packageJson.exports['.']).toBeDefined()
     for (const name of componentNames) expect(packageJson.exports[`./components/${name}`], name).toBeDefined()
+    expect(packageJson.exports['./components/slider/range']).toBeDefined()
     for (const subpath of cssSubpaths) expect(packageJson.exports[subpath], subpath).toBeDefined()
     const layerEntry = packageJson.exports['./*.layer.css']
     expect(layerEntry).toBeDefined()
@@ -36,6 +38,22 @@ describe('themes distribution', () => {
       expect(packageJson.exports[subpath], color).toBeDefined()
       expect(packageJson.exports[subpath.replace(/\.css$/, '.layer.css')] ?? layerEntry, `${color} layer`).toBeDefined()
     }
+  })
+  it('exports every top-level component subpath from the root barrel', async () => {
+    const packageJson = JSON.parse(await readFile(resolve(packageRoot, 'package.json'), 'utf8')) as { exports: Record<string, unknown> }
+    const source = await readFile(resolve(packageRoot, 'src/index.ts'), 'utf8')
+    const componentSlugs = Object.keys(packageJson.exports)
+      .flatMap(subpath => {
+        const match = /^\.\/components\/([^/]+)$/.exec(subpath)
+        return match ? [match[1]] : []
+      })
+    const expected = componentSlugs
+      .map(slug => `${slug.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('')}:${slug}`)
+      .sort()
+    const actual = [...source.matchAll(/^export \* as (\w+) from '\.\/components\/([a-z0-9-]+)\.js'$/gm)]
+      .map(([, name, slug]) => `${name}:${slug}`)
+      .sort()
+    expect(actual).toEqual(expected)
   })
 
   it('ships selectors for the upstream structural classes used by stateful views', async () => {
@@ -70,8 +88,15 @@ describe('themes distribution', () => {
     const semanticAliases = [
       'rt-DialogContent', 'rt-DialogOverlay', 'rt-DialogScroll', 'rt-DialogScrollPadding',
       'rt-DropdownMenuContent', 'rt-DropdownMenuItem', 'rt-DropdownMenuViewport',
+      'rt-BaseMenuGroup', 'rt-ContextMenuGroup', 'rt-ContextMenuItem', 'rt-ContextMenuLabel', 'rt-ContextMenuSeparator',
       'rt-TabsList', 'rt-TabsRoot', 'rt-TabsTrigger', 'rt-TabsTriggerInner', 'rt-TabsTriggerInnerHidden',
+      // Pinned R2S callout.css has no rt-CalloutText selector by design.
+      'rt-CalloutText',
     ] as const
+    const unstyledStructuralClasses: Record<string, true> = {
+      'rt-ScrollAreaCorner': true, 'rt-underline-none': true, 'rt-SelectGroup': true, 'rt-SelectItemText': true,
+      'rt-AlertDialogOverlay': true, 'rt-AlertDialogScroll': true, 'rt-AlertDialogScrollPadding': true, 'rt-AlertDialogContent': true, 'rt-HoverCardTrigger': true,
+    }
     const radix2solidMarkup = await readFile(resolve(packageRoot, 'test/fixtures/radix2solid-383676172-markup.txt'), 'utf8')
     expect(radix2solidMarkup).toContain('383676172abb84b4a1d2e54a087d290437ee8848')
     const upstreamClasses = new Set([...radix2solidMarkup.matchAll(/\b(rt-[A-Za-z0-9_-]+)\b/g)].map(([, className]) => className))
@@ -79,9 +104,14 @@ describe('themes distribution', () => {
       expect(upstreamClasses.has(alias), `upstream semantic alias ${alias}`).toBe(true)
       expect(emittedClasses.has(alias), `emitted semantic alias ${alias}`).toBe(true)
     }
-    const css = await readFile(resolve(packageRoot, 'dist/styles/styles.css'), 'utf8')
+    const css = (await Promise.all(['styles.css', 'components.css', 'components-base.css', 'utilities.css'].map(
+      fileName => readFile(resolve(packageRoot, 'dist/styles', fileName), 'utf8'),
+    ))).join('\n')
+    for (const structuralClass of Object.keys(unstyledStructuralClasses)) {
+      expect(emittedClasses.has(structuralClass), `emitted structural alias ${structuralClass}`).toBe(true)
+    }
     for (const className of emittedClasses) {
-      if (!semanticAliases.includes(className as typeof semanticAliases[number])) {
+      if (!semanticAliases.includes(className as typeof semanticAliases[number]) && !Object.hasOwn(unstyledStructuralClasses, className)) {
         expect(css, `.${className}`).toContain(`.${className}`)
       }
     }

@@ -1,0 +1,8 @@
+html[data-sp2-capture-mode='true'],
+html[data-sp2-capture-mode='true'] body {
+  background-color: var(--color-background);
+}
+
+html[data-sp2-capture-mode='true'] .bench-section {
+  background-color: var(--color-background);
+}

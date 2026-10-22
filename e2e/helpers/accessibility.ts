@@ -6,6 +6,7 @@ export interface AccessibilityViolation {
   readonly impact: string | null
   readonly description: string
   readonly nodes: number
+  readonly diagnostics: ReadonlyArray<Readonly<{ target: ReadonlyArray<string>; failureSummary: string | null }>>
 }
 
 export async function accessibilityViolations(page: Page): Promise<ReadonlyArray<AccessibilityViolation>> {
@@ -15,7 +16,7 @@ export async function accessibilityViolations(page: Page): Promise<ReadonlyArray
       id: string
       impact: string | null
       description: string
-      nodes: ReadonlyArray<unknown>
+      nodes: ReadonlyArray<Readonly<{ target: ReadonlyArray<string>; failureSummary: string | null }>>
     }> }> } }).axe
     const results = await axe.run(document)
     return results.violations.map(({ id, impact, description, nodes }) => ({
@@ -23,6 +24,7 @@ export async function accessibilityViolations(page: Page): Promise<ReadonlyArray
       impact,
       description,
       nodes: nodes.length,
+      diagnostics: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })),
     }))
   })
 }

@@ -6,7 +6,10 @@ import type { HtmlBuilder } from 'foldkit/html'
 import type { Url } from 'foldkit/url'
 import type { UrlRequest } from 'foldkit/navigation'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
-import { Box, Flex, Heading, Text } from '@wsagency/wseffect-themes'
+import * as Box from '@wsagency/wseffect-themes/components/box'
+import * as Flex from '@wsagency/wseffect-themes/components/flex'
+import * as Heading from '@wsagency/wseffect-themes/components/heading'
+import * as Text from '@wsagency/wseffect-themes/components/text'
 import { PageOutMessage } from './contract.js'
 import type { PageInputs, PageOutMessage as PageOutMessageType } from './contract.js'
 import * as DatePicker from './datePicker.js'
@@ -17,6 +20,7 @@ import { pageKeysByRoute, pageKeysForRoute } from './routes.js'
 import type { GalleryPageKey } from './routes.js'
 
 export const Model = Schema.Struct({
+  path: Schema.String,
   date: Schema.String,
   datePicker: DatePicker.Model,
   theme: Theme.Settings,
@@ -69,6 +73,10 @@ const updateThemeSetting = (model: Model, setting: string, value: string): Model
       const decoded = Schema.decodeUnknownOption(Theme.Settings.fields.appearance)(value)
       return Option.isSome(decoded) ? { ...model, theme: { ...model.theme, appearance: decoded.value } } : model
     }
+    case 'hasBackground':
+      if (value === 'true') return { ...model, theme: { ...model.theme, hasBackground: true } }
+      if (value === 'false') return { ...model, theme: { ...model.theme, hasBackground: false } }
+      return model
     case 'panelBackground': {
       const decoded = Schema.decodeUnknownOption(Theme.Settings.fields.panelBackground)(value)
       return Option.isSome(decoded) ? { ...model, theme: { ...model.theme, panelBackground: decoded.value } } : model
@@ -85,6 +93,7 @@ export const applyPageOutMessage = (model: Model, message: PageOutMessageType): 
 
 export function createInitialModel(activeKeys: ReadonlyArray<GalleryPageKey> = []): Model {
   return {
+    path: '/',
     date: '2026-10-19',
     datePicker: {},
     theme: Theme.defaults,
@@ -95,7 +104,7 @@ export function createInitialModel(activeKeys: ReadonlyArray<GalleryPageKey> = [
 const routeUpdate = (model: Model, path: string) => {
   const result = kit.update(model.kit, KitMessage.EnteredRoute({ keys: pageKeysForRoute(path) }))
   return {
-    model: { ...model, kit: result.model },
+    model: { ...model, path, kit: result.model },
     commands: result.commands?.map((command) => Command.mapMessage(command, (message) => Message.GotKitMessage({ message }))) ?? [],
   }
 }
@@ -124,6 +133,7 @@ export const update = (model: Model, message: Message) => Message.match(message,
 })
 
 const pageInputs = (model: Model): PageInputs => ({
+  path: model.path,
   date: model.date,
   accentColor: model.theme.accentColor,
   grayColor: model.theme.grayColor,
@@ -149,7 +159,7 @@ export const view = (model: Model, h: HtmlBuilder<Message>) => {
       ...(isActive ? [h.DataAttribute('active', '')] : []),
       h.OnMouseEnter(prefetch),
       h.OnFocus(prefetch),
-    ], [path.slice(1)])]
+    ], [path === '/components' ? 'Components' : path.slice(1)])]
   })
   const morePageLinks = model.kit.slots.menus._tag === 'Ready'
     ? Object.entries(pageKeysByRoute).flatMap(([path, keys]) => {

@@ -3,100 +3,264 @@
   "compression": "brotli-q11",
   "entries": {
     "shell": {
-      "bytes": 98871,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 73397,
+      "reason": "capture renderers split out of family chunks"
     },
     "first-visit": {
-      "bytes": 161697,
-      "reason": "Global red/green Theme tokens support cold capability routes; first visit remains below 163,840 B and capability modules stay lazy."
+      "bytes": 150383,
+      "reason": "capture renderers split out of family chunks"
     },
     "speculative-prefetch": {
       "bytes": 28911,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "reason": "capture renderers split out of family chunks"
     },
     "page:browser": {
-      "bytes": 2599,
-      "reason": "Lazy browser-capability page now owns breakpoint tokens and color styles; both remain outside the initial transfer."
+      "bytes": 2619,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:buttons": {
-      "bytes": 355,
-      "reason": "The shared themed Button shell usage reshapes the lazy buttons chunk by 35 B; page modules remain lazy."
+      "bytes": 344,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:capabilities": {
-      "bytes": 587,
-      "reason": "New lazy capability index; page code remains outside the initial transfer."
+      "bytes": 600,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:cards": {
-      "bytes": 362,
-      "reason": "APP-23 runtime-only framework grouping reshapes the Cards lazy chunk by 36 B Brotli-q11; the page remains lazy."
+      "bytes": 345,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:components": {
+      "bytes": 2948,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:dialog": {
-      "bytes": 611,
-      "reason": "Theme component parity reshapes the lazy dialog chunk by 40 B; the page remains lazy."
+      "bytes": 619,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:dropdownMenu": {
-      "bytes": 656,
-      "reason": "Theme component parity reshapes the lazy dropdown-menu chunk by 31 B; the page remains lazy."
+      "bytes": 663,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:form": {
-      "bytes": 521,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 524,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:island": {
-      "bytes": 1954,
-      "reason": "New lazy Island demo; module remains outside the initial transfer."
+      "bytes": 1901,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:layout": {
-      "bytes": 391,
-      "reason": "The shared color-token CSS import changes the layout page chunk; capability pages remain lazy."
+      "bytes": 370,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:menus": {
-      "bytes": 839,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 777,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:persistence": {
-      "bytes": 2057,
-      "reason": "New lazy persistence demo; module remains outside the initial transfer."
+      "bytes": 2118,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:sharedA": {
-      "bytes": 536,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 539,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:sharedB": {
       "bytes": 383,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "reason": "capture renderers split out of family chunks"
     },
     "page:signals": {
-      "bytes": 2112,
-      "reason": "New lazy signals demo; module remains outside the initial transfer."
+      "bytes": 2118,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:tabs": {
-      "bytes": 589,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 2119,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:textField": {
-      "bytes": 358,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 359,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:theme": {
-      "bytes": 1093,
-      "reason": "Theme component parity reshapes the lazy theme chunk by 30 B; the page remains lazy."
+      "bytes": 1133,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:typography": {
-      "bytes": 344,
-      "reason": "The shared themed Heading/Text shell usage reshapes the lazy typography chunk by 27 B; page modules remain lazy."
+      "bytes": 339,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:validation": {
-      "bytes": 1200,
-      "reason": "Lazy validation page now owns its status color styles, keeping them outside the initial transfer."
+      "bytes": 1201,
+      "reason": "capture renderers split out of family chunks"
     },
     "page:virtualList": {
-      "bytes": 6030,
-      "reason": "Themed shell replaces unstyled controls and adds horizontal overflow for narrow nav; page modules remain lazy."
+      "bytes": 1483,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:accessibility.capture": {
+      "bytes": 397,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:accessibility": {
+      "bytes": 368,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:alertDialog.capture": {
+      "bytes": 375,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:alertDialog": {
+      "bytes": 599,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:avatar.capture": {
+      "bytes": 227,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:avatar": {
+      "bytes": 363,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:contextMenu.capture": {
+      "bytes": 477,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:contextMenu": {
+      "bytes": 726,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:data.capture": {
+      "bytes": 504,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:data": {
+      "bytes": 580,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:dataTable.capture": {
+      "bytes": 1055,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:dataTable": {
+      "bytes": 1543,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:feedback.capture": {
+      "bytes": 367,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:feedback": {
+      "bytes": 499,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:formsExtra.capture": {
+      "bytes": 825,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:formsExtra": {
+      "bytes": 1059,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:hoverCard.capture": {
+      "bytes": 332,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:hoverCard": {
+      "bytes": 526,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:iconButton.capture": {
+      "bytes": 348,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:iconButton": {
+      "bytes": 434,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:layoutExtra.capture": {
+      "bytes": 252,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:layoutExtra": {
+      "bytes": 442,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:links.capture": {
+      "bytes": 247,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:links": {
+      "bytes": 355,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:popover.capture": {
+      "bytes": 324,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:popover": {
+      "bytes": 533,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:rangeSlider.capture": {
+      "bytes": 359,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:rangeSlider": {
+      "bytes": 692,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:scrollArea.capture": {
+      "bytes": 299,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:scrollArea": {
+      "bytes": 405,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:select.capture": {
+      "bytes": 556,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:select": {
+      "bytes": 864,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:tabNav.capture": {
+      "bytes": 317,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:tabNav": {
+      "bytes": 463,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:themePanel.capture": {
+      "bytes": 313,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:themePanel": {
+      "bytes": 620,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:tooltip.capture": {
+      "bytes": 350,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:tooltip": {
+      "bytes": 565,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:typographyExtra.capture": {
+      "bytes": 347,
+      "reason": "capture renderers split out of family chunks"
+    },
+    "page:component:typographyExtra": {
+      "bytes": 490,
+      "reason": "capture renderers split out of family chunks"
     },
     "styles.css": {
-      "bytes": 40848,
-      "reason": "The themed Box panel adds 17 B of scoped shell-surface CSS; layout and page modules remain lazy."
+      "bytes": 68982,
+      "reason": "capture renderers split out of family chunks"
     }
   }
 }
