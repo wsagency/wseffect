@@ -49,3 +49,14 @@ test('build IDs track source inputs and explicit overrides', async () => {
     await fixture.cleanup()
   }
 })
+
+test('Gallery build fixture includes the SP2 capture matrix dependency', async () => {
+  const fixture = await createGalleryBuildFixture()
+  try {
+    const fixtureMatrix = resolve(fixture.rootDir, 'bench/radix2solid/sp2-capture-matrix.json')
+    const sourceMatrix = resolve(import.meta.dirname, '../bench/radix2solid/sp2-capture-matrix.json')
+    assert.equal(await readFile(fixtureMatrix, 'utf8'), await readFile(sourceMatrix, 'utf8'))
+  } finally {
+    await fixture.cleanup()
+  }
+})

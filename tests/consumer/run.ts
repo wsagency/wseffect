@@ -136,6 +136,11 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
         && !rel.endsWith('.tsbuildinfo'))
     },
   })
+  await mkdir(resolve(root, '..', '..', 'bench/radix2solid'), { recursive: true })
+  await cp(
+    resolve(repoRoot, 'bench/radix2solid/sp2-capture-matrix.json'),
+    resolve(root, '..', '..', 'bench/radix2solid/sp2-capture-matrix.json'),
+  )
   const rootManifest = JSON.parse(await readFile(resolve(repoRoot, 'package.json'), 'utf8')) as {
     packageManager: string
     engines: { node: string }
@@ -208,7 +213,7 @@ async function main(): Promise<void> {
   await mkdir(packsDir, { recursive: true })
   try {
     const tarballs = await packPackages(packsDir)
-    const root = join(scratch, 'consumer')
+    const root = join(scratch, 'apps', 'gallery')
     await mkdir(root, { recursive: true })
     await copyConsumerFixture(root, tarballs)
     const readme = await readFile(resolve(repoRoot, 'README.md'), 'utf8')
