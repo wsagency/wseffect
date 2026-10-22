@@ -86,7 +86,9 @@
     "./styles/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/*" },
     "./tokens/colors/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/tokens/colors/*" },
     "./layout/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/layout/*" },
-    "./css/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/*" }
+    "./css/*": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/*" },
+    "./components/data-table": { "types": "./dist/components/data-table.d.ts", "default": "./dist/components/data-table.js" },
+    "./css/data-table.css": { "types": "./dist/css.d.ts", "default": "./dist/styles/css/data-table.css" }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/brand-dist.mjs && node scripts/build-css.js",
