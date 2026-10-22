@@ -1,3 +1,4 @@
+import { PortalAlertDialog } from './alert-dialog.mount.js'
 import { brandViewResult } from 'foldkit/brand'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as Update from 'foldkit/update'
@@ -57,7 +58,9 @@ const view = defineView<UiDialog.Model, UiDialog.Message, ViewInputs>((model, in
       ]),
     ]),
   ] : [])
-  return brandViewResult(UiDialog.view(model, { hasDescription, toView: content }, h), 'wseffect/AlertDialog')
+  return brandViewResult(h.div([h.OnMount(PortalAlertDialog())], [
+    UiDialog.view(model, { hasDescription, toView: content }, h),
+  ]), 'wseffect/AlertDialog')
 })
 
 export const fold = <ParentModel, ParentMessage, ParentOutMessage>(

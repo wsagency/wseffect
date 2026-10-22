@@ -28,3 +28,4 @@
 - Add virtualized, keyboard-navigable DataTable views and publish the complete component stylesheet subpaths with provenance notices.
 - Restore DataTable Grid selection, first-cell Home navigation, replacement-cell focus, and visible-range-bounded row caching.
 - Require Checkbox toggle callbacks to match Foldkit's controlled checkbox contract.
+- Keep AlertDialog under the containing root Theme portal so its content inherits root tokens.
