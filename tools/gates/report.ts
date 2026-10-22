@@ -118,7 +118,7 @@ async function run(): Promise<void> {
   try {
     const report: ComparisonReport = {
       generatedAt: new Date().toISOString(),
-      methodology: 'Six matched data-perf hooks; 10 sessions per app; 4× CPU throttle verified by an in-page fixed loop; Event Timing captured by PerformanceObserver after paint and observer flush; scripting is the trace-event interval union from trusted click/keydown dispatch to the Event Timing next-paint boundary or following Paint/Commit. Shell reports the same index entry + framework/vendor pair as raw bytes and Brotli-q11 bytes.',
+      methodology: 'Fifteen matched data-perf hooks; 10 sessions per app; 4× CPU throttle verified by an in-page fixed loop; Event Timing captured by PerformanceObserver after paint and observer flush; scripting is the trace-event interval union from trusted click/keydown dispatch to the Event Timing next-paint boundary or following Paint/Commit. Shell reports the same index entry + framework/vendor pair as raw bytes and Brotli-q11 bytes.',
       wseffect: await applicationReport(WSEFFECT_APP, browser, primaryPages),
       radix2solid: await applicationReport(RADIX2SOLID_APP, browser, []),
       differences: DIFFERENCES,

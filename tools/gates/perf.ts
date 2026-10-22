@@ -23,6 +23,11 @@ const HOOK_BY_SCENARIO: Record<PerfScenario['id'], string> = {
   'dt-filter': 'data-table-filter',
   'dt-sort': 'data-table-sort',
   'dt-select': 'data-table-select',
+  'select-open': 'select-open',
+  'select-choose': 'select-open',
+  'tooltip-open': 'tooltip-open',
+  'tooltip-close': 'tooltip-close',
+  'slider-drag': 'slider-drag',
 }
 
 const SESSIONS = 10

@@ -12,3 +12,17 @@ Measured 2026-10-22 with Node v24.22.0 and Chromium 156.0.8078.4. The run used t
 | `dt-select` — select visible `row-1` | 16 ms | 24 ms | 1.34 / 10.17 ms | 8 ms; −8…0 ms |
 
 The `dt-update` 4× samples included an 80 ms outlier; its median is below the proposal, but the 48 ms A/A p95 absolute delta makes that result too noisy to validate the ceiling. The other three medians are below 50 ms in this local run, but none establishes runner acceptance.
+
+## SP2 interaction A/A diagnostics
+
+On 2026-10-22, the same local 4×-throttled `runScenario` harness ran 20 fresh-context samples per SP2 scenario (10 adjacent same-build A/A pairs), using Node v24.21.0 and Chromium 156.0.8078.4. These are A/A noise diagnostics, not candidate-vs-baseline ABAB timings or a performance gate. The proposed ceilings remain unvalidated.
+
+| Scenario / operation | Script A/A band (p95 abs delta) | Event Timing A/A band (p95 abs delta; min…max) |
+|---|---:|---:|
+| `select-open` | 36.972 ms | 40 ms; −32…+40 ms |
+| `select-choose` | 30.136 ms | 24 ms; −24…+8 ms |
+| `tooltip-open` | 14.439 ms | 16 ms; −16…+16 ms |
+| `tooltip-close` | 2.826 ms | 8 ms; 0…+8 ms |
+| `slider-drag` | 0.929 ms | 8 ms; −8…+8 ms |
+
+The Select open/choose A/A bands are comparatively noisy on this development workstation; they must not be interpreted as regression or ceiling results. No runner noise baseline was written.

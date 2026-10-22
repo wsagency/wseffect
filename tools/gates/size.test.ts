@@ -286,8 +286,8 @@ test('capture resolver and matrix stay outside the built index.html static closu
   assert.deepEqual(Object.keys(result.pages).sort(), [
     'browser', 'buttons', 'capabilities', 'cards',
     'component:accessibility', 'component:alertDialog', 'component:avatar', 'component:contextMenu',
-    'component:data', 'component:dataTable', 'component:feedback', 'component:hoverCard',
-    'component:iconButton', 'component:layoutExtra', 'component:links', 'component:popover',
+    'component:data', 'component:dataTable', 'component:feedback', 'component:formsExtra', 'component:hoverCard',
+    'component:iconButton', 'component:layoutExtra', 'component:links', 'component:popover', 'component:rangeSlider', 'component:select',
     'component:scrollArea', 'component:tabNav', 'component:themePanel', 'component:tooltip',
     'component:typographyExtra', 'components', 'dialog', 'dropdownMenu', 'form', 'island',
     'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField',
