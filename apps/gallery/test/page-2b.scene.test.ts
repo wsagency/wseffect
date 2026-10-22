@@ -25,9 +25,9 @@ describe('Gallery lane 2B pages', () => {
     const initial = alertDialogPage.init()
     Scene.scene({ update: alertDialogPage.update, view: (model, h) => alertDialogPage.view(model, inputs, h) }, Scene.given(initial.model),
       Scene.expect(Scene.role('heading', { name: 'Alert dialog' })).toExist(),
+      Scene.Mount.resolve({ name: 'PortalAlertDialog' }, AlertDialog.Message.CompletedCloseDialog()),
       Scene.click(Scene.role('button', { name: 'Delete record' })),
       Scene.Command.resolve(UiDialog.ShowDialog, UiDialog.Message.SucceededShowDialog()),
-      Scene.Mount.resolve({ name: 'PortalAlertDialog' }, AlertDialog.Message.CompletedCloseDialog()),
       Scene.Mount.resolve(UiDialog.AcquireResources, UiDialog.Message.SucceededAcquireResources()),
       Scene.expect(Scene.role('alertdialog', { name: 'Delete record?' })).toExist(),
       Scene.expect(Scene.text('This action cannot be undone.')).toExist())
