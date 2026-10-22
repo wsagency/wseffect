@@ -25,3 +25,7 @@ Add an explicit Listbox positioning input such as `anchor: 'trigger' | 'selected
 - With a selected item, opening aligns that item to the trigger across top/bottom placement and viewport collision handling.
 - With no selection or a missing/unmounted selected item, positioning safely falls back to the trigger.
 - Keyboard navigation does not silently change the anchor unless an explicit active-item mode is selected; resize/scroll keeps the selected anchor aligned.
+
+## Multi-child item content
+
+`@foldkit/ui@0.168.0` exposes `itemToConfig(...).content: Html` (`node_modules/@foldkit/ui/dist/listbox/shared.d.ts:351`) and renders that value as the single child `[itemConfig.content]` of each option (`node_modules/@foldkit/ui/dist/listbox/shared.js:623`). This prevents the Select adapter from emitting pinned `ItemIndicator` and `ItemText` as separate option children. Locally, the primitive puts those nodes in one generic span and the theme applies `display: contents`; a future API could widen item content to `Html | ReadonlyArray<Html>` so the Listbox can render siblings directly.

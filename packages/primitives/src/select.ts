@@ -5,7 +5,7 @@ export type SelectItem<Value extends string> = {
   value: Value
   textValue: string
   isDisabled: boolean
-  content: Html
+  content: Html | string
 }
 export type SelectGroup<Value extends string> = {
   id: string
@@ -25,11 +25,13 @@ export type SelectAppearance = Readonly<{
   scrollAreaClassName?: string
   scrollbarClassName?: string
   scrollThumbClassName?: string
+  itemContentClassName?: string
   itemIndicatorClassName?: string
   itemIndicatorContent?: Html
-  triggerAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
+  itemTextClassName?: string
   contentAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
   separatorAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
+  triggerAttributes?: ReadonlyArray<Attribute<SelectMessage> | ChildAttribute>
   triggerContent?: Html
 }>
 export type SelectConfig<Value extends string> = {
@@ -68,6 +70,14 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
     const items = flatten(config.items)
     const selected = selectedItem(items, config.selectedValue)
     const appearance = config.appearance
+    const renderItemContent = (item: SelectItem<Value>): Html => {
+      if (appearance?.itemIndicatorClassName === undefined) return h.span([], [item.content])
+      const isSelected = Option.isSome(config.selectedValue) && config.selectedValue.value === item.value
+      return h.span(appearance.itemContentClassName === undefined ? [] : [h.Class(appearance.itemContentClassName)], [
+        ...(isSelected ? [h.span([h.Class(appearance.itemIndicatorClassName)], [appearance.itemIndicatorContent ?? null])] : []),
+        h.span(appearance.itemTextClassName === undefined ? [] : [h.Class(appearance.itemTextClassName)], [item.content]),
+      ])
+    }
     if (config.position === 'popper') {
       const groupedItems: SelectItem<Value>[] = []
       const groupByItem = new Map<SelectItem<Value>, string>()
@@ -97,13 +107,7 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
         }
       }
       const separatorAttributes = childAttributes([h.Role('separator'), ...(appearance?.separatorAttributes ?? [])])
-      const itemContent = (item: SelectItem<Value>): Html => {
-        if (appearance?.itemIndicatorClassName === undefined) return item.content
-        return h.span([], [
-          h.span([h.Class(appearance.itemIndicatorClassName)], [appearance.itemIndicatorContent ?? null]),
-          h.span([], [item.content]),
-        ])
-      }
+      const itemContent = (item: SelectItem<Value>): Html => renderItemContent(item)
       const separatorValue = groupedItems[0]?.value ?? (Option.isSome(config.selectedValue) ? config.selectedValue.value : '' as Value)
       return listbox.view(model, {
         items: groupedItems,
@@ -126,11 +130,12 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
         }),
         maybeSelectedValue: config.selectedValue,
         ariaLabel: config.id,
-        buttonContent: appearance?.triggerContent ?? (selected !== undefined && !isSeparator(selected) ? selected.content : h.span([], [config.id])),
+        buttonContent: appearance?.triggerContent ?? (selected !== undefined && !isSeparator(selected) ? typeof selected.content === 'string' ? h.span([], [selected.content]) : selected.content : h.span([], [config.id])),
         ...(appearance?.triggerClassName === undefined ? {} : { buttonClassName: appearance.triggerClassName }),
         buttonAttributes: childAttributes([h.Role('combobox'), ...(appearance?.triggerAttributes ?? [])]),
         ...(appearance?.contentClassName === undefined ? {} : { itemsClassName: appearance.contentClassName }),
         itemsAttributes: childAttributes(appearance?.contentAttributes ?? []),
+        anchor: { placement: 'bottom-start', gap: 4 },
         ...(appearance?.itemsScrollClassName === undefined ? {} : { itemsScrollClassName: appearance.itemsScrollClassName }),
       }, h)
     }
@@ -160,12 +165,7 @@ export function createSelect<Value extends string>(): SelectBundle<Value> {
         h.Attribute('data-active', String(isActive)),
         ...(item.isDisabled ? [] : [h.OnClick(Listbox.Message.SelectedItem({ item: item.value }))]),
         ...(appearance?.itemClassName === undefined ? [] : [h.Class(appearance.itemClassName)]),
-      ], [
-        ...(appearance?.itemIndicatorClassName === undefined
-          ? []
-          : [h.span([h.Class(appearance.itemIndicatorClassName)], [appearance.itemIndicatorContent ?? null])]),
-        appearance?.itemIndicatorClassName === undefined ? item.content : h.span([], [item.content]),
-      ])
+      ], [renderItemContent(item)])
     }
     let itemIndex = 0
     const children = config.items.map(item => {

@@ -6,6 +6,7 @@ import { accentColors } from '../props/color.props.js'
 import { radii } from '../props/radius.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
+import { thickCheckIcon, thickDividerIcon } from './icons.js'
 
 const sizes = ['1', '2', '3'] as const
 const variants = ['classic', 'surface', 'soft'] as const
@@ -25,6 +26,7 @@ export const Props = Schema.Struct({
   readOnly: Schema.optional(Schema.Boolean),
   name: Schema.optional(Schema.String),
   value: Schema.optional(Schema.String),
+  ariaLabel: Schema.optional(Schema.String),
   onCheckedChange: Schema.optional(Schema.declare((input): input is (checked: boolean) => unknown => typeof input === 'function')),
 })
 export type Props = typeof Props.Type
@@ -35,17 +37,19 @@ export const view = <Message>(props: Props & { onCheckedChange?: (checked: boole
     ...(typeof size === 'string' ? [`rt-r-size-${size}`] : responsiveClasses(sizeProp, size).classes),
     variantClasses[props.variant ?? 'surface'], ...(props.highContrast ? ['rt-high-contrast'] : []),
   ].join(' ')
+  const isChecked = props.checked ?? props.defaultChecked ?? false
   return brandViewResult(CheckboxUi.view({
-    id: props.id, isChecked: props.checked ?? props.defaultChecked ?? false,
+    id: props.id, isChecked,
     isIndeterminate: props.indeterminate, isDisabled: props.disabled, isReadOnly: props.readOnly,
     name: props.name, value: props.value,
     onToggle: checked => props.onCheckedChange?.(checked) as Message,
     toView: attributes => {
-      const attrs = [...attributes.checkbox, h.Class(classes)]
+      const attrs = [...(props.ariaLabel === undefined ? attributes.checkbox : attributes.checkbox.filter(attribute => attribute._tag !== 'AriaLabelledBy')), h.DataAttribute('state', props.indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'), h.Class(classes)]
+      if (props.ariaLabel !== undefined) attrs.push(h.AriaLabel(props.ariaLabel))
       if (props.color !== undefined) attrs.push(h.DataAttribute('accent-color', props.color))
-      const mark = props.indeterminate ? '−' : '✓'
+      const indicator = props.indeterminate ? thickDividerIcon(h) : isChecked ? thickCheckIcon(h) : null
       return h.label([...attributes.label], [
-        h.button(attrs, [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [mark])]),
+        h.button(attrs, indicator === null ? [] : [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [indicator])]),
         h.span([h.Id(`${props.id}-label`)], children),
         ...(attributes.hiddenInput.length > 0 ? [h.input([...attributes.hiddenInput])] : []),
       ])

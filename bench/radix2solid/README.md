@@ -18,3 +18,5 @@ The capture harness injects the same vendored Noto Sans test stylesheet into Sol
 
 Each paired capture places only the component under test inside `data-sp2-capture-target`; the route headings, gallery shell, and benchmark shell are excluded. Solid and Gallery use the same target geometry: 480px wide, at least 160px tall, 24px padding, and the current theme’s `--gray-2` surface (with `#f6f7f9` fallback). `capture:sp2` and `compare-sp2` screenshot that target on both sides, so the numeric comparison covers matching component, padding, and background pixels rather than one component against a full page.
 
+For keyboard-focused states, Gallery and Solid both focus the first slider for `Slider`, first radio for `RadioGroup`, the overview link for `TabNav`, or the first button otherwise. This includes `range-keyboard-focus` slider captures.
+

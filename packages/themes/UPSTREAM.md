@@ -2,6 +2,10 @@
 
 The CSS files listed below originate from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port) and are copied under `src/css-components/`; `_internal/base-button.css` is the transitive import required by `icon-button.css`. The lane adds local scrollbar-hiding rules to `scroll-area.css` to preserve native overflow scrolling while displaying synchronized custom thumbs. The locally authored aggregates `src/css-components/index.css` and `src/css-components/index-base.css` are inventoried separately and are not upstream copies; `index-base.css` preserves the component import list at base commit `200a6a5`. Component behavior and prop mappings were independently ported from the pinned `.tsx` and `.props.ts` source files listed below; their TypeScript implementation is not copied verbatim.
 
+## Local CSS deviations
+
+- `src/css-components/select.css` adds `.rt-SelectItemContent { display: contents; }`. Foldkit `@foldkit/ui@0.168.0` Listbox accepts one `Html` node for an item's content, so the primitive supplies one generic span containing the pinned indicator and text siblings; `display: contents` removes its layout box without adding an accessibility-tree wrapper. The pinned Select CSS has no `.rt-SelectItem > …` child combinators that need adjustment.
+
 ## Exhaustive R2S source-file list
 
 - `packages/themes/src/components/avatar.css`

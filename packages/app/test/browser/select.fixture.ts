@@ -1,12 +1,14 @@
+import '@wsagency/wseffect-themes/styles.css'
 import { Option } from 'effect'
 import { makeElement, run } from 'foldkit/runtime'
 import type { HtmlBuilder } from 'foldkit/html'
 import * as Select from '@wsagency/wseffect-themes/components/select'
+document.body.classList.add('radix-themes')
 
 type Value = 'red' | 'blue' | 'green' | 'yellow'
 const SelectBox = Select.create<Value>()
 const position = new URLSearchParams(location.search).get('position') === 'popper' ? 'popper' : 'item-aligned'
-let selectedValue = Option.none<Value>()
+let selectedValue = Option.some<Value>('red')
 const initialConfig: Select.Config<Value> = {
   id: 'choice',
   selectedValue,

@@ -23,6 +23,23 @@ test.afterAll(async () => {
 })
 
 for (const position of ['item-aligned', 'popper'] as const) {
+  test(`Select ${position} item indicator has the pinned item-relative geometry`, async ({ page }) => {
+    await page.goto(`${baseUrl}/packages/app/test/browser/select.html?position=${position}`)
+    const trigger = page.locator('button.rt-SelectTrigger')
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    const item = page.getByRole('option', { name: 'Red' })
+    const indicator = item.locator('.rt-SelectItemIndicator')
+    const geometry = await item.evaluate(element => {
+      const row = element.getBoundingClientRect()
+      const icon = element.querySelector('.rt-SelectItemIndicator')!.getBoundingClientRect()
+      const wrapper = element.querySelector('.rt-SelectItemContent')!
+      return { left: icon.left - row.left, top: icon.top - row.top, display: getComputedStyle(wrapper).display, rowHeight: row.height, iconHeight: icon.height }
+    })
+    expect(geometry).toEqual({ left: 0, top: 11, display: 'contents', rowHeight: 32, iconHeight: 10 })
+    await expect(indicator).toBeVisible()
+  })
+
   test(`Select ${position} opens, navigates, selects, and restores trigger focus`, async ({ page }) => {
     await page.goto(`${baseUrl}/packages/app/test/browser/select.html?position=${position}`)
     const trigger = page.locator('button.rt-SelectTrigger')
@@ -74,3 +91,12 @@ for (const position of ['item-aligned', 'popper'] as const) {
     await expect(page.getByRole('option', { name: 'Yellow' })).toHaveAttribute('data-active')
   })
 }
+
+test('Select popper hides its scrollbar when the options fit', async ({ page }) => {
+  await page.goto(`${baseUrl}/packages/app/test/browser/select.html?position=popper`)
+  await page.locator('button.rt-SelectTrigger').focus()
+  await page.keyboard.press('ArrowDown')
+  const scrollbar = page.locator('.rt-SelectContent .rt-ScrollAreaScrollbar[data-orientation="vertical"]')
+  await expect(scrollbar).toHaveAttribute('data-state', 'hidden')
+  await expect(scrollbar).toBeHidden()
+})

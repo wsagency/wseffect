@@ -18,7 +18,7 @@ export type RangeEmbedConfig<ParentMessage> = Readonly<{ slotId: string; model: 
 const rangeInit = (config: RangeConfig): RangeModel => RangeSliderPrimitive.init(config)
 const rangeUpdate = (model: RangeModel, config: RangeConfig, message: RangeMessage) => RangeSliderPrimitive.update(model, config, message)
 const rangeView = (model: RangeModel, config: RangeConfig, h: HtmlBuilder<RangeMessage>): Html => brandViewResult(h.div([
-  h.Class(['rt-SliderRoot', ...classes(config.props)].join(' ')),
+  h.Class(['rt-SliderRoot', ...classes(config.props), ...(config.props?.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
   h.DataAttribute('orientation', config.orientation),
   ...(config.isDisabled ? [h.DataAttribute('disabled', '')] : []),
   ...(config.props?.color === undefined ? [] : [h.DataAttribute('accent-color', config.props.color)]),
