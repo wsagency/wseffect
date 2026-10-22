@@ -9,6 +9,10 @@ body {
   color: var(--gray-12);
 }
 
+.sp2-capture .radix-themes:where([data-is-root-theme='true']) {
+  background-color: white;
+}
+
 .gallery-shell {
   box-sizing: border-box;
   max-width: 1320px;
