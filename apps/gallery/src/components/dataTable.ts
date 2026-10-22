@@ -6,7 +6,6 @@ import type { Html, HtmlBuilder } from 'foldkit/html'
 import { defineMessageUnion } from 'foldkit/message'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
-import * as Table from '@wsagency/wseffect-themes/components/table'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 import type { CaptureRequest } from '../capture.js'
 import { renderCaptureView } from '../captureView.js'
@@ -42,7 +41,7 @@ const decorationsByBuilder = new WeakMap<object, TableDecorations>()
 const columnsByNameHeader = new WeakMap<object, WeakMap<object, ReadonlyArray<DataTable.Column<Row>>>>()
 const columnsByModel = new WeakMap<object, ReadonlyArray<DataTable.Column<Row>>>()
 
-function tableDecorations(h: HtmlBuilder<Message>): TableDecorations {
+function tableDecorations<BuilderMessage>(h: HtmlBuilder<BuilderMessage>): TableDecorations {
   const cached = decorationsByBuilder.get(h)
   if (cached) return cached
   const decorations = {
@@ -117,9 +116,7 @@ function applyTableMessage(model: Model, tableMessage: DataTable.Message, rows =
   const selectedRowIds = result.outMessage?._tag === 'SelectionChanged'
     ? result.outMessage.ids
     : model.selectedRowIds
-  const focusedCell = result.outMessage?._tag === 'FocusCell'
-    ? result.outMessage
-    : model.focusedCell
+  const focusedCell = result.model.activeCell
   return {
     model: { ...model, rows, table: result.model, selectedRowIds, focusedCell },
     commands: result.commands?.map(command => Command.mapMessage(command, childMessage => Message.TableEvent({ message: childMessage }))) ?? [],
@@ -203,23 +200,15 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
   const rows = captureRows(request)
-  renderCaptureView(root, request, (h) => Table.Root.view(
-    {
-      size: request.props.size as '1' | '2' | '3',
-      variant: request.props.variant as 'surface' | 'ghost',
-    },
-    [
-      Table.Header.view({}, [
-        Table.Row.view({}, [
-          Table.ColumnHeaderCell.view({}, ['Name'], h),
-          Table.ColumnHeaderCell.view({}, ['Status'], h),
-        ], h),
-      ], h),
-      Table.Body.view({}, rows.map((row) => Table.Row.view({}, [
-        Table.RowHeaderCell.view({}, [row.name], h),
-        Table.Cell.view({}, [row.status], h),
-      ], h)), h),
-    ],
-    h,
-  ))
+  renderCaptureView(root, request, (h) => {
+    const tableBuilder = h as unknown as HtmlBuilder<DataTable.Message>
+    const decorations = tableDecorations(tableBuilder)
+    const modelInputs = { rows, selectedRowIds: [] as ReadonlyArray<string> }
+    const config = tableConfig(
+      modelInputs,
+      tableColumns(decorations.nameHeader, decorations.statusHeader),
+      decorations.caption,
+    )
+    return DataTable.view(DataTable.init(config), config, tableBuilder)
+  })
 }

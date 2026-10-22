@@ -11,7 +11,7 @@ const update = (model: Readonly<{ size: '1' | '2'; ticks: number }>, message: Me
 describe('Checkbox view reuse', () => {
   it('unrelated update reuses view; changed arg re-executes once', () => {
     const lazy = createLazy()
-    const render = vi.fn((size: '1' | '2', h: HtmlBuilder<Message>) => Checkbox.view({ id: 'x', size, checked: false }, ['Choice'], h))
+    const render = vi.fn((size: '1' | '2', h: HtmlBuilder<Message>) => Checkbox.view({ id: 'x', size, checked: false, onCheckedChange: () => Message.Tick() }, ['Choice'], h))
     const view = (model: Readonly<{ size: '1' | '2'; ticks: number }>, h: HtmlBuilder<Message>) => h.div([], [lazy(render, [model.size, h]), h.button([h.OnClick(Message.Tick())], ['tick']), h.button([h.OnClick(Message.Resize())], ['resize'])])
     Scene.scene({ update, view }, Scene.given({ size: '2', ticks: 0 }), Scene.click(Scene.role('button', { name: 'tick' })), Scene.click(Scene.role('button', { name: 'resize' })))
     expect(render).toHaveBeenCalledTimes(2)

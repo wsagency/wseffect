@@ -52,7 +52,7 @@ describe('DataTable Grid model', () => {
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: false })).model
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'rank' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: '$header', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
   })
@@ -87,9 +87,27 @@ describe('DataTable Grid model', () => {
     const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
     const rowsAfterRemoval = rows.filter(row => row.id !== 'b')
     const changed = config({ rows: rowsAfterRemoval })
-    const recovered = update(model, changed, DataTable.Message.RowsChanged()).model
+    const result = update(model, changed, DataTable.Message.RowsChanged())
+    const recovered = result.model
     expect(recovered.orderedRowIds).toEqual(['a', 'c'])
     expect(recovered.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: 'c',
+      rowIndex: 1,
+      columnIndex: 2,
+      shouldFocus: true,
+    })
+  })
+
+  it('focuses the grid root when filtering removes every active row', () => {
+    const cfg = config()
+    const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
+    const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'no matches' }))
+    expect(result.model.activeCell).toBeNull()
+    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
+      rowId: null,
+      shouldFocus: true,
+    })
   })
 
   it('scrolls to a stable VirtualList key before restoring focus after row remount', () => {
@@ -129,9 +147,16 @@ describe('DataTable Grid model', () => {
     const cfg = config()
     let model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: '$header', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
+  })
+
+  it('selects all visible rows when Space is pressed on the header selection cell', () => {
+    const cfg = config()
+    const headerSelection = setCell(DataTable.init(cfg), cfg, '$header', '$selection')
+    const result = update(headerSelection, cfg, DataTable.Message.GridKey({ key: ' ', ctrlKey: false }))
+    expect(result.outMessage).toEqual(DataTable.OutMessage.SelectionChanged({ ids: ['a', 'b', 'c'] }))
   })
 
   it('sorts the active header on Enter and Space while retaining header focus', () => {

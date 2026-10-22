@@ -29,3 +29,5 @@
 - Match Forms Extra fixtures and checkbox/radio states, TextArea captures, Select trigger/popover visuals, and Slider.Range tracks to pinned Radix2Solid.
 - Reserve the Select popup's scrollbar gutter only when its options overflow.
 - Match Select option indicator and text layout to the pinned item geometry across popper and item-aligned positions.
+- Restore DataTable Grid selection, first-cell Home navigation, replacement-cell focus, and visible-range-bounded row caching.
+- Require Checkbox toggle callbacks to match Foldkit's controlled checkbox contract.

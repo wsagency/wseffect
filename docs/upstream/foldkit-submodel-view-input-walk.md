@@ -1,6 +1,6 @@
 # Draft: avoid repeated deep validation of large `h.submodel` inputs
 
-**Status:** local issue / PR draft only; not submitted upstream.  
+**Status:** local issue / PR draft only; not submitted upstream.
 **Affected package:** `foldkit@0.168.0` (`apps/gallery/package.json`).
 
 ## Title

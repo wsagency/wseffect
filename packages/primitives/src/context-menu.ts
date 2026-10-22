@@ -133,13 +133,20 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
   const sourceMount = (config: ContextMenuConfig<Value>): Mount.MountAction<ContextMenuMessage> => ({
     name: 'ContextMenuSourceEvents',
     f: element => Stream.callback<ContextMenuMessage>(queue => Effect.gen(function* () {
+      let precedingPointerType = ''
       const onContextMenu = (event: Event) => {
         const pointer = event as MouseEvent
         pointer.preventDefault()
+        if (precedingPointerType === 'touch') {
+          precedingPointerType = ''
+          return
+        }
+        precedingPointerType = ''
         Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'pointer', point: { x: pointer.clientX, y: pointer.clientY } } })
       }
       const onPointerDown = (event: Event) => {
         const pointer = event as PointerEvent
+        precedingPointerType = pointer.pointerType
         if (pointer.pointerType === 'touch') Queue.offerUnsafe(queue, { _tag: 'OpenedAt', invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'touch', point: { x: pointer.clientX, y: pointer.clientY } } })
       }
       const onPointerMove = (event: Event) => {
@@ -188,8 +195,16 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
           if (model.invocation?.invocation === 'keyboard') panel.querySelector<HTMLElement>('[data-active]')?.focus()
         })
       }
+      const document = panel.ownerDocument
+      const onDocumentPointerDown = (event: Event) => {
+        const target = event.target
+        if (!(target instanceof Node) || panel.contains(target) || source.contains(target)) return
+        Queue.offerUnsafe(queue, Menu.Message.Closed())
+      }
+      document.addEventListener('pointerdown', onDocumentPointerDown)
       const stopAutoUpdate = autoUpdate(virtualReference, panel, position)
       yield* Effect.acquireRelease(Effect.void, () => Effect.sync(() => {
+        document.removeEventListener('pointerdown', onDocumentPointerDown)
         stopAutoUpdate()
         portalCleanup()
       }))
@@ -261,8 +276,9 @@ export function createContextMenu<Value extends string>(): ContextMenuBundle<Val
             }
           }
           if (key.length === 1 && !modifiers.ctrlKey && !modifiers.altKey && !modifiers.metaKey) {
-            const search = key.toLowerCase()
-            for (let step = 1; step <= items.length; step += 1) {
+            const refining = model.searchQuery.length > 0
+            const search = `${model.searchQuery}${key}`.toLowerCase()
+            for (let step = refining ? 0 : 1; step <= items.length; step += 1) {
               const index = (active + step + items.length) % items.length
               const item = items[index]
               if (item !== undefined && !isSeparator(item) && !item.isDisabled && item.textValue.toLowerCase().startsWith(search)) {

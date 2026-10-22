@@ -12,4 +12,3 @@ export const marginPropSchemas = {
   mb: Schema.optional(responsiveSchema(marginValues, true)),
   ml: Schema.optional(responsiveSchema(marginValues, true)),
 }
-

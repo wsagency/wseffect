@@ -144,4 +144,3 @@ export async function startCapture(url: URL): Promise<void> {
     showCaptureError(root, error instanceof Error ? error.message : String(error))
   }
 }
-

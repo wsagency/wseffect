@@ -20,3 +20,4 @@ Each paired capture places only the component under test inside `data-sp2-captur
 
 For keyboard-focused states, Gallery and Solid both focus the first slider for `Slider`, first radio for `RadioGroup`, the overview link for `TabNav`, or the first button otherwise. This includes `range-keyboard-focus` slider captures.
 
+The DataTable capture is intentionally paired with Solid’s Table reference: the comparison covers visual treatment only, not equivalent component structure or behavior.

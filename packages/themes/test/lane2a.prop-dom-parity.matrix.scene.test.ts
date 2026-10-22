@@ -105,7 +105,7 @@ const simpleRows: ReadonlyArray<SimpleRow> = [
     // Pin radix2solid@383676172abb84b4a1d2e54a087d290437ee8848: packages/themes/src/components/checkbox.tsx:10-18.
     name: 'Checkbox maps responsive initial size, highContrast, accent color, and radius',
     selector: 'button.rt-CheckboxRoot',
-    render: h => Checkbox.view({ id: 'terms', size: { initial: '1', md: '3' }, highContrast: true, color: 'blue', radius: 'full' }, ['Terms'], h),
+    render: h => Checkbox.view({ id: 'terms', size: { initial: '1', md: '3' }, highContrast: true, color: 'blue', radius: 'full', onCheckedChange: () => Messages.Tick() }, ['Terms'], h),
     classes: ['rt-r-size-1', 'md:rt-r-size-3', 'rt-high-contrast'],
     attrs: [['data-accent-color', 'blue']],
     absentRootAttrs: ['data-radius'],
