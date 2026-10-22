@@ -16,7 +16,7 @@
 - Render the gallery shell with themed layout, navigation, date, and action controls.
 - Add a virtualized native DataTable with filtering, stable sorting, controlled selection, and optional Grid navigation.
 - Match ContextMenu content size, solid/soft variant, explicit or default accent color, and high-contrast props to the pinned Radix2Solid menu contract.
-- Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views; match their classes, timings, state attributes, and portal behavior to the pinned Radix Themes contract.
+- Add themed AlertDialog, Popover, HoverCard, Tooltip, ContextMenu, and TabNav views; match their classes, timings, state attributes, and root-Theme portal behavior to the pinned Radix Themes contract.
 - Omit `aria-orientation` from decorative Separators; expose it only with separator semantics.
 - Export `components-base.css`, preserving the pre-SP2 component stylesheet set for eager shells.
 - Add themed Checkbox, Radio, Switch, SegmentedControl, Select, TextArea and single/range Slider controls.
@@ -26,5 +26,5 @@
 - Allow TextArea labels to be omitted when native ARIA labeling is supplied.
 - Add accessibility, layout, avatar, feedback, typography, data, navigation, and theme-panel views from the pinned Radix Themes API.
 - Add virtualized, keyboard-navigable DataTable views and publish the complete component stylesheet subpaths with provenance notices.
-- Restore DataTable Grid selection, first-cell Home navigation, replacement-cell focus, and visible-range-bounded row caching.
+- Restore DataTable Grid selection, Ctrl+Home navigation to the first data cell, replacement-cell focus, and visible-range-bounded row caching.
 - Require Checkbox toggle callbacks to match Foldkit's controlled checkbox contract.

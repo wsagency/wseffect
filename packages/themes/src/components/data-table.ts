@@ -370,7 +370,7 @@ function handleGridKey<Row>(model: Model, config: Config<Row>, key: string, ctrl
   } else return { model }
   if (ctrlKey && key === 'Home') {
     nextRow = 1
-    nextColumn = 0
+    nextColumn = columns.length > 1 ? 1 : 0
   } else if (ctrlKey && key === 'End') {
     nextRow = model.orderedRowIds.length
     nextColumn = columns.length - 1

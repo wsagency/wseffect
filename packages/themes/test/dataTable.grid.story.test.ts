@@ -52,7 +52,7 @@ describe('DataTable Grid model', () => {
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: false })).model
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'rank' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
   })
@@ -143,11 +143,11 @@ describe('DataTable Grid model', () => {
     expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'rank' })
   })
 
-  it('uses the header for Ctrl+Home and the last data cell for Ctrl+End', () => {
+  it('uses the first data cell for Ctrl+Home and the last data cell for Ctrl+End', () => {
     const cfg = config()
     let model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'Home', ctrlKey: true })).model
-    expect(model.activeCell).toEqual({ rowId: 'a', columnId: '$selection' })
+    expect(model.activeCell).toEqual({ rowId: 'a', columnId: 'label' })
     model = update(model, cfg, DataTable.Message.GridKey({ key: 'End', ctrlKey: true })).model
     expect(model.activeCell).toEqual({ rowId: 'c', columnId: 'rank' })
   })
