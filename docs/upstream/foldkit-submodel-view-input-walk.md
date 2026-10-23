@@ -60,18 +60,21 @@ The other three scenarios have no corresponding `informItemsChanged` call. DOM m
 
 Row reuse is already in place and matches the documented guidance: `virtualList.ts` uses a module-lifetime `createKeyedLazy()` keyed by item ID with stable `renderRow` and primitive cache arguments. Existing source-mapped precise-coverage measurements counted `vl-cell` and `vl-select` at one row-renderer call each (filter 14, sort 28); this is not a render-all-visible-rows issue. The form page likewise keys each stable field ID, and its reuse assertion observes 200 initial TextField renders plus one changed-field render. The `createKeyedLazy` cache is not the hot path for cell/select; its key space is bounded by the 10,000 known IDs, though it does not evict.
 
-The profile therefore shows two distinct upstream costs: `walkForFunctions` revalidates a 10,000-element primitive-ID array in list updates, and the Foldkit/Effect render/update path dominates sort and the three single-row/field edits. The current gallery already uses the allowed ID-only inputs and keyed lazy row/field reuse; no safe Wseffect-only replacement for Foldkit validation or VirtualList anchor reconciliation was found. This table is preliminary evidence from one capture per cell; it does not claim a runtime win or replace the deferred ABAB timing.
+The profile therefore shows two distinct upstream costs: `walkForFunctions` revalidates a 10,000-element primitive-ID array in list updates, and the Foldkit/Effect render/update path dominates sort and the three single-row/field edits. The current Gallery already uses the allowed ID-only inputs and keyed lazy row/field reuse; no safe Wseffect-only replacement for Foldkit validation or VirtualList anchor reconciliation was identified. The module breakdown immediately above is historical single-capture evidence; the five-scenario three-capture attribution and local-prototype ABAB results below supersede it.
 
-### Scratch prototype measurement (not submitted upstream)
+### Scratch prototype measurement (supersedes the earlier `/tmp` prototype; not submitted upstream)
 
-Built Foldkit `0.168.0` in `/tmp/foldkit-upstream-prototype` with the deep validation guarded by `import.meta.env.DEV` (dev builds still validate; the production Gallery bundle omits the validator). A was the `perf/virtual-list` Gallery build using the published package; B was the same app build with only the scratch Foldkit alias. The temporary Vite alias added no Foldkit patch to this repository. On Node `v24.21.0` / Chromium `156.0.8078.4`, five A/B/A/B blocks (10 samples per build) and ten adjacent A/A pairs per build at 4× produced:
+The earlier `/tmp/foldkit-upstream-prototype` directory was removed. The current local prototype is under `$HOME/.cache/wseffect-work/perf-lists/prototype`; nothing from it is committed. The published Foldkit and `@foldkit/ui` builds were copied to scratch, then the walk check was guarded with `import.meta.env.DEV` and fixed-height `informItemsChanged` was changed to skip building the full `HashSet` when `measuredRowHeights` is empty. Both A and B used the same Gallery production/minified Vite build settings, source maps, Node `v24.21.0`, Chromium `156.0.8078.4`, and the existing real-input `runScenario` harness. At 4×, each arm had two rounds of 10 fresh-context sessions per interaction (20 per arm); order was A/B/A/B. A/A and B/B p95 bands are the p95 absolute pairwise deltas between the two ten-session rounds of the same build. Load average (1-minute) ranged from **8.62 to 16.04** during the blocks.
 
-| Interaction | Gallery Event Timing / trace scripting (ms) | Scratch prototype Event Timing / trace scripting (ms) | A/A p95 absolute delta: Gallery / prototype (Event / script, ms) |
-|---|---:|---:|---:|
-| Filter | 40 / 32.05 | 48 / 38.04 | 16 / 9.31; 8 / 9.51 |
-| Sort | 48 / 37.70 | 48 / 37.53 | 16 / 10.02; 16 / 13.58 |
+| Interaction | Published A: Event / script median | Prototype B: Event / script median | A/B delta: Event / script | A/A p95 abs: published / prototype (Event / script) |
+|---|---:|---:|---:|---:|
+| `vl-cell` | 16 / 14.102 ms | 16 / 8.606 ms | 0 / −5.496 ms | 24 / 18.682 ms; 0 / 4.786 ms |
+| `vl-sort` | 48 / 38.879 ms | 32 / 17.023 ms | −16 / −21.856 ms | 40 / 30.158 ms; 8 / 6.154 ms |
+| `vl-select` | 24 / 8.029 ms | 24 / 7.165 ms | 0 / −0.864 ms | 8 / 2.038 ms; 8 / 7.258 ms |
 
-The deltas are within the measured A/A bands; this run does **not** demonstrate an end-user timing win from the dev-only guard. Event Timing medians are below 50 ms for both interactions, but the 8 ms Event Timing granularity and overlapping noise bands do not support claiming a regression or improvement. This is a local prototype to inform the upstream draft only.
+Although sort moved in the favorable direction, none of the A/B deltas clears the published-build A/A noise band. The Event Timing values are quantized in 8 ms increments, and the load average was elevated and changing across blocks; this run does **not** establish a user-visible win or regression. Full per-session values and per-block load samples are in the local scratch file `prototype-abab.json`. The prototype builds successfully with production minification and its UI update path was smoke-checked after correcting the scratch-only updater to return a field-transform function expected by `Struct.evolve`; the earlier prototype draft that returned the field value crashed and was not used for these measurements.
+
+See [`../benchmarks/2026-10-23-list-form-scripting.md`](../benchmarks/2026-10-23-list-form-scripting.md) for all five scenarios' source-mapped attribution and the A/A calculation details.
 
 The relevant distributed code is in `foldkit@0.168.0/dist/html/submodel.js:48-87,88-120`: `wrapViewInputsForOuterBoundary` always invokes `assertNoNestedFunctions`, which recurses through arrays and plain objects.
 
