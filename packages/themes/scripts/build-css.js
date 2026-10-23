@@ -1,5 +1,5 @@
 // Original Radix Themes CSS target order; MIT, Copyright (c) 2023 WorkOS.
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, rm } from 'node:fs/promises';
 import { dirname, resolve, join } from 'node:path';
 import postcss from 'postcss';
 import postcssConfig from '../postcss.config.js';
@@ -59,6 +59,7 @@ for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 
   const source = names.map(component => `@import './${component}.css';`).join('\n');
   targets.push(['src/css-components/index.css', `css/${name}.css`, source]);
 }
+await rm(resolve(root, 'dist/styles'), { recursive: true, force: true });
 for (const [input, output, source] of targets) {
   const from = resolve(root, input), to = resolve(root, 'dist/styles', output);
   const result = await processor.process(source ?? await readFile(from, 'utf8'), { from, to });

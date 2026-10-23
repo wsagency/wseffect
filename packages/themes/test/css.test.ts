@@ -1,4 +1,5 @@
-import { readFile, readdir, stat } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -25,6 +26,22 @@ describe('Themes CSS distribution', () => {
       expect((await stat(output)).isFile(), relativePath).toBe(true)
       expect(await readFile(output.replace(/\.css$/, '.layer.css'), 'utf8'), relativePath).toMatch(/^@layer radix \{/)
     }
+  })
+
+  it('removes obsolete styles from an incremental CSS rebuild', async () => {
+    const stylesDirectory = resolve(packageRoot, 'dist/styles')
+    await mkdir(stylesDirectory, { recursive: true })
+    await writeFile(resolve(stylesDirectory, 'components-base.css'), 'stale')
+    await writeFile(resolve(stylesDirectory, 'components-base.layer.css'), 'stale')
+
+    const build = spawnSync(process.execPath, [resolve(packageRoot, 'scripts/build-css.js')], {
+      cwd: packageRoot,
+      encoding: 'utf8',
+    })
+
+    expect(build.status, build.stderr).toBe(0)
+    expect(await readdir(stylesDirectory)).not.toContain('components-base.css')
+    expect(await readdir(stylesDirectory)).not.toContain('components-base.layer.css')
   })
 
   it('emits CSS targets for each implemented component', async () => {
