@@ -14,6 +14,12 @@ const waitForDelay = async (milliseconds: number): Promise<void> => {
   await promise
 }
 
+const clickRouteLink = async (page: Page, key: string): Promise<void> => {
+  const link = page.locator(`#link-${key}`)
+  await link.evaluate((element) => element.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'instant' }))
+  await link.click()
+}
+
 test('deep links load only the pages for their route', async ({ page }) => {
   const assets = await galleryPageAssets(['sharedA', 'sharedB', 'dialog'])
   const requests: string[] = []
@@ -73,7 +79,7 @@ test('dialog-tabs-dialog navigation interrupts the tabs load and fetches each pa
   const tabsRequest = page.waitForRequest((request) => new URL(request.url()).pathname === chunkPaths.tabs)
   await page.setViewportSize({ width: 320, height: 100 })
   await page.goto('/')
-  await page.locator('#link-dialog').click()
+  await clickRouteLink(page, 'dialog')
   await expect(page.getByRole('heading', { name: 'Dialog', exact: true })).toBeVisible()
   if (devServer) {
     await page.evaluate(() => {
@@ -82,9 +88,9 @@ test('dialog-tabs-dialog navigation interrupts the tabs load and fetches each pa
       messages.length = 0
     })
   }
-  await page.locator('#link-tabs').click()
+  await clickRouteLink(page, 'tabs')
   await tabsRequest
-  await page.locator('#link-dialog').click()
+  await clickRouteLink(page, 'dialog')
   await expect(page.getByRole('heading', { name: 'Dialog', exact: true })).toBeVisible()
   expect(counts).toEqual({ dialog: 1, tabs: 1 })
   await expect(page.getByRole('heading', { name: 'Tabs' })).toHaveCount(0)
