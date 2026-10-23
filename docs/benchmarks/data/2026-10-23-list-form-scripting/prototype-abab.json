@@ -1,0 +1,520 @@
+{
+  "rounds": [
+    {
+      "round": 1,
+      "arm": "A",
+      "scenario": "vl-cell",
+      "sessions": 10,
+      "scriptMedianMs": 16.367,
+      "eventMedianMs": 24,
+      "scriptMs": [
+        15.882,
+        16.367,
+        13.128,
+        32.135,
+        17.967,
+        10.808,
+        17.873,
+        14.663,
+        21.223,
+        13.522
+      ],
+      "eventMs": [
+        24,
+        24,
+        16,
+        40,
+        24,
+        16,
+        24,
+        16,
+        32,
+        16
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.85,
+        11.21,
+        10.81
+      ],
+      "loadAfter": [
+        14.46,
+        11.42,
+        10.88
+      ]
+    },
+    {
+      "round": 1,
+      "arm": "A",
+      "scenario": "vl-sort",
+      "sessions": 10,
+      "scriptMedianMs": 50.574,
+      "eventMedianMs": 56,
+      "scriptMs": [
+        51.184,
+        50.574,
+        58.376,
+        43.116,
+        46.693,
+        67.534,
+        34.488,
+        52.576,
+        30.913,
+        35.821
+      ],
+      "eventMs": [
+        64,
+        56,
+        72,
+        56,
+        56,
+        80,
+        48,
+        64,
+        40,
+        40
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.85,
+        11.21,
+        10.81
+      ],
+      "loadAfter": [
+        16.04,
+        11.92,
+        11.05
+      ]
+    },
+    {
+      "round": 1,
+      "arm": "A",
+      "scenario": "vl-select",
+      "sessions": 10,
+      "scriptMedianMs": 8.486,
+      "eventMedianMs": 24,
+      "scriptMs": [
+        7.908,
+        6.969,
+        8.486,
+        7.394,
+        8.869,
+        6.405,
+        7.218,
+        8.946,
+        8.603,
+        8.683
+      ],
+      "eventMs": [
+        24,
+        24,
+        24,
+        24,
+        24,
+        16,
+        24,
+        24,
+        24,
+        24
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.85,
+        11.21,
+        10.81
+      ],
+      "loadAfter": [
+        13.88,
+        11.65,
+        10.98
+      ]
+    },
+    {
+      "round": 2,
+      "arm": "B",
+      "scenario": "vl-cell",
+      "sessions": 10,
+      "scriptMedianMs": 8.765,
+      "eventMedianMs": 16,
+      "scriptMs": [
+        12.306,
+        7.1,
+        9.341,
+        6.664,
+        8.447,
+        7.736,
+        11.197,
+        8.765,
+        12.088,
+        7.283
+      ],
+      "eventMs": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.88,
+        11.65,
+        10.98
+      ],
+      "loadAfter": [
+        12.58,
+        11.44,
+        10.92
+      ]
+    },
+    {
+      "round": 2,
+      "arm": "B",
+      "scenario": "vl-sort",
+      "sessions": 10,
+      "scriptMedianMs": 17.397,
+      "eventMedianMs": 32,
+      "scriptMs": [
+        17.573,
+        14.763,
+        19.013,
+        13.437,
+        17.014,
+        15.376,
+        18.182,
+        15.514,
+        19.854,
+        17.397
+      ],
+      "eventMs": [
+        32,
+        24,
+        32,
+        24,
+        24,
+        32,
+        24,
+        32,
+        32,
+        32
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.88,
+        11.65,
+        10.98
+      ],
+      "loadAfter": [
+        11.73,
+        11.3,
+        10.87
+      ]
+    },
+    {
+      "round": 2,
+      "arm": "B",
+      "scenario": "vl-select",
+      "sessions": 10,
+      "scriptMedianMs": 6.81,
+      "eventMedianMs": 24,
+      "scriptMs": [
+        7.052,
+        6.875,
+        6.395,
+        6.81,
+        6.388,
+        6.758,
+        6.707,
+        7.489,
+        6.382,
+        7.478
+      ],
+      "eventMs": [
+        24,
+        16,
+        24,
+        24,
+        24,
+        24,
+        16,
+        24,
+        16,
+        24
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        13.88,
+        11.65,
+        10.98
+      ],
+      "loadAfter": [
+        10.34,
+        11,
+        10.79
+      ]
+    },
+    {
+      "round": 3,
+      "arm": "A",
+      "scenario": "vl-cell",
+      "sessions": 10,
+      "scriptMedianMs": 13.453,
+      "eventMedianMs": 16,
+      "scriptMs": [
+        13.542,
+        10.601,
+        10.132,
+        16.308,
+        13.453,
+        9.967,
+        16.527,
+        9.567,
+        19.429,
+        12.312
+      ],
+      "eventMs": [
+        16,
+        16,
+        16,
+        24,
+        16,
+        16,
+        24,
+        16,
+        24,
+        16
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        10.34,
+        11,
+        10.79
+      ],
+      "loadAfter": [
+        9.98,
+        10.9,
+        10.76
+      ]
+    },
+    {
+      "round": 3,
+      "arm": "A",
+      "scenario": "vl-sort",
+      "sessions": 10,
+      "scriptMedianMs": 37.376,
+      "eventMedianMs": 48,
+      "scriptMs": [
+        28.326,
+        38.87,
+        28.629,
+        40.356,
+        37.308,
+        37.376,
+        35.235,
+        41.28,
+        28.503,
+        38.888
+      ],
+      "eventMs": [
+        32,
+        48,
+        32,
+        48,
+        48,
+        48,
+        40,
+        48,
+        32,
+        48
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        10.34,
+        11,
+        10.79
+      ],
+      "loadAfter": [
+        10.43,
+        10.97,
+        10.78
+      ]
+    },
+    {
+      "round": 3,
+      "arm": "A",
+      "scenario": "vl-select",
+      "sessions": 10,
+      "scriptMedianMs": 8.127,
+      "eventMedianMs": 24,
+      "scriptMs": [
+        8.161,
+        6.448,
+        7.623,
+        7.018,
+        8.127,
+        8.632,
+        8.199,
+        7.93,
+        8.299,
+        7.694
+      ],
+      "eventMs": [
+        16,
+        16,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        16,
+        24
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        10.34,
+        11,
+        10.79
+      ],
+      "loadAfter": [
+        9.42,
+        10.71,
+        10.7
+      ]
+    },
+    {
+      "round": 4,
+      "arm": "B",
+      "scenario": "vl-cell",
+      "sessions": 10,
+      "scriptMedianMs": 8.827,
+      "eventMedianMs": 16,
+      "scriptMs": [
+        11.45,
+        10.916,
+        7.108,
+        8.109,
+        7.865,
+        6.889,
+        7.507,
+        9.571,
+        10.053,
+        8.827
+      ],
+      "eventMs": [
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        9.42,
+        10.71,
+        10.7
+      ],
+      "loadAfter": [
+        9.15,
+        10.61,
+        10.66
+      ]
+    },
+    {
+      "round": 4,
+      "arm": "B",
+      "scenario": "vl-sort",
+      "sessions": 10,
+      "scriptMedianMs": 17.032,
+      "eventMedianMs": 32,
+      "scriptMs": [
+        16.804,
+        13.197,
+        15.869,
+        22.805,
+        18.065,
+        16.5,
+        17.032,
+        17.164,
+        17.676,
+        13.7
+      ],
+      "eventMs": [
+        32,
+        24,
+        32,
+        40,
+        32,
+        32,
+        32,
+        32,
+        32,
+        32
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        9.42,
+        10.71,
+        10.7
+      ],
+      "loadAfter": [
+        9.06,
+        10.54,
+        10.64
+      ]
+    },
+    {
+      "round": 4,
+      "arm": "B",
+      "scenario": "vl-select",
+      "sessions": 10,
+      "scriptMedianMs": 7.776,
+      "eventMedianMs": 24,
+      "scriptMs": [
+        6.929,
+        7.776,
+        7.572,
+        7.277,
+        10.708,
+        14.068,
+        6.925,
+        8.208,
+        8.257,
+        7.318
+      ],
+      "eventMs": [
+        16,
+        24,
+        16,
+        24,
+        24,
+        24,
+        16,
+        16,
+        24,
+        16
+      ],
+      "invalidTraceAttempts": 0,
+      "loadBefore": [
+        9.42,
+        10.71,
+        10.7
+      ],
+      "loadAfter": [
+        8.62,
+        10.36,
+        10.58
+      ]
+    }
+  ]
+}
