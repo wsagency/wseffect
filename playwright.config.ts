@@ -48,6 +48,7 @@ export default defineConfig({
       name: 'devNavigation',
       testMatch: '**/navigation.spec.ts',
       grep: /dialog-tabs-dialog navigation interrupts/,
+      dependencies: ['devReload'],
       workers: 1,
       use: { ...devices['Desktop Chrome'], baseURL: developmentURL, browserName: 'chromium' },
     },
