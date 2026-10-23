@@ -12,7 +12,7 @@ import { page as tabsPage } from '../src/pages/tabs.js'
 import { page as themePage } from '../src/pages/theme.js'
 import { page as sharedAPage } from '../src/pages/sharedA.js'
 import { page as sharedBPage } from '../src/pages/sharedB.js'
-import { page as dataTablePage } from '../src/components/dataTable.js'
+import { page as dataTablePage } from '../src/pages/dataTable.js'
 
 const inputs: PageInputs = {
   path: '/components/data-table',

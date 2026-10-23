@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/icon-button.css'
 import * as IconButton from '@wsagency/wseffect-themes/components/icon-button'
 import * as AccessibleIcon from '@wsagency/wseffect-themes/components/accessible-icon'
 import type { HtmlBuilder } from 'foldkit/html'

@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { brotliCompressSync, constants as zlibConstants } from 'node:zlib'
 import test from 'node:test'
-import { attributeShell, classifyRequestTable, compareSize, measureSize, parseBUD1ShellBase, withMergeBaseFallback } from './size.ts'
+import { attributeShell, classifyRequestTable, compareSize, measureSize, withMergeBaseFallback } from './size.ts'
 
 const baseline = (entries: Record<string, { bytes: number; reason: string }> = {}) => ({
   unit: 'B' as const,
@@ -40,57 +40,14 @@ test('GATE-S1 rejects a shell over 120 KiB and accepts the exact limit', () => {
   assert.ok(compareSize(report(122_881), initial, initial).failures.some((failure) =>
     failure === 'GATE-S1: shell 122881 B exceeds 122,880 B; do not raise the budget without user decision'))
 })
-const BUD1_BASE_COMMIT = '200a6a5fcb86f23846e490faddf07c3e67e2e313'
-const BUD1_BASE_PATH = resolve(process.cwd(), 'bench/baselines/sp2-shell-base.json')
-const BUD1_BASE_ARTIFACT = JSON.parse(readFileSync(BUD1_BASE_PATH, 'utf8')) as {
-  commit: string
-  entryBytes: number
-  frameworkBytes: number
-  totalBytes: number
-  method: string
-  measuredAt: string
-}
-
-test('BUD-1 base records entry and framework bytes from the pinned base commit build', () => {
-  assert.equal(BUD1_BASE_ARTIFACT.commit, BUD1_BASE_COMMIT)
-  assert.ok(BUD1_BASE_ARTIFACT.entryBytes > 0)
-  assert.ok(BUD1_BASE_ARTIFACT.frameworkBytes > 0)
-  assert.equal(BUD1_BASE_ARTIFACT.totalBytes, BUD1_BASE_ARTIFACT.entryBytes + BUD1_BASE_ARTIFACT.frameworkBytes)
-  assert.match(BUD1_BASE_ARTIFACT.method, /brotli-q11/i)
-  assert.ok(Number.isFinite(Date.parse(BUD1_BASE_ARTIFACT.measuredAt)))
-})
-
-test('BUD-1 rejects a shell-base artifact for a different commit', () => {
-  const mismatched = { ...BUD1_BASE_ARTIFACT, commit: 'ffffffffffffffffffffffffffffffffffffffff' }
-  assert.throws(() => parseBUD1ShellBase(JSON.stringify(mismatched)), /does not match pinned commit/)
-})
-
-test('entry plus framework Brotli-q11 delta is at most 1,024 B against the measured base build', () => {
-  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
-  const withinLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_024), base, base)
-  const overLimit = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, base)
-  assert.equal(withinLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')), false)
-  assert.ok(overLimit.failures.some((failure) => failure.startsWith('GATE-BUD-1:')))
-})
-
-test('editing size.json cannot bypass the immutable measured shell base cap', () => {
-  const base = baseline({ shell: { bytes: BUD1_BASE_ARTIFACT.totalBytes, reason: '' } })
-  const editedCandidate = baseline({
-    shell: { bytes: 1_000_000, reason: 'attempted shell budget override' },
-  })
-  const result = compareSize(report(BUD1_BASE_ARTIFACT.totalBytes + 1_025), base, editedCandidate)
-  assert.ok(result.failures.some((failure) =>
-    failure.startsWith('GATE-BUD-1:') && failure.includes(`(${BUD1_BASE_ARTIFACT.totalBytes.toLocaleString('en-US')} → ${(BUD1_BASE_ARTIFACT.totalBytes + 1_025).toLocaleString('en-US')} B)`),
+test('GATE-S2 accepts the user-approved 256 KiB first-visit limit', () => {
+  const initial = baseline({ shell: { bytes: 1, reason: '' }, 'first-visit': { bytes: 262_144, reason: '' }, 'speculative-prefetch': { bytes: 1, reason: '' } })
+  assert.deepEqual(compareSize(report(1, 262_144), initial, initial).failures, [])
+  assert.ok(compareSize(report(1, 262_145), initial, initial).failures.includes(
+    'GATE-S2: first-visit 262145 B exceeds 262,144 B',
   ))
 })
 
-test('GATE-S2 rejects first-visit transfer over 160 KiB and accepts the exact limit', () => {
-  const initial = baseline({ shell: { bytes: 1, reason: '' }, 'first-visit': { bytes: 163_840, reason: '' }, 'speculative-prefetch': { bytes: 1, reason: '' } })
-  assert.deepEqual(compareSize(report(1, 163_840), initial, initial).failures, [])
-  assert.ok(compareSize(report(1, 163_841), initial, initial).failures.includes(
-    'GATE-S2: first-visit 163841 B exceeds 163,840 B',
-  ))
-})
 
 test('GATE-S4 rejects speculative prefetch over 64 KiB and accepts the exact limit', () => {
   const initial = baseline({
@@ -206,6 +163,18 @@ test('GATE-S3 rejects current artifacts missing from the candidate baseline', ()
   assert.ok(failures.some((failure) => failure.includes('shell is missing from size.json')))
   assert.ok(failures.some((failure) => failure.includes('page:form is missing from size.json')))
 })
+test('GATE-S3 omits a zero-byte speculative-prefetch artifact but tracks positive traffic', () => {
+  const candidate = baseline({
+    shell: { bytes: 1, reason: '' },
+    'first-visit': { bytes: 1, reason: '' },
+  })
+  const previous = baseline()
+  const noPrefetch = compareSize(report(1, 1), previous, candidate).failures
+  const withPrefetch = compareSize(report(1, 1, {}, undefined, 1), previous, candidate).failures
+
+  assert.equal(noPrefetch.some((failure) => failure.includes('speculative-prefetch is missing')), false)
+  assert.ok(withPrefetch.some((failure) => failure.includes('speculative-prefetch is missing')))
+})
 
 test('GATE-S3 permits a seeded artifact only with a reason and an encompassing baseline', () => {
   const current = report(100, 100, { form: 100 })
@@ -280,25 +249,16 @@ test('capture resolver and matrix stay outside the built index.html static closu
   const result = await measureSize({
     distDir,
     pagesDir: join(appDir, 'src', 'pages'),
-    componentDir: join(appDir, 'src', 'components'),
   })
   assert.equal(result.shell, expectedShell)
   assert.equal(result.shellRaw, expectedShellRaw)
   assert.deepEqual(Object.keys(result.pages).sort(), [
-    'browser', 'buttons', 'capabilities', 'cards',
-    'component:accessibility', 'component:accessibility.capture', 'component:alertDialog', 'component:alertDialog.capture',
-    'component:avatar', 'component:avatar.capture', 'component:contextMenu', 'component:contextMenu.capture',
-    'component:data', 'component:data.capture', 'component:dataTable', 'component:dataTable.capture',
-    'component:feedback', 'component:feedback.capture', 'component:formsExtra', 'component:formsExtra.capture',
-    'component:hoverCard', 'component:hoverCard.capture', 'component:iconButton', 'component:iconButton.capture',
-    'component:layoutExtra', 'component:layoutExtra.capture', 'component:links', 'component:links.capture',
-    'component:popover', 'component:popover.capture', 'component:rangeSlider', 'component:rangeSlider.capture',
-    'component:scrollArea', 'component:scrollArea.capture', 'component:select', 'component:select.capture',
-    'component:tabNav', 'component:tabNav.capture', 'component:themePanel', 'component:themePanel.capture',
-    'component:tooltip', 'component:tooltip.capture', 'component:typographyExtra', 'component:typographyExtra.capture',
-    'components', 'dialog', 'dropdownMenu', 'form', 'island',
-    'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField',
-    'theme', 'typography', 'validation', 'virtualList',
+    'accessibility', 'alertDialog', 'avatar', 'browser', 'buttons', 'capabilities', 'cards',
+    'components', 'contextMenu', 'data', 'dataTable', 'dialog', 'dropdownMenu', 'feedback',
+    'form', 'formsExtra', 'hoverCard', 'iconButton', 'island', 'layout', 'layoutExtra',
+    'links', 'menus', 'persistence', 'popover', 'rangeSlider', 'scrollArea', 'select',
+    'sharedA', 'sharedB', 'signals', 'tabNav', 'tabs', 'textField', 'theme', 'themePanel',
+    'tooltip', 'typography', 'typographyExtra', 'validation', 'virtualList',
   ].sort())
   assert.ok((result.stylesCss ?? 0) > 0, 'Gallery emits CSS tracked as styles.css')
   assert.ok(result.firstVisit.requests >= 5, 'server counts the document, entry, framework, stylesheet, and service worker')

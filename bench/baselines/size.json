@@ -3,264 +3,180 @@
   "compression": "brotli-q11",
   "entries": {
     "shell": {
-      "bytes": 73397,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 74653,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "first-visit": {
-      "bytes": 150383,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 163193,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
-    "speculative-prefetch": {
-      "bytes": 28911,
-      "reason": "capture renderers split out of family chunks"
+    "page:accessibility": {
+      "bytes": 367,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:alertDialog": {
+      "bytes": 589,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:avatar": {
+      "bytes": 357,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:browser": {
-      "bytes": 2619,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 2613,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:buttons": {
-      "bytes": 344,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 315,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:capabilities": {
-      "bytes": 600,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 602,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:cards": {
-      "bytes": 345,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 342,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:components": {
-      "bytes": 2948,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 656,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:contextMenu": {
+      "bytes": 724,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:data": {
+      "bytes": 573,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:dataTable": {
+      "bytes": 1427,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:dialog": {
-      "bytes": 619,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 629,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:dropdownMenu": {
-      "bytes": 663,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 660,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:feedback": {
+      "bytes": 493,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:form": {
-      "bytes": 524,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 519,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:formsExtra": {
+      "bytes": 1062,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:hoverCard": {
+      "bytes": 525,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:iconButton": {
+      "bytes": 431,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:island": {
-      "bytes": 1901,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 1899,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:layout": {
       "bytes": 370,
-      "reason": "capture renderers split out of family chunks"
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:layoutExtra": {
+      "bytes": 439,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:links": {
+      "bytes": 350,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:menus": {
-      "bytes": 777,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 765,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:persistence": {
-      "bytes": 2118,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 2105,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:popover": {
+      "bytes": 525,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:rangeSlider": {
+      "bytes": 693,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:scrollArea": {
+      "bytes": 392,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:select": {
+      "bytes": 856,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:sharedA": {
-      "bytes": 539,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 538,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:sharedB": {
-      "bytes": 383,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 382,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:signals": {
-      "bytes": 2118,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 2113,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:tabNav": {
+      "bytes": 467,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:tabs": {
-      "bytes": 2119,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 2115,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:textField": {
-      "bytes": 359,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 353,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:theme": {
-      "bytes": 1133,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 1132,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:themePanel": {
+      "bytes": 649,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:tooltip": {
+      "bytes": 564,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:typography": {
-      "bytes": 339,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 313,
+      "reason": "Per-family standard routes and eager full components stylesheet"
+    },
+    "page:typographyExtra": {
+      "bytes": 485,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:validation": {
-      "bytes": 1201,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 1206,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "page:virtualList": {
-      "bytes": 1483,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:accessibility.capture": {
-      "bytes": 397,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:accessibility": {
-      "bytes": 368,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:alertDialog.capture": {
-      "bytes": 375,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:alertDialog": {
-      "bytes": 599,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:avatar.capture": {
-      "bytes": 227,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:avatar": {
-      "bytes": 363,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:contextMenu.capture": {
-      "bytes": 477,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:contextMenu": {
-      "bytes": 726,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:data.capture": {
-      "bytes": 504,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:data": {
-      "bytes": 580,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:dataTable.capture": {
-      "bytes": 1055,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:dataTable": {
-      "bytes": 1543,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:feedback.capture": {
-      "bytes": 367,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:feedback": {
-      "bytes": 499,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:formsExtra.capture": {
-      "bytes": 825,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:formsExtra": {
-      "bytes": 1059,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:hoverCard.capture": {
-      "bytes": 332,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:hoverCard": {
-      "bytes": 526,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:iconButton.capture": {
-      "bytes": 348,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:iconButton": {
-      "bytes": 434,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:layoutExtra.capture": {
-      "bytes": 252,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:layoutExtra": {
-      "bytes": 442,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:links.capture": {
-      "bytes": 247,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:links": {
-      "bytes": 355,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:popover.capture": {
-      "bytes": 324,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:popover": {
-      "bytes": 533,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:rangeSlider.capture": {
-      "bytes": 359,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:rangeSlider": {
-      "bytes": 692,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:scrollArea.capture": {
-      "bytes": 299,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:scrollArea": {
-      "bytes": 405,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:select.capture": {
-      "bytes": 556,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:select": {
-      "bytes": 864,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:tabNav.capture": {
-      "bytes": 317,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:tabNav": {
-      "bytes": 463,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:themePanel.capture": {
-      "bytes": 313,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:themePanel": {
-      "bytes": 620,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:tooltip.capture": {
-      "bytes": 350,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:tooltip": {
-      "bytes": 565,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:typographyExtra.capture": {
-      "bytes": 347,
-      "reason": "capture renderers split out of family chunks"
-    },
-    "page:component:typographyExtra": {
-      "bytes": 490,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 1484,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     },
     "styles.css": {
-      "bytes": 68982,
-      "reason": "capture renderers split out of family chunks"
+      "bytes": 53157,
+      "reason": "Per-family standard routes and eager full components stylesheet"
     }
   }
 }

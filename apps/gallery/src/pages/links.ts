@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/link.css'
 import { Schema } from 'effect'
 import type { HtmlBuilder } from 'foldkit/html'
 import { Submodel } from 'foldkit'

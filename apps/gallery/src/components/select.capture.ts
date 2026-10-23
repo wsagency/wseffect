@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/select.css'
 import { Option } from 'effect'
 import * as Select from '@wsagency/wseffect-themes/components/select'
 import { renderCaptureView } from '../captureView.js'

@@ -1,7 +1,7 @@
 import * as Scene from 'foldkit/scene'
 import { describe, it } from 'vitest'
 import { type PageInputs } from '../src/contract.js'
-import { page as formsExtra } from '../src/components/formsExtra.js'
+import { page as formsExtra } from '../src/pages/formsExtra.js'
 
 const inputs: PageInputs = { path: '/components/forms-extra', date: '2026-10-22', accentColor: 'indigo', grayColor: 'auto', radius: 'medium', scaling: '100%', appearance: 'inherit', panelBackground: 'translucent' }
 

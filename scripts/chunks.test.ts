@@ -8,9 +8,9 @@ async function assetNames(directory: string): Promise<ReadonlyArray<string>> {
   return (await readdir(resolve(directory, 'assets'))).filter((name) => name.endsWith('.js')).sort()
 }
 
-test('fixed build IDs rename the entry and changed component-family page while capture chunks stay lazy', async () => {
+test('fixed build IDs rename the entry and changed family page while capture chunks stay lazy', async () => {
   const fixture = await createGalleryBuildFixture()
-  const dataTablePath = resolve(fixture.galleryDir, 'src/components/dataTable.ts')
+  const dataTablePath = resolve(fixture.galleryDir, 'src/pages/dataTable.ts')
   const first = resolve(fixture.rootDir, 'builds/first')
   const second = resolve(fixture.rootDir, 'builds/second')
   try {
@@ -45,30 +45,29 @@ test('fixed build IDs rename the entry and changed component-family page while c
     const after = new Set(await assetNames(second))
     const removed = [...before].filter((name) => !after.has(name))
     const added = [...after].filter((name) => !before.has(name))
-    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['components', 'dataTable', 'index'])
-    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['components', 'dataTable', 'index'])
+    assert.deepEqual(removed.map((name) => name.split('-')[0]).sort(), ['dataTable', 'index'])
+    assert.deepEqual(added.map((name) => name.split('-')[0]).sort(), ['dataTable', 'index'])
     const oldEntry = removed.find((name) => /^index-[^/]+\.js$/.test(name))
     const newEntry = added.find((name) => /^index-[^/]+\.js$/.test(name))
-    const oldComponents = removed.find((name) => /^components-[^/]+\.js$/.test(name))
-    const newComponents = added.find((name) => /^components-[^/]+\.js$/.test(name))
     const oldDataTable = removed.find((name) => /^dataTable-[^/]+\.js$/.test(name))
     const newDataTable = added.find((name) => /^dataTable-[^/]+\.js$/.test(name))
     const appShared = [...before].find((name) => name.startsWith('app-shared-'))
-    assert.ok(oldEntry && newEntry && oldComponents && newComponents && oldDataTable && newDataTable && appShared)
+    const componentIndex = [...before].find((name) => /^components-[^/]+\.js$/.test(name))
+    assert.ok(oldEntry && newEntry && oldDataTable && newDataTable && appShared && componentIndex)
     assert.equal(after.has(appShared), true)
     assert.deepEqual(await readFile(resolve(first, 'assets', appShared)), await readFile(resolve(second, 'assets', appShared)))
-    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(newComponents), true)
-    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldComponents), false)
-    assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(newDataTable), true)
-    assert.equal((await readFile(resolve(second, 'assets', newComponents), 'utf8')).includes(oldDataTable), false)
+    assert.equal(after.has(componentIndex), true)
+    assert.equal((await readFile(resolve(first, 'assets', componentIndex))).equals(await readFile(resolve(second, 'assets', componentIndex))), true)
+    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(newDataTable), true)
+    assert.equal((await readFile(resolve(second, 'assets', newEntry), 'utf8')).includes(oldDataTable), false)
     const captureAssets = [...before].filter((name) => name.includes('capture'))
     assert.deepEqual([...after].filter((name) => name.includes('capture')), captureAssets)
     for (const asset of captureAssets) {
       assert.deepEqual(await readFile(resolve(first, 'assets', asset)), await readFile(resolve(second, 'assets', asset)))
     }
     assert.deepEqual(
-      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),
-      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-') && !name.startsWith('components-')),
+      [...before].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-')),
+      [...after].filter((name) => !name.startsWith('index-') && !name.startsWith('dataTable-') && !name.startsWith('capture-')),
     )
   } finally {
     await fixture.cleanup()

@@ -1,5 +1,3 @@
-import '@wsagency/wseffect-themes/css/table.css'
-import '@wsagency/wseffect-themes/css/data-list.css'
 import { Schema } from 'effect'
 import type { HtmlBuilder } from 'foldkit/html'
 import { Submodel } from 'foldkit'

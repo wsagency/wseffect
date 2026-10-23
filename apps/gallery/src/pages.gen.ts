@@ -5,98 +5,178 @@ import { bindKit, kitMessageFields, makePages, messageSchema } from '@wsagency/w
 
 
 export type Pages = {
+  readonly accessibility: typeof import('./pages/accessibility').page
+  readonly alertDialog: typeof import('./pages/alertDialog').page
+  readonly avatar: typeof import('./pages/avatar').page
   readonly browser: typeof import('./pages/browser').page
   readonly buttons: typeof import('./pages/buttons').page
   readonly capabilities: typeof import('./pages/capabilities').page
   readonly cards: typeof import('./pages/cards').page
   readonly components: typeof import('./pages/components').page
+  readonly contextMenu: typeof import('./pages/contextMenu').page
+  readonly data: typeof import('./pages/data').page
+  readonly dataTable: typeof import('./pages/dataTable').page
   readonly dialog: typeof import('./pages/dialog').page
   readonly dropdownMenu: typeof import('./pages/dropdownMenu').page
+  readonly feedback: typeof import('./pages/feedback').page
   readonly form: typeof import('./pages/form').page
+  readonly formsExtra: typeof import('./pages/formsExtra').page
+  readonly hoverCard: typeof import('./pages/hoverCard').page
+  readonly iconButton: typeof import('./pages/iconButton').page
   readonly island: typeof import('./pages/island').page
   readonly layout: typeof import('./pages/layout').page
+  readonly layoutExtra: typeof import('./pages/layoutExtra').page
+  readonly links: typeof import('./pages/links').page
   readonly menus: typeof import('./pages/menus').page
   readonly persistence: typeof import('./pages/persistence').page
+  readonly popover: typeof import('./pages/popover').page
+  readonly rangeSlider: typeof import('./pages/rangeSlider').page
+  readonly scrollArea: typeof import('./pages/scrollArea').page
+  readonly select: typeof import('./pages/select').page
   readonly sharedA: typeof import('./pages/sharedA').page
   readonly sharedB: typeof import('./pages/sharedB').page
   readonly signals: typeof import('./pages/signals').page
+  readonly tabNav: typeof import('./pages/tabNav').page
   readonly tabs: typeof import('./pages/tabs').page
   readonly textField: typeof import('./pages/textField').page
   readonly theme: typeof import('./pages/theme').page
+  readonly themePanel: typeof import('./pages/themePanel').page
+  readonly tooltip: typeof import('./pages/tooltip').page
   readonly typography: typeof import('./pages/typography').page
+  readonly typographyExtra: typeof import('./pages/typographyExtra').page
   readonly validation: typeof import('./pages/validation').page
   readonly virtualList: typeof import('./pages/virtualList').page
 }
 
 export const pages = makePages<Pages>({
+  accessibility: () => import('./pages/accessibility').then(module => module.page),
+  alertDialog: () => import('./pages/alertDialog').then(module => module.page),
+  avatar: () => import('./pages/avatar').then(module => module.page),
   browser: () => import('./pages/browser').then(module => module.page),
   buttons: () => import('./pages/buttons').then(module => module.page),
   capabilities: () => import('./pages/capabilities').then(module => module.page),
   cards: () => import('./pages/cards').then(module => module.page),
   components: () => import('./pages/components').then(module => module.page),
+  contextMenu: () => import('./pages/contextMenu').then(module => module.page),
+  data: () => import('./pages/data').then(module => module.page),
+  dataTable: () => import('./pages/dataTable').then(module => module.page),
   dialog: () => import('./pages/dialog').then(module => module.page),
   dropdownMenu: () => import('./pages/dropdownMenu').then(module => module.page),
+  feedback: () => import('./pages/feedback').then(module => module.page),
   form: () => import('./pages/form').then(module => module.page),
+  formsExtra: () => import('./pages/formsExtra').then(module => module.page),
+  hoverCard: () => import('./pages/hoverCard').then(module => module.page),
+  iconButton: () => import('./pages/iconButton').then(module => module.page),
   island: () => import('./pages/island').then(module => module.page),
   layout: () => import('./pages/layout').then(module => module.page),
+  layoutExtra: () => import('./pages/layoutExtra').then(module => module.page),
+  links: () => import('./pages/links').then(module => module.page),
   menus: () => import('./pages/menus').then(module => module.page),
   persistence: () => import('./pages/persistence').then(module => module.page),
+  popover: () => import('./pages/popover').then(module => module.page),
+  rangeSlider: () => import('./pages/rangeSlider').then(module => module.page),
+  scrollArea: () => import('./pages/scrollArea').then(module => module.page),
+  select: () => import('./pages/select').then(module => module.page),
   sharedA: () => import('./pages/sharedA').then(module => module.page),
   sharedB: () => import('./pages/sharedB').then(module => module.page),
   signals: () => import('./pages/signals').then(module => module.page),
+  tabNav: () => import('./pages/tabNav').then(module => module.page),
   tabs: () => import('./pages/tabs').then(module => module.page),
   textField: () => import('./pages/textField').then(module => module.page),
   theme: () => import('./pages/theme').then(module => module.page),
+  themePanel: () => import('./pages/themePanel').then(module => module.page),
+  tooltip: () => import('./pages/tooltip').then(module => module.page),
   typography: () => import('./pages/typography').then(module => module.page),
+  typographyExtra: () => import('./pages/typographyExtra').then(module => module.page),
   validation: () => import('./pages/validation').then(module => module.page),
   virtualList: () => import('./pages/virtualList').then(module => module.page),
 })
-export const PageKey = Schema.Literals(['browser', 'buttons', 'capabilities', 'cards', 'components', 'dialog', 'dropdownMenu', 'form', 'island', 'layout', 'menus', 'persistence', 'sharedA', 'sharedB', 'signals', 'tabs', 'textField', 'theme', 'typography', 'validation', 'virtualList'])
+export const PageKey = Schema.Literals(['accessibility', 'alertDialog', 'avatar', 'browser', 'buttons', 'capabilities', 'cards', 'components', 'contextMenu', 'data', 'dataTable', 'dialog', 'dropdownMenu', 'feedback', 'form', 'formsExtra', 'hoverCard', 'iconButton', 'island', 'layout', 'layoutExtra', 'links', 'menus', 'persistence', 'popover', 'rangeSlider', 'scrollArea', 'select', 'sharedA', 'sharedB', 'signals', 'tabNav', 'tabs', 'textField', 'theme', 'themePanel', 'tooltip', 'typography', 'typographyExtra', 'validation', 'virtualList'])
 export const KitMessage = defineTaggedUnion({
   ...kitMessageFields(pages),
+  GotAccessibilityPageMessage: { message: messageSchema(pages, 'accessibility') },
+  GotAlertDialogPageMessage: { message: messageSchema(pages, 'alertDialog') },
+  GotAvatarPageMessage: { message: messageSchema(pages, 'avatar') },
   GotBrowserPageMessage: { message: messageSchema(pages, 'browser') },
   GotButtonsPageMessage: { message: messageSchema(pages, 'buttons') },
   GotCapabilitiesPageMessage: { message: messageSchema(pages, 'capabilities') },
   GotCardsPageMessage: { message: messageSchema(pages, 'cards') },
   GotComponentsPageMessage: { message: messageSchema(pages, 'components') },
+  GotContextMenuPageMessage: { message: messageSchema(pages, 'contextMenu') },
+  GotDataPageMessage: { message: messageSchema(pages, 'data') },
+  GotDataTablePageMessage: { message: messageSchema(pages, 'dataTable') },
   GotDialogPageMessage: { message: messageSchema(pages, 'dialog') },
   GotDropdownMenuPageMessage: { message: messageSchema(pages, 'dropdownMenu') },
+  GotFeedbackPageMessage: { message: messageSchema(pages, 'feedback') },
   GotFormPageMessage: { message: messageSchema(pages, 'form') },
+  GotFormsExtraPageMessage: { message: messageSchema(pages, 'formsExtra') },
+  GotHoverCardPageMessage: { message: messageSchema(pages, 'hoverCard') },
+  GotIconButtonPageMessage: { message: messageSchema(pages, 'iconButton') },
   GotIslandPageMessage: { message: messageSchema(pages, 'island') },
   GotLayoutPageMessage: { message: messageSchema(pages, 'layout') },
+  GotLayoutExtraPageMessage: { message: messageSchema(pages, 'layoutExtra') },
+  GotLinksPageMessage: { message: messageSchema(pages, 'links') },
   GotMenusPageMessage: { message: messageSchema(pages, 'menus') },
   GotPersistencePageMessage: { message: messageSchema(pages, 'persistence') },
+  GotPopoverPageMessage: { message: messageSchema(pages, 'popover') },
+  GotRangeSliderPageMessage: { message: messageSchema(pages, 'rangeSlider') },
+  GotScrollAreaPageMessage: { message: messageSchema(pages, 'scrollArea') },
+  GotSelectPageMessage: { message: messageSchema(pages, 'select') },
   GotSharedAPageMessage: { message: messageSchema(pages, 'sharedA') },
   GotSharedBPageMessage: { message: messageSchema(pages, 'sharedB') },
   GotSignalsPageMessage: { message: messageSchema(pages, 'signals') },
+  GotTabNavPageMessage: { message: messageSchema(pages, 'tabNav') },
   GotTabsPageMessage: { message: messageSchema(pages, 'tabs') },
   GotTextFieldPageMessage: { message: messageSchema(pages, 'textField') },
   GotThemePageMessage: { message: messageSchema(pages, 'theme') },
+  GotThemePanelPageMessage: { message: messageSchema(pages, 'themePanel') },
+  GotTooltipPageMessage: { message: messageSchema(pages, 'tooltip') },
   GotTypographyPageMessage: { message: messageSchema(pages, 'typography') },
+  GotTypographyExtraPageMessage: { message: messageSchema(pages, 'typographyExtra') },
   GotValidationPageMessage: { message: messageSchema(pages, 'validation') },
   GotVirtualListPageMessage: { message: messageSchema(pages, 'virtualList') },
 })
 export type KitMessage = typeof KitMessage.Type
 export const pageMessageTags = {
+  accessibility: 'GotAccessibilityPageMessage',
+  alertDialog: 'GotAlertDialogPageMessage',
+  avatar: 'GotAvatarPageMessage',
   browser: 'GotBrowserPageMessage',
   buttons: 'GotButtonsPageMessage',
   capabilities: 'GotCapabilitiesPageMessage',
   cards: 'GotCardsPageMessage',
   components: 'GotComponentsPageMessage',
+  contextMenu: 'GotContextMenuPageMessage',
+  data: 'GotDataPageMessage',
+  dataTable: 'GotDataTablePageMessage',
   dialog: 'GotDialogPageMessage',
   dropdownMenu: 'GotDropdownMenuPageMessage',
+  feedback: 'GotFeedbackPageMessage',
   form: 'GotFormPageMessage',
+  formsExtra: 'GotFormsExtraPageMessage',
+  hoverCard: 'GotHoverCardPageMessage',
+  iconButton: 'GotIconButtonPageMessage',
   island: 'GotIslandPageMessage',
   layout: 'GotLayoutPageMessage',
+  layoutExtra: 'GotLayoutExtraPageMessage',
+  links: 'GotLinksPageMessage',
   menus: 'GotMenusPageMessage',
   persistence: 'GotPersistencePageMessage',
+  popover: 'GotPopoverPageMessage',
+  rangeSlider: 'GotRangeSliderPageMessage',
+  scrollArea: 'GotScrollAreaPageMessage',
+  select: 'GotSelectPageMessage',
   sharedA: 'GotSharedAPageMessage',
   sharedB: 'GotSharedBPageMessage',
   signals: 'GotSignalsPageMessage',
+  tabNav: 'GotTabNavPageMessage',
   tabs: 'GotTabsPageMessage',
   textField: 'GotTextFieldPageMessage',
   theme: 'GotThemePageMessage',
+  themePanel: 'GotThemePanelPageMessage',
+  tooltip: 'GotTooltipPageMessage',
   typography: 'GotTypographyPageMessage',
+  typographyExtra: 'GotTypographyExtraPageMessage',
   validation: 'GotValidationPageMessage',
   virtualList: 'GotVirtualListPageMessage',
 } as const

@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/icon-button.css'
 import { Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import { defineMessageUnion } from 'foldkit/message'

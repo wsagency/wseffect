@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/context-menu.css'
 import type { HtmlBuilder } from 'foldkit/html'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

@@ -6,7 +6,6 @@ const packageRoot = resolve(import.meta.dirname, '..')
 const outputFiles = [
   'styles.css',
   'components.css',
-  'components-base.css',
   'tokens.css',
   'tokens/base.css',
   'layout.css',
@@ -26,27 +25,6 @@ describe('Themes CSS distribution', () => {
       expect((await stat(output)).isFile(), relativePath).toBe(true)
       expect(await readFile(output.replace(/\.css$/, '.layer.css'), 'utf8'), relativePath).toMatch(/^@layer radix \{/)
     }
-  })
-  it('keeps the components-base aggregate equal to the pre-SP2 file list and order', async () => {
-    const source = await readFile(resolve(packageRoot, 'src/css-components/index-base.css'), 'utf8')
-    const files = [...source.matchAll(/^@import '\.\/([\w-]+)\.css';$/gm)].map(([, name]) => name)
-    expect(files).toEqual([
-      'reset',
-      'animations',
-      'layout',
-      'skeleton',
-      'text',
-      'button',
-      'card',
-      'dialog',
-      'dropdown-menu',
-      'heading',
-      'scroll-area',
-      'spinner',
-      'tabs',
-      'text-field',
-      'shared',
-    ])
   })
 
   it('emits CSS targets for each implemented component', async () => {
@@ -131,8 +109,6 @@ describe('Themes CSS distribution', () => {
     for (const file of cssFiles.filter(file => file.endsWith('.css'))) {
       if (file === 'index.css') {
         expect(upstream).toContain('packages/themes/src/css-components/index.css')
-      } else if (file === 'index-base.css') {
-        expect(upstream).toContain('packages/themes/src/css-components/index-base.css')
       } else if (file === 'data-table.css') {
         expect(upstream).toContain('`data-table.css` is locally authored')
       } else {

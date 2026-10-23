@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/tooltip.css'
 import { Duration } from 'effect'
 import * as Tooltip from '@wsagency/wseffect-themes/components/tooltip'
 import { renderCaptureView } from '../captureView.js'

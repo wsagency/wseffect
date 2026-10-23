@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/theme-panel.css'
 import * as ThemePanel from '@wsagency/wseffect-themes/components/theme-panel'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

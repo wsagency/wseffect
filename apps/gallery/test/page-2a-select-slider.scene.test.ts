@@ -2,8 +2,8 @@ import * as Scene from 'foldkit/scene'
 import * as UiListbox from '@foldkit/ui/listbox'
 import { describe, it } from 'vitest'
 import type { PageInputs } from '../src/contract.js'
-import { page as selectPage } from '../src/components/select.js'
-import { page as rangeSliderPage } from '../src/components/rangeSlider.js'
+import { page as selectPage } from '../src/pages/select.js'
+import { page as rangeSliderPage } from '../src/pages/rangeSlider.js'
 
 const inputs: PageInputs = { path: '/components/select', date: '2026-10-22', accentColor: 'indigo', grayColor: 'slate', radius: 'medium', scaling: '100%', appearance: 'inherit', panelBackground: 'translucent' }
 

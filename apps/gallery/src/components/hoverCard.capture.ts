@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/hover-card.css'
 import * as HoverCard from '@wsagency/wseffect-themes/components/hover-card'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

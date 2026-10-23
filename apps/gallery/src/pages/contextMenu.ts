@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/context-menu.css'
 import { Option, Schema } from 'effect'
 import { Submodel } from 'foldkit'
 import type { HtmlBuilder } from 'foldkit/html'

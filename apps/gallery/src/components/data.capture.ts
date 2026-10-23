@@ -1,5 +1,3 @@
-import '@wsagency/wseffect-themes/css/table.css'
-import '@wsagency/wseffect-themes/css/data-list.css'
 import type { HtmlBuilder } from 'foldkit/html'
 import * as Table from '@wsagency/wseffect-themes/components/table'
 import * as DataList from '@wsagency/wseffect-themes/components/data-list'

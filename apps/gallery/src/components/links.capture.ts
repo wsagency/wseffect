@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/link.css'
 import * as Link from '@wsagency/wseffect-themes/components/link'
 import type { HtmlBuilder } from 'foldkit/html'
 import { renderCaptureView } from '../captureView.js'

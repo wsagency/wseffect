@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/avatar.css'
 import type { HtmlBuilder } from 'foldkit/html'
 import * as Avatar from '@wsagency/wseffect-themes/components/avatar'
 import { renderCaptureView } from '../captureView.js'

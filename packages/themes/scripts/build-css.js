@@ -17,7 +17,6 @@ const processor = postcss(postcssConfig.plugins);
 const targets = [
   ['src/styles/index.css', 'styles.css'],
   ['src/css-components/index.css', 'components.css'],
-  ['src/css-components/index-base.css', 'components-base.css'],
   ['src/styles/utilities/index.css', 'utilities.css'],
   ['src/styles/tokens/index.css', 'tokens.css'],
   ['src/styles/tokens/base.css', 'tokens/base.css'],

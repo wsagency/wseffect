@@ -1,6 +1,3 @@
-import '@wsagency/wseffect-themes/css/container.css'
-import '@wsagency/wseffect-themes/css/inset.css'
-import '@wsagency/wseffect-themes/css/section.css'
 import * as AspectRatio from '@wsagency/wseffect-themes/components/aspect-ratio'
 import * as Container from '@wsagency/wseffect-themes/components/container'
 import * as Inset from '@wsagency/wseffect-themes/components/inset'

@@ -1,5 +1,3 @@
-import '@wsagency/wseffect-themes/css/data-table.css'
-import '@wsagency/wseffect-themes/css/table.css'
 import { Schema } from 'effect'
 import { Command, Submodel } from 'foldkit'
 import { inertHtml, type Html, type HtmlBuilder } from 'foldkit/html'
@@ -24,7 +22,8 @@ const initialRows: ReadonlyArray<Row> = Array.from({ length: 10_000 }, (_, index
 const getRowId = (row: Row): string => row.id
 const nameAccessor = (row: Row): string => row.name
 const statusAccessor = (row: Row): string => row.status
-const baseColumns: ReadonlyArray<DataTable.Column<Row>> = [
+let baseColumnsCache: ReadonlyArray<DataTable.Column<Row>> | undefined
+const baseColumns = (): ReadonlyArray<DataTable.Column<Row>> => baseColumnsCache ??= [
   { id: 'name', header: inertHtml.span([inertHtml.DataAttribute('perf', 'data-table-sort')], ['Name']), accessor: nameAccessor, isSortable: true, searchText: nameAccessor },
   { id: 'status', header: inertHtml.span([], ['Status']), accessor: statusAccessor, isSortable: true, searchText: statusAccessor },
 ]
@@ -45,7 +44,7 @@ function tableDecorations<BuilderMessage>(h: HtmlBuilder<BuilderMessage>): Table
 
 const tableConfig = (
   model: Pick<Model, 'rows' | 'selectedRowIds'>,
-  columns: ReadonlyArray<DataTable.Column<Row>> = baseColumns,
+  columns: ReadonlyArray<DataTable.Column<Row>> = baseColumns(),
   caption: Html = null,
   rowHeight = 36,
 ): DataTable.Config<Row> => ({
@@ -63,7 +62,7 @@ const tableConfig = (
 const tableView = Submodel.defineView<DataTable.Model, DataTable.Message, TableViewInputs>(
   (model, inputs, h) => DataTable.view(
     model,
-    tableConfig(inputs, baseColumns, inputs.caption),
+    tableConfig(inputs, baseColumns(), inputs.caption),
     h,
   ),
 )
@@ -84,7 +83,7 @@ type Message = typeof Message.Type
 function applyTableMessage(model: Model, tableMessage: DataTable.Message, rows = model.rows) {
   const result = DataTable.update(
     model.table,
-    tableConfig({ rows, selectedRowIds: model.selectedRowIds }, baseColumns),
+    tableConfig({ rows, selectedRowIds: model.selectedRowIds }, baseColumns()),
     tableMessage,
   )
   const selectedRowIds = result.outMessage?._tag === 'SelectionChanged'

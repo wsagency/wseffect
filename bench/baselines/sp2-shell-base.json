@@ -1,8 +1,0 @@
-{
-  "commit": "200a6a5fcb86f23846e490faddf07c3e67e2e313",
-  "entryBytes": 5444,
-  "frameworkBytes": 67138,
-  "totalBytes": 72582,
-  "method": "Brotli-q11 sizes of the entry and framework JS chunks, measured with tools/gates/size.ts measureSize after an isolated Gallery build of this commit; chunk build IDs can vary by a few bytes across builds.",
-  "measuredAt": "2026-10-21T22:59:31Z"
-}

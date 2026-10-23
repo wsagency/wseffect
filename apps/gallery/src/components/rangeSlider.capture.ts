@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/slider.css'
 import { Range as SliderRange } from '@wsagency/wseffect-themes/components/slider/range'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

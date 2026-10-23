@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/alert-dialog.css'
 import * as AlertDialog from '@wsagency/wseffect-themes/components/alert-dialog'
 import * as Button from '@wsagency/wseffect-themes/components/button'
 import { renderCaptureView } from '../captureView.js'

@@ -1,5 +1,3 @@
-import '@wsagency/wseffect-themes/css/data-table.css'
-import '@wsagency/wseffect-themes/css/table.css'
 import { Schema } from 'effect'
 import type { Html, HtmlBuilder } from 'foldkit/html'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'

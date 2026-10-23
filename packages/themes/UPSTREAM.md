@@ -1,6 +1,6 @@
 # Upstream CSS provenance
 
-The CSS files listed below originate from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port) and are copied under `src/css-components/`; `_internal/base-button.css` is the transitive import required by `icon-button.css`. The lane adds local scrollbar-hiding rules to `scroll-area.css` to preserve native overflow scrolling while displaying synchronized custom thumbs. The locally authored aggregates `src/css-components/index.css` and `src/css-components/index-base.css` are inventoried separately and are not upstream copies; `index-base.css` preserves the component import list at base commit `200a6a5`. Component behavior and prop mappings were independently ported from the pinned `.tsx` and `.props.ts` source files listed below; their TypeScript implementation is not copied verbatim.
+The CSS files listed below originate from Radix2Solid at commit `383676172abb84b4a1d2e54a087d290437ee8848` (the pinned release used for this port) and are copied under `src/css-components/`; `_internal/base-button.css` is the transitive import required by `icon-button.css`. The lane adds local scrollbar-hiding rules to `scroll-area.css` to preserve native overflow scrolling while displaying synchronized custom thumbs. The locally authored aggregate `src/css-components/index.css` is inventoried separately and is not an upstream copy. Component behavior and prop mappings were independently ported from the pinned `.tsx` and `.props.ts` source files listed below; their TypeScript implementation is not copied verbatim.
 
 ## Local CSS deviations
 
@@ -36,7 +36,6 @@ The CSS files listed below originate from Radix2Solid at commit `383676172abb84b
 - `packages/themes/src/components/shared.css`
 
 - `packages/themes/src/css-components/index.css` (locally-authored aggregate import manifest; not copied from R2S)
-- `packages/themes/src/css-components/index-base.css` (locally-authored pre-SP2 aggregate import manifest; not copied from R2S)
 - `packages/themes/src/components/alert-dialog.css`
 - `packages/themes/src/components/box.css`
 - `packages/themes/src/components/button.css`

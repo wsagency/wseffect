@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/popover.css'
 import * as Popover from '@wsagency/wseffect-themes/components/popover'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

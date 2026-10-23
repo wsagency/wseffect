@@ -1,4 +1,3 @@
-import '@wsagency/wseffect-themes/css/tab-nav.css'
 import * as TabNav from '@wsagency/wseffect-themes/components/tab-nav'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { Submodel } from 'foldkit'

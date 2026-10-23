@@ -209,12 +209,10 @@
 - **Ruling:** DT-4: Foldkit 0.168.0 `VirtualList.view` hard-codes a `<ul role=list>` container and `<li>` spacers, which is invalid inside `<tbody>`. DataTable reuses VirtualList's Schema Model/init/update/commands/helpers and renders a local native-table view (scroll container, sticky thead, spacer `<tr>`s, keyed rows). Locally implemented pieces are only those not exported. Cost if wrong: a small local windowing surface to maintain until upstream supports element overrides.
 - **Task 4A.5 addition:** Keep six generic upstream proposal drafts in `docs/upstream/` (CheckboxGroup composition, Menu context invocation, multi-thumb Slider, TooltipGroup skip-delay, Listbox selected-item anchor, and VirtualList element overrides). These drafts are not PRs; do not open any corresponding real upstream PR until the maintainer has engaged with each pending PR #1699, #1700, #1703, and #1711.
 
-## SP2 BUD-1 measured shell baseline amendment
+## Effect barrel observation
 
-- Replace the stale `200a6a5:bench/baselines/size.json` shell value with `bench/baselines/sp2-shell-base.json`, measured by building the pinned commit in a temporary worktree and measuring entry + framework with the size gate's Brotli-q11 method: entry 5,444 B, framework 67,138 B, total 72,582 B. The artifact is keyed to full commit `200a6a5fcb86f23846e490faddf07c3e67e2e313`; missing or mismatched base artifacts fail the gate.
-- Leave `bench/baselines/size.json` unchanged; its stale shell value does not govern BUD-1, which independently caps shell growth at +1,024 B.
+- A historical lazy-page fixture importing `effect/DateTime` increased raw entry + framework JavaScript from 153,410 B to 169,072 B (+15,662 B) because the `effect/index` barrel re-exports that module. This is informational evidence only, not a route or import restriction; the 2026-10-23 enterprise-shell ruling retires the separate shell-growth cap and restores direct family routes.
 
-- **Known BUD-1 constraint:** the shell imports Effect through the `effect/index` barrel. A lazy-page fixture importing `effect/DateTime` increased raw entry+framework JavaScript from 153,410 B to 169,072 B (+15,662 B), because the barrel makes re-exported modules part of the shared framework closure. Lazy routes must not statically import modules that pull new Effect APIs through barrels; keep such adapters in separate modules/subpaths.
 
 ## SP2-TEST-6 visual comparator ruling
 
@@ -224,6 +222,6 @@
 ## SP2 GATE-S3 sub-kilobyte growth amendment
 
 - GATE-S3 now rejects a page/artifact only when growth exceeds `max(2%, 64 B)` against the previous or candidate baseline. Content-hashed import filenames can shift Brotli sizes by tens of bytes across sub-kilobyte pages with identical normalized code; with roughly 20 SP2 pages, a strict 2% threshold would create systematic false failures.
-- GATE-S1/S2/S4 absolute budgets and the independent BUD-1 shell cap are unchanged.
+- GATE-S1/S2/S4 absolute budgets remain; the separate SP2 shell-growth cap is retired.
 - Refresh `page:persistence` to 2,119 B with reason `7f22e9a persist schema-encoded values (encode on save/migration)`.
 - **Cost if wrong:** up to 64 B of real growth per tiny chunk can pass without a reason.

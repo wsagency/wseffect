@@ -104,7 +104,7 @@ describe('themes distribution', () => {
       expect(upstreamClasses.has(alias), `upstream semantic alias ${alias}`).toBe(true)
       expect(emittedClasses.has(alias), `emitted semantic alias ${alias}`).toBe(true)
     }
-    const css = (await Promise.all(['styles.css', 'components.css', 'components-base.css', 'utilities.css'].map(
+    const css = (await Promise.all(['styles.css', 'components.css', 'utilities.css'].map(
       fileName => readFile(resolve(packageRoot, 'dist/styles', fileName), 'utf8'),
     ))).join('\n')
     for (const structuralClass of Object.keys(unstyledStructuralClasses)) {
