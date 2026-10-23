@@ -61,8 +61,20 @@ test('touch long press opens once and a cancelled press does not open', async ({
   await expect(menu(page)).toHaveCount(0)
 
   await target.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 2, isPrimary: true, clientX: 20, clientY: 20, button: 0 })
+  const beforeActivationPrevented = await target.evaluate(node => {
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2, clientX: 20, clientY: 20 })
+    node.dispatchEvent(event)
+    return event.defaultPrevented
+  })
+  expect(beforeActivationPrevented).toBe(false)
+  await expect(menu(page)).toHaveCount(0)
   await expect(menu(page)).toBeVisible({ timeout: 2_000 })
-  await target.dispatchEvent('contextmenu', { button: 2, clientX: 20, clientY: 20 })
+  const afterActivationPrevented = await target.evaluate(node => {
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, button: 2, clientX: 20, clientY: 20 })
+    node.dispatchEvent(event)
+    return event.defaultPrevented
+  })
+  expect(afterActivationPrevented).toBe(true)
   await expect(menu(page)).toHaveCount(1)
   await target.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 2, isPrimary: true, clientX: 20, clientY: 20, button: 0 })
   await page.keyboard.press('Escape')
