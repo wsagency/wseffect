@@ -35,6 +35,33 @@ The current runtime's `wrapViewInputsForOuterBoundary` calls `assertNoNestedFunc
 
 In the Gallery's 10,000-row VirtualList, a 4× CPU-throttled source-mapped CDP CPU profile captured 10 samples for each interaction. `foldkit/dist/html/submodel.js:63` (`walkForFunctions`) had median sampled self-time **3.83 ms** for filter (range **0.47–6.21 ms**) and **7.03 ms** for sort (range **1.74–15.01 ms**). The enclosing anonymous function at `submodel.js:80` had medians **4.36 ms** and **10.87 ms**, respectively. The app renders only viewport rows; prior precise-coverage counts were 14 row-renderer calls for filter and 28 for sort, not 10,000. These profiler sample times are attribution data, not Event Timing measurements; host-side interaction wall time was 67–85 ms in the filter samples, and raw V8 sample-delta totals should not be compared directly with wall time under emulated CPU throttling.
 
+### Production-build follow-up: current five interactions
+
+I checked the exact installed `foldkit@0.168.0` bundle used by Gallery, not a development build. `dist/html/submodel.js` has no environment or runtime-option guard: every plain-object `viewInputs` value is passed to `assertNoNestedFunctions`, and arrays and plain records recurse through `walkForFunctions`. Vite cannot dead-code-eliminate this unconditional call. The current Gallery passes stable IDs rather than records (`virtualList.ts`), but `viewInputs.items` remains an array of all 10,000 IDs, so the validation still visits the full list on each list render.
+
+I used a source-mapped CDP CPU profile against a production Gallery build at 1× and 4×; each row below is one capture with a 100 µs sampling interval. Self-time values are sampled attribution, not trace-scripting or Event Timing, and the profile includes the post-action settling interval. The module columns group sampled self-time by source path; they are directional single-capture values, not stable medians.
+
+| Scenario | Rate | Foldkit total | `foldkit/html` | `foldkit/snabbdom` | `foldkit/runtime` | `foldkit/domReflection` | Other Foldkit | `@foldkit/ui` |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `vl-cell` | 1× | 2.29 ms | 1.38 ms | 0.31 ms | 0.15 ms | 0.15 ms | 0.15 ms | 0.15 ms |
+| `vl-cell` | 4× | 5.28 ms | 4.29 ms | 0.57 ms | — | 0.05 ms | 0.37 ms | 0.09 ms |
+| `vl-sort` | 1× | 7.53 ms | 3.54 ms | 1.23 ms | 0.31 ms | — | 0.61 ms | 1.84 ms |
+| `vl-sort` | 4× | 14.89 ms | 7.17 ms | 2.62 ms | 1.00 ms | 1.23 ms | 2.88 ms | 1.85 ms |
+| `vl-select` | 1× | 1.21 ms | 0.60 ms | 0.31 ms | — | — | 0.30 ms | — |
+| `vl-select` | 4× | 6.24 ms | 2.85 ms | 1.81 ms | 0.06 ms | 0.82 ms | 0.70 ms | — |
+| `form-field` | 1× | 1.08 ms | 0.47 ms | 0.31 ms | — | 0.16 ms | — | 0.15 ms |
+| `form-field` | 4× | 2.71 ms | 1.65 ms | 0.58 ms | — | 0.49 ms | — | — |
+| `shared-date` | 1× | 2.01 ms | 1.40 ms | 0.46 ms | — | — | 0.15 ms | — |
+| `shared-date` | 4× | 5.97 ms | 2.95 ms | 1.23 ms | 1.01 ms | 0.15 ms | 0.63 ms | — |
+
+The largest per-function samples at 4× were `walkForFunctions` 0.21 ms (`vl-cell`), 2.26 ms (`vl-sort`), 1.68 ms (`vl-select`), 0 ms (`form-field`), and 0 ms (`shared-date`); `captureCallSite` was 0.77, 0.82, 0.46, 0, and 0.50 ms respectively. In `vl-sort`, `informItemsChanged` sampled 0.31 ms, while Effect's `internal/hashMap.js:set` sampled 6.64 ms. `informItemsChanged` is called once by the Gallery's sort update with the full 10,000-ID list; the installed API exposes no separate pure-reorder operation. Filter uses the same one-call/full-list pattern. The fixed-height model has no measured row heights, but the list still needs its update/reconciliation command to preserve its stable-key scroll anchor.
+
+The other three scenarios have no corresponding `informItemsChanged` call. DOM mutation counts from the same production interactions were: `vl-cell` 0 node additions/removals and 2 attribute mutations; `vl-select` 0 and 1 attribute + 1 character-data mutation; `form-field` 0 and 1 attribute mutation; `shared-date` 0 and 1 attribute + 4 character-data mutations at 4×. Sort changed 27 nodes each way and 65 attributes at 4× (41 each way and 80 attributes at 1×).
+
+Row reuse is already in place and matches the documented guidance: `virtualList.ts` uses a module-lifetime `createKeyedLazy()` keyed by item ID with stable `renderRow` and primitive cache arguments. Existing source-mapped precise-coverage measurements counted `vl-cell` and `vl-select` at one row-renderer call each (filter 14, sort 28); this is not a render-all-visible-rows issue. The form page likewise keys each stable field ID, and its reuse assertion observes 200 initial TextField renders plus one changed-field render. The `createKeyedLazy` cache is not the hot path for cell/select; its key space is bounded by the 10,000 known IDs, though it does not evict.
+
+The profile therefore shows two distinct upstream costs: `walkForFunctions` revalidates a 10,000-element primitive-ID array in list updates, and the Foldkit/Effect render/update path dominates sort and the three single-row/field edits. The current gallery already uses the allowed ID-only inputs and keyed lazy row/field reuse; no safe Wseffect-only replacement for Foldkit validation or VirtualList anchor reconciliation was found. This table is preliminary evidence from one capture per cell; it does not claim a runtime win or replace the deferred ABAB timing.
+
 ### Scratch prototype measurement (not submitted upstream)
 
 Built Foldkit `0.168.0` in `/tmp/foldkit-upstream-prototype` with the deep validation guarded by `import.meta.env.DEV` (dev builds still validate; the production Gallery bundle omits the validator). A was the `perf/virtual-list` Gallery build using the published package; B was the same app build with only the scratch Foldkit alias. The temporary Vite alias added no Foldkit patch to this repository. On Node `v24.21.0` / Chromium `156.0.8078.4`, five A/B/A/B blocks (10 samples per build) and ten adjacent A/A pairs per build at 4× produced:
