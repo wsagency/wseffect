@@ -36,15 +36,20 @@ export default defineConfig({
         use: { ...device, baseURL: capabilitiesURL, browserName: name },
       }
     }),
+    // Dev-server projects share Vite's cold transform cache; reload tests also edit source files.
+    // Keep them serial so parallel browser workers cannot race HMR or starve first-load compilation.
     {
       name: 'devReload',
       testMatch: '**/devReload.spec.ts',
+      workers: 1,
       use: { ...devices['Desktop Chrome'], baseURL: developmentURL, browserName: 'chromium' },
     },
     {
       name: 'devNavigation',
       testMatch: '**/navigation.spec.ts',
       grep: /dialog-tabs-dialog navigation interrupts/,
+      dependencies: ['devReload'],
+      workers: 1,
       use: { ...devices['Desktop Chrome'], baseURL: developmentURL, browserName: 'chromium' },
     },
   ],

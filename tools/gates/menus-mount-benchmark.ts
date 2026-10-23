@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import { cpus, loadavg } from 'node:os'
+import { cpus, homedir, loadavg } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium, type Browser } from '@playwright/test'
@@ -8,7 +8,16 @@ import { runScenario, SCENARIOS } from './perf.ts'
 import type { PerfScenario } from './scenarios.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
-const SCRATCH = process.env.WSEFFECT_SCRATCH_DIR ?? join(process.env.HOME ?? '/tmp', '.cache/wseffect-scratch')
+const scratchDirectory = process.env.WSEFFECT_SCRATCH_DIR
+const SCRATCH = scratchDirectory || (() => {
+  try {
+    const homeDirectory = homedir()
+    if (homeDirectory) return join(homeDirectory, '.cache/wseffect-scratch')
+  } catch {
+    // Use the explicit error below when the home directory is unavailable.
+  }
+  throw new Error('Set WSEFFECT_SCRATCH_DIR or make the home directory available to run the menus mount benchmark.')
+})()
 const OUTPUT = join(SCRATCH, 'menus-mount-abab.json')
 const scenario = (config: Omit<PerfScenario, 'id'>): PerfScenario => ({ id: 'menus-tick', ...config })
 const noOp = async () => {}
