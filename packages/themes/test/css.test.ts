@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
+import { cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
+
 import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
@@ -30,23 +30,29 @@ describe('Themes CSS distribution', () => {
   })
 
   it('removes obsolete styles from an incremental CSS rebuild', async () => {
-    const stylesDirectory = await mkdtemp(join(tmpdir(), 'wseffect-themes-css-'))
+    const fixtureRoot = await mkdtemp(join(packageRoot, '.css-build-fixture-'))
+    const stylesDirectory = resolve(fixtureRoot, 'dist/styles')
     try {
+      await mkdir(resolve(fixtureRoot, 'scripts'), { recursive: true })
+      await cp(resolve(packageRoot, 'src'), resolve(fixtureRoot, 'src'), { recursive: true })
+      await cp(resolve(packageRoot, 'scripts/build-css.js'), resolve(fixtureRoot, 'scripts/build-css.js'))
+      await cp(resolve(packageRoot, 'postcss.config.js'), resolve(fixtureRoot, 'postcss.config.js'))
+      await cp(resolve(packageRoot, 'postcss-breakpoints.js'), resolve(fixtureRoot, 'postcss-breakpoints.js'))
+      await cp(resolve(packageRoot, 'postcss-whitespace.js'), resolve(fixtureRoot, 'postcss-whitespace.js'))
       await mkdir(stylesDirectory, { recursive: true })
       await writeFile(resolve(stylesDirectory, 'components-base.css'), 'stale')
       await writeFile(resolve(stylesDirectory, 'components-base.layer.css'), 'stale')
 
-      const build = spawnSync(process.execPath, [resolve(packageRoot, 'scripts/build-css.js')], {
-        cwd: packageRoot,
+      const build = spawnSync(process.execPath, [resolve(fixtureRoot, 'scripts/build-css.js')], {
+        cwd: fixtureRoot,
         encoding: 'utf8',
-        env: { ...process.env, WSEFFECT_THEMES_STYLES_OUT_DIR: stylesDirectory },
       })
 
       expect(build.status, build.stderr).toBe(0)
       expect(await readdir(stylesDirectory)).not.toContain('components-base.css')
       expect(await readdir(stylesDirectory)).not.toContain('components-base.layer.css')
     } finally {
-      await rm(stylesDirectory, { recursive: true, force: true })
+      await rm(fixtureRoot, { recursive: true, force: true })
     }
   })
 
