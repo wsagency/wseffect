@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process'
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 const packageRoot = resolve(import.meta.dirname, '..')
@@ -29,19 +30,24 @@ describe('Themes CSS distribution', () => {
   })
 
   it('removes obsolete styles from an incremental CSS rebuild', async () => {
-    const stylesDirectory = resolve(packageRoot, 'dist/styles')
-    await mkdir(stylesDirectory, { recursive: true })
-    await writeFile(resolve(stylesDirectory, 'components-base.css'), 'stale')
-    await writeFile(resolve(stylesDirectory, 'components-base.layer.css'), 'stale')
+    const stylesDirectory = await mkdtemp(join(tmpdir(), 'wseffect-themes-css-'))
+    try {
+      await mkdir(stylesDirectory, { recursive: true })
+      await writeFile(resolve(stylesDirectory, 'components-base.css'), 'stale')
+      await writeFile(resolve(stylesDirectory, 'components-base.layer.css'), 'stale')
 
-    const build = spawnSync(process.execPath, [resolve(packageRoot, 'scripts/build-css.js')], {
-      cwd: packageRoot,
-      encoding: 'utf8',
-    })
+      const build = spawnSync(process.execPath, [resolve(packageRoot, 'scripts/build-css.js')], {
+        cwd: packageRoot,
+        encoding: 'utf8',
+        env: { ...process.env, WSEFFECT_THEMES_STYLES_OUT_DIR: stylesDirectory },
+      })
 
-    expect(build.status, build.stderr).toBe(0)
-    expect(await readdir(stylesDirectory)).not.toContain('components-base.css')
-    expect(await readdir(stylesDirectory)).not.toContain('components-base.layer.css')
+      expect(build.status, build.stderr).toBe(0)
+      expect(await readdir(stylesDirectory)).not.toContain('components-base.css')
+      expect(await readdir(stylesDirectory)).not.toContain('components-base.layer.css')
+    } finally {
+      await rm(stylesDirectory, { recursive: true, force: true })
+    }
   })
 
   it('emits CSS targets for each implemented component', async () => {

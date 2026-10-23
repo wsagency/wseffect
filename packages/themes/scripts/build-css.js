@@ -59,9 +59,10 @@ for (const name of ['box', 'flex', 'grid', 'text', 'heading', 'button', 'card', 
   const source = names.map(component => `@import './${component}.css';`).join('\n');
   targets.push(['src/css-components/index.css', `css/${name}.css`, source]);
 }
-await rm(resolve(root, 'dist/styles'), { recursive: true, force: true });
+const stylesRoot = resolve(process.env.WSEFFECT_THEMES_STYLES_OUT_DIR ?? resolve(root, 'dist/styles'));
+await rm(stylesRoot, { recursive: true, force: true });
 for (const [input, output, source] of targets) {
-  const from = resolve(root, input), to = resolve(root, 'dist/styles', output);
+  const from = resolve(root, input), to = resolve(stylesRoot, output);
   const result = await processor.process(source ?? await readFile(from, 'utf8'), { from, to });
   const css = result.root.toString();
   await mkdir(dirname(to), { recursive: true });
