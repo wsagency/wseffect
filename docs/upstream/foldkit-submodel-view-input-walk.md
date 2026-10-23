@@ -64,7 +64,7 @@ The profile therefore shows two distinct upstream costs: `walkForFunctions` reva
 
 ### Scratch prototype measurement (supersedes the earlier `/tmp` prototype; not submitted upstream)
 
-The earlier `/tmp/foldkit-upstream-prototype` directory was removed. The current local prototype is under `$HOME/.cache/wseffect-work/perf-lists/prototype`; nothing from it is committed. The published Foldkit and `@foldkit/ui` builds were copied to scratch, then the walk check was guarded with `import.meta.env.DEV` and fixed-height `informItemsChanged` was changed to skip building the full `HashSet` when `measuredRowHeights` is empty. Both A and B used the same Gallery production/minified Vite build settings, source maps, Node `v24.21.0`, Chromium `156.0.8078.4`, and the existing real-input `runScenario` harness. At 4×, each arm had two rounds of 10 fresh-context sessions per interaction (20 per arm); order was A/B/A/B. A/A and B/B p95 bands are the p95 absolute pairwise deltas between the two ten-session rounds of the same build. Load average (1-minute) ranged from **8.62 to 16.04** during the blocks.
+The earlier `/tmp/foldkit-upstream-prototype` directory was removed. The current scratch-only prototype modified copied published Foldkit and `@foldkit/ui` bundles; prototype build outputs remain uncommitted. The Foldkit nested-function walk was guarded with `import.meta.env.DEV`, and fixed-height `informItemsChanged` skips the full key `HashSet` when `measuredRowHeights` is empty. Both A and B used the same Gallery production/minified Vite settings, source maps, Node `v24.21.0`, Chromium `156.0.8078.4`, and the existing real-input `runScenario` harness. At 4×, each arm had two rounds of 10 fresh-context sessions per interaction (20 per arm), ordered A/B/A/B; 1× used the same schedule. A/A and B/B p95 bands are pairwise deltas between the two ten-session rounds of the same build. Raw data: [three-capture attribution](../benchmarks/data/2026-10-23-list-form-scripting/attribution-4x.json), [4× prototype ABAB](../benchmarks/data/2026-10-23-list-form-scripting/prototype-abab.json), and [1× prototype ABAB](../benchmarks/data/2026-10-23-list-form-scripting/prototype-abab-1x.json).
 
 | Interaction | Published A: Event / script median | Prototype B: Event / script median | A/B delta: Event / script | A/A p95 abs: published / prototype (Event / script) |
 |---|---:|---:|---:|---:|
@@ -72,9 +72,43 @@ The earlier `/tmp/foldkit-upstream-prototype` directory was removed. The current
 | `vl-sort` | 48 / 38.879 ms | 32 / 17.023 ms | −16 / −21.856 ms | 40 / 30.158 ms; 8 / 6.154 ms |
 | `vl-select` | 24 / 8.029 ms | 24 / 7.165 ms | 0 / −0.864 ms | 8 / 2.038 ms; 8 / 7.258 ms |
 
-Although sort moved in the favorable direction, none of the A/B deltas clears the published-build A/A noise band. The Event Timing values are quantized in 8 ms increments, and the load average was elevated and changing across blocks; this run does **not** establish a user-visible win or regression. Full per-session values and per-block load samples are in the local scratch file `prototype-abab.json`. The prototype builds successfully with production minification and its UI update path was smoke-checked after correcting the scratch-only updater to return a field-transform function expected by `Struct.evolve`; the earlier prototype draft that returned the field value crashed and was not used for these measurements.
+Although sort moved in the favorable direction, none of the A/B deltas clears the published-build A/A noise band. The Event Timing values are quantized in 8 ms increments, and the load average was elevated and changing across blocks; this run does **not** establish a user-visible win or regression. The exact scratch changes are shown below. The UI updater returns a field-transform function as required by Foldkit's `modifyFields`/Effect `Struct.evolve` contract.
+
+### Exact scratch-only prototype diffs (not submitted upstream)
+
+`foldkit/dist/html/submodel.js`:
+
+```diff
+@@
+-    assertNoNestedFunctions(viewInputs);
++    if (import.meta.env.DEV)
++        assertNoNestedFunctions(viewInputs);
+```
+
+`@foldkit/ui/dist/virtualList/index.js`:
+
+```diff
+@@
+ export const informItemsChanged = (model, itemKeys) => {
+-    const currentKeys = HashSet.fromIterable(itemKeys);
++    const hasMeasuredRowHeights = Object.keys(model.measuredRowHeights).length > 0;
++    const currentKeys = hasMeasuredRowHeights ? HashSet.fromIterable(itemKeys) : undefined;
+     return __foldkitBrandViewResult((Update.combine(model, [
+         stepModel => (__foldkitBrandViewResult(({
+             model: modifyFields(stepModel, {
+-                measuredRowHeights: Record.filter((_, key) => __foldkitBrandViewResult((HashSet.has(currentKeys, key)), "@foldkit/ui/virtualList/index.js#anonymous~22")),
++                measuredRowHeights: hasMeasuredRowHeights
++                    ? Record.filter((_, key) => __foldkitBrandViewResult((HashSet.has(currentKeys, key)), "@foldkit/ui/virtualList/index.js#anonymous~22"))
++                    : () => stepModel.measuredRowHeights,
+                 layoutVersion: Number.increment,
+             }),
+         }), "@foldkit/ui/virtualList/index.js#anonymous~21")),
+```
+
+The fallback must remain an updater function: `modifyFields` uses `Struct.evolve`, which invokes every field transform. Returning the field value directly crashes with `t[e] is not a function`.
 
 See [`../benchmarks/2026-10-23-list-form-scripting.md`](../benchmarks/2026-10-23-list-form-scripting.md) for all five scenarios' source-mapped attribution and the A/A calculation details.
+
 
 The relevant distributed code is in `foldkit@0.168.0/dist/html/submodel.js:48-87,88-120`: `wrapViewInputsForOuterBoundary` always invokes `assertNoNestedFunctions`, which recurses through arrays and plain objects.
 

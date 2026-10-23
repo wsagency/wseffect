@@ -6,6 +6,8 @@
 
 Captured source-mapped Chrome DevTools CPU profiles from the production Gallery build using Node `v24.21.0`, Chromium `156.0.8078.4`, CDP CPU throttling at 4×, a 100 µs sampling interval, and three fresh-context captures per interaction. The scenario action was followed by an 80 ms settling interval. Sampled self-time was classified by original source-map path into the origin groups below; values are per-origin medians across the three captures. Top functions are likewise per-function medians. `GC/native/program` includes idle/program/native samples and is not app scripting. Since the profile spans the action plus settling and V8 sample totals are not trace-scripting durations, do not compare these numbers to Event Timing or harness trace scripting.
 
+Raw data: [three-capture attribution](data/2026-10-23-list-form-scripting/attribution-4x.json), [4× prototype ABAB](data/2026-10-23-list-form-scripting/prototype-abab.json), and [1× prototype ABAB](data/2026-10-23-list-form-scripting/prototype-abab-1x.json).
+
 ## Three-capture attribution (sampled self-time, ms)
 
 Effect and Wseffect subgroups are shown in the cell order written in each header.
@@ -36,7 +38,7 @@ I checked `packages/app/src/view/page.ts` once. `readyView` rebuilds and sorts `
 
 ## Upstream potential: local prototype ABAB
 
-A and B were production Gallery builds with identical Vite config, production mode, minification defaults, source-map settings, Node/Chromium versions, and the existing trusted-input `runScenario` harness. A used the published Foldkit/UI packages. B used scratch copies only: Foldkit's deep nested-function walk was guarded with `import.meta.env.DEV`, and `informItemsChanged` skipped building the full key `HashSet` when `measuredRowHeights` was empty. The scratch Vite aliases and bundles are outside the repository at `$HOME/.cache/wseffect-work/perf-lists/prototype`. Each 4× arm comprised two ten-session rounds (20 sessions per build per scenario), in A/B/A/B order. Reported A/A and B/B bands are p95 absolute pairwise deltas between the two same-build ten-session rounds. Load averages are 1-minute averages at each round/scenario boundary.
+A and B were production Gallery builds with identical Vite config, production mode, minification defaults, source-map settings, Node/Chromium versions, and the existing trusted-input `runScenario` harness. A used the published Foldkit/UI packages. B used scratch copies only: Foldkit's deep nested-function walk was guarded with `import.meta.env.DEV`, and `informItemsChanged` skipped building the full key `HashSet` when `measuredRowHeights` was empty. The exact local-prototype edits are shown in the upstream draft; only summary and per-session data are committed here. Each 4× arm comprised two ten-session rounds (20 sessions per build per scenario), in A/B/A/B order. Reported A/A and B/B bands are p95 absolute pairwise deltas between the two same-build ten-session rounds. Load averages are 1-minute averages at each round/scenario boundary.
 
 ### 4× results
 
@@ -58,4 +60,3 @@ The sort medians moved favorably, but its 16 ms Event Timing and 21.856 ms scrip
 
 No 1× delta clears its corresponding same-build A/A scripting band; Event Timing deltas are all 0 ms. Load average ranged **7.68–10.48**. Across both rates, the local prototype has not shown a result that clears the noise bands. The results are useful to prioritize upstream experiments, not to claim a shipped performance improvement.
 
-The 61.437 ms isolated sort sample previously described as a prototype result was actually captured against the published A bundle (the scratch `baseline` directory). It was one sample with no contemporaneous load reading; the final A/B run's elevated, variable load and wide A/A band explain why that isolated point should not be compared to an earlier ~27 ms baseline or treated as a prototype effect. The final 4×/1× per-session values, round medians, and load arrays are in scratch `prototype-abab.json` and `prototype-abab-1x.json`.

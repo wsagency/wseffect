@@ -1,0 +1,364 @@
+{
+  "results": [
+    {
+      "scenario": "vl-cell",
+      "throttle": 4,
+      "captures": 3,
+      "groupMediansMs": {
+        "Foldkit": 9.775,
+        "@foldkit/ui": 0.022,
+        "Effect runtime": 0.632,
+        "Effect Schema": 0.084,
+        "Effect data structures": 0,
+        "Effect other": 1.238,
+        "@wsagency/app": 0.156,
+        "@wsagency/themes": 0.911,
+        "@wsagency/primitives": 0,
+        "@wsagency/other": 0,
+        "Gallery page": 2.417,
+        "GC/native/program": 283.118,
+        "Other JS": 0
+      },
+      "top10": [
+        {
+          "origin": "GC/native/program",
+          "function": " :: (program)",
+          "medianMs": 194.232
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (idle)",
+          "medianMs": 85.635
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (garbage collector)",
+          "medianMs": 1.623
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: ",
+          "medianMs": 1.374
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/index.js :: dd",
+          "medianMs": 0.78
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/boundary.js :: captureCallSite",
+          "medianMs": 0.749
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/index.js :: buildElement",
+          "medianMs": 0.561
+        },
+        {
+          "origin": "Gallery page",
+          "function": "../../../../../../../projects/wseffect-wt/perf-lists/apps/gallery/src/pages/virtualList.ts :: ",
+          "medianMs": 0.549
+        },
+        {
+          "origin": "Effect runtime",
+          "function": "node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: ic",
+          "medianMs": 0.513
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: walkForFunctions",
+          "medianMs": 0.487
+        }
+      ]
+    },
+    {
+      "scenario": "vl-sort",
+      "throttle": 4,
+      "captures": 3,
+      "groupMediansMs": {
+        "Foldkit": 12.315,
+        "@foldkit/ui": 5.068,
+        "Effect runtime": 0.913,
+        "Effect Schema": 0.526,
+        "Effect data structures": 9.251,
+        "Effect other": 3.991,
+        "@wsagency/app": 1.147,
+        "@wsagency/themes": 0.918,
+        "@wsagency/primitives": 0,
+        "@wsagency/other": 0,
+        "Gallery page": 1.31,
+        "GC/native/program": 302.003,
+        "Other JS": 0
+      },
+      "top10": [
+        {
+          "origin": "GC/native/program",
+          "function": " :: (program)",
+          "medianMs": 194.858
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (idle)",
+          "medianMs": 98.241
+        },
+        {
+          "origin": "Effect data structures",
+          "function": "node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/hashMap.js :: set",
+          "medianMs": 8.237
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: getBoundingClientRect",
+          "medianMs": 4.719
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (garbage collector)",
+          "medianMs": 3.009
+        },
+        {
+          "origin": "@foldkit/ui",
+          "function": "node_modules/.pnpm/@foldkit+ui@0.168.0_effect@4.0.5_foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5_/node_modules/@foldkit/ui/dist/virtualList/index.js :: informItemsChanged",
+          "medianMs": 1.686
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: walkForFunctions",
+          "medianMs": 1.592
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (anonymous)",
+          "medianMs": 1.507
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/boundary.js :: captureCallSite",
+          "medianMs": 1.398
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: ",
+          "medianMs": 1.308
+        }
+      ]
+    },
+    {
+      "scenario": "vl-select",
+      "throttle": 4,
+      "captures": 3,
+      "groupMediansMs": {
+        "Foldkit": 5.318,
+        "@foldkit/ui": 0.414,
+        "Effect runtime": 0.116,
+        "Effect Schema": 0.154,
+        "Effect data structures": 0,
+        "Effect other": 1.022,
+        "@wsagency/app": 0.561,
+        "@wsagency/themes": 0,
+        "@wsagency/primitives": 0,
+        "@wsagency/other": 0,
+        "Gallery page": 0.415,
+        "GC/native/program": 342.806,
+        "Other JS": 0
+      },
+      "top10": [
+        {
+          "origin": "GC/native/program",
+          "function": " :: (program)",
+          "medianMs": 229.294
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (idle)",
+          "medianMs": 97.509
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (anonymous)",
+          "medianMs": 6.581
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: InjectedScript",
+          "medianMs": 2.694
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: elementsFromPoint",
+          "medianMs": 1.643
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: query",
+          "medianMs": 1.251
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: walkForFunctions",
+          "medianMs": 0.901
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/submodel.js :: ",
+          "medianMs": 0.816
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: previewNode",
+          "medianMs": 0.777
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: get Temporal",
+          "medianMs": 0.769
+        }
+      ]
+    },
+    {
+      "scenario": "form-field",
+      "throttle": 4,
+      "captures": 3,
+      "groupMediansMs": {
+        "Foldkit": 4.134,
+        "@foldkit/ui": 0.554,
+        "Effect runtime": 0.293,
+        "Effect Schema": 0.19,
+        "Effect data structures": 0,
+        "Effect other": 2.024,
+        "@wsagency/app": 0.119,
+        "@wsagency/themes": 0.16,
+        "@wsagency/primitives": 0,
+        "@wsagency/other": 0,
+        "Gallery page": 0.893,
+        "GC/native/program": 261.46,
+        "Other JS": 0
+      },
+      "top10": [
+        {
+          "origin": "GC/native/program",
+          "function": " :: (program)",
+          "medianMs": 174.657
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (idle)",
+          "medianMs": 82.923
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: querySelectorAll",
+          "medianMs": 1.107
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (garbage collector)",
+          "medianMs": 0.921
+        },
+        {
+          "origin": "Effect other",
+          "function": "node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js :: loop",
+          "medianMs": 0.822
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/snabbdom/init.js :: updateChildren",
+          "medianMs": 0.79
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (anonymous)",
+          "medianMs": 0.61
+        },
+        {
+          "origin": "Effect other",
+          "function": "node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Equivalence.js :: ",
+          "medianMs": 0.603
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: query",
+          "medianMs": 0.543
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/boundary.js :: captureCallSite",
+          "medianMs": 0.423
+        }
+      ]
+    },
+    {
+      "scenario": "shared-date",
+      "throttle": 4,
+      "captures": 3,
+      "groupMediansMs": {
+        "Foldkit": 9.439,
+        "@foldkit/ui": 0,
+        "Effect runtime": 1.386,
+        "Effect Schema": 0.655,
+        "Effect data structures": 0,
+        "Effect other": 0.625,
+        "@wsagency/app": 0,
+        "@wsagency/themes": 0.537,
+        "@wsagency/primitives": 0,
+        "@wsagency/other": 0,
+        "Gallery page": 0.715,
+        "GC/native/program": 278.576,
+        "Other JS": 0
+      },
+      "top10": [
+        {
+          "origin": "GC/native/program",
+          "function": " :: (program)",
+          "medianMs": 198.709
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (idle)",
+          "medianMs": 74.97
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: focus",
+          "medianMs": 4.214
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/boundary.js :: captureCallSite",
+          "medianMs": 1.426
+        },
+        {
+          "origin": "GC/native/program",
+          "function": " :: (garbage collector)",
+          "medianMs": 0.905
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/html/index.js :: dd",
+          "medianMs": 0.731
+        },
+        {
+          "origin": "Effect Schema",
+          "function": "node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: ",
+          "medianMs": 0.655
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/snabbdom/init.js :: ",
+          "medianMs": 0.535
+        },
+        {
+          "origin": "Gallery page",
+          "function": "../../../../../../../projects/wseffect-wt/perf-lists/apps/gallery/src/shell.ts :: view",
+          "medianMs": 0.451
+        },
+        {
+          "origin": "Foldkit",
+          "function": "node_modules/.pnpm/foldkit@0.168.0_@effect+platform-browser@4.0.5_effect@4.0.5__effect@4.0.5/node_modules/foldkit/dist/snabbdom/init.js :: patchVnode",
+          "medianMs": 0.418
+        }
+      ]
+    }
+  ]
+}
