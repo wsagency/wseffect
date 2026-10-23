@@ -54,8 +54,6 @@ const configureNonDefaultTheme = async (page: Page, route: string): Promise<void
     window.dispatchEvent(new PopStateEvent('popstate'))
   }, route)
 }
-
-
 test('alert dialog stays within a small viewport or scrolls within its content', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 480 })
   await page.goto('/components/alert-dialog')
@@ -64,7 +62,7 @@ test('alert dialog stays within a small viewport or scrolls within its content',
   const layout = await dialog.evaluate(element => {
     const bounds = element.getBoundingClientRect()
     const scrollContainer = element.closest('dialog')?.querySelector<HTMLElement>('.rt-BaseDialogScroll')
-    const scrollStyle = scrollContainer === undefined ? null : getComputedStyle(scrollContainer)
+    const scrollStyle = scrollContainer == null ? null : getComputedStyle(scrollContainer)
     return {
       left: bounds.left,
       right: bounds.right,
@@ -72,7 +70,7 @@ test('alert dialog stays within a small viewport or scrolls within its content',
       bottom: bounds.bottom,
       viewportWidth: element.ownerDocument.documentElement.clientWidth,
       viewportHeight: element.ownerDocument.documentElement.clientHeight,
-      scrollable: scrollContainer !== null && scrollContainer !== undefined &&
+      scrollable: scrollContainer != null &&
         scrollStyle?.overflowY === 'auto' && scrollContainer.scrollHeight > scrollContainer.clientHeight,
     }
   })
