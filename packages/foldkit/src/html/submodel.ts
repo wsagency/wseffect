@@ -231,7 +231,7 @@ const assertNoNestedFunctions = (
 const isFrameworkBranded = (value: unknown): boolean => isChildAttribute(value)
 
 class NestedViewInputFunctionError extends Error {
-  readonly path: string
+  path: string
 
   constructor(path: string) {
     super()
