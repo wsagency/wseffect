@@ -1,6 +1,6 @@
 # Implemented locally: avoid repeated deep validation of large `h.submodel` inputs
 
-**Status:** implemented in `000602b`, `b1678da`, `36140da`, and `8c64324`; the fixed-height item-key update in `f82b085`. Candidate upstream PRs have not been submitted.
+**Status:** implemented locally in `8c64324` (validation redesign) and `a550ed1` (stable-ID inputs); no upstream PR has been submitted.
 **Affected package:** `foldkit@0.168.0` (`apps/gallery/package.json`).
 
 ## Title
@@ -121,6 +121,7 @@ Please consider an explicit, safe way for callers to mark validated/opaque data-
 ## Separate `@foldkit/ui` issue draft: fixed-height item changes build an unused key set
 
 **Affected package:** `@foldkit/ui@0.168.0` (`apps/gallery/package.json`).
+**Status:** implemented locally in `f82b085`; no upstream PR has been submitted.
 
 ### Title
 
