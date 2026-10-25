@@ -22,3 +22,5 @@ export {
 } from './index.js'
 
 export type { InitConfig, ViewInputs, SliderAttributes } from './index.js'
+export * as Range from './range.js'
+export type { Thumb as RangeThumb, RangeConfig, RangeModel, RangeMessage, RangeOutMessage } from './range.js'

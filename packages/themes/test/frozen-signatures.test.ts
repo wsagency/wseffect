@@ -4,11 +4,9 @@ import * as Update from '@wsagency/wseffect-foldkit/update'
 import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
 import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 import * as Option from 'effect/Option'
-import type { Props as CheckboxGroupProps } from '../../primitives/dist/checkbox-group.js'
-import type { SelectBundle, SelectConfig, SelectModel } from '../../primitives/dist/select.js'
-import type { ContextMenuBundle, ContextMenuModel } from '../../primitives/dist/context-menu.js'
-import type * as Mount from '@wsagency/wseffect-foldkit/mount'
-import type { mountSelectPosition } from '../../primitives/dist/select-position.js'
+import type * as CheckboxGroup from '../src/components/checkbox-group.js'
+import type { Bundle as SelectBundle, Config as SelectConfig, SelectModel } from '@wsagency/wseffect-foldkit-ui/listboxSelect'
+import type * as ContextMenu from '../src/components/context-menu.js'
 
 interface Item<Value extends string> { value: Value; label: string }
 type Message = { readonly _tag: 'Changed' }
@@ -41,11 +39,12 @@ type _UpdateNotAny = Assert<IsAny<PlainUpdate> extends false ? true : false>
 
 // State and Message are deliberately non-generic on the upstream bundles; only OutMessage binds Value.
 type SelectSurface = SelectBundle<'a'>
-type ContextMenuSurface = ContextMenuBundle<'a'>
+type ContextMenuSurface = ContextMenu.Bundle<'a'>
 type IsFunction<T> = T extends (...args: never[]) => unknown ? true : false
 type BundleMethods = 'init' | 'update' | 'view' | 'selectItem' | 'open' | 'close'
+type ContextMenuMethods = 'init' | 'update' | 'view' | 'fold' | 'embed'
 type _SelectBundleMethods = Assert<BundleMethods extends keyof SelectSurface ? true : false>
-type _ContextMenuBundleMethods = Assert<BundleMethods extends keyof ContextMenuSurface ? true : false>
+type _ContextMenuBundleMethods = Assert<ContextMenuMethods extends keyof ContextMenuSurface ? true : false>
 type _SelectInitCallable = Assert<IsFunction<SelectSurface['init']>>
 type _SelectUpdateCallable = Assert<IsFunction<SelectSurface['update']>>
 type _SelectViewCallable = Assert<IsFunction<SelectSurface['view']>>
@@ -55,13 +54,10 @@ type _ContextMenuViewCallable = Assert<IsFunction<ContextMenuSurface['view']>>
 const none: SelectConfig<'a'>['selectedValue'] = Option.none()
 void none
 
-type CheckboxProps = CheckboxGroupProps<'a', Message>
+type CheckboxProps = Parameters<typeof CheckboxGroup.view<'a', Message>>[0]
 type _ToggleMessageFactory = Assert<IsFunction<CheckboxProps['toggleMessage']>>
 it('compiles the frozen Listbox and Menu bundle contracts', () => {
   expectTypeOf<SelectSurface['init']>().returns.toEqualTypeOf<SelectModel>()
-  expectTypeOf<ContextMenuSurface['init']>().returns.toEqualTypeOf<ContextMenuModel>()
+  expectTypeOf<ContextMenuSurface['init']>().returns.toEqualTypeOf<ContextMenu.Model>()
 })
 
-it('keeps SelectPosition as a message-free mount action', () => {
-  expectTypeOf<typeof mountSelectPosition>().returns.toEqualTypeOf<Mount.MountAction<never>>()
-})

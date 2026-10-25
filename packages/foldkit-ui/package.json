@@ -75,6 +75,10 @@
       "types": "./dist/listbox/public.d.ts",
       "import": "./dist/listbox/public.js"
     },
+    "./listboxSelect": {
+      "types": "./dist/listboxSelect/public.d.ts",
+      "import": "./dist/listboxSelect/public.js"
+    },
     "./menu": {
       "types": "./dist/menu/public.d.ts",
       "import": "./dist/menu/public.js"

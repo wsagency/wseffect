@@ -8,7 +8,7 @@ let server: ViteDevServer
 let baseUrl: string
 
 test.beforeAll(async () => {
-  const root = fileURLToPath(new URL('../../../..', import.meta.url))
+  const root = fileURLToPath(new URL('../..', import.meta.url))
   const port = 5300 + (process.pid % 50)
   server = await createServer({
     root,
@@ -16,10 +16,10 @@ test.beforeAll(async () => {
     appType: 'spa',
     // Vite leaves linked workspace packages unbundled unless they are included here.
     optimizeDeps: {
-      entries: ['packages/app/test/browser/rangeSlider.html'],
+      entries: ['test/browser/rangeSlider.html'],
       include: [
         '@wsagency/wseffect-foldkit/runtime',
-        '@wsagency/wseffect-primitives/range-slider',
+        '@wsagency/wseffect-foldkit-ui/slider',
       ],
     },
     server: { host: '127.0.0.1', port, strictPort: true, hmr: false },
@@ -33,7 +33,7 @@ test.afterAll(async () => {
 })
 
 test('pointer drags each thumb and track clicks move the nearest thumb', async ({ page }) => {
-  await page.goto(`${baseUrl}/packages/app/test/browser/rangeSlider.html`)
+  await page.goto(`${baseUrl}/test/browser/rangeSlider.html`)
   const slider = page.locator('#slider')
   const bounds = await slider.boundingBox()
   expect(bounds).not.toBeNull()
@@ -57,7 +57,7 @@ test('pointer drags each thumb and track clicks move the nearest thumb', async (
   await expect.poll(thumbs).toEqual([35, 55])
 })
 test('Escape cancels a pointer drag until pointerup across later moves', async ({ page }) => {
-  await page.goto(`${baseUrl}/packages/app/test/browser/rangeSlider.html`)
+  await page.goto(`${baseUrl}/test/browser/rangeSlider.html`)
   const slider = page.locator('#slider')
   const bounds = await slider.boundingBox()
   expect(bounds).not.toBeNull()

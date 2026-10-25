@@ -1,4 +1,4 @@
-import { Option } from 'effect'
+import { Option, Schema } from 'effect'
 import { Scene, Story } from '@wsagency/wseffect-foldkit'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { modifyFields } from '@wsagency/wseffect-foldkit/struct'
@@ -24,8 +24,7 @@ import {
   UnlockScroll,
   buttonId,
 } from './shared.js'
-import { create, init, update } from './single.js'
-import type { Model, ViewInputs } from './single.js'
+import { Model, create, init, update, type ViewInputs } from './single.js'
 
 const TestListbox = create<string>()
 const view = TestListbox.view
@@ -78,6 +77,29 @@ const givenOpenAnimated = Story.steps(
 )
 
 describe('Listbox', () => {
+  describe('legacy model decoding', () => {
+    it('defaults a missing anchorMode to the trigger', () => {
+      const { anchorMode: _anchorMode, ...legacyModel } = init({
+        id: 'legacy',
+      })
+      const decoded = Schema.decodeUnknownSync(
+        Model,
+      )(legacyModel)
+
+      expect(decoded.anchorMode).toBe('Trigger')
+    })
+  })
+  describe('anchorMode codec', () => {
+    it('round-trips SelectedOrActiveItem and a Message', () => {
+      const model = init({ id: 'item-aligned', anchorMode: 'SelectedOrActiveItem' })
+      const encodedModel = Schema.encodeSync(Model)(model)
+      expect(Schema.decodeUnknownSync(Model)(encodedModel)).toEqual(model)
+      const message = Message.Opened({ maybeActiveItemIndex: Option.some(2) })
+      const encodedMessage = Schema.encodeSync(Message)(message)
+      expect(Schema.decodeUnknownSync(Message)(encodedMessage)).toEqual(message)
+    })
+  })
+
   describe('init', () => {
     it('defaults to closed with no active item', () => {
       expect(init({ id: 'test' })).toStrictEqual({
@@ -89,6 +111,7 @@ describe('Listbox', () => {
         animation: Animation.init({ id: 'test-listbox' }),
         maybeActiveItemIndex: Option.none(),
         activationTrigger: 'Keyboard',
+        anchorMode: 'Trigger',
         searchQuery: '',
         searchVersion: 0,
         maybeLastPointerPosition: Option.none(),
