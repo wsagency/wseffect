@@ -1,6 +1,6 @@
 # Implemented locally: avoid repeated deep validation of large `h.submodel` inputs
 
-**Status:** implemented locally in `000602b`, `b1678da`, `36140da`, and `8c64324` (validation redesign); the related deferred-callsite-formatting optimization is separately implemented in `a550ed1`. No upstream PR has been submitted.
+**Status:** validation redesign implemented locally in `000602b`, `b1678da`, `36140da`, and `8c64324`; cache-boundary correctness fix in `1f1c5ba`. The related deferred-callsite-formatting optimization is separately implemented in `a550ed1`. No upstream PR has been submitted.
 **Affected package:** `foldkit@0.168.0` (`apps/gallery/package.json`).
 
 ## Title
@@ -30,6 +30,8 @@ h.submodel({ slotId: 'rows', model, view: listView, viewInputs, toParentMessage 
 ```
 
 The current runtime's `wrapViewInputsForOuterBoundary` calls `assertNoNestedFunctions` for each submodel render. That loops over `viewInputs` keys; for an array value, `walkForFunctions` visits every element, then recursively enumerates every plain-object element's keys. This example therefore walks all 10,000 records (and their fields) even when the virtualized child renders only the visible window. The work is repeated on unrelated parent rerenders as well as filter/sort updates. The check is intended to reject functions nested below the top level, so this is measurable validation overhead rather than row rendering.
+
+The identity cache contains only nested containers whose complete descendant walks succeeded. The top-level `viewInputs` object is checked on every render and is never added to that cache: its direct functions are legal, while a cached nested value must be function-free throughout. Fix commit `1f1c5ba` closes the case where a legal top-level callback container is reused below the top level on a later render.
 
 ## Evidence
 
@@ -116,7 +118,7 @@ The relevant distributed code is in `foldkit@0.168.0/dist/html/submodel.js:48-87
 
 The Gallery now passes a `string[]` of stable item IDs rather than an array of item records as `viewInputs.items`. It uses the same IDs for `informItemsChanged` and resolves row data by stable index. This preserves nested-function validation while avoiding recursive traversal of every record field. It does not remove the linear scan over the list or array entries.
 
-Please consider an explicit, safe way for callers to mark validated/opaque data-only inputs, or otherwise avoid repeating the recursive validation for immutable values. Any change must preserve the current guarantee that a nested callback cannot silently capture a child boundary; merely removing the check or skipping all arrays would weaken that contract. A useful regression benchmark would compare repeated submodel renders with 10,000-record and 10,000-primitive arrays while asserting that nested functions in ordinary unmarked inputs are still rejected.
+An explicit caller marker is no longer needed for this optimization: `1f1c5ba` preserves repeated-walk savings for successfully validated nested containers while checking the root on each render. This keeps nested callbacks from silently capturing a child boundary, including when the same object was previously passed as a top-level callback container.
 
 ## Separate `@foldkit/ui` issue draft: fixed-height item changes build an unused key set
 
