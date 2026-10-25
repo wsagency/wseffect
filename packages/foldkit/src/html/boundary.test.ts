@@ -17,7 +17,7 @@ import {
   resolveMountBoundaryDispatch,
   restoreBoundaryWrapsForLazyHit,
 
-}
+} from './boundary.js'
 
 describe('boundary callsites', () => {
   it('does not format Error stacks while registering unique boundaries', () => {
