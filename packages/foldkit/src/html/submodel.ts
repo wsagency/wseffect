@@ -207,6 +207,7 @@ const validatedViewInputs = new WeakSet<object>()
 const assertNoNestedFunctions = (
   viewInputs: Readonly<Record<string, unknown>>,
 ): void => {
+  if (validatedViewInputs.has(viewInputs)) return
   const path: Array<string | number> = []
   for (const key of Object.keys(viewInputs)) {
     const value = viewInputs[key]
@@ -217,6 +218,7 @@ const assertNoNestedFunctions = (
       path.pop()
     }
   }
+  validatedViewInputs.add(viewInputs)
 }
 
 // Framework-branded values that legitimately carry function members
