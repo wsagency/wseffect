@@ -11,6 +11,7 @@
 - Package-name references in runtime diagnostics name the owned packages in `brand.ts`, `html/boundary.ts`, `html/runtimeSingleton.ts`, `runtime/hydrationHandoff.ts`, `runtime/modelPreservationBridge.ts`, and `runtime/start.ts`. No global key, symbol, virtual-module ID, or shared brand string changed.
 - Upstream examples retain upstream specifiers: `foldkit` maps to `@wsagency/wseffect-foldkit`, `@foldkit/ui` to `@wsagency/wseffect-foldkit-ui`, and `@foldkit/vite-plugin` to `@wsagency/wseffect-vite-plugin`.
 - This file, the provenance README, and the first local changelog entry are maintained by wseffect.
+- Removed upstream website API-doc tooling (`typedoc.json`, `typedoc-entry.ts`, `typedoc-experimental.ts`, `typedoc-entry.test.ts`, `tsconfig.docs.json`); neither local builds nor tests use these files.
 
 ## Sync procedure
 

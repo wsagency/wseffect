@@ -1,6 +1,6 @@
 {
   "name": "@wsagency/wseffect-foldkit",
-  "version": "0.168.0",
+  "version": "0.0.0",
   "description": "A TypeScript frontend framework, built on Effect and architected like Elm",
   "type": "module",
   "main": "./dist/index.js",
@@ -160,7 +160,9 @@
   "files": [
     "dist",
     "LICENSE",
-    "THIRD-PARTY-NOTICES.md"
+    "THIRD-PARTY-NOTICES.md",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "clean": "rimraf dist *.tsbuildinfo",
@@ -196,7 +198,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/foldkit/foldkit.git",
+    "url": "git+https://git.wsagency.io/ws-agency/wseffect.git",
     "directory": "packages/foldkit"
   },
   "publishConfig": {

@@ -1,6 +1,6 @@
 {
   "name": "@wsagency/wseffect-foldkit-ui",
-  "version": "0.168.0",
+  "version": "0.0.0",
   "description": "Headless, accessible UI components for Foldkit",
   "type": "module",
   "main": "./dist/index.js",
@@ -132,7 +132,9 @@
   "files": [
     "dist",
     "LICENSE",
-    "THIRD-PARTY-NOTICES.md"
+    "THIRD-PARTY-NOTICES.md",
+    "README.md",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "clean": "rimraf dist *.tsbuildinfo",
@@ -168,8 +170,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/foldkit/foldkit.git",
-    "directory": "packages/ui"
+    "url": "git+https://git.wsagency.io/ws-agency/wseffect.git",
+    "directory": "packages/foldkit-ui"
   },
   "publishConfig": {
     "access": "public"
