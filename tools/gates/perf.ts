@@ -18,7 +18,6 @@ const HOOK_BY_SCENARIO: Record<PerfScenario['id'], string> = {
   'vl-sort': 'vl-sort',
   'vl-select': 'vl-select',
   'form-field': 'form-field-0',
-  'shared-date': 'shared-date',
   'menus-tick': 'menus-tick',
   'dt-update': 'data-table-update',
   'dt-filter': 'data-table-filter',
