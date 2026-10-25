@@ -14,6 +14,14 @@ test.beforeAll(async () => {
     root,
     configFile: false,
     appType: 'spa',
+    // Vite leaves linked workspace packages unbundled unless they are included here.
+    optimizeDeps: {
+      entries: ['packages/app/test/browser/rangeSlider.html'],
+      include: [
+        '@wsagency/wseffect-foldkit/runtime',
+        '@wsagency/wseffect-primitives/range-slider',
+      ],
+    },
     server: { host: '127.0.0.1', port, strictPort: true, hmr: false },
   })
   await server.listen()
