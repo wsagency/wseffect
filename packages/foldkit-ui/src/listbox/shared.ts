@@ -708,6 +708,8 @@ export type BaseViewInputsCommon<Item> = Readonly<{
   itemsAttributes?: ReadonlyArray<ChildAttribute>
   itemsScrollClassName?: string
   itemsScrollAttributes?: ReadonlyArray<ChildAttribute>
+  /** Overrides the value of `data-active` on the active item. */
+  activeItemAttributeValue?: string
   backdropClassName?: string
   backdropAttributes?: ReadonlyArray<ChildAttribute>
   className?: string
@@ -816,6 +818,7 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
         ariaLabel,
         ariaLabelledBy,
         selectedValues,
+        activeItemAttributeValue = '',
       } = viewInputs
 
       const itemToValue =
@@ -1129,7 +1132,7 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
             h.Id(itemId(id, index)),
             h.Role('option'),
             h.AriaSelected(isSelectedItem),
-            ...(isActiveItem ? [h.DataAttribute('active', '')] : []),
+            ...(isActiveItem ? [h.DataAttribute('active', activeItemAttributeValue)] : []),
             ...(isSelectedItem ? [h.DataAttribute('selected', '')] : []),
             ...(isDisabledItem
               ? [h.AriaDisabled(true), h.DataAttribute('disabled', '')]

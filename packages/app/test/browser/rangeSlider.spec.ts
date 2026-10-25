@@ -18,8 +18,7 @@ test.beforeAll(async () => {
     optimizeDeps: {
       entries: ['packages/app/test/browser/rangeSlider.html'],
       include: [
-        '@wsagency/wseffect-foldkit/runtime',
-        '@wsagency/wseffect-primitives/range-slider',
+        '@wsagency/wseffect-foldkit-ui/slider',
       ],
     },
     server: { host: '127.0.0.1', port, strictPort: true, hmr: false },

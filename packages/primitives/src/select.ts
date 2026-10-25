@@ -1,5 +1,4 @@
 import * as Option from 'effect/Option'
-import type * as Update from '@wsagency/wseffect-foldkit/update'
 import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
 import { childAttributes, type Attribute, type ChildAttribute, type Html, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 export type SelectItem<Value extends string> = {
@@ -43,21 +42,17 @@ export type SelectConfig<Value extends string> = {
   isModal: false
   appearance?: SelectAppearance
 }
-type SelectUpdateResult<Value extends string> = Update.ReturnWithOutMessage<
-  SelectModel,
-  SelectMessage,
-  Listbox.OutMessage<Value>
->
+type UpstreamBundle<Value extends string> = Listbox.Bundle<SelectItem<Value>, Value>
 export const SelectModel = Listbox.Model
 export type SelectModel = Listbox.Model
 export type SelectMessage = Listbox.Message
 export const SelectMessage = Listbox.Message
 export type SelectBundle<Value extends string> = {
   init(config: SelectConfig<Value>): SelectModel
-  update(model: SelectModel, message: SelectMessage): SelectUpdateResult<Value>
-  selectItem(model: SelectModel, item: Value): SelectUpdateResult<Value>
-  open(model: SelectModel): SelectUpdateResult<Value>
-  close(model: SelectModel): SelectUpdateResult<Value>
+  update: UpstreamBundle<Value>['update']
+  selectItem(model: SelectModel, item: Value): ReturnType<UpstreamBundle<Value>['update']>
+  open(model: SelectModel): ReturnType<UpstreamBundle<Value>['update']>
+  close(model: SelectModel): ReturnType<UpstreamBundle<Value>['update']>
   view(model: SelectModel, config: SelectConfig<Value>, h: HtmlBuilder<SelectMessage>): Html
 }
 

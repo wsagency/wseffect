@@ -81,7 +81,7 @@ describe('Slider.Range', () => {
     for (const [id, value] of [['low', 18], ['high', 70]] as const) {
       const input = document.createElement('input')
       input.type = 'range'
-      input.dataset.thumbId = id
+      input.dataset['thumbId'] = id
       input.value = String(value)
       host.append(input)
     }

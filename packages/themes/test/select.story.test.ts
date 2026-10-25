@@ -47,7 +47,7 @@ describe('Select', () => {
     Scene.expect(Scene.role('listbox', { name: 'choice' })).toExist(),
     Scene.keydown(Scene.role('listbox', { name: 'choice' }), 't'),
     Scene.Command.resolve(Listbox.DelayClearSearch, Listbox.Message.CompletedDelayClearSearch({ version: 1 })),
-    Scene.expect(Scene.selector('#choice-item-2')).toHaveAttr('data-active', ''),
+    Scene.expect(Scene.selector('#choice-item-2')).toHaveAttr('data-active', 'true'),
   ))
   it('renders groups and sibling separators in the popper Scene', () => Scene.scene(
     { update, view: popperView },

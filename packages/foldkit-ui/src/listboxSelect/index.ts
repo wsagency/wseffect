@@ -100,6 +100,7 @@ export const createSelect = <Value extends string>(): Bundle<Value> => {
     return listbox.view(model, {
       items: flatItems,
       itemToValue: item => item.value,
+      activeItemAttributeValue: config.position === 'item-aligned' ? 'true' : '',
       isItemDisabled: item => item.isDisabled,
       itemToSearchText: item => item.textValue,
       itemGroupKey: item => groupKeys.get(item) ?? '',
