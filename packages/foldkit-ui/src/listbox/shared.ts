@@ -1062,13 +1062,24 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
         onSome: index => [h.AriaActiveDescendant(itemId(id, index))],
       })
 
+      const anchorItemIndex =
+        model.anchorMode === 'SelectedOrActiveItem'
+          ? Option.getOrElse(maybeActiveItemIndex, () =>
+              Option.getOrElse(selectedItemIndex, () => -1),
+            )
+          : -1
+      const anchorTargetId =
+        anchorItemIndex >= 0
+          ? itemId(id, anchorItemIndex)
+          : `${id}-button`
+
       const anchorAttributes = [
         h.Style({
           position: 'absolute',
           margin: '0',
           visibility: 'hidden',
         }),
-        h.OnMount(AnchorListbox({ buttonId: `${id}-button`, anchor })),
+        h.OnMount(AnchorListbox({ buttonId: anchorTargetId, anchor })),
       ]
 
       const itemsContainerAttributes = [
@@ -1154,8 +1165,8 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
             ...(itemConfig.className ? [h.Class(itemConfig.className)] : []),
           ],
           Array.isArray(itemConfig.content)
-            ? itemConfig.content
-            : [itemConfig.content],
+            ? (itemConfig.content as ReadonlyArray<Html>)
+            : [itemConfig.content as Html],
         )
       })
 

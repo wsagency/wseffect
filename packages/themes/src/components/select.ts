@@ -4,9 +4,8 @@ import { defineView } from '@wsagency/wseffect-foldkit/submodel'
 import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Update from '@wsagency/wseffect-foldkit/update'
 import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
-import * as SelectPosition from '@wsagency/wseffect-primitives/select-position'
-import type { SelectConfig as PrimitiveConfig, SelectItem, SelectGroup, SelectSeparator } from '@wsagency/wseffect-primitives/select'
-import * as SelectPrimitive from '@wsagency/wseffect-primitives/select'
+import type { Config as PrimitiveConfig, SelectItem, SelectGroup, SelectSeparator } from '@wsagency/wseffect-foldkit-ui/listboxSelect'
+import * as SelectPrimitive from '@wsagency/wseffect-foldkit-ui/listboxSelect'
 import { accentColors } from '../props/color.props.js'
 import { radii } from '../props/radius.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
@@ -130,45 +129,11 @@ export const create = <Value extends string>(): Bundle<Value> => {
       h.span([h.Class('rt-SelectTriggerInner')], [selected !== undefined ? selected.content : config.props?.placeholder ?? config.id]),
       chevronDownIcon(h, 'rt-SelectIcon', true),
     ])
-    if (config.position === 'popper') {
-      const result = adapter.view(model, { ...config, appearance: { ...appearance, triggerContent } }, h)
-      return brandViewResult(addPopperScrollArea(result, config.id, h), 'wseffect/Select')
-    }
-    const selectedIndex = flatItems.findIndex(item => !('kind' in item) && item.value === selectedValue)
-    const firstEnabled = flatItems.findIndex(item => !('kind' in item) && !item.isDisabled)
-    let lastEnabled = -1
-    flatItems.forEach((item, index) => {
-      if (!('kind' in item) && !item.isDisabled) lastEnabled = index
-    })
-    const triggerOpenMessage = (key: string): Option.Option<Message> => {
-      if (key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Enter' && key !== ' ') return Option.none()
-      const index = key === 'ArrowUp'
-        ? selectedIndex >= 0 ? selectedIndex : lastEnabled
-        : selectedIndex >= 0 ? selectedIndex : firstEnabled
-      return Option.some(Message.Opened({ maybeActiveItemIndex: index < 0 ? Option.none() : Option.some(index) }))
-    }
-    return brandViewResult(h.div([], [
-      h.button([
-        h.Id(`${config.id}-button`), h.Type('button'), h.Role('combobox'), h.AriaLabel(config.id),
-        h.Attribute('aria-haspopup', 'listbox'), h.AriaExpanded(model.isOpen),
-        ...(model.isOpen ? [h.Attribute('aria-controls', `${config.id}-items`)] : []),
-        ...(Option.isSome(model.maybeActiveItemIndex) ? [h.AriaActiveDescendant(`${config.id}-item-${model.maybeActiveItemIndex.value}`)] : []),
-        h.OnClick(model.isOpen ? Message.Closed() : Message.Opened({ maybeActiveItemIndex: Option.none() })),
-        h.OnKeyDownPreventDefault(triggerOpenMessage),
-        ...appearance.triggerAttributes,
-        h.Class(appearance.triggerClassName),
-      ], [triggerContent]),
-      ...(model.isOpen ? [h.div([
-        h.OnMount(SelectPosition.mountSelectPosition({
-          panelId: `${config.id}-items`,
-          triggerId: `${config.id}-button`,
-          selectedItemId: `${config.id}-item-${selectedIndex}`,
-          ...(Option.isSome(model.maybeActiveItemIndex)
-            ? { activeItemId: `${config.id}-item-${model.maybeActiveItemIndex.value}` }
-            : {}),
-        })),
-      ], [adapter.view(model, { ...config, appearance }, h)])] : []),
-    ]), 'wseffect/Select')
+    const result = adapter.view(model, { ...config, appearance: { ...appearance, triggerContent } }, h)
+    return brandViewResult(
+      config.position === 'popper' ? addPopperScrollArea(result, config.id, h) : result,
+      'wseffect/Select',
+    )
   }
   const fold = <ParentModel, ParentMessage, ParentOutMessage>(config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, Model, Message, Message, OutMessage<Value>, ParentOutMessage>, 'update'>): Update.FoldWithOutMessage<ParentModel, ParentMessage, Message, ParentOutMessage> => Update.foldChild({ ...config, update: adapter.update })
   const submodelView = defineView<Model, Message, Config<Value>>((model, inputs, builder) => view(model, inputs, builder))
