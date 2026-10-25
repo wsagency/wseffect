@@ -1,0 +1,4143 @@
+{
+  "measuredAt": "2026-10-25T17:26:32.178Z",
+  "node": "v24.21.0",
+  "chromium": "156.0.8078.4",
+  "loadavgAtStart": [
+    9.04,
+    9.81,
+    7.68
+  ],
+  "rates": {
+    "1": {
+      "vl-cell": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.611,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.399,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.318,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.321,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.898,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.333,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.887,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.728,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.53,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.217,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.383,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.252,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.967,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.03,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.773,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.065,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.39,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.062,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.424,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.093,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.551,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.792,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.339,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.489,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.614,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.523,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.468,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.746,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.507,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.736,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 6.438,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.377,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.221,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.977,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.094,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.317,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.026,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.302,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.799,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.502,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 4.026,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.063,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.109,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.39,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.448,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.543,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.188,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.403,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.822,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.589,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 3.039,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.417,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.79,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.398,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.74,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.471,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.756,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.341,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.214,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.435,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.2910000000000004,
+            "minDeltaMs": -1.2910000000000004,
+            "maxDeltaMs": -0.10599999999999987
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 3.8869999999999996,
+              "minDeltaMs": -1.206,
+              "maxDeltaMs": 3.8869999999999996
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 2.681,
+              "minDeltaMs": -0.9869999999999997,
+              "maxDeltaMs": 2.681
+            }
+          }
+        }
+      },
+      "vl-sort": {
+        "A": [
+          {
+            "eventMs": 24,
+            "scriptMs": 5.419,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.774,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.946,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.935,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.983,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.059,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.903,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.815,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.856,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.265,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.963,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 4.179,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 3.508,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 4.64,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 4.319,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.332,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.983,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.501,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.781,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 4.497,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 24,
+                "scriptMs": 7.935,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.789,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 11.539,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.779,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.632,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.101,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.624,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.875,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.231,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.951,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 4.059,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.039,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.892,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.012,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.238,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.79,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.859,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.352,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.302,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.851,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.162,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.665,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.854,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.028,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.577,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.538,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.107,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.433,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.945,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.392,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 4.54,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.444,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.75,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.534,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 3.796,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.292,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.695,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.244,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.922,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.445,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 3.9199999999999995,
+            "minDeltaMs": -3.9199999999999995,
+            "maxDeltaMs": -0.07500000000000018
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 15.233,
+              "minDeltaMs": -3.8759999999999994,
+              "maxDeltaMs": 15.233
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 3.0230000000000006,
+              "minDeltaMs": -3.0230000000000006,
+              "maxDeltaMs": 2.896
+            }
+          }
+        }
+      },
+      "vl-select": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.127,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.865,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.069,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.185,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.972,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.303,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.698,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.33,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.167,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.63,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 1.987,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.132,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.946,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.178,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.358,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.373,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.943,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.127,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.418,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.412,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.815,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.057,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.151,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.315,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.241,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.671,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.758,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.213,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.371,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.551,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.291,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.134,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.235,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.353,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.075,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.868,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.613,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.115,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.212,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.585,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.026,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.232,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.26,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.151,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.191,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.098,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.224,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.288,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.138,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.433,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.966,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.822,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.155,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.354,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.304,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.129,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.293,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.064,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.909,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.034,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.782,
+            "minDeltaMs": -0.7549999999999999,
+            "maxDeltaMs": 0.782
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 3.0840000000000005,
+              "minDeltaMs": -0.1589999999999998,
+              "maxDeltaMs": 3.0840000000000005
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 6.399,
+              "minDeltaMs": -6.399,
+              "maxDeltaMs": 0.2030000000000003
+            }
+          }
+        }
+      },
+      "form-field": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 1.848,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.641,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.645,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.52,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.84,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.492,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.536,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.466,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.479,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.836,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 1.733,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.212,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.537,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.382,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.602,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.403,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.395,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.588,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.551,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.431,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.399,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.149,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.606,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.576,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.703,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.507,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.582,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.227,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.655,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.68,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.571,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.506,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.473,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.494,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.375,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.46,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.512,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.579,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.59,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.686,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.384,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.527,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.503,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.45,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.458,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.343,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.094,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.405,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.501,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.713,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.411,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.402,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.526,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.456,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.463,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.56,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.584,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.482,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.477,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.484,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.4289999999999998,
+            "minDeltaMs": -1.4289999999999998,
+            "maxDeltaMs": 0.12200000000000011
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 0.6479999999999999,
+              "minDeltaMs": -0.6479999999999999,
+              "maxDeltaMs": 0.17199999999999993
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 0.5099999999999998,
+              "minDeltaMs": -0.5099999999999998,
+              "maxDeltaMs": 0.21700000000000008
+            }
+          }
+        }
+      },
+      "shared-date": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 1.616,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.886,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.946,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.551,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.206,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.139,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.578,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.315,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.337,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.167,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 1.153,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.892,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.198,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.281,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.054,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.344,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.17,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.246,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.664,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.199,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.69,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.507,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.681,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.956,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.35,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.363,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.442,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.685,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.248,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.657,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.423,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.674,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.204,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.07,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.583,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.48,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.21,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.161,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.237,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 0.898,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.073,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.036,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.471,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.569,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.613,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.595,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.568,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.252,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.128,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.195,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.603,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.939,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.734,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.36,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.176,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.011,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.887,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.024,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.108,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 0.891,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.748,
+            "minDeltaMs": -0.748,
+            "maxDeltaMs": 0.32699999999999996
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 0.8859999999999999,
+              "minDeltaMs": -0.8859999999999999,
+              "maxDeltaMs": 0.23299999999999987
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 1.2089999999999999,
+              "minDeltaMs": -1.2089999999999999,
+              "maxDeltaMs": 0.9800000000000002
+            }
+          }
+        }
+      }
+    },
+    "4": {
+      "vl-cell": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 11.143,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 10.117,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 9.118,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 19.46,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 40,
+            "scriptMs": 33.182,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 20.228,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 11.502,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 10.833,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 9.909,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 11.311,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 6.507,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 7.553,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 8.268,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 10.408,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 8.892,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 12.566,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 12.782,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.439,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 8.005,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.787,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 11.705,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 10.469,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 11.031,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.579,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.012,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 11.755,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.963,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.445,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 11.618,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.272,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 11.204,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.742,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.524,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.779,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.064,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.096,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.312,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.479,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.726,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.764,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 8.144,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.614,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.176,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.207,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.811,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.547,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.964,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.702,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.56,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.27,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 7.156,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.142,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.576,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.312,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.5,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 10.199,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.976,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.886,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.795,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.753,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 24,
+            "minDeltaMs": -24,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 24.290000000000003,
+            "minDeltaMs": -24.290000000000003,
+            "maxDeltaMs": 1.2799999999999994
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 2.6590000000000007,
+              "minDeltaMs": -2.6590000000000007,
+              "maxDeltaMs": 1.0519999999999996
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 2.816,
+              "minDeltaMs": -2.816,
+              "maxDeltaMs": 2.652
+            }
+          }
+        }
+      },
+      "vl-sort": {
+        "A": [
+          {
+            "eventMs": 32,
+            "scriptMs": 21.061,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 22.396,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 26.57,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 29.732,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 23.659,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 25.894,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 28.048,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 21.639,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 26.564,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 26.039,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 32,
+            "scriptMs": 12.845,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 12.7,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 21.511,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 17.371,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 12.123,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 14.181,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 13.483,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 15.336,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 12.831,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 11.15,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 32,
+                "scriptMs": 23.775,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 24.558,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.671,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.603,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.63,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 26.727,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 27.958,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.165,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 27.497,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.218,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 32,
+                "scriptMs": 23.292,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 20.668,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 23.007,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 23.354,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 22.075,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 23.738,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 26.618,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 22.837,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.774,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 25.821,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 32,
+                "scriptMs": 15.1,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 16.318,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 14.717,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 12.619,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 12.922,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 15.428,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 12.994,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 48,
+                "scriptMs": 37.464,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 14.612,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 40,
+                "scriptMs": 21.237,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 15.526,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 13.165,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 15.4,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 12.095,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 13.008,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 12.319,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 16.391,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 15.971,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 17.768,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.517,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 14.889000000000001,
+            "minDeltaMs": -14.889000000000001,
+            "maxDeltaMs": -5.059000000000001
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 5.722999999999999,
+              "minDeltaMs": -5.722999999999999,
+              "maxDeltaMs": 4.6030000000000015
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 16,
+              "minDeltaMs": -16,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 21.493,
+              "minDeltaMs": -21.493,
+              "maxDeltaMs": 3.3969999999999985
+            }
+          }
+        }
+      },
+      "vl-select": {
+        "A": [
+          {
+            "eventMs": 24,
+            "scriptMs": 11.714,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 10.029,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 8.907,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 10.365,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 40,
+            "scriptMs": 21.525,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 8.95,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 9.085,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 15.296,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 15.461,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.652,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 6.335,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.936,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 7.877,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 64,
+            "scriptMs": 34.59,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.169,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.663,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 10.543,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 8.575,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 8.765,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.507,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 24,
+                "scriptMs": 12.47,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 72,
+                "scriptMs": 46.021,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 64,
+                "scriptMs": 25.552,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 14.577,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 12.251,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.564,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.717,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.205,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.243,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.27,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 9.13,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 72,
+                "scriptMs": 45.529,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.532,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.151,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.056,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.373,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.403,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.463,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.746,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.1,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 24,
+                "scriptMs": 7.091,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.298,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.854,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.827,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.565,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.142,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.808,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.661,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.928,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.684,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 8.275,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.042,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.416,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.13,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.576,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.82,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.836,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.989,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.692,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.878,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 40,
+            "minDeltaMs": -24,
+            "maxDeltaMs": 40
+          },
+          "script": {
+            "p95AbsDeltaMs": 24.225,
+            "minDeltaMs": -15.355999999999998,
+            "maxDeltaMs": 24.225
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 48,
+              "minDeltaMs": -48,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 17.02,
+              "minDeltaMs": -17.02,
+              "maxDeltaMs": 1.2579999999999991
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 2.437999999999999,
+              "minDeltaMs": -2.437999999999999,
+              "maxDeltaMs": 1.194
+            }
+          }
+        }
+      },
+      "form-field": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 4.764,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.706,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.909,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.141,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.432,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 7.607,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.701,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.702,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.174,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.701,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 5.877,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.382,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.439,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.955,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.141,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.566,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.32,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.627,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.636,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.394,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 6.181,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.664,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.505,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 9.93,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.238,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.034,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.784,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.833,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.803,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.398,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 5.914,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.597,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 8.652,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.85,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.566,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.11,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.311,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 13.91,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.651,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.039,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 24,
+                "scriptMs": 15.113,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.222,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.576,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.544,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.532,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.888,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.319,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.134,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.319,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.872,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 6.348,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.507,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.586,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.723,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.887,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.57,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.438,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.539,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.361,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.076,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.186,
+            "minDeltaMs": -1.186,
+            "maxDeltaMs": 1.1129999999999995
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 7.077,
+              "minDeltaMs": -2.359,
+              "maxDeltaMs": 7.077
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 8.765,
+              "minDeltaMs": -8.765,
+              "maxDeltaMs": 1.3549999999999995
+            }
+          }
+        }
+      },
+      "shared-date": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 3.671,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.995,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 6.254,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.22,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 6.671,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.91,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 7.8,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.491,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.691,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.658,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 4.273,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.965,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.188,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.999,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 4.602,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.628,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 3.635,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.524,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 3.821,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.019,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 4.039,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.294,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.106,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.343,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.427,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.528,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.09,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.301,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.777,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.294,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 7.963,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.667,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.987,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.456,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.146,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.775,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.422,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.27,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 4.495,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.41,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 5.561,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.382,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.243,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.877,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.228,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.75,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.586,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.413,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.361,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.849,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 3.844,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.179,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.944,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.43,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 3.923,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.585,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.508,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.121,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.653,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 4.255,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 4.165,
+            "minDeltaMs": -4.165,
+            "maxDeltaMs": 1.779
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": -8,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 3.9240000000000004,
+              "minDeltaMs": -1.2809999999999997,
+              "maxDeltaMs": 3.9240000000000004
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 8,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 8
+            },
+            "script": {
+              "p95AbsDeltaMs": 1.717,
+              "minDeltaMs": -1.717,
+              "maxDeltaMs": 1.7009999999999996
+            }
+          }
+        }
+      }
+    }
+  },
+  "loadavgAtEnd": [
+    6.31,
+    6.37,
+    6.88
+  ],
+  "summary": [
+    {
+      "scenario": "vl-cell",
+      "rate": 1,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 2.6695
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 2.1725
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -0.49700000000000033
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 3.8869999999999996,
+            "minDeltaMs": -1.206,
+            "maxDeltaMs": 3.8869999999999996
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 2.681,
+            "minDeltaMs": -0.9869999999999997,
+            "maxDeltaMs": 2.681
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 1.2910000000000004,
+          "minDeltaMs": -1.2910000000000004,
+          "maxDeltaMs": -0.10599999999999987
+        }
+      }
+    },
+    {
+      "scenario": "vl-sort",
+      "rate": 1,
+      "baseline": {
+        "eventMedianMs": 24,
+        "scriptMedianMs": 5.637499999999999
+      },
+      "candidate": {
+        "eventMedianMs": 24,
+        "scriptMedianMs": 3.8435
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -1.7939999999999992
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 15.233,
+            "minDeltaMs": -3.8759999999999994,
+            "maxDeltaMs": 15.233
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 3.0230000000000006,
+            "minDeltaMs": -3.0230000000000006,
+            "maxDeltaMs": 2.896
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 8,
+          "minDeltaMs": -8,
+          "maxDeltaMs": 8
+        },
+        "script": {
+          "p95AbsDeltaMs": 3.9199999999999995,
+          "minDeltaMs": -3.9199999999999995,
+          "maxDeltaMs": -0.07500000000000018
+        }
+      }
+    },
+    {
+      "scenario": "vl-select",
+      "rate": 1,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 2.147
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 2.1550000000000002
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": 0.008000000000000451
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 3.0840000000000005,
+            "minDeltaMs": -0.1589999999999998,
+            "maxDeltaMs": 3.0840000000000005
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 6.399,
+            "minDeltaMs": -6.399,
+            "maxDeltaMs": 0.2030000000000003
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 0.782,
+          "minDeltaMs": -0.7549999999999999,
+          "maxDeltaMs": 0.782
+        }
+      }
+    },
+    {
+      "scenario": "form-field",
+      "rate": 1,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 1.5905
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 1.544
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -0.046499999999999986
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.6479999999999999,
+            "minDeltaMs": -0.6479999999999999,
+            "maxDeltaMs": 0.17199999999999993
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.5099999999999998,
+            "minDeltaMs": -0.5099999999999998,
+            "maxDeltaMs": 0.21700000000000008
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 1.4289999999999998,
+          "minDeltaMs": -1.4289999999999998,
+          "maxDeltaMs": 0.12200000000000011
+        }
+      }
+    },
+    {
+      "scenario": "shared-date",
+      "rate": 1,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 1.444
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 1.2225000000000001
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -0.2214999999999998
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.8859999999999999,
+            "minDeltaMs": -0.8859999999999999,
+            "maxDeltaMs": 0.23299999999999987
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.2089999999999999,
+            "minDeltaMs": -1.2089999999999999,
+            "maxDeltaMs": 0.9800000000000002
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 0.748,
+          "minDeltaMs": -0.748,
+          "maxDeltaMs": 0.32699999999999996
+        }
+      }
+    },
+    {
+      "scenario": "vl-cell",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 11.227
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 8.136500000000002
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -3.0904999999999987
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 2.6590000000000007,
+            "minDeltaMs": -2.6590000000000007,
+            "maxDeltaMs": 1.0519999999999996
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 2.816,
+            "minDeltaMs": -2.816,
+            "maxDeltaMs": 2.652
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 24,
+          "minDeltaMs": -24,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 24.290000000000003,
+          "minDeltaMs": -24.290000000000003,
+          "maxDeltaMs": 1.2799999999999994
+        }
+      }
+    },
+    {
+      "scenario": "vl-sort",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 32,
+        "scriptMedianMs": 25.9665
+      },
+      "candidate": {
+        "eventMedianMs": 28,
+        "scriptMedianMs": 13.164000000000001
+      },
+      "delta": {
+        "eventMs": -4,
+        "scriptMs": -12.802499999999998
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 5.722999999999999,
+            "minDeltaMs": -5.722999999999999,
+            "maxDeltaMs": 4.6030000000000015
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 16,
+            "minDeltaMs": -16,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 21.493,
+            "minDeltaMs": -21.493,
+            "maxDeltaMs": 3.3969999999999985
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 8,
+          "minDeltaMs": -8,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 14.889000000000001,
+          "minDeltaMs": -14.889000000000001,
+          "maxDeltaMs": -5.059000000000001
+        }
+      }
+    },
+    {
+      "scenario": "vl-select",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 24,
+        "scriptMedianMs": 10.197
+      },
+      "candidate": {
+        "eventMedianMs": 20,
+        "scriptMedianMs": 7.906499999999999
+      },
+      "delta": {
+        "eventMs": -4,
+        "scriptMs": -2.2904999999999998
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 48,
+            "minDeltaMs": -48,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 17.02,
+            "minDeltaMs": -17.02,
+            "maxDeltaMs": 1.2579999999999991
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 2.437999999999999,
+            "minDeltaMs": -2.437999999999999,
+            "maxDeltaMs": 1.194
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 40,
+          "minDeltaMs": -24,
+          "maxDeltaMs": 40
+        },
+        "script": {
+          "p95AbsDeltaMs": 24.225,
+          "minDeltaMs": -15.355999999999998,
+          "maxDeltaMs": 24.225
+        }
+      }
+    },
+    {
+      "scenario": "form-field",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 5.704000000000001
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 6.009
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": 0.3049999999999997
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 7.077,
+            "minDeltaMs": -2.359,
+            "maxDeltaMs": 7.077
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 8.765,
+            "minDeltaMs": -8.765,
+            "maxDeltaMs": 1.3549999999999995
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
+        },
+        "script": {
+          "p95AbsDeltaMs": 1.186,
+          "minDeltaMs": -1.186,
+          "maxDeltaMs": 1.1129999999999995
+        }
+      }
+    },
+    {
+      "scenario": "shared-date",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 5.439
+      },
+      "candidate": {
+        "eventMedianMs": 16,
+        "scriptMedianMs": 4.4375
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -1.0015
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 3.9240000000000004,
+            "minDeltaMs": -1.2809999999999997,
+            "maxDeltaMs": 3.9240000000000004
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.717,
+            "minDeltaMs": -1.717,
+            "maxDeltaMs": 1.7009999999999996
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 8,
+          "minDeltaMs": -8,
+          "maxDeltaMs": 8
+        },
+        "script": {
+          "p95AbsDeltaMs": 4.165,
+          "minDeltaMs": -4.165,
+          "maxDeltaMs": 1.779
+        }
+      }
+    }
+  ]
+}

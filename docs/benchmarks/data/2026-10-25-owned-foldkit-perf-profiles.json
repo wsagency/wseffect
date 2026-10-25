@@ -1,0 +1,2492 @@
+{
+  "measuredAt": "2026-10-25T17:39:19.461Z",
+  "node": "v24.21.0",
+  "chromium": "156.0.8078.4",
+  "loadavgAtStart": [
+    4.93,
+    5.99,
+    6.66
+  ],
+  "captures": {
+    "vl-cell": [
+      {
+        "loadavg": [
+          4.93,
+          5.99,
+          6.66
+        ],
+        "bySource": [
+          [
+            "(native)",
+            227.55299999999997
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            1.326
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            1.098
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.765
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js",
+            0.668
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Hash.js",
+            0.609
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.486
+          ],
+          [
+            "../../../../packages/themes/dist/components/text-field.js",
+            0.474
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js",
+            0.46
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js",
+            0.254
+          ],
+          [
+            "../../../../packages/themes/dist/props/margin.classes.js",
+            0.232
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            0.21500000000000002
+          ],
+          [
+            "../../../../packages/app/dist/kit/update.js",
+            0.155
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js",
+            0.121
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js",
+            0.12
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            0.105
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.096
+          ],
+          [
+            "../../src/shell.ts",
+            0.061
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js",
+            0.028
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            140.368
+          ],
+          [
+            "(native) :: (idle)",
+            85.479
+          ],
+          [
+            "(native) :: (anonymous)",
+            0.94
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js :: NT",
+            0.836
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js :: (anonymous)",
+            0.765
+          ],
+          [
+            "../../src/pages/virtualList.ts :: (anonymous)",
+            0.677
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js :: poll",
+            0.668
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Hash.js :: Me",
+            0.609
+          ],
+          [
+            "(native) :: querySelectorAll",
+            0.577
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js :: MT",
+            0.49
+          ],
+          [
+            "../../../../packages/themes/dist/components/text-field.js :: toView",
+            0.474
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js :: (anonymous)",
+            0.46
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: iO",
+            0.428
+          ],
+          [
+            "../../src/pages/virtualList.ts :: update",
+            0.421
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js :: jg",
+            0.254
+          ],
+          [
+            "../../../../packages/themes/dist/props/margin.classes.js :: Hg",
+            0.232
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: wd",
+            0.171
+          ],
+          [
+            "../../../../packages/app/dist/kit/update.js :: (anonymous)",
+            0.155
+          ],
+          [
+            "(native) :: previewNode",
+            0.152
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js :: P_",
+            0.121
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.77,
+          5.94,
+          6.64
+        ],
+        "bySource": [
+          [
+            "(native)",
+            225.503
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.9080000000000001
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js",
+            1.529
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            1.282
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            0.971
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            0.94
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js",
+            0.929
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/childAttribute.js",
+            0.793
+          ],
+          [
+            "../../../../packages/themes/dist/components/heading.js",
+            0.669
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.641
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.466
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js",
+            0.45099999999999996
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            0.408
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            0.36000000000000004
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js",
+            0.301
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.172
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/MutableRef.js",
+            0.157
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/runtimeSingleton.js",
+            0.157
+          ],
+          [
+            "../../../../packages/app/dist/view/banner.js",
+            0.129
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/MutableList.js",
+            0.124
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            146.571
+          ],
+          [
+            "(native) :: (idle)",
+            75.978
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js :: P_",
+            1.529
+          ],
+          [
+            "(native) :: (anonymous)",
+            1.333
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: te",
+            1.139
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            0.971
+          ],
+          [
+            "../../src/pages/virtualList.ts :: CellChanged",
+            0.94
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js :: i",
+            0.929
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/childAttribute.js :: (anonymous)",
+            0.793
+          ],
+          [
+            "(native) :: (garbage collector)",
+            0.767
+          ],
+          [
+            "../../../../packages/themes/dist/components/heading.js :: p_",
+            0.669
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js :: (anonymous)",
+            0.641
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Td",
+            0.573
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Dd",
+            0.494
+          ],
+          [
+            "(native) :: querySelectorAll",
+            0.483
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js :: (anonymous)",
+            0.466
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: z",
+            0.43
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js :: (anonymous)",
+            0.412
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js :: ke",
+            0.408
+          ],
+          [
+            "(native) :: takeRecords",
+            0.371
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.77,
+          5.94,
+          6.64
+        ],
+        "bySource": [
+          [
+            "(native)",
+            233.134
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.495
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js",
+            1.452
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            1.37
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            1.09
+          ],
+          [
+            "../../src/shell.ts",
+            1.077
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Option.js",
+            0.854
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            0.8130000000000001
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/messageQueue.js",
+            0.725
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js",
+            0.72
+          ],
+          [
+            "../../../../packages/app/dist/loader.js",
+            0.673
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.667
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            0.517
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js",
+            0.499
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Channel.js",
+            0.496
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/runtime.js",
+            0.47
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js",
+            0.42
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.155
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.123
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/slowPhase.js",
+            0.093
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            153.664
+          ],
+          [
+            "(native) :: (idle)",
+            75.869
+          ],
+          [
+            "(native) :: (anonymous)",
+            1.524
+          ],
+          [
+            "(native) :: (garbage collector)",
+            1.456
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/input/index.js :: P_",
+            1.452
+          ],
+          [
+            "../../src/pages/virtualList.ts :: CellChanged",
+            1.09
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Option.js :: (anonymous)",
+            0.854
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: DataAttribute",
+            0.768
+          ],
+          [
+            "../../src/shell.ts :: (anonymous)",
+            0.76
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: bk",
+            0.76
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/messageQueue.js :: h",
+            0.725
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js :: jg",
+            0.72
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: eO",
+            0.7030000000000001
+          ],
+          [
+            "../../../../packages/app/dist/loader.js :: modelToDependencies",
+            0.673
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: v",
+            0.667
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: QD",
+            0.667
+          ],
+          [
+            "(native) :: serializeAsCallArgument",
+            0.589
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js :: isNeeded",
+            0.499
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Channel.js :: (anonymous)",
+            0.496
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/runtime.js :: processMessage",
+            0.47
+          ]
+        ]
+      }
+    ],
+    "vl-sort": [
+      {
+        "loadavg": [
+          4.77,
+          5.94,
+          6.64
+        ],
+        "bySource": [
+          [
+            "(native)",
+            241.05100000000002
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js",
+            5.1850000000000005
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            4.235
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            2.6310000000000002
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js",
+            2.338
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            1.91
+          ],
+          [
+            "../../src/shell.ts",
+            1.492
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            1.45
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js",
+            1.4160000000000001
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            1.334
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            1.25
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            1.218
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js",
+            0.845
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.8380000000000001
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.804
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.784
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/runtimeSingleton.js",
+            0.749
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/core.js",
+            0.718
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/option.js",
+            0.687
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js",
+            0.666
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            166.162
+          ],
+          [
+            "(native) :: (idle)",
+            62.972
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js :: K",
+            4.059
+          ],
+          [
+            "(native) :: getBoundingClientRect",
+            3.826
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js :: i",
+            2.338
+          ],
+          [
+            "(native) :: (garbage collector)",
+            1.502
+          ],
+          [
+            "(native) :: previewNode",
+            1.3820000000000001
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            1.377
+          ],
+          [
+            "../../src/shell.ts :: at",
+            1.294
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js :: _E",
+            1.2650000000000001
+          ],
+          [
+            "(native) :: removeChild",
+            1.237
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            1.218
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Class",
+            1.069
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js :: vT",
+            1.065
+          ],
+          [
+            "(native) :: insertBefore",
+            0.87
+          ],
+          [
+            "(native) :: checkElementStates",
+            0.859
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js :: cA",
+            0.845
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js :: (anonymous)",
+            0.8380000000000001
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js :: (anonymous)",
+            0.804
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: p",
+            0.781
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.77,
+          5.94,
+          6.64
+        ],
+        "bySource": [
+          [
+            "(native)",
+            243.67399999999995
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            3.7449999999999997
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js",
+            3.693
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            3.457
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            2.202
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            2.1079999999999997
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            1.8119999999999998
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            1.604
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js",
+            1.5950000000000002
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            1.59
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            1.3199999999999998
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.887
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.8379999999999999
+          ],
+          [
+            "../../src/shell.ts",
+            0.805
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/runtimeSingleton.js",
+            0.74
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Option.js",
+            0.732
+          ],
+          [
+            "../../../../packages/themes/dist/components/heading.js",
+            0.684
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js",
+            0.68
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js",
+            0.67
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.665
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            153.451
+          ],
+          [
+            "(native) :: (idle)",
+            81.569
+          ],
+          [
+            "(native) :: getBoundingClientRect",
+            4.07
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js :: K",
+            3.693
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: p",
+            2.272
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            1.8119999999999998
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            1.5999999999999999
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js :: yE",
+            1.355
+          ],
+          [
+            "(native) :: (anonymous)",
+            1.034
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: dn",
+            0.9289999999999999
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js :: (anonymous)",
+            0.9219999999999999
+          ],
+          [
+            "../../src/pages/virtualList.ts :: itemToView",
+            0.917
+          ],
+          [
+            "(native) :: querySelectorAll",
+            0.915
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Dd",
+            0.8079999999999999
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js :: vT",
+            0.786
+          ],
+          [
+            "(native) :: insertBefore",
+            0.777
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: h",
+            0.767
+          ],
+          [
+            "(native) :: innerSerialize",
+            0.764
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js :: i",
+            0.753
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/runtimeSingleton.js :: MO",
+            0.74
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.71,
+          5.91,
+          6.63
+        ],
+        "bySource": [
+          [
+            "(native)",
+            246.59599999999995
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js",
+            4.8149999999999995
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            3.2680000000000002
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js",
+            2.261
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            2.033
+          ],
+          [
+            "../../src/shell.ts",
+            1.8159999999999998
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            1.776
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            1.577
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            1.208
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            1.012
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js",
+            0.879
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js",
+            0.875
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js",
+            0.874
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            0.865
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            0.805
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/messageQueue.js",
+            0.735
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Channel.js",
+            0.664
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/interpreter.js",
+            0.629
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Ref.js",
+            0.595
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js",
+            0.574
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            156.177
+          ],
+          [
+            "(native) :: (idle)",
+            78.753
+          ],
+          [
+            "(native) :: getBoundingClientRect",
+            4.536
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/virtualList/index.js :: K",
+            3.968
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js :: PE",
+            2.261
+          ],
+          [
+            "(native) :: setAttribute",
+            1.7029999999999998
+          ],
+          [
+            "../../src/shell.ts :: (anonymous)",
+            1.5299999999999998
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: (anonymous)",
+            1.208
+          ],
+          [
+            "(native) :: insertBefore",
+            1.206
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: v",
+            1.006
+          ],
+          [
+            "(native) :: removeChild",
+            0.917
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Dd",
+            0.894
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js :: (anonymous)",
+            0.875
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            0.875
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js :: i",
+            0.874
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js :: DT",
+            0.87
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            0.865
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: fk",
+            0.805
+          ],
+          [
+            "(native) :: addEventListener",
+            0.794
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: OnClick",
+            0.774
+          ]
+        ]
+      }
+    ],
+    "vl-select": [
+      {
+        "loadavg": [
+          4.71,
+          5.91,
+          6.63
+        ],
+        "bySource": [
+          [
+            "(native)",
+            307.4139999999999
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.826
+          ],
+          [
+            "../../src/shell.ts",
+            0.728
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js",
+            0.715
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js",
+            0.714
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.682
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/htmldomapi.js",
+            0.618
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/button/index.js",
+            0.584
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js",
+            0.395
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            0.353
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            0.156
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/core.js",
+            0.155
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.135
+          ],
+          [
+            "../../../../packages/foldkit/dist/domReflection.js",
+            0.102
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.082
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js",
+            0.077
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            0.063
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js",
+            0.049
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Equivalence.js",
+            0.047
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            196.654
+          ],
+          [
+            "(native) :: (idle)",
+            98.696
+          ],
+          [
+            "(native) :: (anonymous)",
+            5.0889999999999995
+          ],
+          [
+            "(native) :: InjectedScript",
+            1.886
+          ],
+          [
+            "(native) :: parentElementOrShadowHost",
+            0.86
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js :: (anonymous)",
+            0.826
+          ],
+          [
+            "(native) :: query",
+            0.763
+          ],
+          [
+            "../../src/shell.ts :: (anonymous)",
+            0.728
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js :: pollUpTo",
+            0.715
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js :: i",
+            0.714
+          ],
+          [
+            "(native) :: evaluate",
+            0.688
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js :: $O",
+            0.682
+          ],
+          [
+            "(native) :: computeBox",
+            0.653
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/htmldomapi.js :: sD",
+            0.618
+          ],
+          [
+            "../../../../packages/foldkit-ui/dist/button/index.js :: w_",
+            0.584
+          ],
+          [
+            "(native) :: setupHitTargetInterceptor",
+            0.519
+          ],
+          [
+            "(native) :: get Temporal",
+            0.46
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js :: Sk",
+            0.395
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            0.265
+          ],
+          [
+            "(native) :: parseEvaluationResultValue",
+            0.157
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.71,
+          5.91,
+          6.63
+        ],
+        "bySource": [
+          [
+            "(native)",
+            309.89899999999994
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.5959999999999999
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.805
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.737
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Hash.js",
+            0.667
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js",
+            0.667
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js",
+            0.373
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            0.351
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            0.34
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js",
+            0.319
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.257
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.153
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.148
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Array.js",
+            0.098
+          ],
+          [
+            "../../../../packages/themes/dist/components/button.js",
+            0.094
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.093
+          ],
+          [
+            "../../../../packages/app/dist/kit/update.js",
+            0.083
+          ],
+          [
+            "../../src/pages/virtualList.ts",
+            0.053
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            193.026
+          ],
+          [
+            "(native) :: (idle)",
+            105.13
+          ],
+          [
+            "(native) :: (anonymous)",
+            3.993
+          ],
+          [
+            "(native) :: InjectedScript",
+            1.219
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js :: (anonymous)",
+            0.805
+          ],
+          [
+            "(native) :: _cached",
+            0.757
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: te",
+            0.737
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Hash.js :: b",
+            0.667
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js :: (anonymous)",
+            0.667
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: z",
+            0.667
+          ],
+          [
+            "(native) :: query",
+            0.631
+          ],
+          [
+            "(native) :: get Temporal",
+            0.629
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: (anonymous)",
+            0.605
+          ],
+          [
+            "(native) :: SelectorEvaluatorImpl",
+            0.572
+          ],
+          [
+            "(native) :: isElementStyleVisibilityVisible",
+            0.561
+          ],
+          [
+            "(native) :: querySelectorAll",
+            0.501
+          ],
+          [
+            "(native) :: parseEvaluationResultValue",
+            0.479
+          ],
+          [
+            "(native) :: previewNode",
+            0.4
+          ],
+          [
+            "(native) :: expectHitTarget",
+            0.386
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js :: FA",
+            0.373
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.74,
+          5.89,
+          6.62
+        ],
+        "bySource": [
+          [
+            "(native)",
+            307.653
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.969
+          ],
+          [
+            "../../../../packages/app/dist/view/prefetch.js",
+            0.808
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.789
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            0.766
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.7280000000000001
+          ],
+          [
+            "../../../../packages/themes/dist/components/text.js",
+            0.651
+          ],
+          [
+            "../../src/shell.ts",
+            0.614
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Equal.js",
+            0.506
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.433
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/compilerRegistry.js",
+            0.158
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Deferred.js",
+            0.147
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaParser.js",
+            0.147
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/is.js",
+            0.111
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/core.js",
+            0.063
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            197.38
+          ],
+          [
+            "(native) :: (idle)",
+            96.27
+          ],
+          [
+            "(native) :: (anonymous)",
+            4.952999999999999
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js :: (anonymous)",
+            0.969
+          ],
+          [
+            "(native) :: elementsFromPoint",
+            0.9019999999999999
+          ],
+          [
+            "(native) :: UtilityScript",
+            0.838
+          ],
+          [
+            "../../../../packages/app/dist/view/prefetch.js :: pA",
+            0.808
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js :: $O",
+            0.789
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Dd",
+            0.766
+          ],
+          [
+            "(native) :: __toCommonJS",
+            0.755
+          ],
+          [
+            "(native) :: check",
+            0.742
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: eO",
+            0.7280000000000001
+          ],
+          [
+            "(native) :: SelectorEvaluatorImpl",
+            0.701
+          ],
+          [
+            "(native) :: InjectedScript",
+            0.68
+          ],
+          [
+            "../../../../packages/themes/dist/components/text.js :: x_",
+            0.651
+          ],
+          [
+            "../../src/shell.ts :: (anonymous)",
+            0.614
+          ],
+          [
+            "(native) :: eval",
+            0.603
+          ],
+          [
+            "(native) :: query",
+            0.574
+          ],
+          [
+            "(native) :: computeAriaRole",
+            0.515
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Equal.js :: qe",
+            0.506
+          ]
+        ]
+      }
+    ],
+    "form-field": [
+      {
+        "loadavg": [
+          4.74,
+          5.89,
+          6.62
+        ],
+        "bySource": [
+          [
+            "(native)",
+            215.643
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            0.996
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js",
+            0.754
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.742
+          ],
+          [
+            "../../../../packages/foldkit/dist/vdom.js",
+            0.34
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.308
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js",
+            0.3
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.264
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js",
+            0.236
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js",
+            0.236
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.154
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js",
+            0.076
+          ],
+          [
+            "../../src/datePicker.ts",
+            0.049
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            0.021
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            131.724
+          ],
+          [
+            "(native) :: (idle)",
+            81.88
+          ],
+          [
+            "(native) :: (anonymous)",
+            1.827
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: (anonymous)",
+            0.842
+          ],
+          [
+            "../../../../packages/app/dist/view/page.js :: (anonymous)",
+            0.754
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js :: $O",
+            0.742
+          ],
+          [
+            "../../../../packages/foldkit/dist/vdom.js :: rk",
+            0.34
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js :: (anonymous)",
+            0.3
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: oO",
+            0.264
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Function.js :: (anonymous)",
+            0.236
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js :: Sk",
+            0.236
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: gD",
+            0.155
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: runLoop",
+            0.154
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: (anonymous)",
+            0.154
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: te",
+            0.153
+          ],
+          [
+            "(native) :: query",
+            0.125
+          ],
+          [
+            "(native) :: getBoundingClientRect",
+            0.087
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/eventlisteners.js :: ME",
+            0.076
+          ],
+          [
+            "../../src/datePicker.ts :: (anonymous)",
+            0.049
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: (anonymous)",
+            0.021
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.74,
+          5.89,
+          6.62
+        ],
+        "bySource": [
+          [
+            "(native)",
+            215.55099999999996
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            2.0509999999999997
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            1.3239999999999998
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            1.31
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.76
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js",
+            0.641
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js",
+            0.612
+          ],
+          [
+            "../../../../packages/foldkit/dist/propertyProvenance.js",
+            0.525
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/devToolsIntegration.js",
+            0.276
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            0.267
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.244
+          ],
+          [
+            "../../../../packages/foldkit/dist/vdom.js",
+            0.144
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/PubSub.js",
+            0.141
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaParser.js",
+            0.13
+          ],
+          [
+            "../../src/shell.ts",
+            0.122
+          ],
+          [
+            "../../../../packages/themes/dist/components/button.js",
+            0.072
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.054
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.048
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js",
+            0.046
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            139.046
+          ],
+          [
+            "(native) :: (idle)",
+            74.26
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            1.075
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: runLoop",
+            0.834
+          ],
+          [
+            "(native) :: _activelyFocused",
+            0.789
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: (anonymous)",
+            0.76
+          ],
+          [
+            "(native) :: query",
+            0.722
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: bk",
+            0.69
+          ],
+          [
+            "../../../../packages/app/dist/kit/binding.js :: requestedPrefetch",
+            0.641
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: vk",
+            0.62
+          ],
+          [
+            "(native) :: parseEvaluationResultValue",
+            0.613
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js :: GT",
+            0.612
+          ],
+          [
+            "../../../../packages/foldkit/dist/propertyProvenance.js :: VT",
+            0.525
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: fn",
+            0.49
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Td",
+            0.413
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: OnInput",
+            0.381
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/devToolsIntegration.js :: u",
+            0.276
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: v",
+            0.244
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js :: ke",
+            0.153
+          ],
+          [
+            "../../../../packages/foldkit/dist/vdom.js :: rk",
+            0.144
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.74,
+          5.89,
+          6.62
+        ],
+        "bySource": [
+          [
+            "(native)",
+            220.85100000000003
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.4360000000000002
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            0.691
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js",
+            0.62
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/class.js",
+            0.526
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            0.513
+          ],
+          [
+            "../../src/datePicker.ts",
+            0.385
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.231
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js",
+            0.167
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.153
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js",
+            0.152
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/messageQueue.js",
+            0.089
+          ],
+          [
+            "../../../../packages/app/dist/loader.js",
+            0.077
+          ],
+          [
+            "../../../../packages/themes/dist/components/theme.js",
+            0.071
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.006
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            134.042
+          ],
+          [
+            "(native) :: (idle)",
+            84.568
+          ],
+          [
+            "(native) :: (anonymous)",
+            1.118
+          ],
+          [
+            "(native) :: query",
+            0.768
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            0.753
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: runLoop",
+            0.691
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js :: i",
+            0.62
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Ku",
+            0.589
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/class.js :: EE",
+            0.526
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: bk",
+            0.513
+          ],
+          [
+            "../../src/datePicker.ts :: (anonymous)",
+            0.385
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: gD",
+            0.231
+          ],
+          [
+            "(native) :: jsonValue",
+            0.204
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js :: Sk",
+            0.167
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: eO",
+            0.153
+          ],
+          [
+            "../../../../packages/foldkit/dist/brand/brand.js :: i",
+            0.152
+          ],
+          [
+            "(native) :: focus",
+            0.13
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: wd",
+            0.094
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/messageQueue.js :: o",
+            0.089
+          ],
+          [
+            "../../../../packages/app/dist/loader.js :: modelToDependencies",
+            0.077
+          ]
+        ]
+      }
+    ],
+    "shared-date": [
+      {
+        "loadavg": [
+          4.68,
+          5.86,
+          6.6
+        ],
+        "bySource": [
+          [
+            "(native)",
+            217.92999999999998
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            1.759
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            1.309
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js",
+            1.047
+          ],
+          [
+            "../../src/shell.ts",
+            0.868
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js",
+            0.765
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            0.764
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/htmldomapi.js",
+            0.558
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/runtime.js",
+            0.417
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.321
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.22
+          ],
+          [
+            "../../../../packages/themes/dist/components/element.js",
+            0.154
+          ],
+          [
+            "../../../../packages/foldkit/dist/vdom.js",
+            0.153
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.11699999999999999
+          ],
+          [
+            "../../src/pages/sharedA.ts",
+            0.07
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Data.js",
+            0.007
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            135.471
+          ],
+          [
+            "(native) :: (idle)",
+            77.714
+          ],
+          [
+            "(native) :: focus",
+            2.694
+          ],
+          [
+            "(native) :: querySelectorAll",
+            1.07
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js :: GT",
+            1.047
+          ],
+          [
+            "../../src/shell.ts :: (anonymous)",
+            0.868
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: iO",
+            0.837
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js :: a_",
+            0.765
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: U",
+            0.743
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Ku",
+            0.729
+          ],
+          [
+            "(native) :: (garbage collector)",
+            0.624
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: fn",
+            0.571
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/htmldomapi.js :: sD",
+            0.558
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: eO",
+            0.472
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/runtime.js :: it",
+            0.417
+          ],
+          [
+            "(native) :: _activelyFocused",
+            0.316
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js :: runLoop",
+            0.297
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js :: $O",
+            0.22
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: (anonymous)",
+            0.16799999999999998
+          ],
+          [
+            "../../../../packages/themes/dist/components/element.js :: Wg",
+            0.154
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.68,
+          5.86,
+          6.6
+        ],
+        "bySource": [
+          [
+            "(native)",
+            218.62599999999998
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.702
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/documentMetadata.js",
+            1.417
+          ],
+          [
+            "../../../../packages/themes/dist/components/box.js",
+            1.332
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js",
+            0.566
+          ],
+          [
+            "../../src/datePicker.ts",
+            0.533
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js",
+            0.483
+          ],
+          [
+            "../../../../packages/themes/dist/components/heading.js",
+            0.481
+          ],
+          [
+            "../../src/pages/sharedA.ts",
+            0.414
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js",
+            0.399
+          ],
+          [
+            "../../../../packages/themes/dist/props/margin.classes.js",
+            0.324
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/is.js",
+            0.288
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            0.284
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/MutableList.js",
+            0.268
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/subscriptionFibers.js",
+            0.255
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.20400000000000001
+          ],
+          [
+            "../../../../packages/foldkit/dist/subscription/subscription.js",
+            0.154
+          ],
+          [
+            "../../../../packages/foldkit/dist/schema/index.js",
+            0.154
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.153
+          ],
+          [
+            "../../src/shell.ts",
+            0.104
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            136.301
+          ],
+          [
+            "(native) :: (idle)",
+            76.244
+          ],
+          [
+            "(native) :: focus",
+            3.904
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/documentMetadata.js :: wh",
+            1.417
+          ],
+          [
+            "../../../../packages/themes/dist/components/box.js :: Jg",
+            1.332
+          ],
+          [
+            "(native) :: (garbage collector)",
+            1.065
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Dd",
+            0.94
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: z",
+            0.657
+          ],
+          [
+            "../../../../packages/themes/dist/components/flex.js :: a_",
+            0.566
+          ],
+          [
+            "../../src/datePicker.ts :: onInput",
+            0.533
+          ],
+          [
+            "../../../../packages/themes/dist/components/heading.js :: p_",
+            0.481
+          ],
+          [
+            "(native) :: evaluate",
+            0.463
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/submodel.js :: vk",
+            0.416
+          ],
+          [
+            "../../src/pages/sharedA.ts :: (anonymous)",
+            0.414
+          ],
+          [
+            "../../../../packages/foldkit/dist/controlledDomState.js :: GT",
+            0.399
+          ],
+          [
+            "(native) :: query",
+            0.329
+          ],
+          [
+            "../../../../packages/themes/dist/props/margin.classes.js :: Hg",
+            0.324
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/is.js :: LE",
+            0.288
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/MutableList.js :: gx",
+            0.268
+          ],
+          [
+            "(native) :: (anonymous)",
+            0.257
+          ]
+        ]
+      },
+      {
+        "loadavg": [
+          4.68,
+          5.86,
+          6.6
+        ],
+        "bySource": [
+          [
+            "(native)",
+            205.246
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js",
+            1.7910000000000001
+          ],
+          [
+            "../../src/datePicker.ts",
+            1.022
+          ],
+          [
+            "../../src/shell.ts",
+            0.84
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js",
+            0.817
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js",
+            0.661
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js",
+            0.577
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js",
+            0.517
+          ],
+          [
+            "../../../../packages/themes/dist/components/text.js",
+            0.465
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/documentMetadata.js",
+            0.464
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/h.js",
+            0.457
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js",
+            0.244
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js",
+            0.233
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/Equivalence.js",
+            0.153
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/runtimeSingleton.js",
+            0.148
+          ],
+          [
+            "../../src/pages/sharedA.ts",
+            0.137
+          ],
+          [
+            "../../../../packages/app/dist/view/banner.js",
+            0.106
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/effect.js",
+            0.094
+          ],
+          [
+            "../../../../packages/foldkit/dist/propsModule.js",
+            0.056
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/lazy.js",
+            0.05
+          ]
+        ],
+        "topFunctions": [
+          [
+            "(native) :: (program)",
+            124.565
+          ],
+          [
+            "(native) :: (idle)",
+            76.481
+          ],
+          [
+            "(native) :: focus",
+            2.387
+          ],
+          [
+            "../../src/datePicker.ts :: (anonymous)",
+            1.022
+          ],
+          [
+            "../../src/shell.ts :: at",
+            0.84
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/internal/schema/toEquivalence.js :: (anonymous)",
+            0.817
+          ],
+          [
+            "(native) :: query",
+            0.793
+          ],
+          [
+            "(native) :: (anonymous)",
+            0.713
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: Id",
+            0.712
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/renderer.js :: je",
+            0.661
+          ],
+          [
+            "../../../../node_modules/.pnpm/effect@4.0.5/node_modules/effect/dist/SchemaAST.js :: f_",
+            0.577
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/attributes.js :: _E",
+            0.517
+          ],
+          [
+            "../../../../packages/themes/dist/components/text.js :: x_",
+            0.465
+          ],
+          [
+            "../../../../packages/foldkit/dist/runtime/documentMetadata.js :: wh",
+            0.464
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/h.js :: YE",
+            0.457
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: postpatch",
+            0.401
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: dd",
+            0.308
+          ],
+          [
+            "../../../../packages/foldkit/dist/snabbdom/init.js :: v",
+            0.244
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/boundary.js :: eO",
+            0.233
+          ],
+          [
+            "../../../../packages/foldkit/dist/html/index.js :: wd",
+            0.217
+          ]
+        ]
+      }
+    ]
+  },
+  "loadavgAtEnd": [
+    4.68,
+    5.86,
+    6.6
+  ]
+}

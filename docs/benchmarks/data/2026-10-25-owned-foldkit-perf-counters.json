@@ -1,0 +1,51 @@
+{
+  "measuredAt": "2026-10-25T17:38:15.800Z",
+  "loadavgAtStart": [
+    7.09,
+    6.53,
+    6.87
+  ],
+  "counters": {
+    "vl-filter": {
+      "A": {
+        "moves": 1,
+        "insertions": 169,
+        "removals": 13,
+        "formattedStacks": 10,
+        "walkVisits": 6898,
+        "hashSetConstructions": 1
+      },
+      "B": {
+        "moves": 0,
+        "insertions": 182,
+        "removals": 0,
+        "formattedStacks": 0,
+        "walkVisits": 3459,
+        "hashSetConstructions": 0
+      }
+    },
+    "vl-sort": {
+      "A": {
+        "moves": 13,
+        "insertions": 364,
+        "removals": 28,
+        "formattedStacks": 20,
+        "walkVisits": 40040,
+        "hashSetConstructions": 1
+      },
+      "B": {
+        "moves": 13,
+        "insertions": 364,
+        "removals": 28,
+        "formattedStacks": 0,
+        "walkVisits": 20040,
+        "hashSetConstructions": 0
+      }
+    }
+  },
+  "loadavgAtEnd": [
+    6.76,
+    6.47,
+    6.85
+  ]
+}
