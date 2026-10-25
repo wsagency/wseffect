@@ -196,23 +196,25 @@ const isPlainObject = (
 ): value is Readonly<Record<string, unknown>> =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 
+// View inputs are immutable by convention. Successfully validated object and
+// array identities can therefore be skipped on later renders.
+const validatedViewInputs = new WeakSet<object>()
+
 /** Walks below the top level of `viewInputs` and throws if it finds a
- *  function. Top-level functions are auto-scoped to the parent
- *  boundary; functions nested inside an object value or array element
- *  would silently capture the child's boundary and dispatch through
- *  the child's wrapping chain, which is almost certainly not what the
- *  consumer meant. Failing loud at view-build time is cheaper than a
- *  confused bug report from a misrouted Message. */
+ *  function. Top-level functions are auto-scoped to the parent boundary.
+ *  Inputs are treated as immutable by convention so validated object
+ *  identities can be safely reused. */
 const assertNoNestedFunctions = (
   viewInputs: Readonly<Record<string, unknown>>,
 ): void => {
+  const path: Array<string | number> = []
   for (const key of Object.keys(viewInputs)) {
     const value = viewInputs[key]
-    if (isFrameworkBranded(value)) {
-      continue
-    }
+    if (isFrameworkBranded(value)) continue
     if (isPlainObject(value) || Array.isArray(value)) {
-      walkForFunctions(value, [key])
+      path.push(key)
+      walkForFunctions(value, path)
+      path.pop()
     }
   }
 }
@@ -224,33 +226,56 @@ const isFrameworkBranded = (value: unknown): boolean => isChildAttribute(value)
 
 const walkForFunctions = (
   source: Readonly<Record<string, unknown>> | ReadonlyArray<unknown>,
-  path: ReadonlyArray<string>,
+  path: Array<string | number>,
 ): void => {
-  const visit = (value: unknown, segment: string): void => {
-    const nextPath = [...path, segment]
-    if (typeof value === 'function') {
-      throw new Error(
-        `Foldkit: h.submodel \`viewInputs\` may only contain functions at the ` +
-          `top level. Found a function at \`viewInputs.${nextPath.join('.')}\`. ` +
-          `Lift it to the top level of \`viewInputs\` so it can be auto-scoped to ` +
-          `the parent boundary, or pass the value as primitive data.`,
+  if (validatedViewInputs.has(source)) return
+  const fail = (): never => {
+    const formattedPath = path
+      .map((segment, index) =>
+        typeof segment === 'number'
+          ? `.[${segment}]`
+          : index === 0
+            ? segment
+            : `.${segment}`,
       )
-    }
-    if (isFrameworkBranded(value)) {
-      return
-    }
-    if (isPlainObject(value) || Array.isArray(value)) {
-      walkForFunctions(value, nextPath)
-    }
+      .join('')
+    throw new Error(
+      `Foldkit: h.submodel \`viewInputs\` may only contain functions at the ` +
+        `top level. Found a function at \`viewInputs.${formattedPath}\`. ` +
+        `Lift it to the top level of \`viewInputs\` so it can be auto-scoped to ` +
+        `the parent boundary, or pass the value as primitive data.`,
+    )
   }
-
   if (Array.isArray(source)) {
-    source.forEach((element, index) => visit(element, `[${index}]`))
-  } else if (isPlainObject(source)) {
+    for (let index = 0; index < source.length; index++) {
+      const value = source[index]
+      if (typeof value === 'function') {
+        path.push(index)
+        fail()
+      }
+      if (isFrameworkBranded(value)) continue
+      if (isPlainObject(value) || Array.isArray(value)) {
+        path.push(index)
+        walkForFunctions(value, path)
+        path.pop()
+      }
+    }
+  } else {
     for (const key of Object.keys(source)) {
-      visit(source[key], key)
+      const value = source[key]
+      if (typeof value === 'function') {
+        path.push(key)
+        fail()
+      }
+      if (isFrameworkBranded(value)) continue
+      if (isPlainObject(value) || Array.isArray(value)) {
+        path.push(key)
+        walkForFunctions(value, path)
+        path.pop()
+      }
     }
   }
+  validatedViewInputs.add(source)
 }
 
 const wrapViewInputsForOuterBoundary = <ViewInputs>(

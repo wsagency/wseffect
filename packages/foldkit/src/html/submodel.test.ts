@@ -1122,6 +1122,37 @@ describe('h.submodel', () => {
       }),
     ).toThrow(/viewInputs\.items\.\[0\]\.onSelect/)
   })
+  it('does not re-walk nested input objects after validating their identity', () => {
+    let reads = 0
+    const nested = Object.defineProperty({}, 'value', {
+      enumerable: true,
+      get: () => {
+        reads++
+        return 1
+      },
+    })
+    const viewInputs = { nested }
+    const view = defineView<
+      object,
+      ChildMessage,
+      Readonly<{ nested: object }>
+    >((_model, _viewInputs) => h('div'))
+    const config = (slotId: string) => ({
+      slotId,
+      model: {},
+      view,
+      viewInputs,
+      toParentMessage: (message: ChildMessage) => GotChild({ entryId: slotId, message }),
+    })
+
+    submodel(config('cache-first'))
+    const afterFirstRender = reads
+    submodel(config('cache-second'))
+
+    expect(afterFirstRender).toBe(1)
+    expect(reads).toBe(afterFirstRender)
+  })
+
 
   it('accepts Effect data types like Option as top-level input fields', () => {
     // The runtime walker uses `Object.keys` (own properties only), so
