@@ -28,16 +28,30 @@ export async function checkPackedSp2Artifacts(themesPackage: string): Promise<vo
   }
 }
 
-export function checkPrimitiveTreeShaking(sources: ReadonlyArray<string>): string[] {
+export function checkFoldkitUiTreeShaking(sources: ReadonlyArray<string>): string[] {
   const normalized = sources.map((source) => source.replaceAll('\\', '/'))
-  const primitiveModules = normalized.filter((source) => source.includes('/wseffect-primitives/dist/'))
-  const unrelated = primitiveModules.filter((source) => !source.endsWith('/wseffect-primitives/dist/checkbox-group.js'))
+  const uiModules = normalized.filter((source) => source.includes('/wseffect-foldkit-ui/dist/'))
+  const checkboxGroupModules = uiModules.filter((source) =>
+    source.includes('/dist/checkboxGroup/') || source.endsWith('/dist/checkboxGroup.js'))
+  const unrelated = uiModules.filter((source) =>
+    !source.includes('/dist/checkboxGroup/')
+    && !source.endsWith('/dist/checkboxGroup.js')
+    && !source.includes('/dist/checkbox/')
+    && !source.endsWith('/dist/checkbox.js'))
   const errors: string[] = []
-  if (!primitiveModules.some((source) => source.endsWith('/wseffect-primitives/dist/checkbox-group.js'))) {
-    errors.push('primitive tree-shaking bundle does not include checkbox-group.js')
+  if (checkboxGroupModules.length === 0) {
+    errors.push('packed SP2 Foldkit UI tree-shaking bundle does not include checkboxGroup')
   }
-  if (unrelated.length) errors.push(`primitive tree-shaking bundle includes unrelated modules: ${unrelated.join(', ')}`)
+  if (unrelated.length) {
+    errors.push(`packed SP2 Foldkit UI tree-shaking bundle includes unrelated modules: ${unrelated.join(', ')}`)
+  }
   return errors
+}
+
+export function checkNoPrimitivePackageReferences(references: ReadonlyArray<string>): string[] {
+  return references
+    .filter((reference) => reference.includes('wseffect-primitives'))
+    .map((reference) => `packed consumer contains removed package reference: ${reference}`)
 }
 
 export function disallowedEffectModules(sources: ReadonlyArray<string>): string[] {

@@ -17,6 +17,10 @@
 - Added the `listboxSelect` subpath and `createSelect` adapter over Listbox.
 - Added controlled `Slider.Range` alongside the existing scalar Slider.
 - Fixed-height `VirtualList.informItemsChanged` updates skip construction of the item-key `HashSet` and measured-height filtering when no measurements exist; measured-height pruning remains unchanged otherwise. Candidate upstream PR.
+- Extended `VirtualList.view` with container/row tag and role options, `rowToView`, `spacerToView`, and `windowToView`; custom `rowToView` replaces `itemToView`, and defaults preserve the upstream list markup while custom window output supports native table sections and spacers.
+- Generalized nested keyed-row lookup in `ApplyScroll`, focus, and dynamic measurement so row targets remain discoverable below custom window/container markup.
+- Merge caller `Style` attributes with the required viewport styles; required scroll behavior (`overflow`, `overflow-anchor`, list style, margin, and padding) takes precedence.
+- Added optional `InitConfig.initialContainerHeight` to seed viewport geometry for fixed-height lists before the first browser measurement.
 - This file, the provenance README, and the first local changelog entry are maintained by wseffect.
 - Removed upstream website API-doc tooling (`typedoc.json`, `typedoc-entry.ts`, `tsconfig.docs.json`); neither local builds nor tests use these files.
 

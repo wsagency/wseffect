@@ -12,7 +12,6 @@ const createConfig = <ParentMessage>(h: HtmlBuilder<ParentMessage>) => ({
     { value: 'Rename' as const, textValue: 'Rename', isDisabled: false, content: h.span([], ['Rename']) },
     { value: 'Delete' as const, textValue: 'Delete', isDisabled: false, content: h.span([], ['Delete']) },
   ],
-  toItem: (item: 'Open' | 'Rename' | 'Delete') => h.span([], [item]),
 })
 
 export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
@@ -20,7 +19,13 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
     Button.view({ variant: 'outline' }, ['Right-click for actions'], h),
     Menu.embed(h, {
       slotId: 'capture-context-menu',
-      model: Menu.init({ id: '', sourceId: 'capture-context-source', sourceToken: 'capture-context-token', longPressMs: 600, items: [], toItem: () => null }),
+      model: Menu.init({
+        id: '',
+        sourceId: 'capture-context-source',
+        sourceToken: 'capture-context-token',
+        longPressMs: 600,
+        items: [],
+      }),
       config: { ...createConfig(h), id: '', sourceId: 'capture-context-source', sourceToken: 'capture-context-token' },
       toParentMessage: () => ({ _tag: 'Noop' }),
     }),

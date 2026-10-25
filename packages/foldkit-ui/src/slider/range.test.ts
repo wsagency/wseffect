@@ -1,6 +1,8 @@
+import { inertHtml as ih } from '@wsagency/wseffect-foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+
 import { Effect, Fiber, Stream } from 'effect'
 import type * as Mount from '@wsagency/wseffect-foldkit/mount'
-import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { describe, expect, it, vi } from 'vitest'
 import * as Range from './range.js'
 
@@ -16,6 +18,25 @@ const config: Range.RangeConfig = {
 }
 
 describe('Slider.Range', () => {
+  it('fills from the minimum for a single thumb and between thumbs for a range', () => {
+    const childAt = (node: Html | undefined, index: number): Html | undefined => {
+      const child = node?.children?.[index]
+      return child !== undefined && typeof child !== 'string' ? child : undefined
+    }
+    const styleAt = (node: Html | undefined) => node?.data?.attrs?.['style']
+
+    const single = { ...config, thumbs: [{ id: 'single', value: 48 }] }
+    /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions */
+    const h = ih as unknown as HtmlBuilder<Range.RangeMessage>
+    const singleView = Range.view(Range.init(single), single, h)
+    expect(styleAt(childAt(childAt(singleView ?? undefined, 0), 0)))
+      .toBe('left:0%;top:0;width:48%;height:100%')
+
+    const rangeView = Range.view(Range.init(config), config, h)
+    expect(styleAt(childAt(childAt(rangeView ?? undefined, 0), 0)))
+      .toBe('left:18%;top:0;width:52%;height:100%')
+  })
+
   it('uses a per-thumb lower bound as the effective step-grid origin', () => {
     const result = Range.update(Range.init(config), config, {
       _tag: 'Step',

@@ -1,6 +1,6 @@
 # Proposal: VirtualList container and spacer element overrides
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/virtualList`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ VirtualList already allows a custom row tag, but hard-codes its scroll container
 
 Installed `virtualList/index.js` destructures a configurable `rowElement` but no container or spacer tags (`apps/gallery/node_modules/@foldkit/ui/dist/virtualList/index.js:713-715`). `renderContainer` always creates a keyed `ul` (`:731-736`), and the top/bottom spacers are keyed `li` elements (`:743-752`); rows alone use `rowElement` (`:753-778`). `ApplyScroll` obtains the mounted container and applies scrolling to that element (`:264-315`), while row discovery uses the container's direct children (`:184-185`). The installed `@foldkit/ui` package version is `0.168.0` (`apps/gallery/node_modules/@foldkit/ui/package.json:1-4`).
 
-## Local workaround
+## Implemented locally
 
-`packages/themes/src/components/data-table.ts:517-546` supplies native `<tr>` spacer rows inside `<tbody>`, renders keyed table rows, and owns a separate scrolling `<div>` around the table. `packages/themes/src/components/data-table.mount.ts:37-63` applies programmatic scrolling and uses `querySelectorAll('tr[data-virtual-list-item-key]')` to locate/focus a nested row. DataTable reuses VirtualList's model and update logic but maintains its own view and mount work for the missing element flexibility.
+`packages/foldkit-ui/src/virtualList` now supports configurable scroll/row/spacer element output, nested keyed-row lookup, and a window callback. Themes DataTable uses this API for native table windowing while keeping its table markup and sticky header in the component wrapper.
 
 ## Proposed API
 

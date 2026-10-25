@@ -1,6 +1,6 @@
 # Proposal: multi-thumb Slider
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/slider`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ Slider's controlled value and interaction messages describe one scalar thumb. Ra
 
 The installed Slider's `ViewInputs` contains one `value: number` (`apps/gallery/node_modules/@foldkit/ui/dist/slider/index.d.ts:294-337`), its `ChangedValue` OutMessage has one number (`:51-57`), and its Model captures a single drag origin (`:7-24`). The public subpath exports `Slider` only (`apps/gallery/node_modules/@foldkit/ui/package.json:102-105`). These declarations describe the single-thumb contract, not a coordinated range.
 
-## Local workaround
+## Implemented locally
 
-`packages/primitives/src/range-slider.ts:5-47` defines a controlled list of identified thumbs and a drag snapshot; `:49-99` implements neighboring-thumb limits, keyboard/page/boundary changes, drag updates, and drag cancellation. Its view renders one range input per thumb (`:102-138`). This works locally but duplicates the value constraints and per-thumb interaction behavior rather than composing the upstream Slider.
+`packages/foldkit-ui/src/slider` now provides the controlled `Slider.Range` API with stable thumb IDs, drag snapshots, per-thumb bounds, keyboard and pointer updates, and cancellation. The Themes wrapper keeps Radix2Solid rendering and classes.
 
 ## Proposed API
 

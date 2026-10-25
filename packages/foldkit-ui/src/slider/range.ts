@@ -164,7 +164,7 @@ const pointerMount = (config: RangeConfig): Mount.MountAction<RangeMessage> => (
 export const view = (_model: RangeModel, config: RangeConfig, h: HtmlBuilder<RangeMessage>): Html => {
   const percent = (value: number) => config.max === config.min ? 0 : (value - config.min) / (config.max - config.min) * 100
   const horizontal = config.orientation === 'horizontal'
-  const first = config.thumbs[0]?.value ?? config.min
+  const first = config.thumbs.length === 1 ? config.min : config.thumbs[0]?.value ?? config.min
   const last = config.thumbs[config.thumbs.length - 1]?.value ?? first
   const rangeStyle = horizontal
     ? `left:${percent(first)}%;top:0;width:${percent(last) - percent(first)}%;height:100%`

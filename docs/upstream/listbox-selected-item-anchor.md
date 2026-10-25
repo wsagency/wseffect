@@ -1,6 +1,6 @@
 # Proposal: configurable Listbox selected-item anchor
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/listbox` and `src/listboxSelect`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ A select menu may need to align the selected option with the trigger when it ope
 
 The installed single-select Listbox's `ViewInputs` includes `maybeSelectedValue`, whose documented effects are item selection/highlighting and form submission (`apps/gallery/node_modules/@foldkit/ui/dist/listbox/single.d.ts:171-179`); it does not expose an anchor mode. The public Listbox exports include `AnchorListbox` (`apps/gallery/node_modules/@foldkit/ui/dist/listbox/public.d.ts:1-6`), and the installed `@foldkit/ui` is version `0.168.0` (`apps/gallery/node_modules/@foldkit/ui/package.json:1-4`).
 
-## Local workaround
+## Implemented locally
 
-`packages/primitives/src/select.ts:18-24,55-84` supports `position: 'popper' | 'item-aligned'`; the latter takes a local rendering path rather than the upstream Listbox view. `packages/primitives/src/select-position.ts:4-9,11-44` mounts the panel relative to the selected or active item, observes trigger/panel/item resizing, and falls back to trigger position when no item exists. This duplicates Listbox view/positioning behavior and must be maintained beside its upstream semantics.
+`packages/foldkit-ui/src/listbox` now supports explicit trigger or selected/active-item anchoring and sibling item content; `src/listboxSelect` provides the typed adapter used by Themes Select. The existing Foldkit UI `select` helper remains a separate native-select API.
 
 ## Proposed API
 
@@ -28,4 +28,4 @@ Add an explicit Listbox positioning input such as `anchor: 'trigger' | 'selected
 
 ## Multi-child item content
 
-`@foldkit/ui@0.168.0` exposes `itemToConfig(...).content: Html` (`node_modules/@foldkit/ui/dist/listbox/shared.d.ts:351`) and renders that value as the single child `[itemConfig.content]` of each option (`node_modules/@foldkit/ui/dist/listbox/shared.js:623`). This prevents the Select adapter from emitting pinned `ItemIndicator` and `ItemText` as separate option children. Locally, the primitive puts those nodes in one generic span and the theme applies `display: contents`; a future API could widen item content to `Html | ReadonlyArray<Html>` so the Listbox can render siblings directly.
+The local Listbox implementation in `packages/foldkit-ui/src/listbox` accepts sibling HTML for option content, allowing the Select adapter to emit the pinned `ItemIndicator` and `ItemText` as siblings without an extra wrapper. The Themes wrapper retains its `display: contents` content node for exact Radix2Solid markup.

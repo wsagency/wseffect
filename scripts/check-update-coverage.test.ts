@@ -15,12 +15,12 @@ test(
   () => {
     const source = (packageName: string, path: string) =>
       `/repo/packages/${packageName}/src/${path}`
-    assert.equal(isUpdateCoverageSource(source('primitives', 'update/update.ts')), true)
+    assert.equal(isUpdateCoverageSource(source('themes', 'update/update.ts')), true)
     assert.equal(isUpdateCoverageSource(source('foldkit', 'update/update.ts')), false)
     assert.equal(isUpdateCoverageSource(source('foldkit-ui', 'toast/update.ts')), false)
     assert.equal(isUpdateCoverageSource(source('vite-plugin', 'index.ts')), false)
-    assert.equal(isUpdateCoverageSource(source('primitives', 'test/apps/counter.ts')), false)
-    assert.equal(isUpdateCoverageSource(source('primitives', 'update/update.test.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('themes', 'test/apps/counter.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('themes', 'update/update.test.ts')), false)
   },
 )
 

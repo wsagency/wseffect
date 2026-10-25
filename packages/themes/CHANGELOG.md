@@ -41,3 +41,4 @@
 - Remove the themed ContextMenu `toItem` hook; the Foldkit UI Menu view owns its item rendering, and standard Menu updates now emit `ScrollIntoView` after item focus.
 - Make item-aligned Select option IDs index options only, excluding separators; typeahead now targets the same option ID as popper mode.
 - Render DataTable's fixed-height virtual rows from its configured viewport before the initial browser measurement.
+- Render DataTable through Foldkit UI VirtualList's single library-owned scroll viewport and `windowToView`; remove DataTable's local scroll command while retaining row focus behavior.

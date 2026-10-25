@@ -61,7 +61,7 @@ const addRadius = (component: string, selector: string, render: (value: 'none' |
 const sizes9 = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 const colors = ['gray', 'custom'] as const
 const contextMenu = ContextMenu.create<'open'>()
-const contextMenuConfig = { id: 'parity', sourceId: 'parity-source', sourceToken: 'parity-token', longPressMs: 600 as const, items: [], toItem: () => null }
+const contextMenuConfig = { id: 'parity', sourceId: 'parity-source', sourceToken: 'parity-token', longPressMs: 600 as const, items: [] }
 const contextMenuModel = contextMenu.update(contextMenu.init(contextMenuConfig), Menu.Message.Opened({ maybeActiveItemIndex: Option.none() })).model
 // Pinned citations: R2S context-menu.tsx:31-45 and context-menu.props.ts:1-6.
 for (const variant of ['solid', 'soft'] as const) enumRows.push({

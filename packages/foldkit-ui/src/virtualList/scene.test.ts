@@ -104,7 +104,6 @@ const acknowledgeObserver = Scene.Mount.resolve(
           {
             items: demoItems,
             itemToKey: item => String(item.id),
-            itemToView: item => h.td([], [item.label]),
             overscan: 0,
             containerElement: 'div',
             containerRole: null,

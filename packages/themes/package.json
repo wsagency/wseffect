@@ -187,9 +187,6 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --coverage"
   },
-  "dependencies": {
-    "@wsagency/wseffect-primitives": "workspace:*"
-  },
   "peerDependencies": {
     "@wsagency/wseffect-foldkit": "workspace:*",
     "@wsagency/wseffect-foldkit-ui": "workspace:*",

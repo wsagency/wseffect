@@ -6,7 +6,6 @@ This repository contains:
 
 - `@wsagency/wseffect-app` — a Foldkit application foundation for lazy pages, PWA behavior, and deployment-version checks.
 - `@wsagency/wseffect-themes` — Radix Themes foundation styles and typed Foldkit view helpers for the pinned component families.
-- `@wsagency/wseffect-primitives` — local, headless Select, ContextMenu, CheckboxGroup, RangeSlider, TooltipGroup, and SelectPosition primitives.
 - `@wsagency/wseffect-foldkit` — wseffect-owned Foldkit core source, vendored from the reproducible 0.168.0 release.
 - `@wsagency/wseffect-foldkit-ui` — wseffect-owned Foldkit UI source, vendored from the reproducible 0.168.0 release.
 - `@wsagency/wseffect-vite-plugin` — wseffect-owned Foldkit Vite plugin source, vendored from the reproducible 0.27.1 release.

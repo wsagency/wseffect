@@ -1,6 +1,6 @@
 # Proposal: coordinated TooltipGroup skip-delay
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/tooltip/group`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ Each Tooltip has its own configured show delay, but there is no group coordinato
 
 The installed package exports the individual `./tooltip` entry (`apps/gallery/node_modules/@foldkit/ui/package.json:122-125`), with no TooltipGroup export in its package export map. Tooltip's model owns its own `showDelay` and pending-show state (`apps/gallery/node_modules/@foldkit/ui/dist/tooltip/tooltip.d.ts:9-20`); its `InitConfig` configures an individual `showDelay` (`:26-32`). The public API provides no shared group state or skip-delay coordination.
 
-## Local workaround
+## Implemented locally
 
-`packages/primitives/src/tooltip-group.ts:5-14,16-47` defines shared `isSkipping`/expiry-version state, schedules a skip-window command on tooltip open/close, ignores stale expiry messages, and reflects zero or configured open delay. A parent must forward group events and apply the reflected delay to each Tooltip; this recreates coordination outside the upstream Tooltip API.
+`packages/foldkit-ui/src/tooltip/group` now owns the shared `isSkipping`/expiry-version state, schedules the skip window on tooltip open/close, ignores stale expiry messages, and reflects the effective open delay. The Themes Tooltip group wrapper forwards group events and configures the headless Tooltip state.
 
 ## Proposed API
 

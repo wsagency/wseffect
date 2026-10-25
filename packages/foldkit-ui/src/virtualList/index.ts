@@ -1303,19 +1303,11 @@ const DEFAULT_OVERSCAN = 5
 type BaseViewInputs<Item> = Readonly<{
   items: ReadonlyArray<Item>
   itemToKey: (item: Item, index: number) => string
-  itemToView: (item: Item, index: number) => Html
   overscan?: number
   containerElement?: Exclude<TagName, 'textarea'>
   containerRole?: 'list' | 'grid' | null
   rowElement?: Exclude<TagName, 'textarea'>
   rowRole?: 'listitem' | 'row' | null
-  rowToView?: (
-    item: Item,
-    index: number,
-    key: string,
-    rowAttributes: ReadonlyArray<ChildAttribute>,
-    h: HtmlBuilder<Message>,
-  ) => Html
   spacerToView?: (
     edge: 'top' | 'bottom',
     heightPx: number,
@@ -1335,7 +1327,22 @@ type BaseViewInputs<Item> = Readonly<{
   containerClassName?: string
   containerAttributes?: ReadonlyArray<ChildAttribute>
   contentAlignment?: ContentAlignment
-}>
+}> & (
+  | Readonly<{
+      itemToView: (item: Item, index: number) => Html
+      rowToView?: never
+    }>
+  | Readonly<{
+      itemToView?: never
+      rowToView: (
+        item: Item,
+        index: number,
+        key: string,
+        rowAttributes: ReadonlyArray<ChildAttribute>,
+        h: HtmlBuilder<Message>,
+      ) => Html
+    }>
+)
 
 /** Mutually exclusive configuration for fixed, exact variable, or measured
  *  dynamic row heights. */

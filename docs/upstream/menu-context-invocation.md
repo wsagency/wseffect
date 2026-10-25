@@ -1,6 +1,6 @@
 # Proposal: invoke Menu from a context target
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/menu`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ The Menu model represents pointer/keyboard activation of its button, and its sta
 
 The installed Menu's activation trigger is only `Pointer` or `Keyboard`, and its model tracks normal menu state and the last button pointer data (`apps/gallery/node_modules/@foldkit/ui/dist/menu/index.d.ts:10-39`). Its exported API includes `AnchorMenu` and button-centric messages such as `PressedPointerOnButton` (`apps/gallery/node_modules/@foldkit/ui/dist/menu/public.d.ts:1-3`). There is no context invocation or point/source-target API in these declarations. The installed package version is `0.168.0` (`apps/gallery/node_modules/@foldkit/ui/package.json:1-4`).
 
-## Local workaround
+## Implemented locally
 
-`packages/primitives/src/context-menu.ts:20-47,84-115` layers invocation/source-token state and touch long-press expiry over `Menu.Model` and Menu updates. Its source Mount handles contextmenu and touch pointer events (`:132-163`), while its anchor Mount uses a virtual pointer reference or the source element (`:164-197`). This preserves Foldkit Menu selection/navigation but duplicates context invocation, position, and safe source-focus restoration locally.
+`packages/foldkit-ui/src/menu` now layers serializable context invocation/source-token state and touch long-press expiry over Menu updates. Its typed source and anchor Mounts handle context-menu/touch pointer events and virtual-pointer or source-element anchoring; the Themes ContextMenu wrapper retains the themed classes.
 
 ## Proposed API
 

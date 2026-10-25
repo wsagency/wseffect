@@ -168,9 +168,6 @@ importers:
       '@wsagency/wseffect-foldkit-ui':
         specifier: workspace:*
         version: link:../foldkit-ui
-      '@wsagency/wseffect-primitives':
-        specifier: workspace:*
-        version: link:../primitives
       '@wsagency/wseffect-themes':
         specifier: workspace:*
         version: link:../themes
@@ -246,31 +243,6 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(@types/node@24.19.1)(@vitest/coverage-v8@5.0.2)(happy-dom@20.14.5)(vite@8.3.4(@types/node@24.19.1)(terser@5.51.2))
 
-  packages/primitives:
-    dependencies:
-      '@effect/platform-browser':
-        specifier: 4.0.5
-        version: 4.0.5(effect@4.0.5)
-      '@floating-ui/dom':
-        specifier: 1.8.0
-        version: 1.8.0
-      '@wsagency/wseffect-foldkit':
-        specifier: workspace:*
-        version: link:../foldkit
-      '@wsagency/wseffect-foldkit-ui':
-        specifier: workspace:*
-        version: link:../foldkit-ui
-      effect:
-        specifier: 4.0.5
-        version: 4.0.5
-    devDependencies:
-      '@wsagency/wseffect-vite-plugin':
-        specifier: workspace:*
-        version: link:../vite-plugin
-      oxlint:
-        specifier: 1.85.0
-        version: 1.85.0
-
   packages/themes:
     dependencies:
       '@effect/platform-browser':
@@ -282,9 +254,6 @@ importers:
       '@wsagency/wseffect-foldkit-ui':
         specifier: workspace:*
         version: link:../foldkit-ui
-      '@wsagency/wseffect-primitives':
-        specifier: workspace:*
-        version: link:../primitives
       effect:
         specifier: 4.0.5
         version: 4.0.5

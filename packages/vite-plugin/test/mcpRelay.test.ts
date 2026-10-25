@@ -83,6 +83,7 @@ const startMiddlewareModeServer = async (devToolsMcpPort: number) => {
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
+    optimizeDeps: { noDiscovery: true },
     server: { middlewareMode: true },
     plugins: [foldkit({ devToolsMcpPort })],
   })
@@ -215,6 +216,7 @@ const startMiddlewareServer = async (
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
+    optimizeDeps: { noDiscovery: true },
     server: { middlewareMode: true },
     plugins: [...plugins, foldkit(options)],
     ...(mode === undefined ? {} : { mode }),
@@ -233,6 +235,7 @@ const startListeningServer = async (
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
+    optimizeDeps: { noDiscovery: true },
     server: { port: serverPort, strictPort: true, host },
     plugins: [...plugins, foldkit(options)],
   })

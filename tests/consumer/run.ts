@@ -11,12 +11,12 @@ import { discoverPackagePublicSurface } from './discover-public-surface.ts'
 import type { CoverageManifest } from './check-coverage-manifest.ts'
 import { checkEffectCopies } from '../../scripts/check-repo.ts'
 import { checkPackedAppCapabilities } from './check-app-capabilities.ts'
-import { checkPackedSp2Artifacts, checkPrimitiveTreeShaking, disallowedEffectModules } from './check-sp2.ts'
+import { checkPackedSp2Artifacts, checkFoldkitUiTreeShaking, checkNoPrimitivePackageReferences, disallowedEffectModules } from './check-sp2.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(consumerDir, '../..')
-const packageNames = ['app', 'primitives', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin'] as const
+const packageNames = ['app', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin'] as const
 const forbiddenTreeShakingMarkers = ['viewPage', 'ServiceWorker', 'makeApp', 'prefetchOnVisible']
 const passedChecks: string[] = []
 
@@ -153,14 +153,12 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
   const dependencies = {
     ...galleryManifest.dependencies,
     '@wsagency/wseffect-app': `file:${tarballs.app}`,
-    '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
     '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
     '@wsagency/wseffect-foldkit': `file:${tarballs.foldkit}`,
     '@wsagency/wseffect-foldkit-ui': `file:${tarballs['foldkit-ui']}`,
     '@wsagency/wseffect-vite-plugin': `file:${tarballs['vite-plugin']}`,
   }
   delete dependencies['@wsagency/wseffect-app']
-  delete dependencies['@wsagency/wseffect-primitives']
   delete dependencies['@wsagency/wseffect-themes']
   delete dependencies['@wsagency/wseffect-foldkit']
   delete dependencies['@wsagency/wseffect-foldkit-ui']
@@ -175,7 +173,6 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     dependencies: {
       ...dependencies,
       '@wsagency/wseffect-app': `file:${tarballs.app}`,
-      '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
       '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
       '@wsagency/wseffect-foldkit': `file:${tarballs.foldkit}`,
       '@wsagency/wseffect-foldkit-ui': `file:${tarballs['foldkit-ui']}`,
@@ -184,10 +181,6 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     devDependencies,
   }
   await writeFile(resolve(root, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
-  await writeFile(
-    resolve(root, 'pnpm-workspace.yaml'),
-    `overrides:\n  '@wsagency/wseffect-themes>@wsagency/wseffect-primitives': file:${tarballs.primitives}\n`,
-  )
 
   await cp(resolve(repoRoot, 'tsconfig.base.json'), resolve(root, 'tsconfig.base.json'))
   await writeFile(resolve(root, 'tsconfig.json'), `${JSON.stringify({
@@ -259,12 +252,9 @@ async function main(): Promise<void> {
     fail(checkEffectCopies(lockfile))
     const effectDirs = (await readdir(resolve(root, 'node_modules/.pnpm'))).filter((entry) => entry.startsWith('effect@'))
     if (effectDirs.length !== 1) throw new Error(`packed consumer: expected one effect package directory, found ${effectDirs.length}`)
-    const primitiveDirs = (await readdir(resolve(root, 'node_modules/.pnpm')))
-      .filter((entry) => entry.startsWith('@wsagency+wseffect-primitives@'))
-    if (primitiveDirs.length !== 1) {
-      throw new Error(`packed consumer: expected one primitives package directory, found ${primitiveDirs.length}`)
-    }
-    passedChecks.push('single-primitives')
+    const installedPackageDirs = await readdir(resolve(root, 'node_modules/.pnpm'))
+    const installedWseffectPackages = await readdir(resolve(root, 'node_modules/@wsagency'))
+    fail(checkNoPrimitivePackageReferences([...installedPackageDirs, ...installedWseffectPackages, lockfile]))
     passedChecks.push('single-effect')
 
     const packageDistModules: { path: string; source: string }[] = []
@@ -272,6 +262,12 @@ async function main(): Promise<void> {
       const modulePaths = await filesUnder(resolve(root, 'node_modules/@wsagency', `wseffect-${packageName}`, 'dist'), '.js')
       for (const path of modulePaths) packageDistModules.push({ path: relative(root, path), source: await readFile(path, 'utf8') })
     }
+    const packedPackageFiles = (await Promise.all(installedWseffectPackages.map((packageName) =>
+      filesUnder(resolve(root, 'node_modules/@wsagency', packageName), '')))).flat()
+    const packedReferences = await Promise.all(packedPackageFiles.map(async (path) =>
+      `${relative(root, path)}\n${await readFile(path, 'utf8')}`))
+    fail(checkNoPrimitivePackageReferences([...installedPackageDirs, ...installedWseffectPackages, lockfile, ...packedReferences]))
+    passedChecks.push('no-primitives')
     // Foldkit view exports are branded by the Vite transform at app build time.
     const brandedDistModules = packageDistModules.filter(
       ({ path }) => !path.startsWith('node_modules/@wsagency/wseffect-foldkit/'),
@@ -288,7 +284,7 @@ async function main(): Promise<void> {
     passedChecks.push('sp2-packed')
 
     const sp2Bundles = [
-      { entry: 'sp2/primitive.ts', outDir: 'sp2-primitive-out' },
+      { entry: 'sp2/foldkit-ui.ts', outDir: 'sp2-foldkit-ui-out' },
       { entry: 'sp2/box-heading.ts', outDir: 'sp2-box-heading-out' },
     ]
     for (const bundle of sp2Bundles) {
@@ -298,13 +294,13 @@ async function main(): Promise<void> {
         WSEFFECT_SP2_OUT_DIR: bundle.outDir,
       }))
     }
-    const primitiveMaps = await filesUnder(resolve(root, sp2Bundles[0]!.outDir), '.js.map')
-    const primitiveSources = (await Promise.all(primitiveMaps.map(async (path) => {
+    const foldkitUiMaps = await filesUnder(resolve(root, sp2Bundles[0]!.outDir), '.js.map')
+    const foldkitUiSources = (await Promise.all(foldkitUiMaps.map(async (path) => {
       const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
       return map.sources ?? []
     }))).flat()
-    fail(checkPrimitiveTreeShaking(primitiveSources))
-    passedChecks.push('sp2-primitive-tree-shaking')
+    fail(checkFoldkitUiTreeShaking(foldkitUiSources))
+    passedChecks.push('sp2-foldkit-ui-tree-shaking')
 
     const boxHeadingMaps = await filesUnder(resolve(root, sp2Bundles[1]!.outDir), '.js.map')
     const boxHeadingSources = (await Promise.all(boxHeadingMaps.map(async (path) => {
@@ -330,7 +326,6 @@ async function main(): Promise<void> {
 
     const publicSurface = [
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-app'), '@wsagency/wseffect-app'),
-      ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-primitives'), '@wsagency/wseffect-primitives'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-themes'), '@wsagency/wseffect-themes'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-foldkit'), '@wsagency/wseffect-foldkit'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-foldkit-ui'), '@wsagency/wseffect-foldkit-ui'),

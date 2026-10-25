@@ -1,6 +1,6 @@
 # Proposal: composable CheckboxGroup
 
-**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
+**Status:** Implemented locally in `packages/foldkit-ui/src/checkboxGroup`; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
@@ -11,9 +11,9 @@ Foldkit exposes a controlled, single-checkbox view, but no group abstraction tha
 
 The installed package exports `./checkbox` (`apps/gallery/node_modules/@foldkit/ui/package.json:30-33`) but no CheckboxGroup subpath in its export map. The installed Checkbox view accepts one `isChecked` value, one `onToggle` message constructor, and a consumer-provided `toView` (`apps/gallery/node_modules/@foldkit/ui/dist/checkbox/index.d.ts:28-57,62-83`). This is a single control API; composition and group-level selection remain consumer work.
 
-## Local workaround
+## Implemented locally
 
-WSEffect implements a stateless, controlled group at `packages/primitives/src/checkbox-group.ts:3-27`. Its `view` renders a labelled `role="group"`, maps options to checkbox inputs, reads each value from the parent-owned `selected` set, and emits a typed `toggleMessage(value, isChecked)`. It supplies a working group but duplicates composition above Foldkit's individual Checkbox abstraction.
+`packages/foldkit-ui/src/checkboxGroup` now provides a stateless, controlled group that renders a labelled `role="group"`, maps options to checkbox inputs, reads each value from the parent-owned `selected` set, and emits a typed toggle message. The Themes group and cards wrappers compose this headless view while preserving their themed markup.
 
 ## Proposed API
 

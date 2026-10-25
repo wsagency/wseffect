@@ -62,7 +62,7 @@ describe('gallery interactive pages', () => {
       Scene.expect(Scene.selector('[data-perf="data-table-sort"]')).toExist(),
       Scene.expect(Scene.selector('[data-perf="data-table-select"]')).toExist(),
       Scene.click(Scene.selector('[data-perf="data-table-update"]')),
-      simulation => {
+      (simulation: Scene.SceneSimulation<unknown, unknown, unknown>) => {
         const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
         return command === undefined
           ? simulation

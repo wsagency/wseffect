@@ -24,7 +24,6 @@ const createConfig = <ParentMessage>(h: HtmlBuilder<ParentMessage>) => ({
     { value: 'Rename' as const, textValue: 'Rename', isDisabled: false, content: h.span([], ['Rename']) },
     { value: 'Delete' as const, textValue: 'Delete', isDisabled: false, content: h.span([], ['Delete']) },
   ],
-  toItem: (item: 'Open' | 'Rename' | 'Delete') => h.span([], [item]),
 })
 
 export const page = galleryPageContract.definePage({
@@ -32,7 +31,7 @@ export const page = galleryPageContract.definePage({
   init: () => ({ model: {
     menu: Menu.init({
       id: 'Actions', sourceId: 'gallery-context-source', sourceToken: 'gallery-context-token', longPressMs: 600,
-      items: [], toItem: () => null,
+      items: [],
     }),
     selected: Option.none(),
   } }),

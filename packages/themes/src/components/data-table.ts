@@ -598,7 +598,6 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
     viewInputs: {
       items: model.orderedRowIds,
       itemToKey: rowId => rowId,
-      itemToView: () => null,
       itemToRowHeightPx: () => config.rowHeight,
       overscan: config.overscanRows,
       containerElement: 'div',
