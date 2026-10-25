@@ -8,6 +8,7 @@ import type * as CheckboxGroup from '../src/components/checkbox-group.js'
 import type { Bundle as SelectBundle, Config as SelectConfig, SelectModel } from '@wsagency/wseffect-foldkit-ui/listboxSelect'
 import type * as ContextMenu from '../src/components/context-menu.js'
 
+import type { ContextMenuBundle as UiContextMenuBundle } from '@wsagency/wseffect-foldkit-ui/menu'
 interface Item<Value extends string> { value: Value; label: string }
 type Message = { readonly _tag: 'Changed' }
 type Children = ReadonlyArray<Html | string>
@@ -40,11 +41,16 @@ type _UpdateNotAny = Assert<IsAny<PlainUpdate> extends false ? true : false>
 // State and Message are deliberately non-generic on the upstream bundles; only OutMessage binds Value.
 type SelectSurface = SelectBundle<'a'>
 type ContextMenuSurface = ContextMenu.Bundle<'a'>
+type UiContextMenuSurface = UiContextMenuBundle<'a'>
 type IsFunction<T> = T extends (...args: never[]) => unknown ? true : false
 type BundleMethods = 'init' | 'update' | 'view' | 'selectItem' | 'open' | 'close'
 type ContextMenuMethods = 'init' | 'update' | 'view' | 'fold' | 'embed'
 type _SelectBundleMethods = Assert<BundleMethods extends keyof SelectSurface ? true : false>
 type _ContextMenuBundleMethods = Assert<ContextMenuMethods extends keyof ContextMenuSurface ? true : false>
+type _UiContextMenuBundleMethods = Assert<BundleMethods extends keyof UiContextMenuSurface ? true : false>
+type _UiContextMenuSelectItemCallable = Assert<IsFunction<UiContextMenuSurface['selectItem']>>
+type _UiContextMenuOpenCallable = Assert<IsFunction<UiContextMenuSurface['open']>>
+type _UiContextMenuCloseCallable = Assert<IsFunction<UiContextMenuSurface['close']>>
 type _SelectInitCallable = Assert<IsFunction<SelectSurface['init']>>
 type _SelectUpdateCallable = Assert<IsFunction<SelectSurface['update']>>
 type _SelectViewCallable = Assert<IsFunction<SelectSurface['view']>>

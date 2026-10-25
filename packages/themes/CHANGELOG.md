@@ -38,3 +38,5 @@
 - Match open trigger states, HoverCard trigger sizing, AlertDialog dialog text color, default Button accent attributes, and instant Tooltip capture state to the pinned Radix Themes contract.
 - Match the native AlertDialog viewport wrapper and Tooltip Arrow spacing to the pinned overlay geometry.
 - Add optional DataTable selection-column control and Table-style size/variant rendering for shared styling captures.
+- Remove the themed ContextMenu `toItem` hook; the Foldkit UI Menu view owns its item rendering, and standard Menu updates now emit `ScrollIntoView` after item focus.
+- Make item-aligned Select option IDs index options only, excluding separators; typeahead now targets the same option ID as popper mode.
