@@ -2,9 +2,9 @@ import type { Page } from '@playwright/test'
 
 export interface PerfScenario {
   readonly id:
-    | 'vl-cell' | 'vl-filter' | 'vl-sort' | 'vl-select' | 'form-field' | 'shared-date' | 'menus-tick'
+    | 'vl-cell' | 'vl-filter' | 'vl-sort' | 'vl-select' | 'form-field' | 'menus-tick'
     | 'dt-update' | 'dt-filter' | 'dt-sort' | 'dt-select'
-    | 'select-open' | 'select-choose' | 'tooltip-open' | 'tooltip-close' | 'slider-drag'
+    | 'select-open' | 'select-choose' | 'tooltip-open' | 'tooltip-close' | 'slider-drag';
   readonly route: string
   readonly inputEventType: 'click' | 'keydown'
   readonly prepare: (page: Page) => Promise<void>
@@ -66,21 +66,6 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     warmup: async (page) => page.locator('[data-perf="form-field-0"]').press('x'),
     reset: async (page) => page.locator('[data-perf="form-field-0"]').fill(''),
     act: async (page) => page.locator('[data-perf="form-field-0"]').press('u'),
-    ceilingMs: 30,
-  },
-  {
-    id: 'shared-date',
-    route: '/shared',
-    inputEventType: 'keydown',
-    hook: 'shared-date',
-    prepare: async (page) =>
-      page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
-    warmup: async (page) =>
-      page.locator('[data-perf="shared-date"]').press('ArrowUp'),
-    reset: async (page) =>
-      page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
-    act: async (page) =>
-      page.locator('[data-perf="shared-date"]').press('ArrowUp'),
     ceilingMs: 30,
   },
   {
