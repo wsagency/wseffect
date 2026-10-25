@@ -104,14 +104,12 @@ describe('DataTable model', () => {
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
-    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toMatchObject({
-      rowId: 'b',
-      columnIndex: 0,
-      shouldFocus: false,
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'b' } },
     })
   })
 
-  it('filter resets virtual range through the local scroll command', () => {
+  it('filter resets virtual range through VirtualList ApplyScroll', () => {
     const cfg = config()
     const scrolled = DataTable.update(DataTable.init(cfg), cfg, DataTable.Message.VirtualList({
       message: VirtualList.Message.ObservedContainerScroll({
@@ -126,14 +124,8 @@ describe('DataTable model', () => {
       _tag: 'Pending',
       request: { _tag: 'Target', target: { _tag: 'Index', index: 0 } },
     })
-    expect(result.commands?.find(command => command.name === 'ScrollDataTableRow')?.args).toEqual({
-      containerId: `${cfg.id}-virtual-list`,
-      rowIndex: 0,
-      rowHeight: cfg.rowHeight,
-      rowId: 'a',
-      scrollTop: 0,
-      columnIndex: 0,
-      shouldFocus: false,
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Index', index: 0 } },
     })
   })
 

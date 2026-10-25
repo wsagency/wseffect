@@ -96,6 +96,45 @@ const acknowledgeObserver = Scene.Mount.resolve(
   Message.MeasuredRows({ measurements: [] }),
 )
 
+  describe('custom element and window output', () => {
+    it('renders custom keyed table rows and window structure without list semantics', () => {
+      const customView = (model: Model, h: HtmlBuilder<Message>) =>
+        view<DemoItem>()(
+          model,
+          {
+            items: demoItems,
+            itemToKey: item => String(item.id),
+            itemToView: item => h.td([], [item.label]),
+            overscan: 0,
+            containerElement: 'div',
+            containerRole: null,
+            rowElement: 'tr',
+            rowRole: 'row',
+            rowToView: (item, _index, key, attributes, builder) =>
+              builder.keyed('tr')(key, attributes, [builder.td([], [item.label])]),
+            spacerToView: (edge, heightPx, builder) =>
+              builder.keyed('tr')(`spacer-${edge}`, [
+                builder.DataAttribute('virtual-list-spacer', edge),
+              ], [builder.td([builder.Colspan(1), builder.Style({ height: `${heightPx}px` })])]),
+            windowToView: ({ topSpacer, rows, bottomSpacer }, builder) =>
+              builder.table([], [builder.tbody([], [topSpacer, ...rows, bottomSpacer])]),
+          },
+          h,
+        )
+
+      Scene.scene(
+        { update, view: customView },
+        Scene.given(measuredModel),
+        Scene.expect(Scene.selector('div#test')).toExist(),
+        Scene.expect(Scene.selector('div#test[role="list"]')).not.toExist(),
+        Scene.expect(Scene.selector('table tbody tr[data-virtual-list-item-key="0"]')).toExist(),
+        Scene.expect(Scene.selector('tr[data-virtual-list-item-key="0"][role="row"]')).not.toHaveAttr('aria-setsize', '10'),
+        Scene.expectAll(Scene.all.selector('table tbody tr')).toHaveCount(5),
+        acknowledgeObserver,
+      )
+    })
+  })
+
 describe('VirtualList', () => {
   describe('container', () => {
     it('renders as a ul with id and explicit role=list for Safari + VoiceOver compatibility', () => {

@@ -689,32 +689,33 @@ describe('VirtualList', () => {
       expect(scrollTop).toBe(20)
     })
 
-    it('targets its own row when a row contains another VirtualList', async () => {
+    it('targets keyed rows nested in the scroll container', async () => {
       const indexScroll = scrollToIndex(defaultInit(), 1)
       const element = createScrollElement(
         0,
         90,
-        [
-          { index: 0, key: 'outer-0', start: 0, height: 100 },
-          { index: 1, key: 'outer-1', start: 200, height: 30 },
-        ],
+        [],
         500,
         indexScroll.model.pendingScrollVersion,
       )
-      const outerRow = element.firstElementChild
-      if (!(outerRow instanceof HTMLElement)) {
-        throw new Error('Expected an outer row')
+      const rows = document.createElement('div')
+      for (const row of [
+        { index: 0, key: 'outer-0', start: 0, height: 100 },
+        { index: 1, key: 'outer-1', start: 200, height: 30 },
+      ]) {
+        const rowElement = document.createElement('tr')
+        rowElement.setAttribute('data-virtual-list-item-index', String(row.index))
+        rowElement.setAttribute('data-virtual-list-item-key', row.key)
+        Object.defineProperty(rowElement, 'getBoundingClientRect', {
+          value: () => ({
+            top: row.start - element.scrollTop,
+            bottom: row.start + row.height - element.scrollTop,
+            height: row.height,
+          }),
+        })
+        rows.append(rowElement)
       }
-
-      const innerList = document.createElement('ul')
-      const innerRow = document.createElement('li')
-      innerRow.setAttribute('data-virtual-list-item-index', '1')
-      innerRow.setAttribute('data-virtual-list-item-key', 'inner-1')
-      Object.defineProperty(innerRow, 'getBoundingClientRect', {
-        value: () => ({ top: 50, bottom: 80, height: 30 }),
-      })
-      innerList.append(innerRow)
-      outerRow.append(innerList)
+      element.append(rows)
       document.body.append(element)
 
       try {

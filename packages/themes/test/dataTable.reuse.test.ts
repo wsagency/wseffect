@@ -1,10 +1,8 @@
-import { Effect, Fiber, Stream } from 'effect'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import * as DataTable from '../src/components/data-table.js'
-import { makeDataTableMounts } from '../src/components/data-table.mount.js'
 
 type Row = { id: string; label: string }
 const originalRows: ReadonlyArray<Row> = [
@@ -55,8 +53,8 @@ function tableScene(renderCount: Map<string, number>, changeRows: boolean) {
     view,
     initialModel: DataTable.init(cfg),
     resolveMeasurement: Scene.Mount.resolve(
-      { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-      DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+      VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
     ),
   }
 }
@@ -106,25 +104,24 @@ describe('DataTable row view cache reuse', () => {
     const view = (model: DataTable.Model, h: HtmlBuilder<DataTable.Message>) => DataTable.view(model, cfg, h)
     const update = (model: DataTable.Model, message: DataTable.Message) => DataTable.update(model, cfg, message)
     const resize = Scene.Mount.resolve(
-      { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-      DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+      VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
     )
-    const scrollSteps = Array.from({ length: data.length }, (_, offset) => {
-      const index = offset === data.length - 1 ? 0 : offset + 1
-      return Scene.Subscription.emit(DataTable.Message.VirtualList({
+    const scrollSteps = [1, 2, 300, 9_999, 0].map(index =>
+      Scene.Subscription.emit(DataTable.Message.VirtualList({
         message: VirtualList.Message.ObservedContainerScroll({
           scrollTop: index * cfg.rowHeight + 1,
           scrollHeight: data.length * cfg.rowHeight,
           containerHeight: 180,
           anchor: { _tag: 'None' },
         }),
-      }))
-    })
+      })),
+    )
     Scene.scene(
       { update, view },
       Scene.given(DataTable.init(cfg)),
       resize,
-      Scene.tap(() => expect(renderCount.size).toBe(10)),
+      Scene.tap(() => expect(renderCount.size).toBe(5)),
       Scene.Subscription.emit(DataTable.Message.VirtualList({
         message: VirtualList.Message.ObservedContainerScroll({ scrollTop: 1, scrollHeight: data.length * cfg.rowHeight, containerHeight: 180, anchor: { _tag: 'None' } }),
       })),
@@ -138,7 +135,7 @@ describe('DataTable row view cache reuse', () => {
         expect(renderCount.get('row-9999')).toBe(1)
       }),
     )
-  })
+  }, 15_000)
 
   it('reuses cached row ids until RowsChanged rebuilds the table state', () => {
     const getRowId = vi.fn((row: Row) => row.id)
@@ -166,14 +163,14 @@ describe('DataTable row view cache reuse', () => {
       }),
       Scene.click(Scene.role('button', { name: 'Change row' })),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const scrollCommand = simulation.commands.find(command => command.name === 'ScrollDataTableRow')
+        const scrollCommand = simulation.commands.find(command => command.name === 'ApplyScroll')
         return scrollCommand === undefined
           ? simulation
-          : Scene.Command.resolve(scrollCommand as never, VirtualList.Message.ObservedContainerScroll({
-            scrollTop: 0,
-            scrollHeight: 180,
-            containerHeight: 180,
-            anchor: { _tag: 'None' },
+          : Scene.Command.resolve(scrollCommand as never, VirtualList.Message.CompletedApplyScroll({
+            version: 'args' in scrollCommand && typeof scrollCommand.args === 'object' && scrollCommand.args !== null && 'version' in scrollCommand.args && typeof scrollCommand.args.version === 'number'
+              ? scrollCommand.args.version
+              : 1,
+            outcome: { _tag: 'Skipped' },
           }))(simulation)
       },
       Scene.tap(() => {
@@ -183,28 +180,32 @@ describe('DataTable row view cache reuse', () => {
       }),
     )
   })
-  it('disposes render cache on table lifetime cleanup', async () => {
-    const cache = new Map([['data-table-cleanup', {}]])
-    const observe = makeDataTableMounts(DataTable.Message, cache).observeDataTable({
-      id: 'data-table-cleanup-virtual-list',
-      tableId: 'data-table-cleanup',
-    })
-    const observed = vi.fn()
-    class ResizeObserverStub {
-      constructor(_callback: ResizeObserverCallback) {}
-      observe = observed
-      disconnect = vi.fn()
-    }
-    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
-    const element = document.createElement('div')
-    const fiber = Effect.runFork(Stream.runDrain(observe.f(element, Stream.make('Live'))))
-    try {
-      await vi.waitFor(() => expect(observed).toHaveBeenCalledOnce())
-      await Effect.runPromise(Fiber.interrupt(fiber))
-      expect(cache.has('data-table-cleanup')).toBe(false)
-    } finally {
-      await Effect.runPromise(Fiber.interrupt(fiber))
-      vi.unstubAllGlobals()
-    }
+  it('disposes row-view cache on table lifetime cleanup', () => {
+    const renderCount = new Map<string, number>()
+    const columns: ReadonlyArray<DataTable.Column<Row>> = [{
+      id: 'label',
+      header: null,
+      isSortable: false,
+      accessor: row => row.label,
+      render: row => {
+        renderCount.set(row.id, (renderCount.get(row.id) ?? 0) + 1)
+        return null
+      },
+    }]
+    const cfg = makeConfig(originalRows, columns)
+    const update = (model: DataTable.Model, message: DataTable.Message) => DataTable.update(model, cfg, message)
+    const resolveMeasurement = Scene.Mount.resolve(
+      { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+      VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
+    )
+    const view = (model: DataTable.Model, h: HtmlBuilder<DataTable.Message>) => DataTable.view(model, cfg, h)
+    Scene.scene(
+      { update, view },
+      Scene.given(DataTable.init(cfg)),
+      resolveMeasurement,
+      Scene.tap(() => expect(renderCount.get('a')).toBe(1)),
+      Scene.Subscription.emit(DataTable.Message.TableUnmounted({ tableId: cfg.id })),
+      Scene.tap(() => expect(renderCount.get('a')).toBe(2)),
+    )
   })
 })

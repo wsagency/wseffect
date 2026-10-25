@@ -1,70 +1,57 @@
-import { Effect, Queue, Schema, Stream } from 'effect'
+import { Effect, Schema } from 'effect'
 import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import { Command } from '@wsagency/wseffect-foldkit'
 import * as Render from '@wsagency/wseffect-foldkit/render'
-import * as Mount from '@wsagency/wseffect-foldkit/mount'
 import type { Message } from './data-table.js'
 
-export function makeDataTableMounts<State>(message: typeof Message, tableStates: Map<string, State>) {
-  const observeDataTable = Mount.defineStream('ObserveDataTable', {
-    args: { id: Schema.String, tableId: Schema.String },
-    messages: [message],
-    execute: ({ element, tableId, viewStateChanges }) => viewStateChanges.pipe(Stream.switchMap(viewState => {
-      if (viewState !== 'Live' || !(element instanceof HTMLElement)) return Stream.never
-      return Stream.callback(queue => Effect.acquireRelease(Effect.sync(() => {
-        const emitResize = () => Queue.offerUnsafe(queue, message.VirtualList({ message: VirtualList.Message.ResizedContainer({
-          containerWidth: element.clientWidth,
-          containerHeight: element.clientHeight,
-        }) }))
-        const emitScroll = () => Queue.offerUnsafe(queue, message.VirtualList({ message: VirtualList.Message.ObservedContainerScroll({
-          scrollTop: element.scrollTop,
-          scrollHeight: element.scrollHeight,
-          containerHeight: element.clientHeight,
-          anchor: { _tag: 'None' },
-        }) }))
-        const resizeObserver = new ResizeObserver(emitResize)
-        element.addEventListener('scroll', emitScroll, { passive: true })
-        resizeObserver.observe(element)
-        emitResize()
-        return () => {
-          resizeObserver.disconnect()
-          element.removeEventListener('scroll', emitScroll)
-          tableStates.delete(tableId)
-        }
-      }), cleanup => Effect.sync(cleanup)).pipe(Effect.flatMap(() => Effect.never)))
-    })),
-  })
-  const scrollToRow = Command.define('ScrollDataTableRow', {
-    messages: [VirtualList.Message],
-    args: { containerId: Schema.String, rowIndex: Schema.Number, rowHeight: Schema.Number, rowId: Schema.NullOr(Schema.String), scrollTop: Schema.Number, columnIndex: Schema.Number, shouldFocus: Schema.Boolean },
-    execute: ({ containerId, rowIndex, rowHeight, rowId, scrollTop, columnIndex, shouldFocus }) => Effect.gen(function* () {
+export function makeDataTableMounts(message: typeof Message) {
+  const focusDataTableCell = Command.define('FocusDataTableCell', {
+    messages: [message.FocusTargetCompleted],
+    args: {
+      containerId: Schema.String,
+      rowId: Schema.String,
+      columnId: Schema.String,
+      columnIndex: Schema.Number,
+      rowIndex: Schema.Number,
+    },
+    execute: ({ containerId, rowId, columnId, columnIndex, rowIndex }) => Effect.gen(function* () {
       yield* Render.afterCommit
       const container = document.getElementById(containerId)
-      if (!(container instanceof HTMLElement)) return VirtualList.Message.ObservedContainerScroll({
-        scrollTop: 0,
-        scrollHeight: 0,
-        containerHeight: 0,
-        anchor: { _tag: 'None' },
-      })
-      container.scrollTop = scrollTop
-      if (shouldFocus && rowId === null) {
-        container.querySelector<HTMLElement>('[role="grid"]')?.focus()
-      } else if (shouldFocus && rowId !== null) {
-        const row = Array.from(container.querySelectorAll<HTMLTableRowElement>('tr[data-virtual-list-item-key]'))
+      if (!(container instanceof HTMLElement)) return yield* Effect.never
+      const isRoot = rowId === '$grid-root'
+      const row = isRoot
+        ? undefined
+        : Array.from(container.querySelectorAll<HTMLTableRowElement>('tr[data-virtual-list-item-key]'))
           .find(candidate => candidate.dataset.virtualListItemKey === rowId)
-        const cell = row?.cells.item(columnIndex)
-        if (cell?.tabIndex === 0) cell.focus()
+      const cell = row?.cells.item(columnIndex)
+      if (isRoot) {
+        const grid = container.querySelector<HTMLElement>('[role="grid"]')
+        if (grid === null) return yield* Effect.never
+        grid.focus()
+      } else if (cell?.tabIndex === 0) {
+        cell.focus()
+      } else {
+        return yield* Effect.never
       }
-      return VirtualList.Message.ObservedContainerScroll({
+      const anchor = row === undefined
+        ? { _tag: 'None' as const }
+        : {
+            _tag: 'Row' as const,
+            key: rowId,
+            index: rowIndex,
+            viewportOffset: row.getBoundingClientRect().top - container.getBoundingClientRect().top - container.clientTop,
+          }
+      return message.FocusTargetCompleted({
+        rowId,
+        columnId,
         scrollTop: container.scrollTop,
         scrollHeight: container.scrollHeight,
         containerHeight: container.clientHeight,
-        anchor: rowId === null
-          ? { _tag: 'None' }
-          : { _tag: 'Row', key: rowId, index: rowIndex, viewportOffset: rowIndex * rowHeight - scrollTop },
+        anchor,
       })
     }),
   })
+
   const focusHeaderCell = Command.define('FocusDataTableHeaderCell', {
     messages: [VirtualList.Message],
     args: { containerId: Schema.String, columnIndex: Schema.Number },
@@ -86,5 +73,5 @@ export function makeDataTableMounts<State>(message: typeof Message, tableStates:
       })
     }),
   })
-  return { observeDataTable, scrollToRow, focusHeaderCell }
+  return { focusDataTableCell, focusHeaderCell }
 }
