@@ -67,6 +67,9 @@ export const BaseModel = Schema.Struct({
     Schema.Struct({ screenX: Schema.Number, screenY: Schema.Number }),
   ),
   maybeLastButtonPointerType: Schema.Option(Schema.String),
+  anchorMode: Schema.Literals(['Trigger', 'SelectedOrActiveItem']).pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed('Trigger')),
+  ),
 })
 export type BaseModel = typeof BaseModel.Type
 
@@ -76,8 +79,8 @@ export type BaseInitConfig = Readonly<{
   isAnimated?: boolean
   isModal?: boolean
   orientation?: typeof Orientation.Type
+  anchorMode?: typeof BaseModel.Type.anchorMode
 }>
-
 /** Creates the shared base fields for a listbox model from a config. Each variant spreads this and adds its selection field. */
 export const baseInit = (config: BaseInitConfig): BaseModel => ({
   id: config.id,
@@ -92,6 +95,7 @@ export const baseInit = (config: BaseInitConfig): BaseModel => ({
   searchVersion: 0,
   maybeLastPointerPosition: Option.none(),
   maybeLastButtonPointerType: Option.none(),
+  anchorMode: config.anchorMode ?? 'Trigger',
 })
 
 // MESSAGE
@@ -667,7 +671,7 @@ export const PortalListboxBackdrop = Mount.define('PortalListboxBackdrop', {
 /** Configuration for an individual listbox item's appearance. */
 export type ItemConfig = Readonly<{
   className?: string
-  content: Html
+  content: Html | ReadonlyArray<Html>
 }>
 
 /** Configuration for a group heading rendered above a group of items. */
@@ -1149,7 +1153,9 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
               : []),
             ...(itemConfig.className ? [h.Class(itemConfig.className)] : []),
           ],
-          [itemConfig.content],
+          Array.isArray(itemConfig.content)
+            ? itemConfig.content
+            : [itemConfig.content],
         )
       })
 

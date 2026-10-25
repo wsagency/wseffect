@@ -51,6 +51,7 @@ describe('Listbox.Multi', () => {
         animation: Animation.init({ id: 'test-listbox' }),
         maybeActiveItemIndex: Option.none(),
         activationTrigger: 'Keyboard',
+        anchorMode: 'Trigger',
         searchQuery: '',
         searchVersion: 0,
         maybeLastPointerPosition: Option.none(),
