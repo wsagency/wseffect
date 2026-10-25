@@ -35,7 +35,7 @@ const stampIdentity = (target: VNode, identity: string): void => {
  * for an array result each vnode element is stamped with the same identity.
  * Any other value passes through unchanged.
  *
- * `@wsagency/wseffect-vite-plugin` injects a call to this around every function return
+ * `@foldkit/vite-plugin` injects a call to this around every function return
  * in application modules at build time, so identity attaches at view-function
  * boundaries regardless of the branching syntax that selected the function.
  * Application code does not call it by hand.

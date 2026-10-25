@@ -15,7 +15,7 @@ export type BrandDistResult = Readonly<{
 /**
  * Brands every compiled `.js` file under `<packageRoot>/dist` in place by
  * applying {@link transformViewIdentity} to each one, so packages such as
- * `@foldkit/ui` and `@foldkit/devtools` ship dist output whose view functions
+ * `@wsagency/wseffect-foldkit-ui` and `@foldkit/devtools` ship dist output whose view functions
  * carry identities without requiring consumers to run the Vite plugin over
  * `node_modules`.
  *

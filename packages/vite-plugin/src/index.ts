@@ -1185,7 +1185,7 @@ export const foldkit = (options: FoldkitPluginOptions = {}): Array<Plugin> => {
     },
     configEnvironment: () => ({
       optimizeDeps: {
-        exclude: ['@wsagency/wseffect-foldkit'],
+        exclude: ['@wsagency/wseffect-foldkit', '@wsagency/wseffect-foldkit-ui'],
       },
     }),
   }

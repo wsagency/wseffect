@@ -54,7 +54,7 @@ test('SP2 packed upstream provenance and license notices are checked', async () 
 test('SP2 primitive tree-shaking includes only the imported primitive module', () => {
   assert.deepEqual(checkPrimitiveTreeShaking([
     '/consumer/node_modules/@wsagency/wseffect-primitives/dist/checkbox-group.js',
-    '/consumer/node_modules/foldkit/dist/html.js',
+    '/consumer/node_modules/@wsagency/wseffect-foldkit/dist/html.js',
   ]), [])
   assert.deepEqual(checkPrimitiveTreeShaking([
     '/consumer/node_modules/@wsagency/wseffect-primitives/dist/checkbox-group.js',

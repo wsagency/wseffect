@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { renderCaptureView } from '../src/captureView.js'
 
 describe('Gallery capture view runtime', () => {
-  it('renders component captures under one root Theme and its portal host', () => {
+  it('renders component captures under one root Theme and its portal host', async () => {
     document.body.innerHTML = '<div id="target"></div>'
     const target = document.getElementById('target')!
-    renderCaptureView(target, {
+    await renderCaptureView(target, {
       family: 'accessibility',
       route: 'accessibility',
       id: 'accessibility/AccessibleIcon/default/dark',

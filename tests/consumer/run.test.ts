@@ -77,6 +77,7 @@ test('REPO-2 checks every exported view adapter and component factory', () => {
   assert.notDeepEqual(checkBranding(missingBrand('embed')), [])
   assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from \"@wsagency/wseffect-foldkit\"; export const create = () => defineView(() => {})' }]), [])
   assert.deepEqual(checkBranding([{ path: 'dist/components/slider.js', source: `import * as SliderUi from '@wsagency/wseffect-foldkit-ui/slider'; export const view = SliderUi.view` }]), [])
+  assert.deepEqual(checkBranding([{ path: 'dist/public.js', source: "export { view } from './index.js'" }]), [])
 })
 
 test('TEST-7 requires every listed export check to pass', () => {

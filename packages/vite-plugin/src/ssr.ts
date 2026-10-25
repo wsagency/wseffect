@@ -612,7 +612,7 @@ const wrapViteCors = (
     throw new Error(
       '[foldkit] Could not find Vite\u2019s CORS middleware at the expected ' +
         'ownership boundary. This Vite version is not compatible with ' +
-        '@foldkit/vite-plugin.',
+        '@wsagency/wseffect-vite-plugin.',
     )
   }
   const viteCors = corsLayer.handle

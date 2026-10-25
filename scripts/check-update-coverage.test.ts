@@ -3,7 +3,26 @@ import test from 'node:test'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, join } from 'node:path'
-import { findCoverageFiles, findUpdateModules, uncoveredFunctions } from './check-update-coverage.ts'
+import {
+  findCoverageFiles,
+  findUpdateModules,
+  isUpdateCoverageSource,
+  uncoveredFunctions,
+} from './check-update-coverage.ts'
+
+test(
+  'update coverage scans wseffect sources, not vendored Foldkit or test fixtures',
+  () => {
+    const source = (packageName: string, path: string) =>
+      `/repo/packages/${packageName}/src/${path}`
+    assert.equal(isUpdateCoverageSource(source('primitives', 'update/update.ts')), true)
+    assert.equal(isUpdateCoverageSource(source('foldkit', 'update/update.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('foldkit-ui', 'toast/update.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('vite-plugin', 'index.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('primitives', 'test/apps/counter.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('primitives', 'update/update.test.ts')), false)
+  },
+)
 
 test('findUpdateModules selects exported update declarations only', (context) => {
   const directory = mkdtempSync(join(tmpdir(), 'wseffect-update-'))

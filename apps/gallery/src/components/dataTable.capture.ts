@@ -67,7 +67,7 @@ function captureRows(request: CaptureRequest): ReadonlyArray<Row> {
   })
 }
 
-export function renderCapture(root: HTMLElement, request: CaptureRequest): void {
+export async function renderCapture(root: HTMLElement, request: CaptureRequest): Promise<void> {
   const rows = captureRows(request)
   const rowHeight = request.props.rowHeight
   const viewportHeight = request.props.viewportHeight
@@ -79,7 +79,7 @@ export function renderCapture(root: HTMLElement, request: CaptureRequest): void 
   if ((size !== '1' && size !== '2' && size !== '3') || (variant !== 'surface' && variant !== 'ghost')) {
     throw new Error('DataTable capture requires matching Table size and variant props')
   }
-  renderCaptureView(root, request, (h) => {
+  await renderCaptureView(root, request, (h) => {
     const tableBuilder = h as unknown as HtmlBuilder<DataTable.Message>
     const decorations = tableDecorations(tableBuilder)
     const modelInputs = { rows, selectedRowIds: [] as ReadonlyArray<string> }

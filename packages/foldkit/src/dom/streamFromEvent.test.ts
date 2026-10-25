@@ -454,7 +454,7 @@ describe('event type inference', () => {
       })
 
       streamFromEvent({
-        target: indexedDB.open('@wsagency/wseffect-foldkit'),
+        target: indexedDB.open('foldkit'),
         type: 'upgradeneeded',
         mapEvent: event => pressed(String(event.oldVersion)),
       })

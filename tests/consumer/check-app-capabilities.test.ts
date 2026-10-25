@@ -49,7 +49,8 @@ test('export-star declarations build a Foldkit helper fixture against the shared
     await writeFile(join(appRoot, 'dist/serviceWorker.js'), "import { registerSW } from 'virtual:pwa-register'\nexport function registerServiceWorker() { return registerSW() }\n")
     const repoRoot = resolve(import.meta.dirname, '../..')
     await symlink(join(repoRoot, 'apps/gallery/node_modules/effect'), join(root, 'node_modules/effect'), 'dir')
-    await symlink(join(repoRoot, 'apps/gallery/node_modules/foldkit'), join(root, 'node_modules/foldkit'), 'dir')
+    await mkdir(join(root, 'node_modules/@wsagency'), { recursive: true })
+    await symlink(join(repoRoot, 'packages/foldkit'), join(root, 'node_modules/@wsagency/wseffect-foldkit'), 'dir')
     const names = await exportedNamesFromTypes(join(appRoot, 'dist/index.d.ts'))
     assert.deepEqual([...names].sort(), ['Outcome', 'registerServiceWorker', 'signalSubscription'])
 

@@ -1,8 +1,8 @@
 import { Context, Effect, Option } from 'effect'
 
 import {
-  type Document,
-  type Html,
+  Document,
+  Html,
   type HtmlBuilder,
   __clearRuntime as clearHtmlRuntime,
   __htmlBuilder as htmlBuilderFor,
@@ -10,7 +10,7 @@ import {
   __setRuntime as setHtmlRuntime,
 } from '../html/index.js'
 import { MountTracker } from '../mount/index.js'
-import { type VNode, __patchVNode } from '../vdom.js'
+import { VNode, __patchVNode } from '../vdom.js'
 import { Dispatch } from './dispatch.js'
 import { applyDocumentMetadata } from './documentMetadata.js'
 

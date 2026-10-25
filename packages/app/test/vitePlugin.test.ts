@@ -260,7 +260,7 @@ describe('wseffect Vite plugin', () => {
       const sources = (file: string) =>
         (JSON.parse(readFileSync(join(output, 'assets', `${file}.map`), 'utf8')) as { sources: string[] }).sources
       const bootPackages = ['@wsagency/wseffect-foldkit', 'effect', '@effect/platform-browser', 'workbox-window']
-      const bootModule = (source: string) => source.includes('/packages/app/') || bootPackages.some((name) =>
+      const bootModule = (source: string) => source.includes('/packages/app/') || source.includes('/packages/foldkit/') || bootPackages.some((name) =>
         source.includes(`/node_modules/${name}/`) || source.includes(`/node_modules/.pnpm/${name.replace('/', '+')}@`),
       )
       expect(sources(framework).every(bootModule)).toBe(true)

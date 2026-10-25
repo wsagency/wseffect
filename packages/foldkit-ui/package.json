@@ -135,7 +135,8 @@
     "THIRD-PARTY-NOTICES.md"
   ],
   "scripts": {
-    "build": "tsc -b tsconfig.build.json && node scripts/brand-dist.mjs",
+    "clean": "rimraf dist *.tsbuildinfo",
+    "build": "pnpm run clean && tsc -b tsconfig.build.json && node scripts/brand-dist.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
@@ -152,6 +153,7 @@
     "@wsagency/wseffect-vite-plugin": "workspace:*",
     "effect": "4.0.5",
     "happy-dom": "20.14.5",
+    "rimraf": "6.1.3",
     "typescript": "7.0.2",
     "vitest": "5.0.2"
   },

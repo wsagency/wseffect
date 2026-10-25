@@ -1,6 +1,6 @@
 import { Effect, Layer, Option, Predicate, Schema } from 'effect'
 
-import { type Document, type Html, type HtmlBuilder } from '../html/index.js'
+import { Document, Html, type HtmlBuilder } from '../html/index.js'
 import type { ManagedResources } from '../managedResource/index.js'
 import type { Ports } from '../port/index.js'
 import type { Subscriptions } from '../subscription/subscription.js'

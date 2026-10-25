@@ -131,7 +131,7 @@ const recordSearchBoot = Command.define('RecordSearchBoot', {
 })
 
 const searchInit: Return<SearchModel, SearchMessage> = {
-  model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }),
+  model: SearchModel.make({ query: 'foldkit' }),
   commands: [loadSearch()],
 }
 
@@ -145,7 +145,7 @@ const searchInitWithOutMessage: ReturnWithOutMessage<
   SearchMessage,
   SearchOutMessage
 > = {
-  model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }),
+  model: SearchModel.make({ query: 'foldkit' }),
   commands: [loadSearch()],
   outMessage: SearchOutMessage.RequestedSearchNavigation(),
 }
@@ -188,7 +188,7 @@ describe('foldChildInits', () => {
     expectTypeOf(appInit).toEqualTypeOf<Return<AppModel, AppMessage>>()
     expect(factoryCalls.count).toBe(1)
     expect(appInit.model).toEqual({
-      search: { query: '@wsagency/wseffect-foldkit' },
+      search: { query: 'foldkit' },
       editor: { draft: 'Draft' },
       events: [],
     })
@@ -221,7 +221,7 @@ describe('foldChildInits', () => {
   it('maps typed child Messages from literal commandless init results', () => {
     const appInit = foldChildInits(
       {
-        search: { model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }) },
+        search: { model: SearchModel.make({ query: 'foldkit' }) },
         editor: { model: EditorModel.make({ draft: 'Draft' }) },
       },
       {
@@ -655,7 +655,7 @@ describe('foldChildInits', () => {
     ['Editor only', Option.none(), Option.some('document-42'), 1],
     [
       'Search and Editor',
-      Option.some('@wsagency/wseffect-foldkit'),
+      Option.some('foldkit'),
       Option.some('document-42'),
       1,
     ],
@@ -728,7 +728,7 @@ describe('foldChildInits inference', () => {
     SearchOutMessage,
     SearchRequirements
   > = {
-    model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }),
+    model: SearchModel.make({ query: 'foldkit' }),
     commands: [loadSearchWithRequirements],
     outMessage: SearchOutMessage.RequestedSearchNavigation(),
   }
@@ -846,10 +846,10 @@ describe('foldChildInits inference', () => {
       WorkspaceSearchOutMessage,
       SearchRequirements
     > = {
-      model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }),
+      model: SearchModel.make({ query: 'foldkit' }),
       commands: [loadSearchWithRequirements],
       outMessage: WorkspaceSearchOutMessage.RestoredQuery({
-        query: '@wsagency/wseffect-foldkit',
+        query: 'foldkit',
       }),
     }
     const restoredEditorInit: ReturnWithOutMessage<

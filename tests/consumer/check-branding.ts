@@ -2,9 +2,14 @@ export function checkBranding(distModules: ReadonlyArray<{ readonly path: string
   const viewExports: Record<string, true> = { view: true, viewPage: true, embed: true }
   return distModules.flatMap(({ path, source }) => {
     const declarationExportsView = /\bexport\s+(?:const|let|var|function)\s+(?:view|viewPage|embed)\b/.test(source)
-    const listExportsView = [...source.matchAll(/\bexport\s*\{([^}]*)\}/g)].some(([, exports]) =>
-      exports.split(',').some((entry) => viewExports[entry.trim().split(/\s+as\s+/)[0]] === true),
-    )
+    const reExportsView = [...source.matchAll(/\bexport\s*\{([^}]*)\}\s*from\s*(['"])[^'"]+\2/g)]
+      .some(([, exports]) =>
+        exports.split(',').some((entry) => viewExports[entry.trim().split(/\s+as\s+/)[0]] === true),
+      )
+    const listExportsView = !reExportsView
+      && [...source.matchAll(/\bexport\s*\{([^}]*)\}/g)].some(([, exports]) =>
+        exports.split(',').some((entry) => viewExports[entry.trim().split(/\s+as\s+/)[0]] === true),
+      )
     const exportsFactory = /\bexport\s+(?:const|let|var|function)\s+create\b/.test(source)
       && /\b(?:defineView|brandViewResult)\b/.test(source)
     const importsBrand = /\bfrom\s*(['"])@wsagency\/wseffect-foldkit\/brand\1|\bimport\s*(['"])@wsagency\/wseffect-foldkit\/brand\2/.test(source)

@@ -133,7 +133,8 @@ const isFoldkitBuildTokenModule = (id: string): boolean => {
   const fileName = (id.split('?', 1)[0] ?? '').replaceAll('\\', '/')
   return (
     fileName.endsWith('/foldkit/src/buildToken.ts') ||
-    fileName.endsWith('/foldkit/dist/buildToken.js')
+    fileName.endsWith('/packages/foldkit/dist/buildToken.js') ||
+    fileName.endsWith('/@wsagency/wseffect-foldkit/dist/buildToken.js')
   )
 }
 
@@ -198,7 +199,7 @@ const verifyBuildIdentity = (builder: ViteBuilder): void => {
       `${externalized.length === 1 ? 'artifact' : 'artifacts'}, so it can ` +
       'load a framework copy whose hydration build identity was not compiled. ' +
       'Remove Foldkit packages from explicit SSR or Rolldown externalization ' +
-      'settings and let @foldkit/vite-plugin bundle them.',
+      'and let @wsagency/wseffect-vite-plugin bundle them.',
   )
 }
 

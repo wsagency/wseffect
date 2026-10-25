@@ -439,7 +439,7 @@ export type ViewIdentityTransformResult = Readonly<{
 
 /**
  * Brands the return value of every function in a module with that function's
- * identity via `brandViewResult` from `foldkit/brand`.
+ * identity via `brandViewResult` from `@wsagency/wseffect-foldkit/brand`.
  *
  * Identities are `${posixRelativePathFromRoot}#${functionName}`, with the
  * function name taken from, in order: the function's own id (declarations and
@@ -467,8 +467,9 @@ export type ViewIdentityTransformResult = Readonly<{
  * contains that segment is still branded.
  *
  * Skips modules whose parsed program imports or re-exports the
- * `foldkit/brand` specifier: packages such as `@foldkit/ui` and
- * `@foldkit/devtools` brand their dist at package build time, and pnpm
+ * `@wsagency/wseffect-foldkit/brand` specifier: packages such as
+ * `@wsagency/wseffect-foldkit-ui` and `@foldkit/devtools` brand their dist
+ * at package build time, and pnpm
  * symlink realpaths can surface that dist outside `node_modules`, where the
  * module-id checks alone would let a build wrap the same returns twice. A
  * module that merely mentions the specifier in a comment or string is still
@@ -528,8 +529,8 @@ export const transformViewIdentity = (
 
 // RESOLUTION
 
-// NOTE: `requireFromRoot.resolve('foldkit')` cannot produce a path here:
-// foldkit's export map is ESM-only, so resolving it under require conditions
+// NOTE: `requireFromRoot.resolve(FOLDKIT_PACKAGE_NAME)` cannot produce a path:
+// the package's export map is ESM-only, so resolving it under require conditions
 // throws ERR_PACKAGE_PATH_NOT_EXPORTED. Walking the require resolution
 // candidate directories locates the package without touching the export map.
 const resolveFoldkitPackageRoot = (root: string): string | undefined => {
@@ -589,14 +590,15 @@ const isUnderDirectory = (posixPath: string, posixDirectory: string): boolean =>
 /**
  * Vite plugin that applies {@link transformViewIdentity} to application
  * modules in both dev and build. Skips `node_modules`, virtual modules,
- * non-script files, and foldkit core itself, resolved from the config root so
- * that configs aliasing `foldkit` straight into `packages/foldkit/src` are
- * excluded too. `@foldkit/ui` and `@foldkit/devtools` modules are branded on
- * purpose.
+ * non-script files, and Foldkit core itself, resolved from the config root so
+ * that configs aliasing `@wsagency/wseffect-foldkit` straight into the vendored
+ * source are excluded too. `@wsagency/wseffect-foldkit-ui` and
+ * `@foldkit/devtools` modules are branded on purpose.
  *
- * Also pins `foldkit/brand` to the installed package's brand module via a
- * `resolve.alias` entry, so the injected import keeps resolving in configs
- * whose own `foldkit` alias would otherwise swallow the subpath.
+ * Also pins `@wsagency/wseffect-foldkit/brand` to the installed package's brand
+ * module via a `resolve.alias` entry, so the injected import keeps resolving in
+ * configs whose own `@wsagency/wseffect-foldkit` alias would otherwise swallow
+ * the subpath.
  */
 export const foldkitViewIdentity = (): Plugin => {
   let resolvedRoot = process.cwd()

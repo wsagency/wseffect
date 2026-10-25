@@ -7,7 +7,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join } from 'node:path'
 import { type DepOptimizationOptions, createServer, resolveConfig } from 'vite'
 import { describe, expect, it, onTestFinished } from 'vitest'
 
@@ -17,7 +17,6 @@ import {
 } from '../src/devToolsOverlay.ts'
 import { foldkit } from '../src/index.ts'
 
-const COUNTER_ROOT = resolve(import.meta.dirname, '../../../examples/counter')
 const HTML = `<!doctype html>
 <html>
   <head></head>
@@ -59,6 +58,10 @@ const makeRoot = (maybeFixture?: Fixture): string => {
         type: 'module',
         exports: maybeFixture.exports ?? DEV_TOOLS_VITE_EXPORTS,
       }),
+    )
+    writeFileSync(
+      join(packageRoot, 'dist', 'vite.js'),
+      'export const overlay = {}\n',
     )
   }
 
@@ -108,11 +111,29 @@ const transformProductionHtml = async (root: string) => {
 }
 
 const installFoldkit = (root: string): void => {
-  const packageRoot = join(root, 'node_modules', '@wsagency/wseffect-foldkit')
-  mkdirSync(packageRoot, { recursive: true })
+  const packageRoot = join(root, 'node_modules', '@wsagency', 'wseffect-foldkit')
+  const brandPath = join(packageRoot, 'dist', 'brand', 'public.js')
+  const devToolsHostPath = join(packageRoot, 'dist', 'devTools', 'host.js')
+  mkdirSync(dirname(brandPath), { recursive: true })
+  mkdirSync(dirname(devToolsHostPath), { recursive: true })
   writeFileSync(
     join(packageRoot, 'package.json'),
-    JSON.stringify({ name: '@wsagency/wseffect-foldkit', type: 'module' }),
+    JSON.stringify({
+      name: '@wsagency/wseffect-foldkit',
+      type: 'module',
+      exports: {
+        './brand': { import: './dist/brand/public.js' },
+        './devtools-host': { import: './dist/devTools/host.js' },
+      },
+    }),
+  )
+  writeFileSync(
+    brandPath,
+    'export const brandViewResult = value => value\n',
+  )
+  writeFileSync(
+    devToolsHostPath,
+    'export const __setDevToolsOverlay = () => {}\n',
   )
 }
 
@@ -151,33 +172,36 @@ const runConfigHook = (root: string, command: 'serve' | 'build') => {
   )
 }
 
+const FOLDKIT_PACKAGE_NAMES = [
+  '@wsagency/wseffect-foldkit',
+  '@wsagency/wseffect-foldkit-ui',
+] as const
 const isFoldkitPackageSpecifier = (specifier: string): boolean =>
-  specifier === '@wsagency/wseffect-foldkit' || specifier.startsWith('foldkit/')
-
-// NOTE: the counter's own config supplies the workspace aliases that resolve
-// `@foldkit/devtools/vite` to source, and those aliases are what a synthetic
-// config would miss while every example is broken. Its plugins are rebuilt
-// here so the test does not bind the fixed DevTools MCP relay port.
-const createCounterServer = async () => {
-  const config = await resolveConfig(
-    { root: COUNTER_ROOT, logLevel: 'silent' },
-    'serve',
+  Array.some(
+    FOLDKIT_PACKAGE_NAMES,
+    packageName =>
+      specifier === packageName || specifier.startsWith(`${packageName}/`),
   )
 
+// Use synthetic package fixtures instead of upstream examples so this snapshot
+// tests the owned package names without depending on non-vendored demo projects.
+const createDevToolsServer = async () => {
+  const root = makeRoot({ section: 'devDependencies' })
+  installFoldkit(root)
+
   return createServer({
-    root: COUNTER_ROOT,
+    root,
     configFile: false,
     logLevel: 'silent',
     server: { middlewareMode: true },
-    resolve: { alias: config.resolve.alias },
     optimizeDeps: { noDiscovery: true },
-    plugins: [foldkit()],
+    plugins: [foldkit({ devToolsMcpPort: false })],
   })
 }
 
 describe('DevTools overlay injection', () => {
   it('injects the overlay before the application entry during development', async () => {
-    const server = await createCounterServer()
+    const server = await createDevToolsServer()
     onTestFinished(() => server.close().catch(() => undefined))
 
     const transformedHtml = await server.transformIndexHtml('/', HTML)
@@ -190,7 +214,7 @@ describe('DevTools overlay injection', () => {
     const transformedOverlay = await server.transformRequest(OVERLAY_MODULE_ID)
 
     expect(transformedOverlay?.code).toContain('__setDevToolsOverlay')
-    expect(transformedOverlay?.code).toContain('devtools/src/vite')
+    expect(transformedOverlay?.code).toContain('@foldkit_devtools_vite')
   })
 
   it('declares the DevTools Vite entry to the dependency optimizer during development', () => {
@@ -269,6 +293,7 @@ describe('DevTools overlay injection', () => {
     )
 
     expect(clientOptimizerOptions?.exclude).toContain('@wsagency/wseffect-foldkit')
+    expect(clientOptimizerOptions?.exclude).toContain('@wsagency/wseffect-foldkit-ui')
     expect(clientOptimizerOptions?.include).toContain('@foldkit/devtools/vite')
     expect(includedFoldkitSpecifiers).toEqual([])
   })

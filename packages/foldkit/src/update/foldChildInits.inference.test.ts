@@ -79,9 +79,9 @@ const searchInit: ReturnWithOutMessage<
   SearchOutMessage,
   SearchRequirements
 > = {
-  model: SearchModel.make({ query: '@wsagency/wseffect-foldkit' }),
+  model: SearchModel.make({ query: 'foldkit' }),
   commands: [loadSearch],
-  outMessage: SearchOutMessage.RestoredQuery({ query: '@wsagency/wseffect-foldkit' }),
+  outMessage: SearchOutMessage.RestoredQuery({ query: 'foldkit' }),
 }
 
 const editorInit: ReturnWithOutMessage<
@@ -109,7 +109,7 @@ describe('foldChildInits generic mapper inference', () => {
             toParentMessage: toWorkspaceSearchMessage,
             toParentOutMessage: SearchOutMessage.match({
               RestoredQuery: () =>
-                WorkspaceOutMessage.RestoredSearch({ query: '@wsagency/wseffect-foldkit' }),
+                WorkspaceOutMessage.RestoredSearch({ query: 'foldkit' }),
             }),
           },
           editor: {

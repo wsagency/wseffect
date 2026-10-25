@@ -1073,7 +1073,7 @@ export class InvalidHydrationRoot extends Data.TaggedError(
 /** Failure of a hydratable render that has no build id. Hydration
  * compares the id on the served root with the client's own to refuse a page
  * from another deployment, so a render that carries none has no such
- * protection. Build both artifacts together with `@wsagency/wseffect-vite-plugin`, or
+ * protection. Build both artifacts together with `@foldkit/vite-plugin`, or
  * supply the same nonempty `buildId` explicitly when client and server builds
  * are orchestrated separately. A render that nothing will hydrate
  * (`isHydratable: false`) needs none.
@@ -1163,7 +1163,7 @@ export type HydratableRenderOptions = CommonRenderOptions &
      * The deployment this render belongs to, stamped on the root so hydration
      * can refuse a page from a different one before adopting its DOM. Foldkit
      * normally reads the identity compiled into the server artifact by
-     * `@wsagency/wseffect-vite-plugin`. This explicit option is for integrations that
+     * `@foldkit/vite-plugin`. This explicit option is for integrations that
      * cannot compile the shared identity into the artifact. Give the client
      * the same public value.
      */
@@ -1188,7 +1188,7 @@ export type StaticRenderOptions = CommonRenderOptions &
  *  application in one document.
  *
  *  A hydratable render (the default) uses the build identity compiled by
- *  `@wsagency/wseffect-vite-plugin`. Pass `isHydratable: false` for static markup that
+ *  `@foldkit/vite-plugin`. Pass `isHydratable: false` for static markup that
  *  nothing will hydrate, which takes no build id. The explicit `buildId`
  *  option supports integrations that cannot compile the shared identity into
  *  their artifacts.

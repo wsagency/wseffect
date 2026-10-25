@@ -261,7 +261,7 @@ Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.5 pi
 
 ## Server contract
 
-Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.
+Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments. Old tabs may still request lazy page chunks, so keep those deployment asset trees available during the retention window.
 
 | Request path | Required behavior |
 |---|---|

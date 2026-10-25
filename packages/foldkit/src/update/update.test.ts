@@ -1626,8 +1626,10 @@ describe('types', () => {
     expect(outMessageAwareReturn.model).toBe(baseModel)
   })
 
-  it('allows explicitly undefined Commands with optional property semantics', () => {
+  it('rejects explicitly undefined Commands', () => {
     const commands: Commands<TestMessage> | undefined = undefined
+
+    // @ts-expect-error exactOptionalPropertyTypes requires omitting commands or normalizing it.
     const updateReturn: Return<TestModel, TestMessage> = {
       model: baseModel,
       commands,

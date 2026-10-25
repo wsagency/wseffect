@@ -17,7 +17,7 @@ import { FOLDKIT_APP_ATTRIBUTE } from '../hydrationMarker.js'
 import { MountRuntime, MountTracker } from '../mount/index.js'
 import type { CommitNotifier } from '../render/commit.js'
 import {
-  type VNode,
+  VNode,
   __patchVNode,
   __recoverVNodeAfterPatchFailure,
 } from '../vdom.js'

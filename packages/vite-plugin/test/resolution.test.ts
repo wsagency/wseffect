@@ -95,7 +95,7 @@ const foldkitPackage = (path: string, copy: string): Files =>
 
 const uiPackage = (path: string, copy: string): Files =>
   singletonPackage(path, '@wsagency/wseffect-foldkit-ui', copy, {
-    peerDependencies: { foldkit: '*' },
+    peerDependencies: { '@wsagency/wseffect-foldkit': '*' },
   })
 
 const consumerPackage = (
@@ -119,8 +119,8 @@ const relayPackage = (
 })
 
 const markdownPackage = (path: string): Files =>
-  consumerPackage(path, '@foldkit/markdown', '@wsagency/wseffect-foldkit', {
-    peerDependencies: { foldkit: '*' },
+  consumerPackage(path, '@wsagency/wseffect-foldkit-markdown', '@wsagency/wseffect-foldkit', {
+    peerDependencies: { '@wsagency/wseffect-foldkit': '*' },
   })
 
 const appPackage = (
@@ -143,12 +143,12 @@ const entry = (singleton: string, consumer: string): Files => ({
 const NESTED_UI_CONSUMER: Files = {
   ...appPackage({ '@wsagency/wseffect-foldkit-ui': '*', 'ui-consumer': '*' }),
   ...entry('@wsagency/wseffect-foldkit-ui', 'ui-consumer'),
-  ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+  ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
   ...consumerPackage('node_modules/ui-consumer', 'ui-consumer', '@wsagency/wseffect-foldkit-ui', {
     dependencies: { '@wsagency/wseffect-foldkit-ui': '*' },
   }),
   ...uiPackage(
-    'node_modules/ui-consumer/node_modules/@foldkit/ui',
+    'node_modules/ui-consumer/node_modules/@wsagency/wseffect-foldkit-ui',
     'NESTED_COPY',
   ),
 }
@@ -160,43 +160,43 @@ const TRANSITIVE_ONLY_UI: Files = {
     dependencies: { '@wsagency/wseffect-foldkit-ui': '*' },
   }),
   ...uiPackage(
-    'node_modules/ui-consumer/node_modules/@foldkit/ui',
+    'node_modules/ui-consumer/node_modules/@wsagency/wseffect-foldkit-ui',
     'NESTED_COPY',
   ),
 }
 
 const TRANSITIVE_ONLY_UI_WITH_FOLDKIT: Files = {
   ...TRANSITIVE_ONLY_UI,
-  ...appPackage({ foldkit: '*', 'ui-consumer': '*' }),
-  ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
+  ...appPackage({ '@wsagency/wseffect-foldkit': '*', 'ui-consumer': '*' }),
+  ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
 }
 
 const DECLARED_MARKDOWN_PEER: Files = {
   ...appPackage({
-    foldkit: '*',
-    '@foldkit/markdown': '*',
+    '@wsagency/wseffect-foldkit': '*',
+    '@wsagency/wseffect-foldkit-markdown': '*',
     'md-consumer': '*',
   }),
   ...entry('@wsagency/wseffect-foldkit', 'md-consumer'),
-  ...foldkitPackage('node_modules/foldkit', 'ROOT_COPY'),
-  ...markdownPackage('node_modules/@foldkit/markdown'),
+  ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'ROOT_COPY'),
+  ...markdownPackage('node_modules/@wsagency/wseffect-foldkit-markdown'),
   ...relayPackage(
     'node_modules/md-consumer',
     'md-consumer',
-    '@foldkit/markdown',
-    { peerDependencies: { '@foldkit/markdown': '*' } },
+    '@wsagency/wseffect-foldkit-markdown',
+    { peerDependencies: { '@wsagency/wseffect-foldkit-markdown': '*' } },
   ),
 }
 
 const UNDECLARED_MARKDOWN_PEER: Files = {
   ...DECLARED_MARKDOWN_PEER,
-  ...appPackage({ foldkit: '*', 'md-consumer': '*' }),
+  ...appPackage({ '@wsagency/wseffect-foldkit': '*', 'md-consumer': '*' }),
 }
 
 const UI_PEER: Files = {
-  ...appPackage({ foldkit: '*', '@wsagency/wseffect-foldkit-ui': '*', 'ui-peer': '*' }),
-  ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
-  ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+  ...appPackage({ '@wsagency/wseffect-foldkit': '*', '@wsagency/wseffect-foldkit-ui': '*', 'ui-peer': '*' }),
+  ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
+  ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
   ...consumerPackage('node_modules/ui-peer', 'ui-peer', '@wsagency/wseffect-foldkit-ui', {
     peerDependencies: { '@wsagency/wseffect-foldkit-ui': '*' },
   }),
@@ -205,7 +205,7 @@ const UI_PEER: Files = {
 const SERVER_ENTRY = 'entry.server.js'
 
 const SERVER_RENDER_PACKAGES: Files = {
-  ...appPackage({ foldkit: '*', effect: '*' }),
+  ...appPackage({ '@wsagency/wseffect-foldkit': '*', effect: '*' }),
   'node_modules/effect/package.json': JSON.stringify({
     name: 'effect',
     version: '1.0.0',
@@ -214,7 +214,7 @@ const SERVER_RENDER_PACKAGES: Files = {
   }),
   'node_modules/effect/index.js': "export * as Schema from './Schema.js'\n",
   'node_modules/effect/Schema.js': 'export const instance = {}\n',
-  'node_modules/foldkit/package.json': JSON.stringify({
+  'node_modules/@wsagency/wseffect-foldkit/package.json': JSON.stringify({
     name: '@wsagency/wseffect-foldkit',
     version: '1.0.0',
     type: 'module',
@@ -223,12 +223,12 @@ const SERVER_RENDER_PACKAGES: Files = {
       './build-token': './dist/buildToken.js',
     },
   }),
-  'node_modules/foldkit/index.js':
+  'node_modules/@wsagency/wseffect-foldkit/index.js':
     "import { Schema } from 'effect'\n\nexport { injectedBuildId } from './dist/buildToken.js'\nexport const effectSchema = Schema.instance\n",
-  'node_modules/foldkit/dist/buildToken.js':
+  'node_modules/@wsagency/wseffect-foldkit/dist/buildToken.js':
     'const foldkitBuildIdPlaceholder = () => undefined\n\nexport const injectedBuildId = foldkitBuildIdPlaceholder()\n',
   [SERVER_ENTRY]:
-    "export { injectedBuildId } from 'foldkit/build-token'\nexport { effectSchema as foldkitEffectSchema } from 'foldkit'\nexport { instance as applicationEffectSchema } from 'effect/Schema'\n",
+    "export { injectedBuildId } from '@wsagency/wseffect-foldkit/build-token'\nexport { effectSchema as foldkitEffectSchema } from '@wsagency/wseffect-foldkit'\nexport { instance as applicationEffectSchema } from 'effect/Schema'\n",
 }
 
 // BUILDS
@@ -395,7 +395,7 @@ const renderServerEntry = async (
   )
   const clientBuildTokenTransform =
     await server.environments.client.transformRequest(
-      join(root, 'node_modules/foldkit/dist/buildToken.js'),
+      join(root, 'node_modules/@wsagency/wseffect-foldkit/dist/buildToken.js'),
     )
 
   return {
@@ -528,7 +528,7 @@ describe('Foldkit packages in builds', () => {
     const root = await makeRoot({
       ...appPackage({ '@wsagency/wseffect-foldkit-ui': '*', 'ui-consumer': '*' }),
       ...entry('@wsagency/wseffect-foldkit-ui', 'ui-consumer'),
-      ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+      ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
       ...consumerPackage(
         'node_modules/ui-consumer',
         'ui-consumer',
@@ -544,15 +544,15 @@ describe('Foldkit packages in builds', () => {
 
   it('shares one copy in an SSR build with a package that peer-depends on foldkit', async () => {
     const root = await makeRoot({
-      ...appPackage({ foldkit: '*', 'foldkit-peer': '*' }),
+      ...appPackage({ '@wsagency/wseffect-foldkit': '*', 'foldkit-peer': '*' }),
       ...entry('@wsagency/wseffect-foldkit', 'foldkit-peer'),
-      ...foldkitPackage('node_modules/foldkit', 'ROOT_COPY'),
+      ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'ROOT_COPY'),
       ...consumerPackage(
         'node_modules/foldkit-peer',
         'foldkit-peer',
         '@wsagency/wseffect-foldkit',
         {
-          peerDependencies: { foldkit: '*' },
+          peerDependencies: { '@wsagency/wseffect-foldkit': '*' },
         },
       ),
     })
@@ -562,12 +562,12 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer).toBe(output.instance)
   })
 
-  it('shares one copy in an SSR build with a package that peer-depends only on @foldkit/ui', async () => {
+  it('shares one copy in an SSR build with a package that peer-depends only on @wsagency/wseffect-foldkit-ui', async () => {
     const root = await makeRoot({
-      ...appPackage({ foldkit: '*', '@wsagency/wseffect-foldkit-ui': '*', 'ui-peer': '*' }),
+      ...appPackage({ '@wsagency/wseffect-foldkit': '*', '@wsagency/wseffect-foldkit-ui': '*', 'ui-peer': '*' }),
       ...entry('@wsagency/wseffect-foldkit-ui', 'ui-peer'),
-      ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
-      ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+      ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
+      ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
       ...consumerPackage('node_modules/ui-peer', 'ui-peer', '@wsagency/wseffect-foldkit-ui', {
         peerDependencies: { '@wsagency/wseffect-foldkit-ui': '*' },
       }),
@@ -578,7 +578,7 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer).toBe(output.instance)
   })
 
-  it('shares one copy in an SSR build with a package that peer-depends only on @foldkit/markdown', async () => {
+  it('shares one copy in an SSR build with a package that peer-depends only on @wsagency/wseffect-foldkit-markdown', async () => {
     const root = await makeRoot(DECLARED_MARKDOWN_PEER)
 
     const output = await loadBuild(root, 'Ssr')
@@ -586,17 +586,17 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer).toBe(output.instance)
   })
 
-  it('shares one copy in an SSR build with a package that depends only on @foldkit/markdown', async () => {
+  it('shares one copy in an SSR build with a package that depends only on @wsagency/wseffect-foldkit-markdown', async () => {
     const root = await makeRoot({
-      ...appPackage({ foldkit: '*', 'md-consumer': '*' }),
+      ...appPackage({ '@wsagency/wseffect-foldkit': '*', 'md-consumer': '*' }),
       ...entry('@wsagency/wseffect-foldkit', 'md-consumer'),
-      ...foldkitPackage('node_modules/foldkit', 'ROOT_COPY'),
-      ...markdownPackage('node_modules/@foldkit/markdown'),
+      ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'ROOT_COPY'),
+      ...markdownPackage('node_modules/@wsagency/wseffect-foldkit-markdown'),
       ...relayPackage(
         'node_modules/md-consumer',
         'md-consumer',
-        '@foldkit/markdown',
-        { dependencies: { '@foldkit/markdown': '*' } },
+        '@wsagency/wseffect-foldkit-markdown',
+        { dependencies: { '@wsagency/wseffect-foldkit-markdown': '*' } },
       ),
     })
 
@@ -605,22 +605,22 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer).toBe(output.instance)
   })
 
-  it('shares the root foldkit in an SSR build when a dependency on @foldkit/markdown nests its own', async () => {
+  it('shares the root foldkit in an SSR build when a dependency on @wsagency/wseffect-foldkit-markdown nests its own', async () => {
     const root = await makeRoot({
-      ...appPackage({ foldkit: '*', 'md-consumer': '*' }),
+      ...appPackage({ '@wsagency/wseffect-foldkit': '*', 'md-consumer': '*' }),
       ...entry('@wsagency/wseffect-foldkit', 'md-consumer'),
-      ...foldkitPackage('node_modules/foldkit', 'ROOT_COPY'),
+      ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'ROOT_COPY'),
       ...relayPackage(
         'node_modules/md-consumer',
         'md-consumer',
-        '@foldkit/markdown',
-        { dependencies: { '@foldkit/markdown': '*' } },
+        '@wsagency/wseffect-foldkit-markdown',
+        { dependencies: { '@wsagency/wseffect-foldkit-markdown': '*' } },
       ),
       ...markdownPackage(
-        'node_modules/md-consumer/node_modules/@foldkit/markdown',
+        'node_modules/md-consumer/node_modules/@wsagency/wseffect-foldkit-markdown',
       ),
       ...foldkitPackage(
-        'node_modules/md-consumer/node_modules/@foldkit/markdown/node_modules/foldkit',
+        'node_modules/md-consumer/node_modules/@wsagency/wseffect-foldkit-markdown/node_modules/@wsagency/wseffect-foldkit',
         'NESTED_COPY',
       ),
     })
@@ -631,7 +631,7 @@ describe('Foldkit packages in builds', () => {
     expect(output.instance.copy).toBe('ROOT_COPY')
   })
 
-  it('keeps an undeclared @foldkit/markdown peer external in an SSR build', async () => {
+  it('keeps an undeclared @wsagency/wseffect-foldkit-markdown peer external in an SSR build', async () => {
     const root = await makeRoot(UNDECLARED_MARKDOWN_PEER)
 
     const output = await loadBuild(root, 'Ssr')
@@ -643,7 +643,7 @@ describe('Foldkit packages in builds', () => {
     const root = await makeRoot(UNDECLARED_MARKDOWN_PEER)
 
     const output = await loadBuild(root, 'Ssr', {
-      ssr: { noExternal: ['@foldkit/markdown'] },
+      ssr: { noExternal: ['@wsagency/wseffect-foldkit-markdown'] },
     })
 
     expect(output.viaConsumer).toBe(output.instance)
@@ -653,7 +653,7 @@ describe('Foldkit packages in builds', () => {
     const root = await makeRoot(UNDECLARED_MARKDOWN_PEER)
 
     const output = await loadBuild(root, 'Ssr', {
-      resolve: { noExternal: ['@foldkit/markdown'] },
+      resolve: { noExternal: ['@wsagency/wseffect-foldkit-markdown'] },
     })
 
     expect(output.viaConsumer).toBe(output.instance)
@@ -666,7 +666,7 @@ describe('Foldkit packages in builds', () => {
         private: true,
         workspaces: ['app', 'packages/*'],
       }),
-      ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+      ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
       ...consumerPackage(
         'node_modules/ui-consumer',
         'ui-consumer',
@@ -713,7 +713,7 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer).toBe(output.instance)
   })
 
-  it('loads the nested copy in client and SSR builds when @foldkit/ui is installed only under a dependency', async () => {
+  it('loads the nested copy in client and SSR builds when @wsagency/wseffect-foldkit-ui is installed only under a dependency', async () => {
     const root = await makeRoot(TRANSITIVE_ONLY_UI)
 
     const client = await loadBuild(root, 'Client')
@@ -728,8 +728,8 @@ describe('Foldkit packages in builds', () => {
   it('bundles an installed singleton the app does not declare into SSR', async () => {
     const root = await makeRoot({
       ...appPackage({}),
-      'entry.js': "export { instance } from '@foldkit/ui'\n",
-      ...uiPackage('node_modules/@foldkit/ui', 'ROOT_COPY'),
+      'entry.js': "export { instance } from '@wsagency/wseffect-foldkit-ui'\n",
+      ...uiPackage('node_modules/@wsagency/wseffect-foldkit-ui', 'ROOT_COPY'),
     })
 
     const code = await readSsrBuild(root)
@@ -760,17 +760,17 @@ describe('Foldkit packages in builds', () => {
     expect(output.viaConsumer.copy).toBe('NESTED_COPY')
   })
 
-  it('leaves the SSR output unchanged when the crawl finds @foldkit/vite-plugin', async () => {
+  it('leaves the SSR output unchanged when the crawl finds @wsagency/wseffect-vite-plugin', async () => {
     const { withPackages, withoutPackages } = await ssrOutputWithAndWithout(
       {
-        ...appPackage({ foldkit: '*' }, { '@wsagency/wseffect-vite-plugin': '*' }),
-        ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
-        'entry.js': "export { instance } from 'foldkit'\n",
+        ...appPackage({ '@wsagency/wseffect-foldkit': '*' }, { '@wsagency/wseffect-vite-plugin': '*' }),
+        ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
+        'entry.js': "export { instance } from '@wsagency/wseffect-foldkit'\n",
         ...consumerPackage(
-          'node_modules/@foldkit/vite-plugin',
+          'node_modules/@wsagency/wseffect-vite-plugin',
           '@wsagency/wseffect-vite-plugin',
           '@wsagency/wseffect-foldkit',
-          { peerDependencies: { foldkit: '*' } },
+          { peerDependencies: { '@wsagency/wseffect-foldkit': '*' } },
         ),
       },
       ['@wsagency/wseffect-vite-plugin'],
@@ -783,15 +783,15 @@ describe('Foldkit packages in builds', () => {
     const { withPackages, withoutPackages } = await ssrOutputWithAndWithout(
       {
         ...appPackage(
-          { foldkit: '*' },
+          { '@wsagency/wseffect-foldkit': '*' },
           {
             'foldkit-preset': '*',
             'foldkit-lint-config': '*',
             'foldkit-mcp-wrapper': '*',
           },
         ),
-        ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
-        'entry.js': "export { instance } from 'foldkit'\n",
+        ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
+        'entry.js': "export { instance } from '@wsagency/wseffect-foldkit'\n",
         ...relayPackage(
           'node_modules/foldkit-preset',
           'foldkit-preset',
@@ -867,7 +867,7 @@ describe('Foldkit packages in the dev server', () => {
     const serveNoExternal = serveConfig.environments['ssr']?.resolve.noExternal
 
     expect(serveNoExternal).toEqual(
-      expect.arrayContaining(['@foldkit/markdown', 'md-consumer']),
+      expect.arrayContaining(['@wsagency/wseffect-foldkit-markdown', 'md-consumer']),
     )
     expect(serveNoExternal).toEqual(
       buildConfig.environments['ssr']?.resolve.noExternal,
@@ -892,7 +892,12 @@ describe('Foldkit packages in every environment', () => {
     for (const config of [defaultClient, clientWithoutDiscovery]) {
       expect(
         resolvedEnvironment(config, 'client').optimizeDeps.exclude,
-      ).toContain('@wsagency/wseffect-foldkit')
+      ).toEqual(
+        expect.arrayContaining([
+          '@wsagency/wseffect-foldkit',
+          '@wsagency/wseffect-foldkit-ui',
+        ]),
+      )
       expect(effectEntries(config, 'client')).toEqual(FORCED_EFFECT_ENTRIES)
     }
   })
@@ -910,7 +915,12 @@ describe('Foldkit packages in every environment', () => {
 
     expect(
       resolvedEnvironment(config, 'browser_preview').optimizeDeps.exclude,
-    ).toContain('@wsagency/wseffect-foldkit')
+    ).toEqual(
+      expect.arrayContaining([
+        '@wsagency/wseffect-foldkit',
+        '@wsagency/wseffect-foldkit-ui',
+      ]),
+    )
     expect(effectEntries(config, 'browser_preview')).toEqual(
       FORCED_EFFECT_ENTRIES,
     )
@@ -937,8 +947,13 @@ describe('Foldkit packages in every environment', () => {
       'serve',
     )
 
-    expect(resolvedEnvironment(config, 'ssr').optimizeDeps.exclude).toContain(
-      '@wsagency/wseffect-foldkit',
+    expect(
+      resolvedEnvironment(config, 'ssr').optimizeDeps.exclude,
+    ).toEqual(
+      expect.arrayContaining([
+        '@wsagency/wseffect-foldkit',
+        '@wsagency/wseffect-foldkit-ui',
+      ]),
     )
     expect(effectEntries(config, 'ssr')).toEqual(FORCED_EFFECT_ENTRIES)
   })
@@ -982,7 +997,12 @@ describe('Foldkit packages in every environment', () => {
 
     expect(
       resolvedEnvironment(config, 'my_worker').optimizeDeps.exclude,
-    ).toContain('@wsagency/wseffect-foldkit')
+    ).toEqual(
+      expect.arrayContaining([
+        '@wsagency/wseffect-foldkit',
+        '@wsagency/wseffect-foldkit-ui',
+      ]),
+    )
     expect(effectEntries(config, 'my_worker')).toEqual(FORCED_EFFECT_ENTRIES)
   })
 
@@ -1062,14 +1082,18 @@ describe('Foldkit packages in every environment', () => {
     expectClientBuildId(rendered)
     expect(optimizedDependencies).toContain('effect')
     expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit')
-    expect(optimizedDependencies).not.toContain('foldkit/build-token')
+    expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit-ui')
+    expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit/build-token')
   })
 
   it('shares one Effect instance between Foldkit and an application that imports Effect subpaths and keeps excluding foldkit', async () => {
     const rendered = await renderServerEntry('ssr', {
       ssr: {
         resolve: { noExternal: true },
-        optimizeDeps: { ...WORKER_OPTIMIZE_DEPS, exclude: ['@wsagency/wseffect-foldkit'] },
+        optimizeDeps: {
+          ...WORKER_OPTIMIZE_DEPS,
+          exclude: ['@wsagency/wseffect-foldkit', '@wsagency/wseffect-foldkit-ui'],
+        },
       },
     })
 
@@ -1092,7 +1116,8 @@ describe('Foldkit packages in every environment', () => {
     expectClientBuildId(rendered)
     expect(optimizedDependencies).toContain('effect')
     expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit')
-    expect(optimizedDependencies).not.toContain('foldkit/build-token')
+    expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit-ui')
+    expect(optimizedDependencies).not.toContain('@wsagency/wseffect-foldkit/build-token')
   })
 
   it('renders with the client build id in a named server environment that sets no noExternal', async () => {
@@ -1139,9 +1164,9 @@ describe('Foldkit package deduplication', () => {
         'package.json': JSON.stringify({
           name: 'workspace',
           private: true,
-          dependencies: { foldkit: '*' },
+          dependencies: { '@wsagency/wseffect-foldkit': '*' },
         }),
-        ...foldkitPackage('node_modules/foldkit', 'FOLDKIT'),
+        ...foldkitPackage('node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
         'app/package.json': JSON.stringify({
           name: 'app',
           private: true,
@@ -1161,16 +1186,16 @@ describe('Foldkit package deduplication', () => {
 
   it('follows a symlinked root under resolve.preserveSymlinks', async () => {
     const workspace = await makeRoot({
-      ...foldkitPackage('outer/node_modules/foldkit', 'FOLDKIT'),
+      ...foldkitPackage('outer/node_modules/@wsagency/wseffect-foldkit', 'FOLDKIT'),
       ...consumerPackage(
         'outer/node_modules/foldkit-consumer',
         'foldkit-consumer',
         '@wsagency/wseffect-foldkit',
-        { peerDependencies: { foldkit: '*' } },
+        { peerDependencies: { '@wsagency/wseffect-foldkit': '*' } },
       ),
       ...prefixPaths(
         'real/app',
-        appPackage({ foldkit: '*', 'foldkit-consumer': '*' }),
+        appPackage({ '@wsagency/wseffect-foldkit': '*', 'foldkit-consumer': '*' }),
       ),
     })
 

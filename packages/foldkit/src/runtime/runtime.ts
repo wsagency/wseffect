@@ -15,7 +15,7 @@ import {
 import { DialogRuntime } from '../dom/dialogRuntime.js'
 import { releaseDialogResources } from '../dom/dom.js'
 import {
-  type Document,
+  Document,
   type HtmlBuilder,
   __htmlBuilder as htmlBuilderFor,
 } from '../html/index.js'

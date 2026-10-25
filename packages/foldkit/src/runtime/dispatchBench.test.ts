@@ -1,8 +1,7 @@
 import { Effect, Number, Predicate, Schema } from 'effect'
 import { describe, it } from 'vitest'
 
-import { __htmlBuilder, __requireDispatch } from '../html/index.js'
-import type { Document } from '../html/index.js'
+import { Document, __htmlBuilder, __requireDispatch } from '../html/index.js'
 import { defineMessageUnion } from '../message/index.js'
 import { modifyFields } from '../struct/index.js'
 import type * as Update from '../update/index.js'

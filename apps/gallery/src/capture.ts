@@ -1,5 +1,6 @@
 import './capture.css'
 import matrixUrl from '../../../bench/radix2solid/sp2-capture-matrix.json?url'
+import { waitForCaptureView } from './captureView.js'
 
 type CaptureMatrix = {
   readonly fixtures: Readonly<Record<string, ReadonlyArray<Record<string, unknown>>>>
@@ -141,6 +142,7 @@ export async function startCapture(url: URL): Promise<void> {
     target.dataset.sp2Component = request.component
     root.replaceChildren(target)
     await (await loadPage()).renderCapture(target, request)
+    await waitForCaptureView(target)
     if (request.state === 'keyboard-focus' || request.state === 'range-keyboard-focus') {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
       const selector = request.component === 'Slider' ? 'input[type="range"]' : request.component === 'RadioGroup' ? '[role="radio"]' : request.component === 'TabNav' ? 'a[href="#overview"]' : 'button'

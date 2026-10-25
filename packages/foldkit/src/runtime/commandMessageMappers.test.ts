@@ -153,10 +153,7 @@ describe('command message mappers', () => {
     })
     const ChooseDestination = Command.define('ChooseDestination', {
       messages: [ChildMessage.CompletedChooseDestination],
-      execute: Effect.tryPromise({
-        try: () => destinationPromise,
-        catch: error => error,
-      }).pipe(Effect.orDie),
+      execute: Effect.promise(() => destinationPromise).pipe(Effect.orDie),
     })
 
     let middleMapperCalls = 0

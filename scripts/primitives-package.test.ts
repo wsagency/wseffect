@@ -30,9 +30,9 @@ test('package peers and direct dependencies match REPO-1', async () => {
   }
   assert.deepEqual(manifest.peerDependencies, {
     '@effect/platform-browser': '^4.0.5',
-    '@wsagency/wseffect-foldkit-ui': '0.168.0',
+    '@wsagency/wseffect-foldkit': 'workspace:*',
+    '@wsagency/wseffect-foldkit-ui': 'workspace:*',
     effect: '^4.0.5',
-    foldkit: '0.168.0',
   })
   assert.deepEqual(manifest.dependencies, { '@floating-ui/dom': '1.8.0' })
   assert.equal(manifest.sideEffects, false)

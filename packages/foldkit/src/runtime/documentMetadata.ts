@@ -1,6 +1,6 @@
 import { Array } from 'effect'
 
-import { type Document, textDirectionToAttribute } from '../html/index.js'
+import { Document, textDirectionToAttribute } from '../html/index.js'
 
 type OwnedElement =
   | Readonly<{ _tag: 'Created'; element: HTMLElement }>

@@ -25,7 +25,9 @@ export const isFoldkitSingletonPackageSpecifier = (
   )
 
 const isFoldkitPackageName = (name: string): boolean =>
-  name === '@wsagency/wseffect-foldkit' || name.startsWith('@foldkit/')
+  name === '@wsagency/wseffect-foldkit' ||
+  name.startsWith('@wsagency/wseffect-foldkit-') ||
+  name === '@foldkit/devtools'
 
 const decodeDependencyRecord = Schema.decodeUnknownOption(
   Schema.Record(Schema.String, Schema.Unknown),

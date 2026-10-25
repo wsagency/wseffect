@@ -8,7 +8,8 @@
 ## Local divergence
 
 - The package is named `@wsagency/wseffect-foldkit-ui`; upstream subpath exports remain unchanged.
-- Workspace dependency versions/build/test scripts are aligned with wseffect. Internal imports target the local core package; the branding step remains part of the build and imports the local Vite plugin so the task resolves without an upstream npm package. Upstream examples retain upstream specifiers: `foldkit` maps to `@wsagency/wseffect-foldkit`, `@foldkit/ui` to `@wsagency/wseffect-foldkit-ui`, and `@foldkit/vite-plugin` to `@wsagency/wseffect-vite-plugin`.
+- Workspace dependency versions/build/test scripts are aligned with wseffect. Its package-local `tsconfig.base.json` mirrors upstream compiler options, with separate build/test configs; the clean/build scripts preserve upstream's `rimraf`, TypeScript, and branding sequence. The root Oxlint config scopes wseffect-specific rule exemptions to the vendored packages.
+- Internal imports target the local core package; the branding step remains part of the build and imports the local Vite plugin. Upstream examples retain upstream specifiers: `foldkit` maps to `@wsagency/wseffect-foldkit`, `@foldkit/ui` to `@wsagency/wseffect-foldkit-ui`, and `@foldkit/vite-plugin` to `@wsagency/wseffect-vite-plugin`.
 - This file, the provenance README, and the first local changelog entry are maintained by wseffect.
 
 ## Sync procedure

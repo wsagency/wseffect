@@ -184,6 +184,10 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     devDependencies,
   }
   await writeFile(resolve(root, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
+  await writeFile(
+    resolve(root, 'pnpm-workspace.yaml'),
+    `overrides:\n  '@wsagency/wseffect-themes>@wsagency/wseffect-primitives': file:${tarballs.primitives}\n`,
+  )
 
   await cp(resolve(repoRoot, 'tsconfig.base.json'), resolve(root, 'tsconfig.base.json'))
   await writeFile(resolve(root, 'tsconfig.json'), `${JSON.stringify({
@@ -268,7 +272,11 @@ async function main(): Promise<void> {
       const modulePaths = await filesUnder(resolve(root, 'node_modules/@wsagency', `wseffect-${packageName}`, 'dist'), '.js')
       for (const path of modulePaths) packageDistModules.push({ path: relative(root, path), source: await readFile(path, 'utf8') })
     }
-    fail(checkBranding(packageDistModules))
+    // Foldkit view exports are branded by the Vite transform at app build time.
+    const brandedDistModules = packageDistModules.filter(
+      ({ path }) => !path.startsWith('node_modules/@wsagency/wseffect-foldkit/'),
+    )
+    fail(checkBranding(brandedDistModules))
     passedChecks.push('branding')
 
     run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.tree-shaking.config.ts'], root, packedBuildEnvironment())

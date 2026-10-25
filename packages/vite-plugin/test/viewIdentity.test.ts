@@ -239,13 +239,13 @@ describe('eligibility', () => {
     expect(
       transformViewIdentity(
         FUNCTION_SOURCE,
-        '/app/node_modules/foldkit/dist/index.js',
+        '/app/node_modules/@wsagency/wseffect-foldkit/dist/index.js',
         ROOT,
       ),
     ).toBeNull()
   })
 
-  it('does not skip @foldkit/ui modules', () => {
+  it('does not skip @wsagency/wseffect-foldkit-ui modules', () => {
     const result = requireTransform(
       FUNCTION_SOURCE,
       '/app/packages/ui/src/button/button.ts',
@@ -288,14 +288,14 @@ describe('eligibility', () => {
 })
 
 describe('already-branded modules', () => {
-  it('returns null when the module already imports foldkit/brand', () => {
+  it('returns null when the module already imports @wsagency/wseffect-foldkit/brand', () => {
     const brandedSource = `${IMPORT_LINE}
 const view = () => ${ALIAS}((1), "src/View.ts#view")
 `
     expect(transformViewIdentity(brandedSource, MODULE_ID, ROOT)).toBeNull()
   })
 
-  it('recognizes a double-quoted foldkit/brand specifier', () => {
+  it('recognizes a double-quoted @wsagency/wseffect-foldkit/brand specifier', () => {
     const brandedSource = `import { brandViewResult } from "@wsagency/wseffect-foldkit/brand"
 const view = () => brandViewResult(1, "src/View.ts#view")
 `
@@ -307,23 +307,23 @@ const view = () => brandViewResult(1, "src/View.ts#view")
     expect(transformViewIdentity(first.code, MODULE_ID, ROOT)).toBeNull()
   })
 
-  it('skips a module that re-exports foldkit/brand', () => {
+  it('skips a module that re-exports @wsagency/wseffect-foldkit/brand', () => {
     const reexportSource = `export { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 const view = () => 1
 `
     expect(transformViewIdentity(reexportSource, MODULE_ID, ROOT)).toBeNull()
   })
 
-  it('brands a module whose comment mentions foldkit/brand', () => {
-    const result = requireTransform(`// see 'foldkit/brand' for details
+  it('brands a module whose comment mentions @wsagency/wseffect-foldkit/brand', () => {
+    const result = requireTransform(`// see '@wsagency/wseffect-foldkit/brand' for details
 const view = () => 1
 `)
     expect(result.code).toContain(`${ALIAS}((1), "src/View.ts#view")`)
     expect(countOccurrences(result.code, "from '@wsagency/wseffect-foldkit/brand'")).toBe(1)
   })
 
-  it('brands a module whose string literal mentions foldkit/brand', () => {
-    const result = requireTransform(`const specifier = 'foldkit/brand'
+  it('brands a module whose string literal mentions @wsagency/wseffect-foldkit/brand', () => {
+    const result = requireTransform(`const specifier = '@wsagency/wseffect-foldkit/brand'
 const view = () => 1
 `)
     expect(result.code).toContain(`${ALIAS}((1), "src/View.ts#view")`)

@@ -79,10 +79,19 @@ async function findSourceFiles(directory: string): Promise<string[]> {
   return matches
 }
 
+export function isUpdateCoverageSource(path: string): boolean {
+  return path.includes('/src/')
+    && !path.endsWith('.test.ts')
+    && !path.includes('/src/test/')
+    && !path.includes('/packages/foldkit/')
+    && !path.includes('/packages/foldkit-ui/')
+    && !path.includes('/packages/vite-plugin/')
+}
+
 async function main(): Promise<void> {
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const coverageFiles = await findCoverageFiles(root)
-  const sourceFiles = (await findSourceFiles(resolve(root, 'packages'))).filter((path) => path.includes('/src/'))
+  const sourceFiles = (await findSourceFiles(resolve(root, 'packages'))).filter(isUpdateCoverageSource)
   const updateModules = findUpdateModules(sourceFiles)
   const coverage: CoverageMap = {}
   for (const coveragePath of coverageFiles) {
@@ -94,5 +103,4 @@ async function main(): Promise<void> {
     process.exitCode = 1
   }
 }
-
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main()

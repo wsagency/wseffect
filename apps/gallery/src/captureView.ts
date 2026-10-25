@@ -9,7 +9,12 @@ const CaptureMessageSchema = Schema.Struct({ _tag: Schema.String })
 type CaptureMessage = typeof CaptureMessageSchema.Type
 export type CaptureView = (h: HtmlBuilder<CaptureMessage>, request: CaptureRequest) => Html
 
-export function renderCaptureView(root: HTMLElement, request: CaptureRequest, view: CaptureView): void {
+const captureRenderPromises = new WeakMap<HTMLElement, Promise<void>>()
+
+export const waitForCaptureView = (root: HTMLElement): Promise<void> =>
+  captureRenderPromises.get(root) ?? Promise.resolve()
+
+export function renderCaptureView(root: HTMLElement, request: CaptureRequest, view: CaptureView): Promise<void> {
   root.classList.add('sp2-capture')
   root.dataset.sp2CaptureFamily = request.family
   const settings = {
@@ -24,6 +29,23 @@ export function renderCaptureView(root: HTMLElement, request: CaptureRequest, vi
   const runtimeHost = document.createElement('div')
   runtimeHost.id = 'sp2-capture-runtime'
   root.append(runtimeHost)
+
+  const rendered = new Promise<void>((resolve, reject) => {
+    const observer = new MutationObserver(() => {
+      if (root.querySelector('[data-is-root-theme="true"]')) {
+        observer.disconnect()
+        clearTimeout(timeout)
+        resolve()
+      }
+    })
+    const timeout = setTimeout(() => {
+      observer.disconnect()
+      reject(new Error('Capture runtime did not render its root Theme'))
+    }, 5000)
+    observer.observe(root, { childList: true, subtree: true })
+  })
+  captureRenderPromises.set(root, rendered)
+
   run(makeElement({
     Model: CaptureModel,
     init: () => ({ model: {} }),
@@ -36,4 +58,5 @@ export function renderCaptureView(root: HTMLElement, request: CaptureRequest, vi
     ], h),
     container: runtimeHost,
   }))
+  return rendered
 }
