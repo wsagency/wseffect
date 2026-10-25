@@ -840,7 +840,7 @@ export const ContextSourceEvents = (
   sourceId: string,
   sourceToken: string,
 ): Mount.MountAction<Message> => ({
-  name: 'ContextSourceEvents',
+  name: 'ContextMenuSourceEvents',
   f: element =>
     Stream.callback<Message>(queue =>
       Effect.gen(function* () {
@@ -953,7 +953,7 @@ export const contextTriggerAttributes = (
 ): ReadonlyArray<Attribute<Message>> => [
   h.Id(sourceId),
   h.Attribute('data-context-source-token', sourceToken),
-  h.Tabindex(0),
+  h.Attribute('tabindex', '0'),
   h.OnKeyDownSelfPreventDefault((key, modifiers) =>
     key === 'ContextMenu' || (key === 'F10' && modifiers.shiftKey)
       ? Option.some(

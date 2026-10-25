@@ -57,3 +57,14 @@ export type {
 } from './index.js'
 
 export type { AnchorConfig } from '../anchor/index.js'
+export { createContextMenu } from './context.js'
+
+export type {
+  ContextMenuBundle,
+  ContextMenuClasses,
+  ContextMenuConfig,
+  ContextMenuEntry,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSeparator,
+} from './context.js'

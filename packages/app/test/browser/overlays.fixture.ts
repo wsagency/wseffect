@@ -12,7 +12,7 @@ import * as Theme from '@wsagency/wseffect-themes/components/theme'
 const Menu = ContextMenu.create<'inspect'>()
 const menuConfig: ContextMenu.Config<'inspect'> = {
   id: 'overlay-context-menu', sourceId: 'overlay-context-menu-source', sourceToken: 'overlay-context-menu-token', longPressMs: 600,
-  items: [{ value: 'inspect', textValue: 'Inspect', isDisabled: false, content: null }], toItem: () => null,
+  items: [{ value: 'inspect', textValue: 'Inspect', isDisabled: false, content: null }],
 }
 const Model = Schema.Struct({ popover: Popover.Model, tooltip: Tooltip.Model, hoverCard: HoverCard.Model, contextMenu: ContextMenu.Model, alertDialog: AlertDialog.Model })
 const Message = defineMessageUnion({

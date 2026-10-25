@@ -7,7 +7,7 @@ import { defineView } from '@wsagency/wseffect-foldkit/submodel'
 import * as UiTooltip from '@wsagency/wseffect-foldkit-ui/tooltip'
 import type { AnchorConfig } from '@wsagency/wseffect-foldkit-ui/anchor'
 import type { RenderInfo, ViewInputs as UiViewInputs } from '@wsagency/wseffect-foldkit-ui/tooltip'
-import * as TooltipGroupPrimitive from '@wsagency/wseffect-primitives/tooltip-group'
+import * as TooltipGroup from '@wsagency/wseffect-foldkit-ui/tooltip/group'
 
 export { Model, Message, OutMessage, update, triggerId } from '@wsagency/wseffect-foldkit-ui/tooltip'
 export const init = UiTooltip.init
@@ -85,12 +85,12 @@ const view = defineView<UiTooltip.Model, UiTooltip.Message, ViewInputs<UiTooltip
   return brandViewResult(UiTooltip.view(model, viewInputs, h), 'wseffect/Tooltip')
 })
 
-export const reflectShowDelay = (model: UiTooltip.Model, group: TooltipGroupPrimitive.Model): UiTooltip.Model =>
-  UiTooltip.reflectShowDelay(model, Duration.millis(TooltipGroupPrimitive.reflectShowDelay(group)))
+export const reflectShowDelay = (model: UiTooltip.Model, group: TooltipGroup.Model): UiTooltip.Model =>
+  UiTooltip.reflectShowDelay(model, Duration.millis(TooltipGroup.reflectShowDelay(group)))
 
 export const fold = <ParentModel, ParentMessage, ParentOutMessage>(
   config: Omit<Update.ChildFoldWithDerivedParentOutMessage<ParentModel, ParentMessage, UiTooltip.Model, UiTooltip.Message, UiTooltip.Message, UiTooltip.OutMessage, ParentOutMessage>, 'update'> & Readonly<{
-    readGroup?: (parentModel: ParentModel) => TooltipGroupPrimitive.Model
+    readGroup?: (parentModel: ParentModel) => TooltipGroup.Model
   }>,
 ): Update.FoldWithOutMessage<ParentModel, ParentMessage, UiTooltip.Message, ParentOutMessage> => {
   const { readGroup, ...foldConfig } = config

@@ -4,7 +4,7 @@ import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
-import * as TooltipGroup from '@wsagency/wseffect-primitives/tooltip-group'
+import * as TooltipGroup from '@wsagency/wseffect-foldkit-ui/tooltip/group'
 import * as UiTooltip from '@wsagency/wseffect-foldkit-ui/tooltip'
 import * as Tooltip from '../src/components/tooltip.js'
 
@@ -29,10 +29,11 @@ const foldTooltip = (
   readGroup,
   foldOutMessage: outMessage => model => ({
     model: outMessage._tag === 'Shown' || outMessage._tag === 'Hidden'
-      ? { ...model, group: TooltipGroup.update(model.group, {
-        _tag: outMessage._tag === 'Shown' ? 'TooltipOpened' : 'TooltipClosed',
-        now: 700,
-      }).model }
+      ? { ...model, group: TooltipGroup.update(model.group,
+        outMessage._tag === 'Shown'
+          ? TooltipGroup.Message.TooltipOpened({ now: 700 })
+          : TooltipGroup.Message.TooltipClosed({ now: 700 }),
+      ).model }
       : model,
   }),
 })

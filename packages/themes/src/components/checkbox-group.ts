@@ -39,7 +39,6 @@ export const view = <Value extends string, Message>(props: Props & {
     toggleMessage: props.toggleMessage,
     toView: ({ rootAttributes, options }) => h.div([
       ...rootAttributes,
-      ...(props.ariaLabel === undefined ? [] : [h.AriaLabel(props.ariaLabel)]),
       h.Class('rt-CheckboxGroupRoot'),
     ], [
       ...(props.label === undefined ? [] : [h.span([h.Id(`${props.id}-label`)], [props.label])]),

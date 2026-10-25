@@ -39,10 +39,10 @@ export const view = <Value extends string, Message>(
   const labelAttributes: ReadonlyArray<ChildAttribute> = childAttributes([
     h.Id(`${props.id}-label`),
   ])
-  const options = props.options.map(option => {
+  const options = props.options.map((option, index) => {
     let checkbox: Checkbox.CheckboxAttributes<Message> | undefined
     Checkbox.view({
-      id: `${props.id}-${option.value}`,
+      id: `${props.id}-option-${index}`,
       isChecked: props.selected.has(option.value),
       isDisabled: props.isDisabled === true || option.isDisabled === true,
       onToggle: isChecked => props.toggleMessage(option.value, isChecked),

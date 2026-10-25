@@ -3,8 +3,7 @@ import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Update from '@wsagency/wseffect-foldkit/update'
 import { defineView } from '@wsagency/wseffect-foldkit/submodel'
-import * as LocalContextMenu from '@wsagency/wseffect-primitives/context-menu'
-import type { ContextMenuConfig, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator } from '@wsagency/wseffect-primitives/context-menu'
+import type { ContextMenuConfig, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator } from '@wsagency/wseffect-foldkit-ui/menu'
 
 import { Schema } from 'effect'
 import { accentColors } from '../props/color.props.js'
@@ -36,12 +35,12 @@ const themedClasses = (config: Config<string>): NonNullable<ContextMenuConfig<st
 }
 
 
-export const Model = LocalContextMenu.ContextMenuModelSchema
-export type Model = LocalContextMenu.ContextMenuModel
-export const Message = LocalContextMenu.ContextMenuMessageSchema
+export const Model = UiMenu.Model
+export type Model = UiMenu.Model
+export const Message = UiMenu.Message
 export const OutMessage = UiMenu.OutMessage
-export type Message = LocalContextMenu.ContextMenuMessage
-export type OutMessage<Value extends string> = LocalContextMenu.ContextMenuOutMessage<Value>
+export type Message = UiMenu.Message
+export type OutMessage<Value extends string> = UiMenu.OutMessage<Value>
 export type Config<Value extends string> = Omit<ContextMenuConfig<Value>, 'classes' | 'color'> & Props
 export type Item<Value extends string> = ContextMenuItem<Value>
 export type Group<Value extends string> = ContextMenuGroup<Value>
@@ -68,7 +67,7 @@ export type EmbedConfig<Value extends string, ParentMessage> = Readonly<{
 }>
 
 export const create = <Value extends string>(): Bundle<Value> => {
-  const contextMenu = LocalContextMenu.createContextMenu<Value>()
+  const contextMenu = UiMenu.createContextMenu<Value>()
   const view = defineView<Model, Message, Config<Value>>((model, config, h) =>
     brandViewResult(contextMenu.view(model, { ...config, color: config.color ?? defaults.accentColor, classes: themedClasses(config) }, h), 'wseffect/ContextMenu')
   )

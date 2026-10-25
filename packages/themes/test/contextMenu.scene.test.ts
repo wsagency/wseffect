@@ -12,13 +12,12 @@ const config: ContextMenu.Config<'edit' | 'delete'> = {
     { kind: 'separator', id: 'main-separator' },
     { id: 'more-actions', label: null, items: [{ value: 'delete', textValue: 'Delete', isDisabled: false, content: null }] },
   ],
-  toItem: () => null,
 }
 const selectedEdit: ContextMenu.OutMessage<'edit' | 'delete'> = { _tag: 'Selected', value: 'edit', index: 0 }
-const focusReturnCommand = contextMenu.update({
-  ...contextMenu.init(config),
-  invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' },
-}, Menu.Message.Closed()).commands?.[0]
+const focusReturnCommand = contextMenu.update(contextMenu.update(
+  contextMenu.init(config),
+  Menu.Message.OpenedAt({ invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' } }),
+).model, Menu.Message.Closed()).commands?.[0]
 if (focusReturnCommand === undefined) throw new Error('ContextMenu close must restore focus to the invocation source')
 const update = (model: ContextMenu.Model, message: ContextMenu.Message) => contextMenu.update(model, message)
 const view = (model: ContextMenu.Model, h: HtmlBuilder<ContextMenu.Message>) => contextMenu.view(model, config, h)
@@ -36,6 +35,7 @@ describe('themed ContextMenu', () => {
       Scene.expect(Scene.selector('#source')).toHaveAttr('tabindex', '0'),
       Scene.expect(Scene.selector('#actions-item-0')).toHaveAttr('role', 'menuitem'),
       Scene.focus(Scene.selector('#actions-item-0')),
+      Scene.Command.resolve(Menu.ScrollIntoView, Menu.Message.CompletedScrollIntoView()),
       Scene.keydown(Scene.selector('#actions-item-0'), 'Enter'),
       Scene.expectOutMessage(selectedEdit),
       Scene.Command.resolve(focusReturnCommand, Menu.Message.CompletedFocusButton()),
@@ -53,7 +53,7 @@ describe('themed ContextMenu', () => {
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
       Scene.expect(Scene.role('menu')).toHaveAttr('class', 'rt-PopperContent rt-BaseMenuContent rt-ContextMenuContent rt-r-size-2 rt-variant-solid'),
       Scene.expect(Scene.role('menu')).toHaveAttr('data-accent-color', 'indigo'),
-      Scene.expect(Scene.selector('.rt-BaseMenuItem')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
+      Scene.expect(Scene.selector('#actions-item-0')).toHaveAttr('class', 'rt-reset rt-BaseMenuItem rt-ContextMenuItem'),
       Scene.expect(Scene.selector('.rt-BaseMenuGroup')).toHaveAttr('class', 'rt-BaseMenuGroup rt-ContextMenuGroup'),
       Scene.expect(Scene.selector('.rt-BaseMenuSeparator')).toHaveAttr('class', 'rt-BaseMenuSeparator rt-ContextMenuSeparator'),
       Scene.expect(Scene.selector('.rt-BaseMenuLabel')).toHaveAttr('class', 'rt-BaseMenuLabel rt-ContextMenuLabel'),
@@ -86,6 +86,7 @@ describe('themed ContextMenu', () => {
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
       Scene.expect(Scene.role('menu')).toExist(),
       Scene.focus(Scene.selector('#actions-item-0')),
+      Scene.Command.resolve(Menu.ScrollIntoView, Menu.Message.CompletedScrollIntoView()),
       Scene.keydown(Scene.selector('#actions-item-0'), ' '),
       Scene.expectOutMessage(selectedEdit),
       Scene.Command.resolve(focusReturnCommand, Menu.Message.CompletedFocusButton()),
