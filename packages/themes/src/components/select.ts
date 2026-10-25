@@ -131,7 +131,7 @@ export const create = <Value extends string>(): Bundle<Value> => {
     ])
     const result = adapter.view(model, { ...config, appearance: { ...appearance, triggerContent } }, h)
     return brandViewResult(
-      config.position === 'popper' ? addPopperScrollArea(result, config.id, h) : result,
+      addPopperScrollArea(result, config.id, h),
       'wseffect/Select',
     )
   }
