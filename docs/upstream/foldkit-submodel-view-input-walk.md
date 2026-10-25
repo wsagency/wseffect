@@ -1,6 +1,6 @@
-# Draft: avoid repeated deep validation of large `h.submodel` inputs
+# Implemented locally: avoid repeated deep validation of large `h.submodel` inputs
 
-**Status:** local issue / PR draft only; not submitted upstream.
+**Status:** implemented in `000602b` and `b1678da`; the fixed-height item-key update in `f82b085`. Candidate upstream PRs have not been submitted.
 **Affected package:** `foldkit@0.168.0` (`apps/gallery/package.json`).
 
 ## Title
