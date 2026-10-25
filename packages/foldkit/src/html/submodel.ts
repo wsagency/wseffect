@@ -196,8 +196,8 @@ const isPlainObject = (
 ): value is Readonly<Record<string, unknown>> =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
 
-// View inputs are immutable by convention. Successfully validated object and
-// array identities can therefore be skipped on later renders.
+// Only deeply validated containers belong here. Top-level viewInputs may
+// legally contain functions, so it must never be treated as deep-validated.
 const validatedViewInputs = new WeakSet<object>()
 
 /** Walks below the top level of `viewInputs` and throws if it finds a
@@ -206,7 +206,6 @@ const validatedViewInputs = new WeakSet<object>()
 const assertNoNestedFunctions = (
   viewInputs: Readonly<Record<string, unknown>>,
 ): void => {
-  if (validatedViewInputs.has(viewInputs)) return
   for (const key in viewInputs) {
     if (!Object.hasOwn(viewInputs, key)) continue
     const value = viewInputs[key]
@@ -222,7 +221,7 @@ const assertNoNestedFunctions = (
       }
     }
   }
-  validatedViewInputs.add(viewInputs)
+  // Do not cache `viewInputs`: direct function values are legal here.
 }
 
 // Framework-branded values that legitimately carry function members
@@ -271,6 +270,7 @@ const walkValue = (value: unknown, segment: string | number): void => {
 const walkForFunctions = (
   source: Readonly<Record<string, unknown>> | ReadonlyArray<unknown>,
 ): void => {
+  // Only cache after every descendant has been checked successfully.
   if (validatedViewInputs.has(source)) return
   if (Array.isArray(source)) {
     for (let index = 0; index < source.length; index++) {

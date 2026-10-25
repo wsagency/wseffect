@@ -1122,6 +1122,80 @@ describe('h.submodel', () => {
       }),
     ).toThrow(/viewInputs\.items\.\[0\]\.onSelect/)
   })
+  it('rejects top-level callbacks when their container is reused below the top level', () => {
+    const callbacks = { onClick: () => undefined }
+    const view = defineView<object, ChildMessage, Record<string, unknown>>(
+      (_model, _viewInputs) => h('div'),
+    )
+    const config = (slotId: string, viewInputs: Record<string, unknown>) => ({
+      slotId,
+      model: {},
+      view,
+      viewInputs,
+      toParentMessage: (message: ChildMessage) => GotChild({ entryId: slotId, message }),
+    })
+
+    submodel(config('top-level-callback', callbacks))
+
+    expect(() => submodel(config('nested-callback', { nested: callbacks }))).toThrow(
+      'Foldkit: h.submodel `viewInputs` may only contain functions at the top level. Found a function at `viewInputs.nested.onClick`. Lift it to the top level of `viewInputs` so it can be auto-scoped to the parent boundary, or pass the value as primitive data.',
+    )
+  })
+
+  it('rejects callbacks in an array root reused as a nested value', () => {
+    const arrayRoot = [{ onClick: () => undefined }]
+    const view = defineView<object, ChildMessage, Record<string, unknown>>(
+      (_model, _viewInputs) => h('div'),
+    )
+    const config = (slotId: string, viewInputs: Record<string, unknown>) => ({
+      slotId,
+      model: {},
+      view,
+      viewInputs,
+      toParentMessage: (message: ChildMessage) => GotChild({ entryId: slotId, message }),
+    })
+
+    submodel(config('array-root', arrayRoot as unknown as Record<string, unknown>))
+
+    expect(() => submodel(config('nested-array-root', { nested: arrayRoot }))).toThrow(
+      /viewInputs\.nested\.\[0\]\.onClick/,
+    )
+  })
+  it('does not cache a container whose validation walk throws', () => {
+    const invalid = { onClick: () => undefined }
+    const view = defineView<object, ChildMessage, Record<string, unknown>>(
+      (_model, _viewInputs) => h('div'),
+    )
+    const config = (slotId: string) => ({
+      slotId,
+      model: {},
+      view,
+      viewInputs: { nested: invalid },
+      toParentMessage: (message: ChildMessage) => GotChild({ entryId: slotId, message }),
+    })
+
+    expect(() => submodel(config('invalid-first'))).toThrow(/viewInputs\.nested\.onClick/)
+    expect(() => submodel(config('invalid-second'))).toThrow(/viewInputs\.nested\.onClick/)
+  })
+  it('treats framework-branded values as leaves', () => {
+    const branded = {
+      __childAttribute: true,
+      dispatch: () => undefined,
+    }
+    const view = defineView<object, ChildMessage, Record<string, unknown>>(
+      (_model, _viewInputs) => h('div'),
+    )
+
+    expect(() =>
+      submodel({
+        slotId: 'branded-leaf',
+        model: {},
+        view,
+        viewInputs: { branded },
+        toParentMessage: message => GotChild({ entryId: 'branded-leaf', message }),
+      }),
+    ).not.toThrow()
+  })
   it('does not re-walk nested input objects after validating their identity', () => {
     let reads = 0
     const nested = Object.defineProperty({}, 'value', {
