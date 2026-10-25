@@ -1,11 +1,11 @@
 {
-  "measuredAt": "2026-10-25T17:26:32.178Z",
+  "measuredAt": "2026-10-25T18:33:27.876Z",
   "node": "v24.21.0",
   "chromium": "156.0.8078.4",
   "loadavgAtStart": [
-    9.04,
-    9.81,
-    7.68
+    3.72,
+    3.92,
+    4.54
   ],
   "rates": {
     "1": {
@@ -13,104 +13,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 2.611,
+            "scriptMs": 3.346,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.399,
+            "scriptMs": 3.118,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.318,
+            "scriptMs": 3.637,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.321,
+            "scriptMs": 3.001,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.898,
+            "scriptMs": 2.909,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.333,
+            "scriptMs": 3.161,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.887,
+            "scriptMs": 3.478,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.728,
+            "scriptMs": 3.139,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.53,
+            "scriptMs": 3.1,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.217,
+            "scriptMs": 3.719,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 2.383,
+            "scriptMs": 3.215,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.252,
+            "scriptMs": 3.116,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.967,
+            "scriptMs": 2.874,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.03,
+            "scriptMs": 3.186,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.773,
+            "scriptMs": 2.892,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.065,
+            "scriptMs": 2.897,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.39,
+            "scriptMs": 3.174,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.062,
+            "scriptMs": 2.959,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.424,
+            "scriptMs": 2.9,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.093,
+            "scriptMs": 3.499,
             "animationFrames": 1
           }
         ],
@@ -119,104 +119,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 2.551,
+                "scriptMs": 3.258,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.792,
+                "scriptMs": 2.963,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.339,
+                "scriptMs": 2.931,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.489,
+                "scriptMs": 3.041,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.614,
+                "scriptMs": 3.418,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.523,
+                "scriptMs": 3.168,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.468,
+                "scriptMs": 3.466,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.746,
+                "scriptMs": 2.962,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.507,
+                "scriptMs": 3.018,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.736,
+                "scriptMs": 3.206,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 6.438,
+                "scriptMs": 3.14,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.377,
+                "scriptMs": 3.055,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.221,
+                "scriptMs": 3.089,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.977,
+                "scriptMs": 3.013,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.094,
+                "scriptMs": 3.11,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.317,
+                "scriptMs": 2.928,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.026,
+                "scriptMs": 3.309,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.302,
+                "scriptMs": 2.926,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.799,
+                "scriptMs": 3.152,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.502,
+                "scriptMs": 3.105,
                 "animationFrames": 1
               }
             ]
@@ -225,104 +225,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 4.026,
+                "scriptMs": 3.065,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.063,
+                "scriptMs": 2.52,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.109,
+                "scriptMs": 3.059,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.39,
+                "scriptMs": 3.203,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.448,
+                "scriptMs": 2.923,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.543,
+                "scriptMs": 2.701,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.188,
+                "scriptMs": 3.242,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.403,
+                "scriptMs": 2.814,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.822,
+                "scriptMs": 3.496,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.589,
+                "scriptMs": 2.952,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 3.039,
+                "scriptMs": 3.294,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.417,
+                "scriptMs": 2.884,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.79,
+                "scriptMs": 2.192,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.398,
+                "scriptMs": 2.805,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.74,
+                "scriptMs": 2.846,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.471,
+                "scriptMs": 3.054,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.756,
+                "scriptMs": 3.053,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.341,
+                "scriptMs": 3.178,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.214,
+                "scriptMs": 2.907,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.435,
+                "scriptMs": 2.951,
                 "animationFrames": 1
               }
             ]
@@ -335,9 +335,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 1.2910000000000004,
-            "minDeltaMs": -1.2910000000000004,
-            "maxDeltaMs": -0.10599999999999987
+            "p95AbsDeltaMs": 0.7629999999999999,
+            "minDeltaMs": -0.7629999999999999,
+            "maxDeltaMs": 0.18500000000000005
           }
         },
         "aaBands": {
@@ -348,9 +348,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 3.8869999999999996,
-              "minDeltaMs": -1.206,
-              "maxDeltaMs": 3.8869999999999996
+              "p95AbsDeltaMs": 0.3080000000000003,
+              "minDeltaMs": -0.3080000000000003,
+              "maxDeltaMs": 0.15799999999999992
             }
           },
           "B": {
@@ -360,9 +360,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 2.681,
-              "minDeltaMs": -0.9869999999999997,
-              "maxDeltaMs": 2.681
+              "p95AbsDeltaMs": 0.867,
+              "minDeltaMs": -0.867,
+              "maxDeltaMs": 0.3639999999999999
             }
           }
         }
@@ -371,104 +371,104 @@
         "A": [
           {
             "eventMs": 24,
-            "scriptMs": 5.419,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 4.774,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 4.946,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 4.935,
+            "scriptMs": 6.578,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 5.983,
+            "scriptMs": 5.732,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 7.059,
+            "scriptMs": 5.222,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 5.903,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 4.815,
+            "scriptMs": 6.671,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 5.856,
+            "scriptMs": 6.666,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 7.265,
+            "scriptMs": 5.948,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.96,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 6.216,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.801,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.806,
             "animationFrames": 1
           }
         ],
         "B": [
           {
-            "eventMs": 16,
-            "scriptMs": 2.963,
+            "eventMs": 24,
+            "scriptMs": 5.669,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 4.179,
+            "scriptMs": 6.472,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 3.508,
+            "scriptMs": 5.457,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 4.64,
+            "scriptMs": 6.411,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 4.319,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 3.332,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.983,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 2.501,
+            "scriptMs": 6.757,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 5.781,
+            "scriptMs": 6.551,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 4.497,
+            "scriptMs": 5.356,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.994,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 6.563,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 5.985,
             "animationFrames": 1
           }
         ],
@@ -477,59 +477,12 @@
             "left": [
               {
                 "eventMs": 24,
-                "scriptMs": 7.935,
+                "scriptMs": 6.076,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 6.789,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 32,
-                "scriptMs": 11.539,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.779,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 5.632,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.101,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.624,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.875,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 5.231,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.951,
-                "animationFrames": 1
-              }
-            ],
-            "right": [
-              {
-                "eventMs": 16,
-                "scriptMs": 4.059,
+                "scriptMs": 7.002,
                 "animationFrames": 1
               },
               {
@@ -539,42 +492,89 @@
               },
               {
                 "eventMs": 24,
-                "scriptMs": 9.892,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 32,
-                "scriptMs": 21.012,
+                "scriptMs": 6.091,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 6.238,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.79,
+                "scriptMs": 5.772,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 6.859,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.352,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.302,
+                "scriptMs": 6.296,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 5.851,
+                "scriptMs": 6.239,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.193,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.13,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.612,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 24,
+                "scriptMs": 6.497,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.823,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.102,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.577,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.835,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.055,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.4,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.021,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.335,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.067,
                 "animationFrames": 1
               }
             ]
@@ -582,105 +582,105 @@
           "B": {
             "left": [
               {
-                "eventMs": 16,
-                "scriptMs": 2.162,
+                "eventMs": 24,
+                "scriptMs": 5.362,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.665,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.854,
+                "scriptMs": 6.261,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.028,
+                "scriptMs": 5.922,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.577,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.538,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 3.107,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 4.433,
+                "scriptMs": 6.548,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.945,
+                "scriptMs": 5.964,
                 "animationFrames": 1
               },
               {
-                "eventMs": 16,
-                "scriptMs": 2.392,
+                "eventMs": 24,
+                "scriptMs": 5.583,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.094,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.843,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.243,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.539,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 24,
-                "scriptMs": 4.54,
+                "scriptMs": 5.909,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.444,
+                "scriptMs": 6.081,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.75,
+                "scriptMs": 6.374,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.534,
+                "scriptMs": 6.55,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 3.796,
+                "scriptMs": 5.426,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 5.292,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 3.695,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.244,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.922,
+                "scriptMs": 5.512,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 4.445,
+                "scriptMs": 5.986,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 5.902,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.206,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 6.06,
                 "animationFrames": 1
               }
             ]
@@ -688,39 +688,39 @@
         },
         "abBands": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 3.9199999999999995,
-            "minDeltaMs": -3.9199999999999995,
-            "maxDeltaMs": -0.07500000000000018
+            "p95AbsDeltaMs": 0.9090000000000007,
+            "minDeltaMs": -0.9090000000000007,
+            "maxDeltaMs": 0.7619999999999996
           }
         },
         "aaBands": {
           "A": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 15.233,
-              "minDeltaMs": -3.8759999999999994,
-              "maxDeltaMs": 15.233
+              "p95AbsDeltaMs": 0.5449999999999999,
+              "minDeltaMs": -0.5449999999999999,
+              "maxDeltaMs": 0.48599999999999977
             }
           },
           "B": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 3.0230000000000006,
-              "minDeltaMs": -3.0230000000000006,
-              "maxDeltaMs": 2.896
+              "p95AbsDeltaMs": 1.1080000000000005,
+              "minDeltaMs": -1.1080000000000005,
+              "maxDeltaMs": 0.5469999999999997
             }
           }
         }
@@ -729,104 +729,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 2.127,
+            "scriptMs": 2.237,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.865,
+            "scriptMs": 2.01,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.069,
+            "scriptMs": 2.035,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.185,
+            "scriptMs": 2.229,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.972,
+            "scriptMs": 2.058,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.303,
+            "scriptMs": 2.124,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.698,
+            "scriptMs": 2.419,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.33,
+            "scriptMs": 1.97,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.167,
+            "scriptMs": 2.151,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.63,
+            "scriptMs": 1.619,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 1.987,
+            "scriptMs": 2.103,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.132,
+            "scriptMs": 2.089,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.946,
+            "scriptMs": 2.371,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.178,
+            "scriptMs": 2.421,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.358,
+            "scriptMs": 2.457,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.373,
+            "scriptMs": 2.517,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.943,
+            "scriptMs": 2.515,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.127,
+            "scriptMs": 2.13,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.418,
+            "scriptMs": 1.989,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 2.412,
+            "scriptMs": 2.359,
             "animationFrames": 1
           }
         ],
@@ -835,113 +835,17 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 1.815,
+                "scriptMs": 1.981,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.057,
+                "scriptMs": 1.476,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.151,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.315,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.241,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.671,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.758,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.213,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.371,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.551,
-                "animationFrames": 1
-              }
-            ],
-            "right": [
-              {
-                "eventMs": 16,
-                "scriptMs": 2.291,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.134,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.235,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.353,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 4.075,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 3.868,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.613,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 3.115,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.212,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 4.585,
-                "animationFrames": 1
-              }
-            ]
-          },
-          "B": {
-            "left": [
-              {
-                "eventMs": 16,
-                "scriptMs": 2.026,
+                "scriptMs": 1.981,
                 "animationFrames": 1
               },
               {
@@ -951,79 +855,345 @@
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.26,
+                "scriptMs": 2.223,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.151,
+                "scriptMs": 2.423,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.191,
+                "scriptMs": 1.989,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.098,
+                "scriptMs": 1.991,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.224,
+                "scriptMs": 2.339,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.288,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.138,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 8.433,
+                "scriptMs": 2.035,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 1.966,
+                "scriptMs": 2.002,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.822,
+                "scriptMs": 2.456,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.155,
+                "scriptMs": 1.973,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.354,
+                "scriptMs": 2.449,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.304,
+                "scriptMs": 2.38,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.129,
+                "scriptMs": 1.916,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.293,
+                "scriptMs": 2.211,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.701,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.093,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.239,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.666,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.616,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.031,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.381,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.025,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.426,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.182,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.179,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.46,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.219,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.949,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.233,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.366,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.536,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.21,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.022,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.24,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.922,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.085,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.744,
+                "animationFrames": 1
+              }
+            ]
+          }
+        },
+        "abBands": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 0.74,
+            "minDeltaMs": -0.1619999999999997,
+            "maxDeltaMs": 0.74
+          }
+        },
+        "aaBands": {
+          "A": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 0.98,
+              "minDeltaMs": -0.5070000000000001,
+              "maxDeltaMs": 0.98
+            }
+          },
+          "B": {
+            "event": {
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
+            },
+            "script": {
+              "p95AbsDeltaMs": 0.7169999999999999,
+              "minDeltaMs": -0.7169999999999999,
+              "maxDeltaMs": 0.33499999999999996
+            }
+          }
+        }
+      },
+      "form-field": {
+        "A": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.113,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.008,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.338,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.137,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.087,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.053,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.521,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.955,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.097,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.957,
+            "animationFrames": 1
+          }
+        ],
+        "B": [
+          {
+            "eventMs": 16,
+            "scriptMs": 2.015,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.762,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.158,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.07,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.156,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.285,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.222,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.197,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 2.186,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 1.96,
+            "animationFrames": 1
+          }
+        ],
+        "aa": {
+          "A": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.325,
                 "animationFrames": 1
               },
               {
@@ -1033,12 +1203,200 @@
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.909,
+                "scriptMs": 1.96,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.034,
+                "scriptMs": 1.985,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.029,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.017,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.006,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.074,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.412,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.125,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.645,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.891,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.045,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.331,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.022,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.155,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.831,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.843,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.205,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.011,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 2.192,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.459,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.936,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.036,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.914,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.2,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.948,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.886,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.962,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.408,
+                "animationFrames": 1
+              }
+            ],
+            "right": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.948,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.908,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.135,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.329,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.131,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.902,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.835,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.237,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 2.19,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.949,
                 "animationFrames": 1
               }
             ]
@@ -1051,367 +1409,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 0.782,
-            "minDeltaMs": -0.7549999999999999,
-            "maxDeltaMs": 0.782
-          }
-        },
-        "aaBands": {
-          "A": {
-            "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": 0,
-              "maxDeltaMs": 8
-            },
-            "script": {
-              "p95AbsDeltaMs": 3.0840000000000005,
-              "minDeltaMs": -0.1589999999999998,
-              "maxDeltaMs": 3.0840000000000005
-            }
-          },
-          "B": {
-            "event": {
-              "p95AbsDeltaMs": 0,
-              "minDeltaMs": 0,
-              "maxDeltaMs": 0
-            },
-            "script": {
-              "p95AbsDeltaMs": 6.399,
-              "minDeltaMs": -6.399,
-              "maxDeltaMs": 0.2030000000000003
-            }
-          }
-        }
-      },
-      "form-field": {
-        "A": [
-          {
-            "eventMs": 16,
-            "scriptMs": 1.848,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 3.641,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.645,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.52,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.84,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.492,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.536,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.466,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.479,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.836,
-            "animationFrames": 1
-          }
-        ],
-        "B": [
-          {
-            "eventMs": 16,
-            "scriptMs": 1.733,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 2.212,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.537,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.382,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.602,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.403,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.395,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.588,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.551,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 1.431,
-            "animationFrames": 1
-          }
-        ],
-        "aa": {
-          "A": {
-            "left": [
-              {
-                "eventMs": 16,
-                "scriptMs": 1.399,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.149,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.606,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.576,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.703,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.507,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.582,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.227,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.655,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.68,
-                "animationFrames": 1
-              }
-            ],
-            "right": [
-              {
-                "eventMs": 16,
-                "scriptMs": 1.571,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.506,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.473,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.494,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.375,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.46,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.512,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.579,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.59,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.686,
-                "animationFrames": 1
-              }
-            ]
-          },
-          "B": {
-            "left": [
-              {
-                "eventMs": 16,
-                "scriptMs": 1.384,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.527,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.503,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.45,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.458,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.343,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.094,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.405,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.501,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.713,
-                "animationFrames": 1
-              }
-            ],
-            "right": [
-              {
-                "eventMs": 16,
-                "scriptMs": 1.411,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.402,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.526,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.456,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.463,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.56,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.584,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.482,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.477,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.484,
-                "animationFrames": 1
-              }
-            ]
-          }
-        },
-        "abBands": {
-          "event": {
-            "p95AbsDeltaMs": 0,
-            "minDeltaMs": 0,
-            "maxDeltaMs": 0
-          },
-          "script": {
-            "p95AbsDeltaMs": 1.4289999999999998,
-            "minDeltaMs": -1.4289999999999998,
-            "maxDeltaMs": 0.12200000000000011
+            "p95AbsDeltaMs": 0.29899999999999993,
+            "minDeltaMs": -0.29899999999999993,
+            "maxDeltaMs": 0.242
           }
         },
         "aaBands": {
@@ -1422,9 +1422,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 0.6479999999999999,
-              "minDeltaMs": -0.6479999999999999,
-              "maxDeltaMs": 0.17199999999999993
+              "p95AbsDeltaMs": 0.7930000000000001,
+              "minDeltaMs": -0.23099999999999987,
+              "maxDeltaMs": 0.7930000000000001
             }
           },
           "B": {
@@ -1434,9 +1434,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 0.5099999999999998,
-              "minDeltaMs": -0.5099999999999998,
-              "maxDeltaMs": 0.21700000000000008
+              "p95AbsDeltaMs": 0.5510000000000002,
+              "minDeltaMs": -0.5510000000000002,
+              "maxDeltaMs": 0.5410000000000001
             }
           }
         }
@@ -1445,104 +1445,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 1.616,
+            "scriptMs": 1.948,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.886,
+            "scriptMs": 1.693,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.946,
+            "scriptMs": 2.054,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.551,
+            "scriptMs": 1.707,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.206,
+            "scriptMs": 1.787,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.139,
+            "scriptMs": 1.971,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.578,
+            "scriptMs": 1.808,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.315,
+            "scriptMs": 1.579,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.337,
+            "scriptMs": 1.484,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.167,
+            "scriptMs": 1.558,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 1.153,
+            "scriptMs": 1.553,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.892,
+            "scriptMs": 1.565,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.198,
+            "scriptMs": 1.815,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.281,
+            "scriptMs": 1.851,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.054,
+            "scriptMs": 1.876,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.344,
+            "scriptMs": 1.394,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.17,
+            "scriptMs": 1.975,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.246,
+            "scriptMs": 1.554,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.664,
+            "scriptMs": 1.459,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 1.199,
+            "scriptMs": 1.714,
             "animationFrames": 1
           }
         ],
@@ -1551,138 +1551,79 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 1.69,
+                "scriptMs": 1.569,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.507,
+                "scriptMs": 1.483,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.681,
+                "scriptMs": 1.577,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.956,
+                "scriptMs": 1.441,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.35,
+                "scriptMs": 1.656,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.363,
+                "scriptMs": 1.954,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.442,
+                "scriptMs": 1.667,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.685,
+                "scriptMs": 1.51,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.248,
+                "scriptMs": 1.756,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.657,
+                "scriptMs": 1.98,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 1.423,
+                "scriptMs": 1.663,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.674,
+                "scriptMs": 1.489,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.204,
+                "scriptMs": 1.845,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.07,
+                "scriptMs": 1.544,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.583,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.48,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.21,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.161,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.237,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 0.898,
-                "animationFrames": 1
-              }
-            ]
-          },
-          "B": {
-            "left": [
-              {
-                "eventMs": 16,
-                "scriptMs": 1.073,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.036,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.471,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 2.569,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.613,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 1.595,
+                "scriptMs": 2.217,
                 "animationFrames": 1
               },
               {
@@ -1692,69 +1633,128 @@
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.252,
+                "scriptMs": 1.702,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.128,
+                "scriptMs": 2.056,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.195,
+                "scriptMs": 1.848,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.852,
+                "animationFrames": 1
+              }
+            ]
+          },
+          "B": {
+            "left": [
+              {
+                "eventMs": 16,
+                "scriptMs": 1.466,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.489,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.828,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.74,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.884,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.769,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.475,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.693,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.606,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 1.613,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 1.603,
+                "scriptMs": 1.892,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.939,
+                "scriptMs": 1.659,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.734,
+                "scriptMs": 1.418,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.36,
+                "scriptMs": 1.468,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.176,
+                "scriptMs": 1.54,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.011,
+                "scriptMs": 1.79,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.887,
+                "scriptMs": 1.441,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 1.024,
+                "scriptMs": 1.671,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 2.108,
+                "scriptMs": 1.593,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 0.891,
+                "scriptMs": 1.954,
                 "animationFrames": 1
               }
             ]
@@ -1767,9 +1767,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 0.748,
-            "minDeltaMs": -0.748,
-            "maxDeltaMs": 0.32699999999999996
+            "p95AbsDeltaMs": 0.5770000000000002,
+            "minDeltaMs": -0.5770000000000002,
+            "maxDeltaMs": 0.16700000000000004
           }
         },
         "aaBands": {
@@ -1780,9 +1780,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 0.8859999999999999,
-              "minDeltaMs": -0.8859999999999999,
-              "maxDeltaMs": 0.23299999999999987
+              "p95AbsDeltaMs": 0.5610000000000002,
+              "minDeltaMs": -0.3859999999999999,
+              "maxDeltaMs": 0.5610000000000002
             }
           },
           "B": {
@@ -1792,9 +1792,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 1.2089999999999999,
-              "minDeltaMs": -1.2089999999999999,
-              "maxDeltaMs": 0.9800000000000002
+              "p95AbsDeltaMs": 0.42599999999999993,
+              "minDeltaMs": -0.41000000000000014,
+              "maxDeltaMs": 0.42599999999999993
             }
           }
         }
@@ -1805,104 +1805,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 11.143,
+            "scriptMs": 10.993,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 10.117,
+            "scriptMs": 12.005,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 9.118,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 19.46,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 40,
-            "scriptMs": 33.182,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 20.228,
+            "scriptMs": 11.986,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 11.502,
+            "scriptMs": 11.873,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 10.833,
+            "scriptMs": 12.161,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 9.909,
+            "scriptMs": 12.553,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 11.311,
+            "scriptMs": 12.313,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 15.187,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 12.089,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 12.624,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 6.507,
+            "scriptMs": 10.772,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 7.553,
+            "scriptMs": 11.979,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 8.268,
+            "scriptMs": 10.352,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 10.408,
+            "scriptMs": 13.003,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 8.892,
+            "scriptMs": 11.714,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 12.566,
+            "scriptMs": 11.696,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 12.782,
+            "scriptMs": 11.93,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.439,
+            "scriptMs": 11.231,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 8.005,
+            "scriptMs": 10.346,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.787,
+            "scriptMs": 12.073,
             "animationFrames": 1
           }
         ],
@@ -1911,104 +1911,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 11.705,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 10.469,
+                "scriptMs": 10.168,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 11.031,
+                "scriptMs": 10.087,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.579,
+                "scriptMs": 11.795,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.012,
+                "scriptMs": 13.558,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 11.755,
+                "scriptMs": 13.041,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.963,
+                "scriptMs": 10.935,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.445,
+                "scriptMs": 11.175,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 11.618,
+                "scriptMs": 13.131,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.272,
+                "scriptMs": 10.525,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 12.681,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 11.204,
+                "scriptMs": 13.196,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.742,
+                "scriptMs": 9.552,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.524,
+                "scriptMs": 12.528,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.779,
+                "scriptMs": 11.836,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.064,
+                "scriptMs": 13.459,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.096,
+                "scriptMs": 12.008,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.312,
+                "scriptMs": 12.477,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.479,
+                "scriptMs": 10.193,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.726,
+                "scriptMs": 10.924,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.764,
+                "scriptMs": 11.741,
                 "animationFrames": 1
               }
             ]
@@ -2017,104 +2017,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 8.144,
+                "scriptMs": 12.043,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.614,
+                "scriptMs": 11.564,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.176,
+                "scriptMs": 10.761,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.207,
+                "scriptMs": 8.514,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.811,
+                "scriptMs": 13.072,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.547,
+                "scriptMs": 10.782,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.964,
+                "scriptMs": 10.094,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.702,
+                "scriptMs": 13.919,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.56,
+                "scriptMs": 12.791,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.27,
+                "scriptMs": 11.165,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 7.156,
+                "scriptMs": 12.142,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.142,
+                "scriptMs": 10.374,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.576,
+                "scriptMs": 11.619,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.312,
+                "scriptMs": 9.634,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.5,
+                "scriptMs": 12.893,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 10.199,
+                "scriptMs": 10.718,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.976,
+                "scriptMs": 11.382,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.886,
+                "scriptMs": 10.679,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.795,
+                "scriptMs": 12.325,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.753,
+                "scriptMs": 10.664,
                 "animationFrames": 1
               }
             ]
@@ -2122,27 +2122,27 @@
         },
         "abBands": {
           "event": {
-            "p95AbsDeltaMs": 24,
-            "minDeltaMs": -24,
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 24.290000000000003,
-            "minDeltaMs": -24.290000000000003,
-            "maxDeltaMs": 1.2799999999999994
+            "p95AbsDeltaMs": 3.9559999999999995,
+            "minDeltaMs": -3.9559999999999995,
+            "maxDeltaMs": 1.1300000000000008
           }
         },
         "aaBands": {
           "A": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 2.6590000000000007,
-              "minDeltaMs": -2.6590000000000007,
-              "maxDeltaMs": 1.0519999999999996
+              "p95AbsDeltaMs": 3.0280000000000005,
+              "minDeltaMs": -2.9380000000000006,
+              "maxDeltaMs": 3.0280000000000005
             }
           },
           "B": {
@@ -2152,9 +2152,9 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 2.816,
-              "minDeltaMs": -2.816,
-              "maxDeltaMs": 2.652
+              "p95AbsDeltaMs": 3.24,
+              "minDeltaMs": -3.24,
+              "maxDeltaMs": 1.2880000000000003
             }
           }
         }
@@ -2163,104 +2163,104 @@
         "A": [
           {
             "eventMs": 32,
-            "scriptMs": 21.061,
+            "scriptMs": 21.092,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 22.396,
+            "scriptMs": 23.605,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 26.57,
+            "scriptMs": 22.469,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 29.732,
+            "scriptMs": 27.222,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 23.659,
+            "scriptMs": 25.026,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 25.894,
+            "scriptMs": 22.161,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 28.048,
+            "scriptMs": 24.742,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 21.639,
+            "scriptMs": 23.625,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 26.564,
+            "scriptMs": 26.602,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 26.039,
+            "scriptMs": 26.338,
             "animationFrames": 1
           }
         ],
         "B": [
           {
-            "eventMs": 32,
-            "scriptMs": 12.845,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 12.7,
+            "eventMs": 40,
+            "scriptMs": 32.044,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 21.511,
+            "scriptMs": 29.208,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 17.371,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 12.123,
+            "scriptMs": 25.641,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 14.181,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 13.483,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 15.336,
+            "scriptMs": 27.246,
             "animationFrames": 1
           },
           {
             "eventMs": 32,
-            "scriptMs": 12.831,
+            "scriptMs": 26.136,
             "animationFrames": 1
           },
           {
-            "eventMs": 24,
-            "scriptMs": 11.15,
+            "eventMs": 32,
+            "scriptMs": 26.001,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 23.92,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 25.157,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 24.761,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 32,
+            "scriptMs": 22.691,
             "animationFrames": 1
           }
         ],
@@ -2269,104 +2269,104 @@
             "left": [
               {
                 "eventMs": 32,
-                "scriptMs": 23.775,
+                "scriptMs": 26.841,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 24.558,
+                "scriptMs": 27.16,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.671,
+                "scriptMs": 25.213,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.603,
+                "scriptMs": 23.268,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.63,
+                "scriptMs": 24.732,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 26.727,
+                "scriptMs": 23.688,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 27.958,
+                "scriptMs": 24.109,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.165,
+                "scriptMs": 24.404,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 27.497,
+                "scriptMs": 25.447,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.218,
+                "scriptMs": 23.174,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 32,
-                "scriptMs": 23.292,
+                "scriptMs": 25.566,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 20.668,
+                "scriptMs": 23.941,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 23.007,
+                "scriptMs": 25.982,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 23.354,
+                "scriptMs": 24.425,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 22.075,
+                "scriptMs": 25.728,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 23.738,
+                "scriptMs": 24.87,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 26.618,
+                "scriptMs": 26.758,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 22.837,
+                "scriptMs": 21.321,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.774,
+                "scriptMs": 23.827,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 25.821,
+                "scriptMs": 26.342,
                 "animationFrames": 1
               }
             ]
@@ -2375,104 +2375,104 @@
             "left": [
               {
                 "eventMs": 32,
-                "scriptMs": 15.1,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 16.318,
+                "scriptMs": 23.859,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 14.717,
+                "scriptMs": 21.103,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 12.619,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 12.922,
+                "scriptMs": 25.238,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 15.428,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 12.994,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 48,
-                "scriptMs": 37.464,
+                "scriptMs": 25.827,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 14.612,
+                "scriptMs": 24.748,
                 "animationFrames": 1
               },
               {
-                "eventMs": 40,
-                "scriptMs": 21.237,
+                "eventMs": 32,
+                "scriptMs": 21.471,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 22.587,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 24.555,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 24.599,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 24.597,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
-                "eventMs": 24,
-                "scriptMs": 15.526,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 13.165,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 15.4,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 12.095,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 13.008,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 12.319,
+                "eventMs": 32,
+                "scriptMs": 26.11,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 16.391,
+                "scriptMs": 25.131,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 15.971,
+                "scriptMs": 24.534,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 17.768,
+                "scriptMs": 27.12,
                 "animationFrames": 1
               },
               {
                 "eventMs": 32,
-                "scriptMs": 21.517,
+                "scriptMs": 28.311,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 22.509,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 23.551,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.102,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 23.947,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 32,
+                "scriptMs": 21.623,
                 "animationFrames": 1
               }
             ]
@@ -2481,13 +2481,13 @@
         "abBands": {
           "event": {
             "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 0
+            "minDeltaMs": 0,
+            "maxDeltaMs": 8
           },
           "script": {
-            "p95AbsDeltaMs": 14.889000000000001,
-            "minDeltaMs": -14.889000000000001,
-            "maxDeltaMs": -5.059000000000001
+            "p95AbsDeltaMs": 10.951999999999998,
+            "minDeltaMs": -3.647000000000002,
+            "maxDeltaMs": 10.951999999999998
           }
         },
         "aaBands": {
@@ -2498,21 +2498,21 @@
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 5.722999999999999,
-              "minDeltaMs": -5.722999999999999,
-              "maxDeltaMs": 4.6030000000000015
+              "p95AbsDeltaMs": 3.219000000000001,
+              "minDeltaMs": -3.219000000000001,
+              "maxDeltaMs": 3.1679999999999993
             }
           },
           "B": {
             "event": {
-              "p95AbsDeltaMs": 16,
-              "minDeltaMs": -16,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 21.493,
-              "minDeltaMs": -21.493,
-              "maxDeltaMs": 3.3969999999999985
+              "p95AbsDeltaMs": 4.027999999999999,
+              "minDeltaMs": -3.4529999999999994,
+              "maxDeltaMs": 4.027999999999999
             }
           }
         }
@@ -2521,104 +2521,104 @@
         "A": [
           {
             "eventMs": 24,
-            "scriptMs": 11.714,
+            "scriptMs": 10.299,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 10.029,
+            "scriptMs": 8.084,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 8.907,
+            "scriptMs": 9.623,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 10.365,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 40,
-            "scriptMs": 21.525,
+            "scriptMs": 7.962,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 8.95,
+            "scriptMs": 8.044,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 9.085,
+            "scriptMs": 9.114,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 15.296,
+            "scriptMs": 8.891,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 15.461,
+            "scriptMs": 9.151,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 7.652,
+            "scriptMs": 10.965,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 7.909,
             "animationFrames": 1
           }
         ],
         "B": [
           {
-            "eventMs": 16,
-            "scriptMs": 6.335,
+            "eventMs": 24,
+            "scriptMs": 10.744,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 7.936,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 7.877,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 64,
-            "scriptMs": 34.59,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 16,
-            "scriptMs": 6.169,
+            "scriptMs": 8.804,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 7.663,
+            "scriptMs": 7.222,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 10.543,
+            "scriptMs": 7.791,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 7.728,
             "animationFrames": 1
           },
           {
             "eventMs": 24,
-            "scriptMs": 8.575,
+            "scriptMs": 7.891,
             "animationFrames": 1
           },
           {
-            "eventMs": 16,
-            "scriptMs": 8.765,
+            "eventMs": 24,
+            "scriptMs": 7.187,
             "animationFrames": 1
           },
           {
-            "eventMs": 16,
-            "scriptMs": 6.507,
+            "eventMs": 24,
+            "scriptMs": 7.722,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 8.342,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 24,
+            "scriptMs": 9.32,
             "animationFrames": 1
           }
         ],
@@ -2627,104 +2627,104 @@
             "left": [
               {
                 "eventMs": 24,
-                "scriptMs": 12.47,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 72,
-                "scriptMs": 46.021,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 64,
-                "scriptMs": 25.552,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 32,
-                "scriptMs": 14.577,
+                "scriptMs": 7.914,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 12.251,
+                "scriptMs": 7.891,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.564,
+                "scriptMs": 10.187,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.717,
+                "scriptMs": 9.789,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.205,
+                "scriptMs": 9.904,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.243,
+                "scriptMs": 7.282,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.27,
+                "scriptMs": 8.441,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.667,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.918,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.367,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 24,
-                "scriptMs": 9.13,
+                "scriptMs": 7.978,
                 "animationFrames": 1
               },
               {
-                "eventMs": 72,
-                "scriptMs": 45.529,
+                "eventMs": 24,
+                "scriptMs": 8.187,
                 "animationFrames": 1
               },
               {
-                "eventMs": 16,
-                "scriptMs": 8.532,
+                "eventMs": 24,
+                "scriptMs": 7.698,
                 "animationFrames": 1
               },
               {
-                "eventMs": 16,
+                "eventMs": 24,
+                "scriptMs": 8.838,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.79,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.233,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.95,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.842,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
                 "scriptMs": 8.151,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.056,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 8.373,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 8.403,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 9.463,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 8.746,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 9.1,
+                "scriptMs": 8.055,
                 "animationFrames": 1
               }
             ]
@@ -2733,104 +2733,104 @@
             "left": [
               {
                 "eventMs": 24,
-                "scriptMs": 7.091,
+                "scriptMs": 8.421,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.298,
+                "scriptMs": 8.491,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 9.854,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 6.827,
+                "scriptMs": 8.169,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.565,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 7.142,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 6.808,
+                "scriptMs": 8.39,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.661,
+                "scriptMs": 7.88,
                 "animationFrames": 1
               },
               {
-                "eventMs": 16,
-                "scriptMs": 6.928,
+                "eventMs": 24,
+                "scriptMs": 8.077,
                 "animationFrames": 1
               },
               {
-                "eventMs": 16,
-                "scriptMs": 6.684,
+                "eventMs": 24,
+                "scriptMs": 7.085,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.953,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.82,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 8.789,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 24,
-                "scriptMs": 8.275,
+                "scriptMs": 7.582,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 8.042,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 7.416,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 16,
-                "scriptMs": 7.13,
+                "scriptMs": 8.966,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.576,
+                "scriptMs": 9.712,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 6.82,
+                "scriptMs": 9.365,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.836,
+                "scriptMs": 8.204,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 6.989,
+                "scriptMs": 8.233,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.692,
+                "scriptMs": 7.631,
                 "animationFrames": 1
               },
               {
                 "eventMs": 24,
-                "scriptMs": 7.878,
+                "scriptMs": 7.82,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 7.69,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 24,
+                "scriptMs": 9.525,
                 "animationFrames": 1
               }
             ]
@@ -2838,39 +2838,39 @@
         },
         "abBands": {
           "event": {
-            "p95AbsDeltaMs": 40,
-            "minDeltaMs": -24,
-            "maxDeltaMs": 40
+            "p95AbsDeltaMs": 8,
+            "minDeltaMs": -8,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 24.225,
-            "minDeltaMs": -15.355999999999998,
-            "maxDeltaMs": 24.225
+            "p95AbsDeltaMs": 2.6229999999999993,
+            "minDeltaMs": -2.6229999999999993,
+            "maxDeltaMs": 1.4110000000000005
           }
         },
         "aaBands": {
           "A": {
             "event": {
-              "p95AbsDeltaMs": 48,
-              "minDeltaMs": -48,
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 17.02,
-              "minDeltaMs": -17.02,
-              "maxDeltaMs": 1.2579999999999991
+              "p95AbsDeltaMs": 2.488999999999999,
+              "minDeltaMs": -2.488999999999999,
+              "maxDeltaMs": 2.1750000000000007
             }
           },
           "B": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 2.437999999999999,
-              "minDeltaMs": -2.437999999999999,
-              "maxDeltaMs": 1.194
+              "p95AbsDeltaMs": 1.5429999999999993,
+              "minDeltaMs": -0.8389999999999995,
+              "maxDeltaMs": 1.5429999999999993
             }
           }
         }
@@ -2879,104 +2879,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 4.764,
+            "scriptMs": 7.566,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.706,
+            "scriptMs": 8.346,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.909,
+            "scriptMs": 9.07,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.141,
+            "scriptMs": 6.876,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.432,
+            "scriptMs": 8.929,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 7.607,
+            "scriptMs": 9.155,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.701,
+            "scriptMs": 7.734,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.702,
+            "scriptMs": 8.13,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.174,
+            "scriptMs": 7.787,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.701,
+            "scriptMs": 7.326,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 5.877,
+            "scriptMs": 6.699,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.382,
+            "scriptMs": 7.679,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.439,
+            "scriptMs": 5.394,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 4.955,
+            "scriptMs": 8.195,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.141,
+            "scriptMs": 7.674,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.566,
+            "scriptMs": 5.041,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.32,
+            "scriptMs": 6.562,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.627,
+            "scriptMs": 5.526,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.636,
+            "scriptMs": 7.951,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.394,
+            "scriptMs": 7.778,
             "animationFrames": 1
           }
         ],
@@ -2985,104 +2985,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 6.181,
+                "scriptMs": 8.264,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.664,
+                "scriptMs": 7.664,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.505,
+                "scriptMs": 7.126,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 9.93,
+                "scriptMs": 9.027,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.238,
+                "scriptMs": 8.284,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.034,
+                "scriptMs": 9.302,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.784,
+                "scriptMs": 7.911,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.833,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 7.803,
+                "scriptMs": 7.115,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.398,
+                "scriptMs": 6.99,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.654,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 5.914,
+                "scriptMs": 6.424,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.597,
+                "scriptMs": 7.733,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 8.652,
+                "scriptMs": 6.621,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.85,
+                "scriptMs": 7.151,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.566,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 8.11,
+                "scriptMs": 7.569,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.311,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 13.91,
+                "scriptMs": 8.08,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.651,
+                "scriptMs": 7.022,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.039,
+                "scriptMs": 8.17,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.959,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 7.504,
                 "animationFrames": 1
               }
             ]
@@ -3090,105 +3090,105 @@
           "B": {
             "left": [
               {
-                "eventMs": 24,
-                "scriptMs": 15.113,
+                "eventMs": 16,
+                "scriptMs": 7.076,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.222,
+                "scriptMs": 5.272,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.576,
+                "scriptMs": 6,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.544,
+                "scriptMs": 6.528,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.532,
+                "scriptMs": 5.43,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.888,
+                "scriptMs": 8.744,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.319,
+                "scriptMs": 7.66,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.134,
+                "scriptMs": 8.053,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.319,
+                "scriptMs": 8.384,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.872,
+                "scriptMs": 8.617,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 6.348,
+                "scriptMs": 7.389,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.507,
+                "scriptMs": 8.584,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.586,
+                "scriptMs": 7.394,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.723,
+                "scriptMs": 6.842,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.887,
+                "scriptMs": 6.835,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.57,
+                "scriptMs": 6.775,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.438,
+                "scriptMs": 7.803,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.539,
+                "scriptMs": 6.502,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.361,
+                "scriptMs": 7.742,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 7.076,
+                "scriptMs": 8.269,
                 "animationFrames": 1
               }
             ]
@@ -3201,34 +3201,34 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 1.186,
-            "minDeltaMs": -1.186,
-            "maxDeltaMs": 1.1129999999999995
+            "p95AbsDeltaMs": 4.113999999999999,
+            "minDeltaMs": -4.113999999999999,
+            "maxDeltaMs": 1.319
           }
         },
         "aaBands": {
           "A": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 7.077,
-              "minDeltaMs": -2.359,
-              "maxDeltaMs": 7.077
+              "p95AbsDeltaMs": 1.8759999999999994,
+              "minDeltaMs": -1.8759999999999994,
+              "maxDeltaMs": 1.0549999999999997
             }
           },
           "B": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
               "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 8.765,
-              "minDeltaMs": -8.765,
-              "maxDeltaMs": 1.3549999999999995
+              "p95AbsDeltaMs": 3.3119999999999994,
+              "minDeltaMs": -1.9689999999999994,
+              "maxDeltaMs": 3.3119999999999994
             }
           }
         }
@@ -3237,104 +3237,104 @@
         "A": [
           {
             "eventMs": 16,
-            "scriptMs": 3.671,
+            "scriptMs": 5.47,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 4.995,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 6.254,
+            "scriptMs": 6.961,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.22,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 6.671,
+            "scriptMs": 7.347,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.91,
+            "scriptMs": 6.448,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 7.8,
+            "scriptMs": 4.396,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.491,
+            "scriptMs": 5.93,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 4.691,
+            "scriptMs": 6.065,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.658,
+            "scriptMs": 5.876,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.966,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.537,
             "animationFrames": 1
           }
         ],
         "B": [
           {
             "eventMs": 16,
-            "scriptMs": 4.273,
+            "scriptMs": 6.529,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.965,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 7.188,
+            "scriptMs": 5.848,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 6.999,
+            "scriptMs": 4.688,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 4.602,
+            "scriptMs": 7.074,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.628,
-            "animationFrames": 1
-          },
-          {
-            "eventMs": 24,
-            "scriptMs": 3.635,
+            "scriptMs": 4.919,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.524,
+            "scriptMs": 5.45,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 3.821,
+            "scriptMs": 6.017,
             "animationFrames": 1
           },
           {
             "eventMs": 16,
-            "scriptMs": 5.019,
+            "scriptMs": 6.053,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 5.983,
+            "animationFrames": 1
+          },
+          {
+            "eventMs": 16,
+            "scriptMs": 6.947,
             "animationFrames": 1
           }
         ],
@@ -3343,104 +3343,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 4.039,
+                "scriptMs": 4.384,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.294,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.106,
+                "scriptMs": 5.402,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.343,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 6.427,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 7.528,
+                "scriptMs": 6.449,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.09,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 7.301,
+                "scriptMs": 6.559,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.777,
+                "scriptMs": 6.454,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.294,
+                "scriptMs": 6.37,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.069,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.88,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.815,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.238,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
-                "eventMs": 24,
-                "scriptMs": 7.963,
+                "eventMs": 16,
+                "scriptMs": 6.228,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.667,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 6.987,
+                "scriptMs": 4.679,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.456,
+                "scriptMs": 5.891,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.146,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 8.775,
+                "scriptMs": 7.741,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.422,
+                "scriptMs": 6.592,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 6.27,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 4.495,
+                "scriptMs": 5.689,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.41,
+                "scriptMs": 7.177,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.694,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.515,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 6.286,
                 "animationFrames": 1
               }
             ]
@@ -3449,104 +3449,104 @@
             "left": [
               {
                 "eventMs": 16,
-                "scriptMs": 5.561,
+                "scriptMs": 5.835,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.382,
+                "scriptMs": 5.793,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.243,
+                "scriptMs": 6.064,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.877,
+                "scriptMs": 5.246,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.228,
+                "scriptMs": 7.148,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.75,
+                "scriptMs": 6.105,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.586,
+                "scriptMs": 6.076,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.413,
+                "scriptMs": 6.54,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.361,
+                "scriptMs": 4.996,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.849,
+                "scriptMs": 6.715,
                 "animationFrames": 1
               }
             ],
             "right": [
               {
                 "eventMs": 16,
-                "scriptMs": 3.844,
+                "scriptMs": 6.823,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.179,
+                "scriptMs": 6.294,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 5.944,
+                "scriptMs": 4.725,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.43,
+                "scriptMs": 6.54,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 3.923,
+                "scriptMs": 6.205,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.585,
-                "animationFrames": 1
-              },
-              {
-                "eventMs": 24,
-                "scriptMs": 5.508,
+                "scriptMs": 4.928,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.121,
+                "scriptMs": 6.229,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.653,
+                "scriptMs": 7.412,
                 "animationFrames": 1
               },
               {
                 "eventMs": 16,
-                "scriptMs": 4.255,
+                "scriptMs": 6.684,
+                "animationFrames": 1
+              },
+              {
+                "eventMs": 16,
+                "scriptMs": 5.094,
                 "animationFrames": 1
               }
             ]
@@ -3554,39 +3554,39 @@
         },
         "abBands": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 4.165,
-            "minDeltaMs": -4.165,
-            "maxDeltaMs": 1.779
+            "p95AbsDeltaMs": 2.6590000000000007,
+            "minDeltaMs": -2.6590000000000007,
+            "maxDeltaMs": 1.0590000000000002
           }
         },
         "aaBands": {
           "A": {
             "event": {
-              "p95AbsDeltaMs": 8,
-              "minDeltaMs": -8,
-              "maxDeltaMs": 8
+              "p95AbsDeltaMs": 0,
+              "minDeltaMs": 0,
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 3.9240000000000004,
-              "minDeltaMs": -1.2809999999999997,
-              "maxDeltaMs": 3.9240000000000004
+              "p95AbsDeltaMs": 1.8439999999999994,
+              "minDeltaMs": -1.3000000000000007,
+              "maxDeltaMs": 1.8439999999999994
             }
           },
           "B": {
             "event": {
-              "p95AbsDeltaMs": 8,
+              "p95AbsDeltaMs": 0,
               "minDeltaMs": 0,
-              "maxDeltaMs": 8
+              "maxDeltaMs": 0
             },
             "script": {
-              "p95AbsDeltaMs": 1.717,
-              "minDeltaMs": -1.717,
-              "maxDeltaMs": 1.7009999999999996
+              "p95AbsDeltaMs": 1.6879999999999997,
+              "minDeltaMs": -1.6209999999999996,
+              "maxDeltaMs": 1.6879999999999997
             }
           }
         }
@@ -3594,9 +3594,9 @@
     }
   },
   "loadavgAtEnd": [
-    6.31,
-    6.37,
-    6.88
+    4.24,
+    4.12,
+    4.28
   ],
   "summary": [
     {
@@ -3604,15 +3604,15 @@
       "rate": 1,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 2.6695
+        "scriptMedianMs": 3.15
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 2.1725
+        "scriptMedianMs": 3.0375
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -0.49700000000000033
+        "scriptMs": -0.11249999999999982
       },
       "aaBands": {
         "A": {
@@ -3622,9 +3622,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 3.8869999999999996,
-            "minDeltaMs": -1.206,
-            "maxDeltaMs": 3.8869999999999996
+            "p95AbsDeltaMs": 0.3080000000000003,
+            "minDeltaMs": -0.3080000000000003,
+            "maxDeltaMs": 0.15799999999999992
           }
         },
         "B": {
@@ -3634,9 +3634,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 2.681,
-            "minDeltaMs": -0.9869999999999997,
-            "maxDeltaMs": 2.681
+            "p95AbsDeltaMs": 0.867,
+            "minDeltaMs": -0.867,
+            "maxDeltaMs": 0.3639999999999999
           }
         }
       },
@@ -3647,9 +3647,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 1.2910000000000004,
-          "minDeltaMs": -1.2910000000000004,
-          "maxDeltaMs": -0.10599999999999987
+          "p95AbsDeltaMs": 0.7629999999999999,
+          "minDeltaMs": -0.7629999999999999,
+          "maxDeltaMs": 0.18500000000000005
         }
       }
     },
@@ -3658,52 +3658,52 @@
       "rate": 1,
       "baseline": {
         "eventMedianMs": 24,
-        "scriptMedianMs": 5.637499999999999
+        "scriptMedianMs": 5.954000000000001
       },
       "candidate": {
         "eventMedianMs": 24,
-        "scriptMedianMs": 3.8435
+        "scriptMedianMs": 6.2025
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -1.7939999999999992
+        "scriptMs": 0.24849999999999905
       },
       "aaBands": {
         "A": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 15.233,
-            "minDeltaMs": -3.8759999999999994,
-            "maxDeltaMs": 15.233
+            "p95AbsDeltaMs": 0.5449999999999999,
+            "minDeltaMs": -0.5449999999999999,
+            "maxDeltaMs": 0.48599999999999977
           }
         },
         "B": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 3.0230000000000006,
-            "minDeltaMs": -3.0230000000000006,
-            "maxDeltaMs": 2.896
+            "p95AbsDeltaMs": 1.1080000000000005,
+            "minDeltaMs": -1.1080000000000005,
+            "maxDeltaMs": 0.5469999999999997
           }
         }
       },
       "abBands": {
         "event": {
-          "p95AbsDeltaMs": 8,
-          "minDeltaMs": -8,
-          "maxDeltaMs": 8
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 3.9199999999999995,
-          "minDeltaMs": -3.9199999999999995,
-          "maxDeltaMs": -0.07500000000000018
+          "p95AbsDeltaMs": 0.9090000000000007,
+          "minDeltaMs": -0.9090000000000007,
+          "maxDeltaMs": 0.7619999999999996
         }
       }
     },
@@ -3712,27 +3712,27 @@
       "rate": 1,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 2.147
+        "scriptMedianMs": 2.091
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 2.1550000000000002
+        "scriptMedianMs": 2.365
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": 0.008000000000000451
+        "scriptMs": 0.274
       },
       "aaBands": {
         "A": {
           "event": {
-            "p95AbsDeltaMs": 8,
+            "p95AbsDeltaMs": 0,
             "minDeltaMs": 0,
-            "maxDeltaMs": 8
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 3.0840000000000005,
-            "minDeltaMs": -0.1589999999999998,
-            "maxDeltaMs": 3.0840000000000005
+            "p95AbsDeltaMs": 0.98,
+            "minDeltaMs": -0.5070000000000001,
+            "maxDeltaMs": 0.98
           }
         },
         "B": {
@@ -3742,9 +3742,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 6.399,
-            "minDeltaMs": -6.399,
-            "maxDeltaMs": 0.2030000000000003
+            "p95AbsDeltaMs": 0.7169999999999999,
+            "minDeltaMs": -0.7169999999999999,
+            "maxDeltaMs": 0.33499999999999996
           }
         }
       },
@@ -3755,9 +3755,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 0.782,
-          "minDeltaMs": -0.7549999999999999,
-          "maxDeltaMs": 0.782
+          "p95AbsDeltaMs": 0.74,
+          "minDeltaMs": -0.1619999999999997,
+          "maxDeltaMs": 0.74
         }
       }
     },
@@ -3766,15 +3766,15 @@
       "rate": 1,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 1.5905
+        "scriptMedianMs": 2.092
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 1.544
+        "scriptMedianMs": 2.157
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -0.046499999999999986
+        "scriptMs": 0.06499999999999995
       },
       "aaBands": {
         "A": {
@@ -3784,9 +3784,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 0.6479999999999999,
-            "minDeltaMs": -0.6479999999999999,
-            "maxDeltaMs": 0.17199999999999993
+            "p95AbsDeltaMs": 0.7930000000000001,
+            "minDeltaMs": -0.23099999999999987,
+            "maxDeltaMs": 0.7930000000000001
           }
         },
         "B": {
@@ -3796,9 +3796,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 0.5099999999999998,
-            "minDeltaMs": -0.5099999999999998,
-            "maxDeltaMs": 0.21700000000000008
+            "p95AbsDeltaMs": 0.5510000000000002,
+            "minDeltaMs": -0.5510000000000002,
+            "maxDeltaMs": 0.5410000000000001
           }
         }
       },
@@ -3809,9 +3809,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 1.4289999999999998,
-          "minDeltaMs": -1.4289999999999998,
-          "maxDeltaMs": 0.12200000000000011
+          "p95AbsDeltaMs": 0.29899999999999993,
+          "minDeltaMs": -0.29899999999999993,
+          "maxDeltaMs": 0.242
         }
       }
     },
@@ -3820,15 +3820,15 @@
       "rate": 1,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 1.444
+        "scriptMedianMs": 1.7469999999999999
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 1.2225000000000001
+        "scriptMedianMs": 1.6395
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -0.2214999999999998
+        "scriptMs": -0.10749999999999993
       },
       "aaBands": {
         "A": {
@@ -3838,9 +3838,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 0.8859999999999999,
-            "minDeltaMs": -0.8859999999999999,
-            "maxDeltaMs": 0.23299999999999987
+            "p95AbsDeltaMs": 0.5610000000000002,
+            "minDeltaMs": -0.3859999999999999,
+            "maxDeltaMs": 0.5610000000000002
           }
         },
         "B": {
@@ -3850,9 +3850,9 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 1.2089999999999999,
-            "minDeltaMs": -1.2089999999999999,
-            "maxDeltaMs": 0.9800000000000002
+            "p95AbsDeltaMs": 0.42599999999999993,
+            "minDeltaMs": -0.41000000000000014,
+            "maxDeltaMs": 0.42599999999999993
           }
         }
       },
@@ -3863,9 +3863,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 0.748,
-          "minDeltaMs": -0.748,
-          "maxDeltaMs": 0.32699999999999996
+          "p95AbsDeltaMs": 0.5770000000000002,
+          "minDeltaMs": -0.5770000000000002,
+          "maxDeltaMs": 0.16700000000000004
         }
       }
     },
@@ -3874,27 +3874,27 @@
       "rate": 4,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 11.227
+        "scriptMedianMs": 12.125
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 8.136500000000002
+        "scriptMedianMs": 11.705
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -3.0904999999999987
+        "scriptMs": -0.41999999999999993
       },
       "aaBands": {
         "A": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 2.6590000000000007,
-            "minDeltaMs": -2.6590000000000007,
-            "maxDeltaMs": 1.0519999999999996
+            "p95AbsDeltaMs": 3.0280000000000005,
+            "minDeltaMs": -2.9380000000000006,
+            "maxDeltaMs": 3.0280000000000005
           }
         },
         "B": {
@@ -3904,22 +3904,22 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 2.816,
-            "minDeltaMs": -2.816,
-            "maxDeltaMs": 2.652
+            "p95AbsDeltaMs": 3.24,
+            "minDeltaMs": -3.24,
+            "maxDeltaMs": 1.2880000000000003
           }
         }
       },
       "abBands": {
         "event": {
-          "p95AbsDeltaMs": 24,
-          "minDeltaMs": -24,
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 24.290000000000003,
-          "minDeltaMs": -24.290000000000003,
-          "maxDeltaMs": 1.2799999999999994
+          "p95AbsDeltaMs": 3.9559999999999995,
+          "minDeltaMs": -3.9559999999999995,
+          "maxDeltaMs": 1.1300000000000008
         }
       }
     },
@@ -3928,15 +3928,15 @@
       "rate": 4,
       "baseline": {
         "eventMedianMs": 32,
-        "scriptMedianMs": 25.9665
+        "scriptMedianMs": 24.183500000000002
       },
       "candidate": {
-        "eventMedianMs": 28,
-        "scriptMedianMs": 13.164000000000001
+        "eventMedianMs": 32,
+        "scriptMedianMs": 25.820999999999998
       },
       "delta": {
-        "eventMs": -4,
-        "scriptMs": -12.802499999999998
+        "eventMs": 0,
+        "scriptMs": 1.6374999999999957
       },
       "aaBands": {
         "A": {
@@ -3946,21 +3946,75 @@
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 5.722999999999999,
-            "minDeltaMs": -5.722999999999999,
-            "maxDeltaMs": 4.6030000000000015
+            "p95AbsDeltaMs": 3.219000000000001,
+            "minDeltaMs": -3.219000000000001,
+            "maxDeltaMs": 3.1679999999999993
           }
         },
         "B": {
           "event": {
-            "p95AbsDeltaMs": 16,
-            "minDeltaMs": -16,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 21.493,
-            "minDeltaMs": -21.493,
-            "maxDeltaMs": 3.3969999999999985
+            "p95AbsDeltaMs": 4.027999999999999,
+            "minDeltaMs": -3.4529999999999994,
+            "maxDeltaMs": 4.027999999999999
+          }
+        }
+      },
+      "abBands": {
+        "event": {
+          "p95AbsDeltaMs": 8,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 8
+        },
+        "script": {
+          "p95AbsDeltaMs": 10.951999999999998,
+          "minDeltaMs": -3.647000000000002,
+          "maxDeltaMs": 10.951999999999998
+        }
+      }
+    },
+    {
+      "scenario": "vl-select",
+      "rate": 4,
+      "baseline": {
+        "eventMedianMs": 24,
+        "scriptMedianMs": 9.002500000000001
+      },
+      "candidate": {
+        "eventMedianMs": 24,
+        "scriptMedianMs": 7.841
+      },
+      "delta": {
+        "eventMs": 0,
+        "scriptMs": -1.161500000000001
+      },
+      "aaBands": {
+        "A": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 2.488999999999999,
+            "minDeltaMs": -2.488999999999999,
+            "maxDeltaMs": 2.1750000000000007
+          }
+        },
+        "B": {
+          "event": {
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
+          },
+          "script": {
+            "p95AbsDeltaMs": 1.5429999999999993,
+            "minDeltaMs": -0.8389999999999995,
+            "maxDeltaMs": 1.5429999999999993
           }
         }
       },
@@ -3971,63 +4025,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 14.889000000000001,
-          "minDeltaMs": -14.889000000000001,
-          "maxDeltaMs": -5.059000000000001
-        }
-      }
-    },
-    {
-      "scenario": "vl-select",
-      "rate": 4,
-      "baseline": {
-        "eventMedianMs": 24,
-        "scriptMedianMs": 10.197
-      },
-      "candidate": {
-        "eventMedianMs": 20,
-        "scriptMedianMs": 7.906499999999999
-      },
-      "delta": {
-        "eventMs": -4,
-        "scriptMs": -2.2904999999999998
-      },
-      "aaBands": {
-        "A": {
-          "event": {
-            "p95AbsDeltaMs": 48,
-            "minDeltaMs": -48,
-            "maxDeltaMs": 0
-          },
-          "script": {
-            "p95AbsDeltaMs": 17.02,
-            "minDeltaMs": -17.02,
-            "maxDeltaMs": 1.2579999999999991
-          }
-        },
-        "B": {
-          "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
-          },
-          "script": {
-            "p95AbsDeltaMs": 2.437999999999999,
-            "minDeltaMs": -2.437999999999999,
-            "maxDeltaMs": 1.194
-          }
-        }
-      },
-      "abBands": {
-        "event": {
-          "p95AbsDeltaMs": 40,
-          "minDeltaMs": -24,
-          "maxDeltaMs": 40
-        },
-        "script": {
-          "p95AbsDeltaMs": 24.225,
-          "minDeltaMs": -15.355999999999998,
-          "maxDeltaMs": 24.225
+          "p95AbsDeltaMs": 2.6229999999999993,
+          "minDeltaMs": -2.6229999999999993,
+          "maxDeltaMs": 1.4110000000000005
         }
       }
     },
@@ -4036,39 +4036,39 @@
       "rate": 4,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 5.704000000000001
+        "scriptMedianMs": 7.958500000000001
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 6.009
+        "scriptMedianMs": 7.1865000000000006
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": 0.3049999999999997
+        "scriptMs": -0.7720000000000002
       },
       "aaBands": {
         "A": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 7.077,
-            "minDeltaMs": -2.359,
-            "maxDeltaMs": 7.077
+            "p95AbsDeltaMs": 1.8759999999999994,
+            "minDeltaMs": -1.8759999999999994,
+            "maxDeltaMs": 1.0549999999999997
           }
         },
         "B": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
             "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 8.765,
-            "minDeltaMs": -8.765,
-            "maxDeltaMs": 1.3549999999999995
+            "p95AbsDeltaMs": 3.3119999999999994,
+            "minDeltaMs": -1.9689999999999994,
+            "maxDeltaMs": 3.3119999999999994
           }
         }
       },
@@ -4079,9 +4079,9 @@
           "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 1.186,
-          "minDeltaMs": -1.186,
-          "maxDeltaMs": 1.1129999999999995
+          "p95AbsDeltaMs": 4.113999999999999,
+          "minDeltaMs": -4.113999999999999,
+          "maxDeltaMs": 1.319
         }
       }
     },
@@ -4090,52 +4090,52 @@
       "rate": 4,
       "baseline": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 5.439
+        "scriptMedianMs": 6.256500000000001
       },
       "candidate": {
         "eventMedianMs": 16,
-        "scriptMedianMs": 4.4375
+        "scriptMedianMs": 6
       },
       "delta": {
         "eventMs": 0,
-        "scriptMs": -1.0015
+        "scriptMs": -0.25650000000000084
       },
       "aaBands": {
         "A": {
           "event": {
-            "p95AbsDeltaMs": 8,
-            "minDeltaMs": -8,
-            "maxDeltaMs": 8
+            "p95AbsDeltaMs": 0,
+            "minDeltaMs": 0,
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 3.9240000000000004,
-            "minDeltaMs": -1.2809999999999997,
-            "maxDeltaMs": 3.9240000000000004
+            "p95AbsDeltaMs": 1.8439999999999994,
+            "minDeltaMs": -1.3000000000000007,
+            "maxDeltaMs": 1.8439999999999994
           }
         },
         "B": {
           "event": {
-            "p95AbsDeltaMs": 8,
+            "p95AbsDeltaMs": 0,
             "minDeltaMs": 0,
-            "maxDeltaMs": 8
+            "maxDeltaMs": 0
           },
           "script": {
-            "p95AbsDeltaMs": 1.717,
-            "minDeltaMs": -1.717,
-            "maxDeltaMs": 1.7009999999999996
+            "p95AbsDeltaMs": 1.6879999999999997,
+            "minDeltaMs": -1.6209999999999996,
+            "maxDeltaMs": 1.6879999999999997
           }
         }
       },
       "abBands": {
         "event": {
-          "p95AbsDeltaMs": 8,
-          "minDeltaMs": -8,
-          "maxDeltaMs": 8
+          "p95AbsDeltaMs": 0,
+          "minDeltaMs": 0,
+          "maxDeltaMs": 0
         },
         "script": {
-          "p95AbsDeltaMs": 4.165,
-          "minDeltaMs": -4.165,
-          "maxDeltaMs": 1.779
+          "p95AbsDeltaMs": 2.6590000000000007,
+          "minDeltaMs": -2.6590000000000007,
+          "maxDeltaMs": 1.0590000000000002
         }
       }
     }
