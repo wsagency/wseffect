@@ -52,6 +52,21 @@ function viewFor(cfg: DataTable.Config<Row>) {
 }
 
 describe('DataTable view semantics', () => {
+  it('renders its configured initial viewport before the browser measures it', () => {
+    const cfg = {
+      ...config(),
+      viewportHeight: 36,
+    }
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(DataTable.init(cfg)),
+      Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).toExist(),
+      Scene.Mount.resolve(
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.MeasuredRows({ measurements: [] }),
+      ),
+    )
+  })
   it('renders a native table caption, headers, and aria-sort', () => {
     const cfg = config()
     const model = DataTable.update(DataTable.init(cfg), cfg, DataTable.Message.SortChanged({ columnId: 'name' })).model
@@ -218,8 +233,17 @@ describe('DataTable view semantics', () => {
       },
     )
   })
-  it('updates the VirtualList window from the observed viewport scroll position', () => {
-    const cfg = config()
+  it('updates the VirtualList window from the model scroll position', () => {
+    const cfg: DataTable.Config<Row> = {
+      ...config(),
+      id: 'table-scene-scroll-window',
+      rows: [
+        ...rows,
+        { id: 'c', name: 'Charlie', score: 3 },
+        { id: 'd', name: 'Delta', score: 4 },
+      ],
+      overscanRows: 0,
+    }
     const measured = DataTable.update(
       DataTable.init(cfg),
       cfg,
@@ -232,8 +256,8 @@ describe('DataTable view semantics', () => {
       cfg,
       DataTable.Message.VirtualList({
         message: VirtualList.Message.ObservedContainerScroll({
-          scrollTop: 3 * cfg.rowHeight,
-          scrollHeight: rows.length * cfg.rowHeight,
+          scrollTop: cfg.rowHeight * 3,
+          scrollHeight: cfg.rows.length * cfg.rowHeight,
           containerHeight: cfg.rowHeight,
           anchor: { _tag: 'None' },
         }),
@@ -246,6 +270,15 @@ describe('DataTable view semantics', () => {
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: cfg.rowHeight }),
       ),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
+        return command === undefined
+          ? simulation
+          : Scene.Command.resolve(command as never, VirtualList.Message.CompletedApplyScroll({
+            version: 1,
+            outcome: { _tag: 'Skipped' },
+          }))(simulation)
+      },
       Scene.expect(Scene.selector('tr[data-virtual-list-item-key="d"]')).toExist(),
       Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).not.toExist(),
     )

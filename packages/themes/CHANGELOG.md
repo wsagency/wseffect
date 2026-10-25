@@ -38,3 +38,4 @@
 - Match open trigger states, HoverCard trigger sizing, AlertDialog dialog text color, default Button accent attributes, and instant Tooltip capture state to the pinned Radix Themes contract.
 - Match the native AlertDialog viewport wrapper and Tooltip Arrow spacing to the pinned overlay geometry.
 - Add optional DataTable selection-column control and Table-style size/variant rendering for shared styling captures.
+- Render DataTable's fixed-height virtual rows from its configured viewport before the initial browser measurement.

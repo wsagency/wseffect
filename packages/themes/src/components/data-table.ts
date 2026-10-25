@@ -182,7 +182,11 @@ export function init<Row>(config: Config<Row>): Model {
       ? { rowId: firstRowId, columnId: firstGridColumnId }
       : null,
     pendingFocus: null,
-    virtualList: VirtualList.init({ id: `${config.id}-virtual-list`, rowHeightPx: config.rowHeight }),
+    virtualList: VirtualList.init({
+      id: `${config.id}-virtual-list`,
+      rowHeightPx: config.rowHeight,
+      initialContainerHeight: config.viewportHeight ?? 360,
+    }),
   }
 }
 
@@ -588,7 +592,7 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
       containerRole: null,
       containerAttributes: childAttributes([
         h.Class(rootClasses),
-        h.Style({ maxHeight: '360px' }),
+        h.Style({ maxHeight: `${config.viewportHeight ?? 360}px` }),
         h.OnUnmount(Message.TableUnmounted({ tableId: config.id })),
       ]),
       rowElement: 'tr',

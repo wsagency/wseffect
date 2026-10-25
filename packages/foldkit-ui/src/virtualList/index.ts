@@ -123,6 +123,7 @@ export const Model = Schema.Struct({
   rowHeightPx: Schema.Number,
   scrollTop: Schema.Number,
   measurement: Measurement,
+  initialContainerHeight: Schema.optional(Schema.Number),
   viewportAnchor: ViewportAnchor,
   measuredRowHeights: Schema.Record(Schema.String, Schema.Number),
   layoutVersion: Schema.Number,
@@ -171,6 +172,7 @@ export type Message = typeof Message.Type
 export type InitConfig = Readonly<{
   id: string
   rowHeightPx: number
+  initialContainerHeight?: number
   initialScrollTop?: number
   initialScroll?: Readonly<{
     target: ScrollTarget
@@ -211,6 +213,9 @@ export const init = (config: InitConfig): Model => {
     rowHeightPx: config.rowHeightPx,
     scrollTop: config.initialScrollTop ?? 0,
     measurement: Measurement.Unmeasured(),
+    ...(config.initialContainerHeight === undefined
+      ? {}
+      : { initialContainerHeight: config.initialContainerHeight }),
     viewportAnchor: ViewportAnchor.Offset({
       scrollTop: config.initialScrollTop ?? 0,
     }),
@@ -925,7 +930,7 @@ const listLayout = <Item>(
     onSome: lastOrZero,
   })
   const containerHeight = Measurement.match<number>(model.measurement, {
-    Unmeasured: () => 0,
+    Unmeasured: () => model.initialContainerHeight ?? 0,
     Measured: ({ containerHeight }) => containerHeight,
   })
   const leadingInset =
@@ -1427,19 +1432,21 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       itemToEstimatedRowHeightPx,
       contentAlignment,
     )
+    const windowForCurrentViewport = () =>
+      visibleWindowForLayout(
+        layout,
+        scrollTopForView(model, layout, items, itemToKey),
+        items.length,
+        overscan,
+      )
     const maybeWindow = Measurement.match<Option.Option<VisibleWindow>>(
       model.measurement,
       {
-        Unmeasured: () => Option.none(),
-        Measured: () =>
-          Option.some(
-            visibleWindowForLayout(
-              layout,
-              scrollTopForView(model, layout, items, itemToKey),
-              items.length,
-              overscan,
-            ),
-          ),
+        Unmeasured: () =>
+          model.initialContainerHeight === undefined
+            ? Option.none()
+            : Option.some(windowForCurrentViewport()),
+        Measured: () => Option.some(windowForCurrentViewport()),
       },
     )
 

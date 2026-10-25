@@ -168,6 +168,22 @@ describe('VirtualList', () => {
     })
   })
 
+    it('renders fixed-height rows from an initial container height before measurement', () => {
+      const initialModel = init({
+        id: 'initial-height',
+        rowHeightPx: ROW_HEIGHT,
+        initialContainerHeight: 90,
+      })
+      Scene.scene(
+        { update, view: sceneView() },
+        Scene.given(initialModel),
+        Scene.expectAll(rows).toHaveCount(3),
+        Scene.Mount.resolve(
+          ObserveVirtualList({ id: 'initial-height' }),
+          Message.MeasuredRows({ measurements: [] }),
+        ),
+      )
+    })
   describe('unmeasured state', () => {
     it('renders no rows before the container is measured', () => {
       Scene.scene(

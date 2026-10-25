@@ -33,10 +33,8 @@ describe('gallery interactive pages', () => {
       { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
       Scene.given(initial.model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: 'gallery-data-table-virtual-list', tableId: 'gallery-data-table' } },
-        DataTable.Message.VirtualList({
-          message: VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
-        }),
+        { name: 'ObserveVirtualList', args: { id: 'gallery-data-table-virtual-list' } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
       ),
       Scene.expect(Scene.role('heading', { name: 'Data table' })).toExist(),
       Scene.expect(Scene.role('searchbox', { name: 'Filter rows' })).toExist(),
@@ -56,25 +54,25 @@ describe('gallery interactive pages', () => {
       { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
       Scene.given(initial.model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: 'gallery-data-table-virtual-list', tableId: 'gallery-data-table' } },
-        DataTable.Message.VirtualList({
-          message: VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
-        }),
+        { name: 'ObserveVirtualList', args: { id: 'gallery-data-table-virtual-list' } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
       ),
       Scene.expect(Scene.selector('[data-perf="data-table-update"]')).toExist(),
       Scene.expect(Scene.selector('[data-perf="data-table-filter"]')).toExist(),
       Scene.expect(Scene.selector('[data-perf="data-table-sort"]')).toExist(),
       Scene.expect(Scene.selector('[data-perf="data-table-select"]')).toExist(),
       Scene.click(Scene.selector('[data-perf="data-table-update"]')),
-      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+      simulation => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
         return command === undefined
           ? simulation
-          : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
-            scrollTop: 0,
-            scrollHeight: 360,
-            containerHeight: 360,
-            anchor: { _tag: 'None' },
+          : Scene.Command.resolve(command as never, dataTablePage.Message.TableEvent({
+            message: DataTable.Message.VirtualList({
+              message: VirtualList.Message.CompletedApplyScroll({
+                version: 1,
+                outcome: VirtualList.ApplyScrollOutcome.Skipped(),
+              }),
+            }),
           }))(simulation)
       },
       Scene.expect(Scene.text('Record 01*')).toExist(),
