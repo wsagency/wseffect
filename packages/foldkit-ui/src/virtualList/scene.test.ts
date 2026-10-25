@@ -1,4 +1,4 @@
-import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { childAttributes, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
 
 import { describe, it } from '@effect/vitest'
@@ -96,6 +96,47 @@ const acknowledgeObserver = Scene.Mount.resolve(
   Message.MeasuredRows({ measurements: [] }),
 )
 
+  describe('custom element and window output', () => {
+    it('renders custom keyed table rows and window structure without list semantics', () => {
+      const customView = (model: Model, h: HtmlBuilder<Message>) =>
+        view<DemoItem>()(
+          model,
+          {
+            items: demoItems,
+            itemToKey: item => String(item.id),
+            itemToView: item => h.td([], [item.label]),
+            overscan: 0,
+            containerElement: 'div',
+            containerRole: null,
+            rowElement: 'tr',
+            rowRole: 'row',
+            rowToView: (item, _index, key, attributes, builder) =>
+              builder.keyed('tr')(key, attributes, [builder.td([], [item.label])]),
+            spacerToView: (edge, heightPx, builder) =>
+              builder.keyed('tr')(`spacer-${edge}`, [
+                builder.DataAttribute('virtual-list-spacer', edge),
+              ], [builder.td([builder.Colspan(1), builder.Style({ height: `${heightPx}px` })])]),
+            windowToView: ({ topSpacer, rows, bottomSpacer }, builder) =>
+              builder.table([], [builder.tbody([], [topSpacer, ...rows, bottomSpacer])]),
+            containerAttributes: childAttributes([h.Style({ overflow: 'hidden', maxHeight: '60px' })]),
+          },
+          h,
+        )
+
+      Scene.scene(
+        { update, view: customView },
+        Scene.given(measuredModel),
+        Scene.expect(Scene.selector('div#test')).toExist(),
+        Scene.expect(Scene.selector('div#test')).toHaveStyle('overflow', 'auto'),
+        Scene.expect(Scene.selector('div#test')).toHaveStyle('max-height', '60px'),
+        Scene.expect(Scene.selector('table tbody tr[data-virtual-list-item-key="0"]')).toExist(),
+        Scene.expect(Scene.selector('tr[data-virtual-list-item-key="0"][role="row"]')).not.toHaveAttr('aria-setsize', '10'),
+        Scene.expectAll(Scene.all.selector('table tbody tr')).toHaveCount(5),
+        acknowledgeObserver,
+      )
+    })
+  })
+
 describe('VirtualList', () => {
   describe('container', () => {
     it('renders as a ul with id and explicit role=list for Safari + VoiceOver compatibility', () => {
@@ -129,6 +170,22 @@ describe('VirtualList', () => {
     })
   })
 
+    it('renders fixed-height rows from an initial container height before measurement', () => {
+      const initialModel = init({
+        id: 'initial-height',
+        rowHeightPx: ROW_HEIGHT,
+        initialContainerHeight: 90,
+      })
+      Scene.scene(
+        { update, view: sceneView() },
+        Scene.given(initialModel),
+        Scene.expectAll(rows).toHaveCount(3),
+        Scene.Mount.resolve(
+          ObserveVirtualList({ id: 'initial-height' }),
+          Message.MeasuredRows({ measurements: [] }),
+        ),
+      )
+    })
   describe('unmeasured state', () => {
     it('renders no rows before the container is measured', () => {
       Scene.scene(

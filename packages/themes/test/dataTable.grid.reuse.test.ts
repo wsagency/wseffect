@@ -50,21 +50,21 @@ function gridScene(renderCount: Map<string, number>, changeRows: boolean) {
     view,
     initialModel: DataTable.init(cfg),
     resize: Scene.Mount.resolve(
-      { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-      DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+      { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+      VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
     ),
   }
 }
 
 const resolveScrollCommand = (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-  const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+  const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
   return command === undefined
     ? simulation
-    : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
-      scrollTop: 0,
-      scrollHeight: 180,
-      containerHeight: 180,
-      anchor: { _tag: 'None' },
+    : Scene.Command.resolve(command as never, VirtualList.Message.CompletedApplyScroll({
+      version: 'args' in command && typeof command.args === 'object' && command.args !== null && 'version' in command.args && typeof command.args.version === 'number'
+        ? command.args.version
+        : 1,
+      outcome: { _tag: 'Skipped' },
     }))(simulation)
 }
 

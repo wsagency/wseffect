@@ -48,8 +48,15 @@ const fontStylesheet = `
 `
 const args = process.argv.slice(2)
 const galleryBase = args.find(arg => arg.startsWith('--gallery-url='))?.slice('--gallery-url='.length).replace(/\/$/, '')
+const familyFilter = args.find(arg => arg.startsWith('--family='))?.slice('--family='.length)
 const comparing = args.includes('--compare')
 if (comparing && !galleryBase) throw new Error('compare-sp2 requires --gallery-url=<production-gallery-url>')
+const families = familyFilter === undefined
+  ? matrix.families
+  : matrix.families.filter(family => family.family === familyFilter)
+if (familyFilter !== undefined && families.length === 0) {
+  throw new Error(`Unknown SP2 family "${familyFilter}"; expected one of: ${matrix.families.map(family => family.family).join(', ')}`)
+}
 const output = process.env.WSEFFECT_SCRATCH_DIR ?? resolve(homedir(), '.cache/wseffect-radix2solid-sp2')
 const captureDir = resolve(output, 'captures')
 const reportPath = resolve(output, 'compare-sp2.json')
@@ -210,7 +217,7 @@ try {
   await ready(server)
   browser = await chromium.launch({ headless: true })
   const results: CaptureResult[] = []
-  for (const family of matrix.families) for (const capture of family.captures) {
+  for (const family of families) for (const capture of family.captures) {
     const context = await browser.newContext({ viewport: matrix.viewport, deviceScaleFactor: matrix.viewport.deviceScaleFactor, reducedMotion: 'reduce', colorScheme: capture.theme })
     const page = await context.newPage()
     const renderedCapture = initialCapture(family, capture)

@@ -56,6 +56,7 @@ const tableConfig = (
   selectedRowIds: new Set(model.selectedRowIds),
   isGrid: true,
   rowHeight,
+  viewportHeight: 360,
   overscanRows: 4,
 })
 

@@ -16,6 +16,7 @@ import * as Command from '@wsagency/wseffect-foldkit/command'
 import {
   type ChildAttribute,
   type Html,
+  type HtmlBuilder,
   type TagName,
   childAttributes,
 } from '@wsagency/wseffect-foldkit/html'
@@ -122,6 +123,7 @@ export const Model = Schema.Struct({
   rowHeightPx: Schema.Number,
   scrollTop: Schema.Number,
   measurement: Measurement,
+  initialContainerHeight: Schema.optional(Schema.Number),
   viewportAnchor: ViewportAnchor,
   measuredRowHeights: Schema.Record(Schema.String, Schema.Number),
   layoutVersion: Schema.Number,
@@ -170,6 +172,7 @@ export type Message = typeof Message.Type
 export type InitConfig = Readonly<{
   id: string
   rowHeightPx: number
+  initialContainerHeight?: number
   initialScrollTop?: number
   initialScroll?: Readonly<{
     target: ScrollTarget
@@ -210,6 +213,9 @@ export const init = (config: InitConfig): Model => {
     rowHeightPx: config.rowHeightPx,
     scrollTop: config.initialScrollTop ?? 0,
     measurement: Measurement.Unmeasured(),
+    ...(config.initialContainerHeight === undefined
+      ? {}
+      : { initialContainerHeight: config.initialContainerHeight }),
     viewportAnchor: ViewportAnchor.Offset({
       scrollTop: config.initialScrollTop ?? 0,
     }),
@@ -285,12 +291,12 @@ const scrollTopForRow = (
 
 const renderedRows = (element: HTMLElement): ReadonlyArray<HTMLElement> =>
   pipe(
-    element.children,
+    element.querySelectorAll<HTMLElement>('[data-virtual-list-item-key]'),
     Array.fromIterable,
     Array.filter(
-      (row): row is HTMLElement =>
-        row instanceof HTMLElement &&
-        row.hasAttribute('data-virtual-list-item-key'),
+      row =>
+        row.closest('[data-virtual-list-item-key]') === row &&
+        row.parentElement?.closest('[data-virtual-list-item-key]') === null,
     ),
   )
 
@@ -510,7 +516,6 @@ export const ApplyScroll = Command.define('ApplyScroll', {
           outcome: ApplyScrollOutcome.Skipped(),
         })
       }
-
       element.scrollTop = clampScrollTop(element, maybeScrollTop.value)
       return Message.CompletedApplyScroll({
         version,
@@ -924,7 +929,7 @@ const listLayout = <Item>(
     onSome: lastOrZero,
   })
   const containerHeight = Measurement.match<number>(model.measurement, {
-    Unmeasured: () => 0,
+    Unmeasured: () => model.initialContainerHeight ?? 0,
     Measured: ({ containerHeight }) => containerHeight,
   })
   const leadingInset =
@@ -1300,7 +1305,33 @@ type BaseViewInputs<Item> = Readonly<{
   itemToKey: (item: Item, index: number) => string
   itemToView: (item: Item, index: number) => Html
   overscan?: number
+  containerElement?: Exclude<TagName, 'textarea'>
+  containerRole?: 'list' | 'grid' | null
   rowElement?: Exclude<TagName, 'textarea'>
+  rowRole?: 'listitem' | 'row' | null
+  rowToView?: (
+    item: Item,
+    index: number,
+    key: string,
+    rowAttributes: ReadonlyArray<ChildAttribute>,
+    h: HtmlBuilder<Message>,
+  ) => Html
+  spacerToView?: (
+    edge: 'top' | 'bottom',
+    heightPx: number,
+    h: HtmlBuilder<Message>,
+  ) => Html
+  windowToView?: (
+    window: Readonly<{
+      topSpacer: Html
+      rows: ReadonlyArray<Html>
+      bottomSpacer: Html
+      startIndex: number
+      endIndex: number
+      itemCount: number
+    }>,
+    h: HtmlBuilder<Message>,
+  ) => Html
   containerClassName?: string
   containerAttributes?: ReadonlyArray<ChildAttribute>
   contentAlignment?: ContentAlignment
@@ -1351,21 +1382,43 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       dynamicRowHeights,
       itemToEstimatedRowHeightPx,
       overscan = DEFAULT_OVERSCAN,
+      containerElement = 'ul',
+      containerRole = 'list',
       rowElement = 'li',
+      rowRole = 'listitem',
+      rowToView,
+      spacerToView,
+      windowToView,
       containerClassName,
       containerAttributes = [],
       contentAlignment = 'Start',
     } = viewInputs
 
+    const consumerContainerStyle: Record<string, string> = {}
+    const consumerContainerAttributes = containerAttributes.filter(attribute => {
+      const value = attribute.attribute
+      if (
+        typeof value !== 'object' ||
+        value === null ||
+        !('_tag' in value) ||
+        value._tag !== 'Style' ||
+        !('value' in value)
+      ) {
+        return true
+      }
+      Object.assign(consumerContainerStyle, value.value)
+      return false
+    })
     const baseContainerAttributes = [
       h.Id(model.id),
-      h.Role('list'),
+      ...(containerRole === null ? [] : [h.Role(containerRole)]),
       h.DataAttribute(
         'virtual-list-scroll-version',
         String(model.pendingScrollVersion),
       ),
       h.OnMount(ObserveVirtualList({ id: model.id })),
       h.Style({
+        ...consumerContainerStyle,
         overflow: 'auto',
         'overflow-anchor': 'none',
         'list-style': 'none',
@@ -1379,11 +1432,11 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
 
     const allContainerAttributes = [
       ...childAttributes(baseContainerAttributes),
-      ...containerAttributes,
+      ...consumerContainerAttributes,
     ]
 
     const renderContainer = (children: ReadonlyArray<Html>): Html =>
-      h.keyed('ul')(model.id, allContainerAttributes, children)
+      h.keyed(containerElement)(model.id, allContainerAttributes, children)
 
     const layout = listLayout(
       model,
@@ -1394,19 +1447,21 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       itemToEstimatedRowHeightPx,
       contentAlignment,
     )
+    const windowForCurrentViewport = () =>
+      visibleWindowForLayout(
+        layout,
+        scrollTopForView(model, layout, items, itemToKey),
+        items.length,
+        overscan,
+      )
     const maybeWindow = Measurement.match<Option.Option<VisibleWindow>>(
       model.measurement,
       {
-        Unmeasured: () => Option.none(),
-        Measured: () =>
-          Option.some(
-            visibleWindowForLayout(
-              layout,
-              scrollTopForView(model, layout, items, itemToKey),
-              items.length,
-              overscan,
-            ),
-          ),
+        Unmeasured: () =>
+          model.initialContainerHeight === undefined
+            ? Option.none()
+            : Option.some(windowForCurrentViewport()),
+        Measured: () => Option.some(windowForCurrentViewport()),
       },
     )
 
@@ -1421,15 +1476,15 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       }) => {
         const visibleItems = items.slice(startIndex, endIndex)
 
-        const topSpacer = h.keyed('li')(`${model.id}-top-spacer`, [
-          h.Role('presentation'),
-          h.Style({ height: `${topSpacerHeight}px` }),
-        ])
-
-        const bottomSpacer = h.keyed('li')(`${model.id}-bottom-spacer`, [
-          h.Role('presentation'),
-          h.Style({ height: `${bottomSpacerHeight}px` }),
-        ])
+        const renderSpacer = (edge: 'top' | 'bottom', heightPx: number) =>
+          spacerToView === undefined
+            ? h.keyed('li')(`${model.id}-${edge}-spacer`, [
+                h.Role('presentation'),
+                h.Style({ height: `${heightPx}px` }),
+              ])
+            : spacerToView(edge, heightPx, h)
+        const topSpacer = renderSpacer('top', topSpacerHeight)
+        const bottomSpacer = renderSpacer('bottom', bottomSpacerHeight)
 
         const renderedRows = Array.map(visibleItems, (item, sliceIndex) => {
           const dataIndex = startIndex + sliceIndex
@@ -1439,10 +1494,11 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
           const rowSizingAttributes =
             dynamicRowHeights === undefined
               ? [
-                  h.Style({
-                    height: `${rowHeight}px`,
-                    display: 'grid',
-                  }),
+                  h.Style(
+                    rowToView === undefined
+                      ? { height: `${rowHeight}px`, display: 'grid' }
+                      : { height: `${rowHeight}px` },
+                  ),
                 ]
               : [
                   h.DataAttribute('virtual-list-measure', 'true'),
@@ -1450,23 +1506,42 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
                     'virtual-list-layout-version',
                     String(model.layoutVersion),
                   ),
-                  h.Style({ display: 'grid' }),
+                  ...(rowToView === undefined
+                    ? [h.Style({ display: 'grid' })]
+                    : []),
                 ]
-          return h.keyed(rowElement)(
-            key,
-            [
-              h.Role('listitem'),
-              h.DataAttribute('virtual-list-item-key', key),
-              h.DataAttribute('virtual-list-item-index', String(dataIndex)),
-              h.AriaSetsize(items.length),
-              h.AriaPosinset(dataIndex + 1),
-              ...rowSizingAttributes,
-            ],
-            [itemToView(item, dataIndex)],
-          )
+          const rowAttributes = [
+            ...(rowRole === null ? [] : [h.Role(rowRole)]),
+            h.DataAttribute('virtual-list-item-key', key),
+            h.DataAttribute('virtual-list-item-index', String(dataIndex)),
+            ...(rowRole === 'listitem'
+              ? [h.AriaSetsize(items.length), h.AriaPosinset(dataIndex + 1)]
+              : []),
+            ...rowSizingAttributes,
+          ]
+          const rowChildAttributes = childAttributes(rowAttributes)
+          return rowToView === undefined
+            ? h.keyed(rowElement)(
+                key,
+                rowChildAttributes,
+                [itemToView(item, dataIndex)],
+              )
+            : rowToView(item, dataIndex, key, rowChildAttributes, h)
         })
 
-        return renderContainer([topSpacer, ...renderedRows, bottomSpacer])
+        return windowToView === undefined
+          ? renderContainer([topSpacer, ...renderedRows, bottomSpacer])
+          : renderContainer([windowToView(
+              {
+                topSpacer,
+                rows: renderedRows,
+                bottomSpacer,
+                startIndex,
+                endIndex,
+                itemCount: items.length,
+              },
+              h,
+            )])
       },
     })
   },

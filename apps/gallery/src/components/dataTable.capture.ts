@@ -96,6 +96,7 @@ export async function renderCapture(root: HTMLElement, request: CaptureRequest):
       selectedRowIds: new Set(modelInputs.selectedRowIds),
       isGrid: false,
       rowHeight,
+      viewportHeight,
       overscanRows: 4,
       showSelection: false,
       tableStyle: { size, variant },

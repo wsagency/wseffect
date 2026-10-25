@@ -52,6 +52,21 @@ function viewFor(cfg: DataTable.Config<Row>) {
 }
 
 describe('DataTable view semantics', () => {
+  it('renders its configured initial viewport before the browser measures it', () => {
+    const cfg = {
+      ...config(),
+      viewportHeight: 36,
+    }
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(DataTable.init(cfg)),
+      Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).toExist(),
+      Scene.Mount.resolve(
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.MeasuredRows({ measurements: [] }),
+      ),
+    )
+  })
   it('renders a native table caption, headers, and aria-sort', () => {
     const cfg = config()
     const model = DataTable.update(DataTable.init(cfg), cfg, DataTable.Message.SortChanged({ columnId: 'name' })).model
@@ -59,8 +74,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       Scene.expect(Scene.role('table')).toExist(),
       Scene.expect(Scene.text('People')).toExist(),
@@ -80,8 +95,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
         const table = simulation.html?.children?.[0]
@@ -106,19 +121,19 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       Scene.click(Scene.role('button', { name: 'Name' })),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const command = simulation.commands.find(candidate => candidate.name === 'ScrollDataTableRow')
+        const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
         return command === undefined
           ? simulation
-          : Scene.Command.resolve(command as never, VirtualList.Message.ObservedContainerScroll({
-            scrollTop: 0,
-            scrollHeight: 180,
-            containerHeight: 180,
-            anchor: { _tag: 'None' },
+          : Scene.Command.resolve(command as never, VirtualList.Message.CompletedApplyScroll({
+            version: 'args' in command && typeof command.args === 'object' && command.args !== null && 'version' in command.args && typeof command.args.version === 'number'
+              ? command.args.version
+              : 1,
+            outcome: { _tag: 'Skipped' },
           }))(simulation)
       },
       Scene.expect(Scene.selector('th[aria-sort="ascending"] button')).toExist(),
@@ -133,8 +148,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       Scene.keydown(Scene.role('grid'), ' '),
       Scene.expectOutMessage(DataTable.OutMessage.SelectionChanged({ ids: ['a', 'b'] })),
@@ -148,8 +163,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
         const table = simulation.html?.children?.[0]
@@ -166,8 +181,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
         const table = simulation.html.children?.[0]
@@ -202,8 +217,8 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
-        { name: 'ObserveDataTable', args: { id: `${cfg.id}-virtual-list`, tableId: cfg.id } },
-        DataTable.Message.VirtualList({ message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }) }),
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
         const table = simulation.html.children?.[0]
@@ -216,6 +231,56 @@ describe('DataTable view semantics', () => {
         expect(cells[2] && isVNode(cells[2]) ? cells[2].data?.props?.tabIndex : undefined).toBe(-1)
         return simulation
       },
+    )
+  })
+  it('updates the VirtualList window from the model scroll position', () => {
+    const cfg: DataTable.Config<Row> = {
+      ...config(),
+      id: 'table-scene-scroll-window',
+      rows: [
+        ...rows,
+        { id: 'c', name: 'Charlie', score: 3 },
+        { id: 'd', name: 'Delta', score: 4 },
+      ],
+      overscanRows: 0,
+    }
+    const measured = DataTable.update(
+      DataTable.init(cfg),
+      cfg,
+      DataTable.Message.VirtualList({
+        message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: cfg.rowHeight }),
+      }),
+    ).model
+    const scrolled = DataTable.update(
+      measured,
+      cfg,
+      DataTable.Message.VirtualList({
+        message: VirtualList.Message.ObservedContainerScroll({
+          scrollTop: cfg.rowHeight * 3,
+          scrollHeight: cfg.rows.length * cfg.rowHeight,
+          containerHeight: cfg.rowHeight,
+          anchor: { _tag: 'None' },
+        }),
+      }),
+    ).model
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(scrolled),
+      Scene.Mount.resolve(
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: cfg.rowHeight }),
+      ),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
+        return command === undefined
+          ? simulation
+          : Scene.Command.resolve(command as never, VirtualList.Message.CompletedApplyScroll({
+            version: 1,
+            outcome: { _tag: 'Skipped' },
+          }))(simulation)
+      },
+      Scene.expect(Scene.selector('tr[data-virtual-list-item-key="d"]')).toExist(),
+      Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).not.toExist(),
     )
   })
 })

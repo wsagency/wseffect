@@ -32,5 +32,7 @@ export type Config<Row> = Readonly<{
    * Fixed pixel height for each virtualized data row. Cell content is kept to one line and truncated with an ellipsis.
    */
   rowHeight: number
+  /** Initial virtual viewport height in pixels, before the browser measures it. */
+  viewportHeight?: number
   overscanRows: number
 }>
