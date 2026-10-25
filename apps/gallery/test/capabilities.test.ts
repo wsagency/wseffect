@@ -1,4 +1,4 @@
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import { pageKeysForRoute } from '../src/routes.js'
 import { page as signalsPage, Message as SignalsMessage } from '../src/pages/signals.js'

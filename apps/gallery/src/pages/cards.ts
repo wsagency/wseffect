@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import { Submodel } from 'foldkit'
-import { defineMessageUnion } from 'foldkit/message'
+import { Submodel } from '@wsagency/wseffect-foldkit'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { Card, Heading, Text } from '@wsagency/wseffect-themes'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 

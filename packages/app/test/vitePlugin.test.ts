@@ -83,10 +83,10 @@ async function buildFixture(
       join(directory, 'node_modules/@wsagency/wseffect-themes'),
       'dir',
     )
-    mkdirSync(join(directory, 'node_modules/@foldkit'), { recursive: true })
-    symlinkSync(resolve(testDirectory, '../node_modules/foldkit'), join(directory, 'node_modules/foldkit'), 'dir')
+    mkdirSync(join(directory, 'node_modules/@wsagency'), { recursive: true })
+    symlinkSync(resolve(testDirectory, '../node_modules/@wsagency/wseffect-foldkit'), join(directory, 'node_modules/@wsagency/wseffect-foldkit'), 'dir')
+    symlinkSync(resolve(testDirectory, '../node_modules/@wsagency/wseffect-foldkit-ui'), join(directory, 'node_modules/@wsagency/wseffect-foldkit-ui'), 'dir')
     symlinkSync(resolve(testDirectory, '..'), join(directory, 'node_modules/@wsagency/wseffect-app'), 'dir')
-    symlinkSync(resolve(testDirectory, '../node_modules/@foldkit/ui'), join(directory, 'node_modules/@foldkit/ui'), 'dir')
     await build({
       configFile: false,
       root: directory,
@@ -252,19 +252,19 @@ describe('wseffect Vite plugin', () => {
     }
   })
   it('keeps boot packages and app runtime in framework and lazy-loads page-only menu code', async () => {
-    const { directory, output } = await buildFixture(false, "import * as Menu from '@foldkit/ui/menu'\nimport * as Dialog from '@foldkit/ui/dialog'\nimport * as Tabs from '@foldkit/ui/tabs'\n\nexport const page = { Menu, Dialog, Tabs }\n")
+    const { directory, output } = await buildFixture(false, "import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'\nimport * as Dialog from '@wsagency/wseffect-foldkit-ui/dialog'\nimport * as Tabs from '@wsagency/wseffect-foldkit-ui/tabs'\n\nexport const page = { Menu, Dialog, Tabs }\n")
     try {
       const files = outputFiles(output)
       const framework = files.find((file) => file.startsWith('framework-'))!
       const alpha = files.find((file) => file.startsWith('alpha-'))!
       const sources = (file: string) =>
         (JSON.parse(readFileSync(join(output, 'assets', `${file}.map`), 'utf8')) as { sources: string[] }).sources
-      const bootPackages = ['foldkit', 'effect', '@effect/platform-browser', 'workbox-window']
+      const bootPackages = ['@wsagency/wseffect-foldkit', 'effect', '@effect/platform-browser', 'workbox-window']
       const bootModule = (source: string) => source.includes('/packages/app/') || bootPackages.some((name) =>
         source.includes(`/node_modules/${name}/`) || source.includes(`/node_modules/.pnpm/${name.replace('/', '+')}@`),
       )
       expect(sources(framework).every(bootModule)).toBe(true)
-      expect(sources(framework).some((source) => source.includes('@foldkit/ui/menu'))).toBe(false)
+      expect(sources(framework).some((source) => source.includes('@wsagency/wseffect-foldkit-ui/menu'))).toBe(false)
       expect(sources(alpha).some((source) => source.includes('/dist/menu/'))).toBe(true)
       const buildManifest = JSON.parse(readFileSync(join(output, '.vite/manifest.json'), 'utf8')) as BuildManifest
       const staticKeys = new Set<string>()
@@ -280,7 +280,7 @@ describe('wseffect Vite plugin', () => {
         if (file === undefined || !file.endsWith('.js')) return []
         return sources(file.split('/').at(-1)!)
       })
-      expect(staticSources.some((source) => /@foldkit\/ui\/(?:dialog|menu|tabs)|@floating-ui/.test(source))).toBe(false)
+      expect(staticSources.some((source) => /@wsagency\/wseffect-foldkit-ui\/(?:dialog|menu|tabs)|@floating-ui/.test(source))).toBe(false)
     } finally {
       rmSync(directory, { recursive: true, force: true })
     }

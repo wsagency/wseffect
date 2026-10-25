@@ -1,8 +1,8 @@
 import { Option, Schema } from 'effect'
-import { Command, Submodel } from 'foldkit'
-import { childAttributes, createKeyedLazy, type HtmlBuilder } from 'foldkit/html'
-import { defineMessageUnion } from 'foldkit/message'
-import * as VirtualList from '@foldkit/ui/virtualList'
+import { Command, Submodel } from '@wsagency/wseffect-foldkit'
+import { childAttributes, createKeyedLazy, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
+import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 

@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import * as Menu from '@foldkit/ui/menu'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 import { describe, expect, it } from 'vitest'
 import * as ContextMenu from '../src/components/context-menu.js'
 

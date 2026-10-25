@@ -1,5 +1,5 @@
 import { Option, Schema } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Checkbox from '@wsagency/wseffect-themes/components/checkbox'
 import * as CheckboxGroup from '@wsagency/wseffect-themes/components/checkbox-group'
 import * as CheckboxCards from '@wsagency/wseffect-themes/components/checkbox-cards'
@@ -11,7 +11,7 @@ import * as TextArea from '@wsagency/wseffect-themes/components/text-area'
 import * as SegmentedControl from '@wsagency/wseffect-themes/components/segmented-control'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 const Message = defineMessageUnion({ ToggleCheckbox: { checked: Schema.Boolean }, ToggleSwitch: { enabled: Schema.Boolean } })
 type Message = typeof Message.Type
 const frequencyGroup = RadioGroup.create<string>()

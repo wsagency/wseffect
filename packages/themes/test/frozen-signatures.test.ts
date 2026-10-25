@@ -1,13 +1,13 @@
 import { expectTypeOf, it } from 'vitest'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import * as Listbox from '@foldkit/ui/listbox'
-import * as Menu from '@foldkit/ui/menu'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 import * as Option from 'effect/Option'
 import type { Props as CheckboxGroupProps } from '../../primitives/dist/checkbox-group.js'
 import type { SelectBundle, SelectConfig, SelectModel } from '../../primitives/dist/select.js'
 import type { ContextMenuBundle, ContextMenuModel } from '../../primitives/dist/context-menu.js'
-import type * as Mount from 'foldkit/mount'
+import type * as Mount from '@wsagency/wseffect-foldkit/mount'
 import type { mountSelectPosition } from '../../primitives/dist/select-position.js'
 
 interface Item<Value extends string> { value: Value; label: string }

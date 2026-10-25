@@ -1,9 +1,9 @@
 import * as Effect from 'effect/Effect'
 import * as Option from 'effect/Option'
 import * as Stream from 'effect/Stream'
-import * as HoverIntent from '@foldkit/ui/hoverIntent'
-import type * as Anchor from '@foldkit/ui/anchor'
-import * as Mount from 'foldkit/mount'
+import * as HoverIntent from '@wsagency/wseffect-foldkit-ui/hoverIntent'
+import type * as Anchor from '@wsagency/wseffect-foldkit-ui/anchor'
+import * as Mount from '@wsagency/wseffect-foldkit/mount'
 import { describe, expect, it, vi } from 'vitest'
 import { AnchorHoverCard } from '../src/components/hover-card-anchor.js'
 
@@ -13,7 +13,7 @@ const { anchorSetup, portalToContainingRoot, removePortal, stopPositioning } = v
   anchorSetup: vi.fn(() => stopPositioning),
   portalToContainingRoot: vi.fn(() => removePortal),
 }))
-vi.mock('@foldkit/ui/anchor', async importOriginal => {
+vi.mock('@wsagency/wseffect-foldkit-ui/anchor', async importOriginal => {
   const actual = await importOriginal<typeof Anchor>()
   return { ...actual, anchorSetup, portalToContainingRoot }
 })

@@ -1,7 +1,7 @@
 import { Option } from 'effect'
 import * as Select from '@wsagency/wseffect-themes/components/select'
 import { renderCaptureView } from '../captureView.js'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import type { CaptureRequest } from '../capture.js'
 
 const Picker = Select.create<string>()

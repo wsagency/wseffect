@@ -1,8 +1,8 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import { defineMessageUnion } from 'foldkit/message'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
-import * as UiDialog from '@foldkit/ui/dialog'
+import * as UiDialog from '@wsagency/wseffect-foldkit-ui/dialog'
 import * as Dialog from '../src/components/dialog.js'
 
 const Message = defineMessageUnion({ Tick: {} })

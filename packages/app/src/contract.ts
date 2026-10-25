@@ -1,5 +1,5 @@
 import type { Schema } from 'effect'
-import type { Submodel, Update } from 'foldkit'
+import type { Submodel, Update } from '@wsagency/wseffect-foldkit'
 
 export type PageInputsShape = Readonly<Record<string, string | number | boolean | null>>
 

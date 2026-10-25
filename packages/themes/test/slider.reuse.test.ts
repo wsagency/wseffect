@@ -1,6 +1,6 @@
-import { createLazy, type HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
-import { defineMessageUnion } from 'foldkit/message'
+import { createLazy, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, expect, it, vi } from 'vitest'
 import * as Slider from '../src/components/slider.js'
 

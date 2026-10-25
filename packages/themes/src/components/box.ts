@@ -1,5 +1,5 @@
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { layoutPropDefs } from '../props/layout.props.js'
 import { paddingClasses } from '../props/padding.classes.js'

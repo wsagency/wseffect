@@ -1,9 +1,9 @@
 import * as Option from 'effect/Option'
 import { Schema } from 'effect'
-import * as Story from 'foldkit/story'
-import { defineMessageUnion } from 'foldkit/message'
+import * as Story from '@wsagency/wseffect-foldkit/story'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, it } from 'vitest'
-import * as UiTabs from '@foldkit/ui/tabs'
+import * as UiTabs from '@wsagency/wseffect-foldkit-ui/tabs'
 import * as Tabs from '../src/components/tabs.js'
 
 const TabsBundle = Tabs.create<'overview' | 'settings'>()

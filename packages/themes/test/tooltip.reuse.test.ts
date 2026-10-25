@@ -1,7 +1,7 @@
 import * as Option from 'effect/Option'
-import { createLazy, type HtmlBuilder } from 'foldkit/html'
-import { defineMessageUnion } from 'foldkit/message'
-import * as Scene from 'foldkit/scene'
+import { createLazy, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import * as Tooltip from '../src/components/tooltip.js'
 

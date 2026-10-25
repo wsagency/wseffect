@@ -6,7 +6,7 @@ import type { KitBinding } from '../src/kit/binding.js'
 import { makeApp } from '../src/app.js'
 
 const { makeApplication } = vi.hoisted(() => ({ makeApplication: vi.fn() }))
-vi.mock('foldkit/runtime', () => ({ makeApplication }))
+vi.mock('@wsagency/wseffect-foldkit/runtime', () => ({ makeApplication }))
 
 describe('makeApp', () => {
   it('merges app, page-loader, version-poll and enabled service-worker subscriptions', () => {

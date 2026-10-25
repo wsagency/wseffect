@@ -1,9 +1,9 @@
-import { createLazy, type HtmlBuilder } from 'foldkit/html'
-import { defineMessageUnion } from 'foldkit/message'
-import * as Scene from 'foldkit/scene'
+import { createLazy, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import * as Stream from 'effect/Stream'
 import { describe, expect, it, vi } from 'vitest'
-import * as UiDialog from '@foldkit/ui/dialog'
+import * as UiDialog from '@wsagency/wseffect-foldkit-ui/dialog'
 import * as AlertDialog from '../src/components/alert-dialog.js'
 
 const Message = defineMessageUnion({ Tick: {}, Rename: {} })

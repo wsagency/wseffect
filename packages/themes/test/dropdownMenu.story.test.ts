@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
 import * as Option from 'effect/Option'
-import * as Story from 'foldkit/story'
-import { defineMessageUnion } from 'foldkit/message'
+import * as Story from '@wsagency/wseffect-foldkit/story'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, it } from 'vitest'
 import * as DropdownMenu from '../src/components/dropdown-menu.js'
 

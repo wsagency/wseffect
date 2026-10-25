@@ -9,9 +9,6 @@ import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { checkTreeShaking } from './check-tree-shaking.ts'
 import { discoverPackagePublicSurface, discoverPublicItems, extractExportNames } from './discover-public-surface.ts'
 import { createScratchDir } from '../../e2e/helpers/build.ts'
-import { checkUp8 } from './check-up8.ts'
-const readme = '<!-- up8:start -->\n```yaml\nthe exact block\n```\n<!-- up8:end -->'
-const workspace = 'the exact block\n'
 test('packed consumer preview port is available to bind', async () => {
   const port = await findFreePreviewPort()
   const server = createServer()
@@ -48,6 +45,9 @@ test('packed tarballs are sourced from the matching local package directory', ()
   assert.equal(packageDirectory('/consumer-workspace', 'app'), resolve('/consumer-workspace/packages/app'))
   assert.equal(packageDirectory('/consumer-workspace', 'primitives'), resolve('/consumer-workspace/packages/primitives'))
   assert.equal(packageDirectory('/consumer-workspace', 'themes'), resolve('/consumer-workspace/packages/themes'))
+  assert.equal(packageDirectory('/consumer-workspace', 'foldkit'), resolve('/consumer-workspace/packages/foldkit'))
+  assert.equal(packageDirectory('/consumer-workspace', 'foldkit-ui'), resolve('/consumer-workspace/packages/foldkit-ui'))
+  assert.equal(packageDirectory('/consumer-workspace', 'vite-plugin'), resolve('/consumer-workspace/packages/vite-plugin'))
 })
 test('tarball discovery ignores files already present before packing', () => {
   assert.equal(findNewTarballName(new Set(['old.tgz', 'note.txt']), ['old.tgz', 'new.tgz']), 'new.tgz')
@@ -59,10 +59,6 @@ test('packed builds use a deterministic build ID and enable the local capability
   assert.equal(env.GALLERY_CAPABILITY_SSE, '1')
 })
 
-test('UP-8 requires the README block to match byte-for-byte', () => {
-  assert.deepEqual(checkUp8(readme, workspace), [])
-  assert.notDeepEqual(checkUp8(readme, '\nthe exact blocK\n'), [])
-})
 
 test('APP-6 detects each forbidden tree-shaken export marker', () => {
   for (const marker of ['viewPage', 'ServiceWorker', 'makeApp', 'prefetchOnVisible']) {
@@ -79,9 +75,8 @@ test('REPO-2 checks every exported view adapter and component factory', () => {
   const missingBrand = (name: string) => [{ path: `dist/${name}.js`, source: `export const ${name} = () => {}` }]
   assert.notDeepEqual(checkBranding(missingBrand('viewPage')), [])
   assert.notDeepEqual(checkBranding(missingBrand('embed')), [])
-  assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from "foldkit"; export const create = () => defineView(() => {})' }]), [])
-  assert.deepEqual(checkBranding([{ path: 'dist/other.js', source: 'export const create = () => ({})' }]), [])
-  assert.deepEqual(checkBranding([{ path: 'dist/components/slider.js', source: `import * as SliderUi from '@foldkit/ui/slider'; export const view = SliderUi.view` }]), [])
+  assert.notDeepEqual(checkBranding([{ path: 'dist/menu.js', source: 'import { defineView } from \"@wsagency/wseffect-foldkit\"; export const create = () => defineView(() => {})' }]), [])
+  assert.deepEqual(checkBranding([{ path: 'dist/components/slider.js', source: `import * as SliderUi from '@wsagency/wseffect-foldkit-ui/slider'; export const view = SliderUi.view` }]), [])
 })
 
 test('TEST-7 requires every listed export check to pass', () => {
@@ -113,6 +108,18 @@ test('TEST-7 expands wildcard CSS entries and lists named runtime and type expor
   assert.ok(items.includes('css:@wsagency/example:dist/styles/reset.css'))
   assert.ok(items.includes('css:@wsagency/example:dist/styles/theme.css'))
   assert.ok(items.includes('subpath:@wsagency/example:./reset.css'))
+  const importMappedItems = discoverPublicItems(
+    '@wsagency/example',
+    { '.': { import: './dist/index.js', types: './dist/index.d.ts' } },
+    ['dist/index.js'],
+    { 'dist/index.js': ['run'] },
+    { 'dist/index.d.ts': ['Thing'] },
+  )
+  assert.deepEqual(importMappedItems, [
+    'export:@wsagency/example:.:run',
+    'subpath:@wsagency/example:.',
+    'type:@wsagency/example:.:Thing',
+  ])
   assert.deepEqual(extractExportNames('export const view = () => {}; export { create as createMenu }'), ['createMenu', 'view'])
   assert.deepEqual(extractExportNames('export interface WseffectOptions {}; export type PageKey = string'), ['PageKey', 'WseffectOptions'])
   assert.notDeepEqual(checkCoverageManifest({ [items[0]]: 'install' }, items, ['install']), [])

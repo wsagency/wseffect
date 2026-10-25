@@ -2,23 +2,24 @@
 
 Thanks for helping improve wseffect. Keep changes focused, preserve the upstream Foldkit behavior and the performance constraints below, and run the relevant checks before opening a pull request.
 
-## Upstream Foldkit PRs
+## Vendored Foldkit maintenance
 
-Changes intended for upstream Foldkit should be proposed there first when they belong in Foldkit. Keep upstream pull requests focused and include targeted tests that demonstrate the behavior change. Foldkit's test suite is memory-intensive; run it with bounded parallelism and the required Node heap:
+The Foldkit core, UI, and Vite plugin sources are owned parts of wseffect under `packages/foldkit`, `packages/foldkit-ui`, and `packages/vite-plugin`. Make changes here and record local divergence in each package's `UPSTREAM.md`; preserve upstream formatting so later syncs stay reviewable. Build and run the vendored packages' unit tests through `pnpm check`.
+
+Upstream PRs are optional. Propose a change upstream only when it is generally useful to Foldkit users and fits Foldkit's philosophy. A wseffect fix does not depend on upstream acceptance.
+
+Keep any upstream proposal focused and include targeted tests. Foldkit's suite is memory-intensive; when running its full suite in an upstream checkout, use bounded parallelism and the required Node heap:
 
 ```sh
 pnpm test --workers=4
 NODE_OPTIONS=--max-old-space-size=8192 pnpm test --workers=4
 ```
 
-Use `--workers=4` for the Foldkit test command. Set `NODE_OPTIONS=--max-old-space-size=8192` when running the suite to avoid exhausting the default Node heap.
+## Dependency and size changes
 
-## Dependency upgrades
-
-- **UP-1 — Own PR for Foldkit upgrades.** Keep `foldkit`, `@foldkit/ui`, and `@foldkit/vite-plugin` on their exact approved versions. A Foldkit version bump is its own PR and is never bundled with feature work.
-- **UP-4 — Remove the interim Effect resolution together.** In the Foldkit upgrade PR that adopts peers accepting Effect 4.0.5, remove the `effect` and `@effect/platform-browser` overrides and obsolete `peerDependencyRules.allowedVersions` entries from the root `pnpm-workspace.yaml`. In that same PR, remove the UP-8 consumer snippet from the wseffect-app README and the packed-consumer TEST-7 fixture, or narrow the rules only to peer conflicts still required by the new Foldkit version. Keep the single-Effect-copy check in place.
-- **UP-6 — Neutral-only size PRs.** Submit an upstream size reduction only when it is neutral for correctness and speed. Each PR must include targeted tests proving behavior is unchanged; a size reduction is not a reason to weaken correctness or performance.
-- **UP-7 — No local patches.** No local `patch-package`, `patchedDependencies`, or rewriting Foldkit's `dist`; no vendored Foldkit copy. Propose fixes upstream rather than maintaining a local fork.
+- Keep vendored packages on their recorded source snapshots; update them intentionally with a reviewed source sync and updated provenance.
+- Keep Effect and other workspace dependency pins exact. Do not add `patchedDependencies` or `packageExtensions`; make owned source changes in the vendored packages instead.
+- Upstream size proposals are optional and should be neutral for correctness and speed, with targeted tests proving behavior is unchanged.
 
 ## Performance rules
 

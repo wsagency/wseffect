@@ -9,7 +9,7 @@ Local, JavaScript-only stateful and view primitives for the WSEffect Themes pack
 - `@wsagency/wseffect-primitives/range-slider` — stable-ID, controlled multi-thumb Slider model and view.
 - `@wsagency/wseffect-primitives/tooltip-group` — shared Tooltip open/skip-delay coordination model.
 
-Foldkit and `@foldkit/ui` remain external exact peers at 0.168.0. `@floating-ui/dom` is a direct dependency used only by the ContextMenu subpath. This package is MIT licensed; retain all applicable third-party notices when copying source or CSS.
+The core and UI imports use wseffect-owned workspace packages `@wsagency/wseffect-foldkit` and `@wsagency/wseffect-foldkit-ui` at the vendored 0.168.0 snapshot. `@floating-ui/dom` is a direct dependency used only by the ContextMenu subpath. This package is MIT licensed; retain all applicable third-party notices when copying source or CSS.
 
 ## License
 

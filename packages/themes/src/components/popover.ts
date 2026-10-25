@@ -1,12 +1,12 @@
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import { defineView } from 'foldkit/submodel'
-import * as UiPopover from '@foldkit/ui/popover'
-import type { AnchorConfig } from '@foldkit/ui/anchor'
-import type { RenderInfo } from '@foldkit/ui/popover'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
+import * as UiPopover from '@wsagency/wseffect-foldkit-ui/popover'
+import type { AnchorConfig } from '@wsagency/wseffect-foldkit-ui/anchor'
+import type { RenderInfo } from '@wsagency/wseffect-foldkit-ui/popover'
 
-export { Model, Message, OutMessage, init, update, open, close, buttonId, arrowId } from '@foldkit/ui/popover'
+export { Model, Message, OutMessage, init, update, open, close, buttonId, arrowId } from '@wsagency/wseffect-foldkit-ui/popover'
 
 export type ViewInputs<Message> = Readonly<{
   anchor?: AnchorConfig

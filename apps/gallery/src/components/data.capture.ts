@@ -1,4 +1,4 @@
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Table from '@wsagency/wseffect-themes/components/table'
 import * as DataList from '@wsagency/wseffect-themes/components/data-list'
 import { renderCaptureView } from '../captureView.js'

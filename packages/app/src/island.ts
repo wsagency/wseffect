@@ -1,6 +1,6 @@
 import { Effect, Stream } from 'effect'
-import type { Mount } from 'foldkit'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Mount } from '@wsagency/wseffect-foldkit'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
 export type IslandPatch =
   | { readonly _tag: 'OuterHtml'; readonly selector: string; readonly html: string }

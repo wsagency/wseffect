@@ -1,7 +1,7 @@
 import { Option } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
-import { defineMessageUnion } from 'foldkit/message'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, it } from 'vitest'
 import * as SegmentedControl from '../src/components/segmented-control.js'
 const Group = SegmentedControl.create<'day' | 'week' | 'month'>()

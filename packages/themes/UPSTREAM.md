@@ -4,7 +4,7 @@ The CSS files listed below originate from Radix2Solid at commit `383676172abb84b
 
 ## Local CSS deviations
 
-- `src/css-components/select.css` adds `.rt-SelectItemContent { display: contents; }`. Foldkit `@foldkit/ui@0.168.0` Listbox accepts one `Html` node for an item's content, so the primitive supplies one generic span containing the pinned indicator and text siblings; `display: contents` removes its layout box without adding an accessibility-tree wrapper. The pinned Select CSS has no `.rt-SelectItem > …` child combinators that need adjustment.
+- `src/css-components/select.css` adds `.rt-SelectItemContent { display: contents; }`. Vendored Foldkit UI `@wsagency/wseffect-foldkit-ui@0.168.0` Listbox accepts one `Html` node for an item's content, so the primitive supplies one generic span containing the pinned indicator and text siblings; `display: contents` removes its layout box without adding an accessibility-tree wrapper. The pinned Select CSS has no `.rt-SelectItem > …` child combinators that need adjustment.
 
 ## Exhaustive R2S source-file list
 

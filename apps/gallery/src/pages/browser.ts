@@ -1,8 +1,8 @@
 import '@wsagency/wseffect-themes/tokens/colors/red.css'
 import '@wsagency/wseffect-themes/tokens/colors/green.css'
 import { Schema } from 'effect'
-import { Command, Mount, Submodel } from 'foldkit'
-import { defineMessageUnion } from 'foldkit/message'
+import { Command, Mount, Submodel } from '@wsagency/wseffect-foldkit'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import {
   breakpointSubscription, clipboardCommand, makeLocale, resizeObserverMount, scrollIntoViewCommand,
   type Breakpoint, type BrowserCommandResult, type ResizeResult,

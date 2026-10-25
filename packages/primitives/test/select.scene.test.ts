@@ -1,7 +1,7 @@
 import { Option } from 'effect'
-import * as Listbox from '@foldkit/ui/listbox'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { it } from 'vitest'
 import * as Select from '../src/select.js'
 

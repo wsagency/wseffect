@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
-import { defineMessageUnion } from 'foldkit/message'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, it } from 'vitest'
 import * as Switch from '../src/components/switch.js'
 const Message = defineMessageUnion({ Toggled: { checked: Schema.Boolean }, Tick: {} })

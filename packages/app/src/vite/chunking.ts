@@ -75,7 +75,7 @@ export function frameworkChunking(pagesDir: string): Plugin {
       const root = resolve(config.root ?? process.cwd())
       const require = createRequire(join(root, 'package.json'))
       packageRoots = []
-      for (const packageName of ['foldkit', 'effect', '@effect/platform-browser', 'workbox-window']) {
+      for (const packageName of ['@wsagency/wseffect-foldkit', 'effect', '@effect/platform-browser', 'workbox-window']) {
         try {
           const resolvedEntry = realpathSync(require.resolve(packageName))
           const packageRoot = packageRootFrom(resolvedEntry, packageName)

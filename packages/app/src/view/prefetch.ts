@@ -1,6 +1,6 @@
 import { Effect, Queue, Schema, Stream } from 'effect'
-import { Mount } from 'foldkit'
-import type { Attribute, HtmlBuilder } from 'foldkit/html'
+import { Mount } from '@wsagency/wseffect-foldkit'
+import type { Attribute, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import type { AnyPage } from '../contract.js'
 import type { KitBinding } from '../kit/binding.js'
 

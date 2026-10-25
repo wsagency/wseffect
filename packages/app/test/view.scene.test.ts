@@ -1,6 +1,6 @@
 import { Effect, Option, Stream } from 'effect'
-import { Scene, Submodel } from 'foldkit'
-import { role, selector, text } from 'foldkit/scene'
+import { Scene, Submodel } from '@wsagency/wseffect-foldkit'
+import { role, selector, text } from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import { alphaPage } from './fixtures/pages/alpha.js'
 import { makeKitFixture } from './fixtures/kit.js'

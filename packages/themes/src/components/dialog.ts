@@ -1,10 +1,10 @@
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import * as UiDialog from '@foldkit/ui/dialog'
-import type { Model as DialogModel, Message as DialogMessage, OutMessage as DialogOutMessage, ViewInputs } from '@foldkit/ui/dialog'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import * as UiDialog from '@wsagency/wseffect-foldkit-ui/dialog'
+import type { Model as DialogModel, Message as DialogMessage, OutMessage as DialogOutMessage, ViewInputs } from '@wsagency/wseffect-foldkit-ui/dialog'
 
-export { Model, Message, OutMessage, init, update, open, close, titleId, descriptionId } from '@foldkit/ui/dialog'
+export { Model, Message, OutMessage, init, update, open, close, titleId, descriptionId } from '@wsagency/wseffect-foldkit-ui/dialog'
 
 const sizes = ['1', '2', '3', '4'] as const
 const contentClasses = Object.freeze(Object.fromEntries(

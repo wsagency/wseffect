@@ -1,9 +1,9 @@
 import { Schema } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
 import * as CheckboxCards from '../src/components/checkbox-cards.js'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 
 const Message = defineMessageUnion({ Toggled: { value: Schema.String, isChecked: Schema.Boolean } })
 type Message = typeof Message.Type

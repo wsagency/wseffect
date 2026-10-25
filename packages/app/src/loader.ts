@@ -1,5 +1,5 @@
 import { Context, Data, Deferred, Effect, Option, Schema, Stream } from 'effect'
-import { Subscription } from 'foldkit'
+import { Subscription } from '@wsagency/wseffect-foldkit'
 import type { AnyPage } from './contract.js'
 import type { PagesHandle } from './registry.js'
 export interface LoaderSubscriptionsConfig<Pages extends Record<string, AnyPage>, Model, Message> {

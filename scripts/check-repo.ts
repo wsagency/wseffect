@@ -19,7 +19,7 @@ type Manifest = {
   pnpm?: { patchedDependencies?: Record<string, string> }
 }
 
-const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md'])
+const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md'])
 
 export function checkManifest(manifest: Manifest, path: string): string[] {
   const errors: string[] = []
@@ -38,6 +38,7 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
     fail('pnpm.patchedDependencies is forbidden')
   }
   if (!path.replaceAll('\\', '/').startsWith('packages/')) return errors
+  if (['packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/'].some((prefix) => path.replaceAll('\\', '/').startsWith(prefix))) return errors
 
   if (manifest.version !== '0.0.0') fail('version must be 0.0.0')
   if (manifest.private !== false) fail('private must be false')
@@ -61,9 +62,9 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
     fail('JS package sideEffects must be false')
   }
   const expectedPeers: Record<string, string> = {
-    foldkit: '0.168.0',
-    '@foldkit/ui': '0.168.0',
-    '@foldkit/vite-plugin': '0.27.1',
+    '@wsagency/wseffect-foldkit': 'workspace:*',
+    '@wsagency/wseffect-foldkit-ui': 'workspace:*',
+    '@wsagency/wseffect-vite-plugin': 'workspace:*',
   }
   for (const [name, version] of Object.entries(expectedPeers)) {
     if (manifest.peerDependencies?.[name] && manifest.peerDependencies[name] !== version) {
@@ -95,19 +96,10 @@ export function checkWorkspace(yamlText: string): string[] {
     return lines.slice(start + 1, end).filter((line) => line.trim() && !line.trimStart().startsWith('#'))
   }
   const expectedOverrides = ["  effect: 4.0.5", "  '@effect/platform-browser': 4.0.5"]
-  const expectedPeerRules = [
-    '  allowedVersions:',
-    '    foldkit>effect: 4.0.5',
-    '    foldkit>@effect/platform-browser: 4.0.5',
-    "    '@foldkit/ui>effect': 4.0.5",
-    "    '@foldkit/vite-plugin>effect': 4.0.5",
-  ]
-  const invalid = ['patchedDependencies', 'packageExtensions'].some((key) => topLevelKeys.has(key))
+  const invalid = ['patchedDependencies', 'packageExtensions', 'peerDependencyRules'].some((key) => topLevelKeys.has(key))
     || topLevelKeys.get('overrides')?.length !== 1
-    || topLevelKeys.get('peerDependencyRules')?.length !== 1
     || JSON.stringify(sectionLines('overrides')) !== JSON.stringify(expectedOverrides)
-    || JSON.stringify(sectionLines('peerDependencyRules')) !== JSON.stringify(expectedPeerRules)
-  return invalid ? ['pnpm-workspace.yaml: UP-8 Effect resolution block differs from the required snippet'] : []
+  return invalid ? ['pnpm-workspace.yaml: overrides must contain only the shared Effect 4.0.5 pins'] : []
 }
 
 export function checkEffectCopies(lockfileText: string): string[] {

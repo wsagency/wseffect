@@ -1,7 +1,7 @@
 import { Effect, Option, Queue, Schema, Stream } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import type * as Mount from 'foldkit/mount'
-import type * as Update from 'foldkit/update'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import type * as Mount from '@wsagency/wseffect-foldkit/mount'
+import type * as Update from '@wsagency/wseffect-foldkit/update'
 
 export type Thumb = { id: string; value: number; min?: number; max?: number; step?: number }
 export type Config = {

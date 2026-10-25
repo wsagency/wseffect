@@ -1,5 +1,5 @@
 import { Effect, Option, Queue, Result, Schema, Stream } from 'effect'
-import { Subscription } from 'foldkit'
+import { Subscription } from '@wsagency/wseffect-foldkit'
 import { ServiceWorker } from './pwa/serviceWorker.js'
 
 const VersionInfo = Schema.Struct({ buildId: Schema.String })

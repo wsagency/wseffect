@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import type { Command } from 'foldkit'
+import type { Command } from '@wsagency/wseffect-foldkit'
 
 export type BrowserCommandResult =
   | { readonly _tag: 'Succeeded' }

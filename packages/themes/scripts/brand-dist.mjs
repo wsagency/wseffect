@@ -10,7 +10,7 @@ const components = [
 for (const component of components) {
   const path = resolve(root, 'dist/components', `${component}.js`)
   const source = await readFile(path, 'utf8')
-  if (!source.includes("from 'foldkit/brand'")) {
+  if (!source.includes("from '@wsagency/wseffect-foldkit/brand'")) {
     throw new Error(`${component}.js does not brand its view result`)
   }
 }

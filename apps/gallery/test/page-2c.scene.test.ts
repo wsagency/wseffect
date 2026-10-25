@@ -1,4 +1,4 @@
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
 import { type PageInputs } from '../src/contract.js'
 import { page as accessibility } from '../src/pages/accessibility.js'

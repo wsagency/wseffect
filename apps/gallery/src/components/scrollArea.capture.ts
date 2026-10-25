@@ -1,4 +1,4 @@
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as ScrollArea from '@wsagency/wseffect-themes/components/scroll-area'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

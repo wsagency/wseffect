@@ -1,6 +1,6 @@
 import * as IconButton from '@wsagency/wseffect-themes/components/icon-button'
 import * as AccessibleIcon from '@wsagency/wseffect-themes/components/accessible-icon'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'
 

@@ -1,8 +1,8 @@
 import { Effect, Queue, Schema, Stream } from 'effect'
-import * as VirtualList from '@foldkit/ui/virtualList'
-import { Command } from 'foldkit'
-import * as Render from 'foldkit/render'
-import * as Mount from 'foldkit/mount'
+import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
+import { Command } from '@wsagency/wseffect-foldkit'
+import * as Render from '@wsagency/wseffect-foldkit/render'
+import * as Mount from '@wsagency/wseffect-foldkit/mount'
 import type { Message } from './data-table.js'
 
 export function makeDataTableMounts<State>(message: typeof Message, tableStates: Map<string, State>) {

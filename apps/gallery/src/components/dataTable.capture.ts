@@ -1,5 +1,5 @@
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as DataTable from '@wsagency/wseffect-themes/components/data-table'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

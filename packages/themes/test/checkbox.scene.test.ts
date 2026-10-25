@@ -1,9 +1,9 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
 import * as Checkbox from '../src/components/checkbox.js'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 
 const Message = defineMessageUnion({ Tick: {} })
 type Message = typeof Message.Type

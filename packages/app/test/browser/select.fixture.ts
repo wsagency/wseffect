@@ -1,7 +1,7 @@
 import '@wsagency/wseffect-themes/styles.css'
 import { Option } from 'effect'
-import { makeElement, run } from 'foldkit/runtime'
-import type { HtmlBuilder } from 'foldkit/html'
+import { makeElement, run } from '@wsagency/wseffect-foldkit/runtime'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Select from '@wsagency/wseffect-themes/components/select'
 document.body.classList.add('radix-themes')
 

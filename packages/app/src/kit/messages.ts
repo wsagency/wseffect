@@ -1,4 +1,4 @@
-import { defineTaggedUnion } from 'foldkit/schema'
+import { defineTaggedUnion } from '@wsagency/wseffect-foldkit/schema'
 import { Schema } from 'effect'
 import type { AnyPage, MessageOf } from '../contract.js'
 import type { PagesHandle } from '../registry.js'

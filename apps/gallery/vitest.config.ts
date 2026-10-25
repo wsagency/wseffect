@@ -6,7 +6,7 @@ export default defineConfig({
   define: { __WSEFFECT_BUILD_ID__: JSON.stringify('test-build'), __WSEFFECT_PWA__: 'true' },
   test: {
     environment: 'happy-dom',
-    setupFiles: ['foldkit/test/vitest'],
+    setupFiles: ['@wsagency/wseffect-foldkit/test/vitest'],
     include: ['test/**/*.test.ts'],
   },
 })

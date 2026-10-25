@@ -227,7 +227,8 @@ test('capture resolver and matrix stay outside the built index.html static closu
       !source.includes('sp2-capture-matrix.json') &&
       !source.endsWith('/packages/themes/dist/components/data-table.js') &&
       !source.endsWith('/packages/themes/dist/components/data-table.mount.js') &&
-      !source.includes('/@foldkit/ui/dist/virtualList/')),
+      !source.includes('/packages/foldkit-ui/dist/virtualList/') &&
+      !source.includes('/@wsagency/wseffect-foldkit-ui/dist/virtualList/')),
     'static index.html closure excludes Gallery capture and DataTable implementation modules',
   )
   const captureEntry = Object.entries(manifest).find(([key, entry]) =>

@@ -1,9 +1,9 @@
-import { createLazy } from 'foldkit/html'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import { createLazy } from '@wsagency/wseffect-foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import { Option, Schema } from 'effect'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Select from '../src/components/select.js'
 const SelectBox = Select.create<'yes'>()
 const Message = defineMessageUnion({ Tick: {}, Resize: {} })

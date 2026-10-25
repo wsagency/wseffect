@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as DataTable from '../src/components/data-table.js'
-import * as VirtualList from '@foldkit/ui/virtualList'
+import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 
 type Row = { id: string; label: string; rank: number }
 const rows: ReadonlyArray<Row> = [

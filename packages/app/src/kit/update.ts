@@ -1,6 +1,6 @@
 import { Option, Schema } from 'effect'
-import { Command } from 'foldkit'
-import type { Update } from 'foldkit'
+import { Command } from '@wsagency/wseffect-foldkit'
+import type { Update } from '@wsagency/wseffect-foldkit'
 import type { AnyPage, MessageOf, ModelOf, OutMessageOf, ServicesOf } from '../contract.js'
 import type { PagesHandle } from '../registry.js'
 import type { KitState } from './state.js'

@@ -1,8 +1,8 @@
-import * as UiMenu from '@foldkit/ui/menu'
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import { defineView } from 'foldkit/submodel'
+import * as UiMenu from '@wsagency/wseffect-foldkit-ui/menu'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
 import * as LocalContextMenu from '@wsagency/wseffect-primitives/context-menu'
 import type { ContextMenuConfig, ContextMenuGroup, ContextMenuItem, ContextMenuSeparator } from '@wsagency/wseffect-primitives/context-menu'
 

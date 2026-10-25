@@ -1,6 +1,6 @@
-import { brandViewResult } from 'foldkit/brand'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { Schema } from 'effect'
-import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
+import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { accentColors } from '../props/color.props.js'
 import { radii } from '../props/radius.props.js'
 import { marginClasses, marginPropSchemas } from '../props/margin.props.js'

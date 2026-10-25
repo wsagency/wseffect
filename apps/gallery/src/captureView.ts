@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import { makeElement, run } from 'foldkit/runtime'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import { makeElement, run } from '@wsagency/wseffect-foldkit/runtime'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
 import type { CaptureRequest } from './capture.js'
 

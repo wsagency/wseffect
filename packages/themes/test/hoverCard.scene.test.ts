@@ -1,6 +1,6 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import { defineMessageUnion } from 'foldkit/message'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
 import * as HoverCard from '../src/components/hover-card.js'
 

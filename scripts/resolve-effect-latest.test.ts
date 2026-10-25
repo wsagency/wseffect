@@ -12,25 +12,13 @@ test('latestEligibleEffect selects latest 4.x at least 24 hours old', () => {
   }, now), '4.0.7')
 })
 
-test('replaceEffectOverrides updates the two overrides and four allowed peer versions', () => {
+test('replaceEffectOverrides updates the workspace Effect pins without peer workaround rules', () => {
   const workspace = `overrides:
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
 `
   assert.equal(replaceEffectOverrides(workspace, '4.0.7'), `overrides:
   effect: 4.0.7
   '@effect/platform-browser': 4.0.7
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.7
-    foldkit>@effect/platform-browser: 4.0.7
-    '@foldkit/ui>effect': 4.0.7
-    '@foldkit/vite-plugin>effect': 4.0.7
 `)
 })

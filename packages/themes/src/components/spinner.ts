@@ -1,6 +1,6 @@
-import { brandViewResult } from 'foldkit/brand'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { marginClasses, marginPropSchemas } from '../props/margin.props.js'

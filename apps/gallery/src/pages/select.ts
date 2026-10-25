@@ -1,10 +1,10 @@
 import { Option, Schema } from 'effect'
-import { Submodel } from 'foldkit'
-import { defineMessageUnion } from 'foldkit/message'
+import { Submodel } from '@wsagency/wseffect-foldkit'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Select from '@wsagency/wseffect-themes/components/select'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
 import { galleryPageContract, PageOutMessage, type PageInputs } from '../contract.js'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
 
 const Picker = Select.create<string>()

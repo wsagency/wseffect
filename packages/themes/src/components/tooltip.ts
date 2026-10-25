@@ -1,15 +1,15 @@
 import { Duration } from 'effect'
 import * as Option from 'effect/Option'
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import { defineView } from 'foldkit/submodel'
-import * as UiTooltip from '@foldkit/ui/tooltip'
-import type { AnchorConfig } from '@foldkit/ui/anchor'
-import type { RenderInfo, ViewInputs as UiViewInputs } from '@foldkit/ui/tooltip'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
+import * as UiTooltip from '@wsagency/wseffect-foldkit-ui/tooltip'
+import type { AnchorConfig } from '@wsagency/wseffect-foldkit-ui/anchor'
+import type { RenderInfo, ViewInputs as UiViewInputs } from '@wsagency/wseffect-foldkit-ui/tooltip'
 import * as TooltipGroupPrimitive from '@wsagency/wseffect-primitives/tooltip-group'
 
-export { Model, Message, OutMessage, update, triggerId } from '@foldkit/ui/tooltip'
+export { Model, Message, OutMessage, update, triggerId } from '@wsagency/wseffect-foldkit-ui/tooltip'
 export const init = UiTooltip.init
 
 export type ViewInputs<Message> = Readonly<{

@@ -1,8 +1,13 @@
 import { readFile, readdir } from 'node:fs/promises'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 
-export type PackageExport = { readonly default: string; readonly types?: string }
+export type PackageExport = { readonly default?: string; readonly import?: string; readonly types?: string }
 export type PackageExports = Readonly<Record<string, PackageExport>>
+function exportTarget(entry: PackageExport, packageName: string, subpath: string): string {
+  const target = entry.default ?? entry.import
+  if (!target) throw new Error(`${packageName}:${subpath} is missing a default or import target`)
+  return target
+}
 
 export function extractExportNames(source: string): string[] {
   const names = new Set<string>()
@@ -28,7 +33,7 @@ export function discoverPublicItems(
   const items = new Set<string>()
   for (const [subpath, entry] of Object.entries(exports)) {
     items.add(`subpath:${packageName}:${subpath}`)
-    const target = entry.default.replaceAll('\\', '/').replace(/^\.\//, '')
+    const target = exportTarget(entry, packageName, subpath).replaceAll('\\', '/').replace(/^\.\//, '')
     const wildcard = target.indexOf('*')
     const matches = distFiles.filter((file) => wildcard < 0
       ? file === target
@@ -102,8 +107,8 @@ export async function discoverPackagePublicSurface(packageDir: string, packageNa
       if (!declaration || declarations.has(childKey)) await collectExports(child, visited, output)
     }
   }
-  for (const entry of Object.values(packageJson.exports)) {
-    const target = entry.default.replaceAll('\\', '/').replace(/^\.\//, '')
+  for (const [subpath, entry] of Object.entries(packageJson.exports)) {
+    const target = exportTarget(entry, packageName, subpath).replaceAll('\\', '/').replace(/^\.\//, '')
     if (target.endsWith('.js') && !target.includes('*')) {
       const modulePath = modules.get(target)
       if (modulePath) {

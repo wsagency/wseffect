@@ -1,5 +1,5 @@
 import { Effect, Stream } from 'effect'
-import type { Mount } from 'foldkit'
+import type { Mount } from '@wsagency/wseffect-foldkit'
 export const mountScrollArea = <Message>(): Mount.MountAction<Message> => ({
   name: 'ScrollAreaSync',
   f: (element) => Stream.callback<Message>(() => Effect.gen(function* () {

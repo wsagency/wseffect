@@ -1,12 +1,12 @@
 import { Effect, Option, Queue, Schema, Stream } from 'effect'
-import * as Command from 'foldkit/command'
-import * as Menu from '@foldkit/ui/menu'
+import * as Command from '@wsagency/wseffect-foldkit/command'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 import { autoUpdate, computePosition, flip, shift, type VirtualElement } from '@floating-ui/dom'
-import { portalToContainingRoot } from '@foldkit/ui/anchor'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import type * as Mount from 'foldkit/mount'
-import * as Render from 'foldkit/render'
-import type * as Update from 'foldkit/update'
+import { portalToContainingRoot } from '@wsagency/wseffect-foldkit-ui/anchor'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import type * as Mount from '@wsagency/wseffect-foldkit/mount'
+import * as Render from '@wsagency/wseffect-foldkit/render'
+import type * as Update from '@wsagency/wseffect-foldkit/update'
 
 export type ContextMenuItem<Value extends string> = { value: Value; textValue: string; isDisabled: boolean; content: Html }
 export type ContextMenuGroup<Value extends string> = { id: string; label: Html; items: ReadonlyArray<ContextMenuItem<Value> | ContextMenuSeparator> }

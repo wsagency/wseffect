@@ -1,7 +1,7 @@
 import { Effect, Fiber, Stream } from 'effect'
 import { Idiomorph } from 'idiomorph'
-import { Mount } from 'foldkit'
-import type { HtmlBuilder } from 'foldkit/html'
+import { Mount } from '@wsagency/wseffect-foldkit'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Island, type IslandPatch, type IslandResult } from '../src/index.js'
 

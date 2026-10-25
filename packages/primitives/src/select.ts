@@ -1,6 +1,6 @@
 import * as Option from 'effect/Option'
-import * as Listbox from '@foldkit/ui/listbox'
-import { childAttributes, type Attribute, type ChildAttribute, type Html, type HtmlBuilder } from 'foldkit/html'
+import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
+import { childAttributes, type Attribute, type ChildAttribute, type Html, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 export type SelectItem<Value extends string> = {
   value: Value
   textValue: string

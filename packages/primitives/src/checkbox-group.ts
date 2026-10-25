@@ -1,4 +1,4 @@
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
 export type Option<Value extends string> = { value: Value; label: Html; isDisabled: boolean }
 export type Props<Value extends string, Message> = {

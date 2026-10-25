@@ -1,6 +1,6 @@
 import { Effect, Schema, Stream } from 'effect'
-import { Mount, Runtime } from 'foldkit'
-import type { HtmlBuilder } from 'foldkit/html'
+import { Mount, Runtime } from '@wsagency/wseffect-foldkit'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { Island, type IslandPatch, type IslandResult } from '../../src/island.js'
 
 function getAction(patches: Stream.Stream<IslandPatch>): Mount.MountAction<IslandResult> {

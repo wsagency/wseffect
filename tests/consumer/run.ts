@@ -5,7 +5,6 @@ import { execFileSync, spawnSync } from 'node:child_process'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { checkTreeShaking } from './check-tree-shaking.ts'
-import { checkUp8 } from './check-up8.ts'
 import { checkBranding } from './check-branding.ts'
 import { checkCoverageManifest } from './check-coverage-manifest.ts'
 import { discoverPackagePublicSurface } from './discover-public-surface.ts'
@@ -17,7 +16,7 @@ import { createScratchDir } from '../../e2e/helpers/build.ts'
 
 const consumerDir = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(consumerDir, '../..')
-const packageNames = ['app', 'primitives', 'themes'] as const
+const packageNames = ['app', 'primitives', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin'] as const
 const forbiddenTreeShakingMarkers = ['viewPage', 'ServiceWorker', 'makeApp', 'prefetchOnVisible']
 const passedChecks: string[] = []
 
@@ -156,10 +155,18 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     '@wsagency/wseffect-app': `file:${tarballs.app}`,
     '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
     '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
+    '@wsagency/wseffect-foldkit': `file:${tarballs.foldkit}`,
+    '@wsagency/wseffect-foldkit-ui': `file:${tarballs['foldkit-ui']}`,
+    '@wsagency/wseffect-vite-plugin': `file:${tarballs['vite-plugin']}`,
   }
   delete dependencies['@wsagency/wseffect-app']
   delete dependencies['@wsagency/wseffect-primitives']
   delete dependencies['@wsagency/wseffect-themes']
+  delete dependencies['@wsagency/wseffect-foldkit']
+  delete dependencies['@wsagency/wseffect-foldkit-ui']
+  delete dependencies['@wsagency/wseffect-vite-plugin']
+  const devDependencies = { ...rootManifest.devDependencies }
+  delete devDependencies['@wsagency/wseffect-vite-plugin']
   const packageJson = {
     packageManager: rootManifest.packageManager,
     engines: rootManifest.engines,
@@ -170,15 +177,14 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
       '@wsagency/wseffect-app': `file:${tarballs.app}`,
       '@wsagency/wseffect-primitives': `file:${tarballs.primitives}`,
       '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
+      '@wsagency/wseffect-foldkit': `file:${tarballs.foldkit}`,
+      '@wsagency/wseffect-foldkit-ui': `file:${tarballs['foldkit-ui']}`,
+      '@wsagency/wseffect-vite-plugin': `file:${tarballs['vite-plugin']}`,
     },
-    devDependencies: rootManifest.devDependencies,
+    devDependencies,
   }
   await writeFile(resolve(root, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
 
-  const readme = await readFile(resolve(repoRoot, 'README.md'), 'utf8')
-  const workspaceYaml = readme.match(/<!-- up8:start -->\s*```yaml\n([\s\S]*?)\n```\s*<!-- up8:end -->/)?.[1]
-  if (!workspaceYaml) throw new Error('README.md: could not extract the UP-8 workspace block')
-  await writeFile(resolve(root, 'pnpm-workspace.yaml'), `${workspaceYaml}\n`)
   await cp(resolve(repoRoot, 'tsconfig.base.json'), resolve(root, 'tsconfig.base.json'))
   await writeFile(resolve(root, 'tsconfig.json'), `${JSON.stringify({
     extends: './tsconfig.base.json',
@@ -230,16 +236,6 @@ async function main(): Promise<void> {
     const root = join(scratch, 'apps', 'gallery')
     await mkdir(root, { recursive: true })
     await copyConsumerFixture(root, tarballs)
-    const readme = await readFile(resolve(repoRoot, 'README.md'), 'utf8')
-    const workspaceYaml = await readFile(resolve(root, 'pnpm-workspace.yaml'), 'utf8')
-    fail(checkUp8(readme, workspaceYaml))
-    const primitiveOverrideAnchor = "  '@effect/platform-browser': 4.0.5\n"
-    if (!workspaceYaml.includes(primitiveOverrideAnchor)) throw new Error('consumer fixture: could not locate UP-8 dependency overrides')
-    const workspaceYamlWithPrimitive = workspaceYaml.replace(
-      primitiveOverrideAnchor,
-      `${primitiveOverrideAnchor}  '@wsagency/wseffect-primitives': file:${tarballs.primitives}\n`,
-    )
-    await writeFile(resolve(root, 'pnpm-workspace.yaml'), workspaceYamlWithPrimitive)
 
     run('pnpm', ['install', '--lockfile-only'], root)
     run('pnpm', ['install', '--frozen-lockfile'], root)
@@ -328,6 +324,9 @@ async function main(): Promise<void> {
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-app'), '@wsagency/wseffect-app'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-primitives'), '@wsagency/wseffect-primitives'),
       ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-themes'), '@wsagency/wseffect-themes'),
+      ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-foldkit'), '@wsagency/wseffect-foldkit'),
+      ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-foldkit-ui'), '@wsagency/wseffect-foldkit-ui'),
+      ...await discoverPackagePublicSurface(resolve(root, 'node_modules/@wsagency/wseffect-vite-plugin'), '@wsagency/wseffect-vite-plugin'),
     ]
     passedChecks.push('public-surface')
     const coverageManifest = JSON.parse(await readFile(resolve(consumerDir, 'coverage-manifest.json'), 'utf8')) as CoverageManifest

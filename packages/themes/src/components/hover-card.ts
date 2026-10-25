@@ -1,13 +1,13 @@
-import { brandViewResult } from 'foldkit/brand'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import { defineView } from 'foldkit/submodel'
-import * as UiHoverIntent from '@foldkit/ui/hoverIntent'
-import type { AnchorConfig } from '@foldkit/ui/anchor'
-import type { RenderInfo } from '@foldkit/ui/hoverIntent'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
+import * as UiHoverIntent from '@wsagency/wseffect-foldkit-ui/hoverIntent'
+import type { AnchorConfig } from '@wsagency/wseffect-foldkit-ui/anchor'
+import type { RenderInfo } from '@wsagency/wseffect-foldkit-ui/hoverIntent'
 import { AnchorHoverCard } from './hover-card-anchor.js'
 
-export { Model, Message, OutMessage, update, close } from '@foldkit/ui/hoverIntent'
+export { Model, Message, OutMessage, update, close } from '@wsagency/wseffect-foldkit-ui/hoverIntent'
 export const init = (config?: Parameters<typeof UiHoverIntent.init>[0]): UiHoverIntent.Model =>
   UiHoverIntent.init({ openDelay: 200, closeDelay: 150, ...config })
 

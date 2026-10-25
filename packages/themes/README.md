@@ -1,14 +1,14 @@
 # @wsagency/wseffect-themes
 
-Radix Themes' foundation CSS and thin, stateless Foldkit view helpers for applications built with `foldkit` and `@foldkit/ui`.
+Radix Themes' foundation CSS and thin, stateless Foldkit view helpers for applications built with wseffect's owned Foldkit core and UI packages.
 
 ## Install
 
 ```sh
-pnpm add @wsagency/wseffect-themes foldkit @foldkit/ui effect @effect/platform-browser
+pnpm add @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui effect @effect/platform-browser
 ```
 
-The package peers on `foldkit` and `@foldkit/ui` 0.168.0 and Effect 4.
+The package uses workspace-owned Foldkit core and UI packages from the vendored 0.168.0 snapshot and Effect 4.
 
 ## Importing components
 

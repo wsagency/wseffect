@@ -1,5 +1,5 @@
-import * as Scene from 'foldkit/scene'
-import * as UiListbox from '@foldkit/ui/listbox'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import * as UiListbox from '@wsagency/wseffect-foldkit-ui/listbox'
 import { describe, it } from 'vitest'
 import type { PageInputs } from '../src/contract.js'
 import { page as selectPage } from '../src/pages/select.js'

@@ -1,4 +1,4 @@
-import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
+import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
 type Tag = 'div' | 'span' | 'label' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 

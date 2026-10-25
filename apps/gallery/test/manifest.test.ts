@@ -18,7 +18,7 @@ describe('gallery manifest', () => {
     const rangeSource = await readFile(resolve(import.meta.dirname, '../../../packages/themes/src/components/slider/range.ts'), 'utf8')
     expect(source).toContain("import { Range as SliderRange } from '@wsagency/wseffect-themes/components/slider/range'")
     expect(source).not.toContain("from '@wsagency/wseffect-themes/components/slider'")
-    expect(rangeSource).not.toContain("from '@foldkit/ui/slider'")
+    expect(rangeSource).not.toContain("from '@wsagency/wseffect-foldkit-ui/slider'")
   })
   it('keeps capture renderers lazy and out of every page chunk', async () => {
     const manifest = JSON.parse(await readFile(resolve(import.meta.dirname, '../dist/.vite/manifest.json'), 'utf8')) as Record<string, {

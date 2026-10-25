@@ -1,6 +1,6 @@
 import * as Option from 'effect/Option'
 import * as Duration from 'effect/Duration'
-import * as HoverIntent from '@foldkit/ui/hoverIntent'
+import * as HoverIntent from '@wsagency/wseffect-foldkit-ui/hoverIntent'
 import { describe, expect, it } from 'vitest'
 import * as HoverCard from '../src/components/hover-card.js'
 

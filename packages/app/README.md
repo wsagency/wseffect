@@ -4,7 +4,7 @@ A Foldkit application foundation for lazy page modules, page loading, offline be
 
 ## Installation
 
-Install `@wsagency/wseffect-app`, Foldkit `0.168.0`, Effect `4.0.5`, Vite `8`, and `vite-plugin-pwa` `2.0.0`. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. `@wsagency/wseffect-themes` is a required peer dependency because breakpoints read its public tokens. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API.
+Install `@wsagency/wseffect-app`, `@wsagency/wseffect-foldkit`, `@wsagency/wseffect-foldkit-ui`, `@wsagency/wseffect-vite-plugin`, Effect `4.0.5`, Vite `8`, and `vite-plugin-pwa` `2.0.0`. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. `@wsagency/wseffect-themes` is a required peer dependency because breakpoints read its public tokens. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API.
 
 Create `src/pages/package.json` with `{"sideEffects":false}`. Each page is a lazy module named with a key matching `^[a-z][A-Za-z0-9]*$`. Run `wseffect-codegen .` to generate `src/pages.gen.ts`; use `wseffect-codegen --check .` in CI to reject stale generated output.
 
@@ -20,7 +20,7 @@ Each helper is a named export from `@wsagency/wseffect-app`. Keep application da
 
 ```ts
 import { Schema } from 'effect'
-import type { Subscription } from 'foldkit'
+import type { Subscription } from '@wsagency/wseffect-foldkit'
 import { signalSubscription, type SignalOutcome, type SignalTransport } from '@wsagency/wseffect-app'
 
 type ServerState = { readonly online: boolean }
@@ -98,7 +98,7 @@ The envelope's `data` is stored in the supplied Schema codec's encoded form, so 
 ### Theme breakpoints
 
 ```ts
-import type { Subscription } from 'foldkit'
+import type { Subscription } from '@wsagency/wseffect-foldkit'
 import { breakpointSubscription, type Breakpoint } from '@wsagency/wseffect-app'
 
 type Message = { readonly _tag: 'BreakpointChanged'; readonly value: Breakpoint }
@@ -130,7 +130,7 @@ Provide `localeLayer` with the app's resources, then use the `LocaleService` to 
 ### Clipboard Command
 
 ```ts
-import type { Command } from 'foldkit'
+import type { Command } from '@wsagency/wseffect-foldkit'
 import { clipboardCommand, type BrowserCommandResult } from '@wsagency/wseffect-app'
 
 type Model = { readonly shareUrl: string }
@@ -144,7 +144,7 @@ The Command emits a success or typed failure Message; denial and unavailable API
 ### ScrollIntoView Command
 
 ```ts
-import type { Command } from 'foldkit'
+import type { Command } from '@wsagency/wseffect-foldkit'
 import { scrollIntoViewCommand, type BrowserCommandResult } from '@wsagency/wseffect-app'
 
 type Message = { readonly _tag: 'ScrollFinished'; readonly result: BrowserCommandResult }
@@ -157,7 +157,7 @@ The Command uses native `Element.scrollIntoView` options. Missing elements and D
 ### ResizeObserver Mount
 
 ```ts
-import type { Mount } from 'foldkit'
+import type { Mount } from '@wsagency/wseffect-foldkit'
 import { resizeObserverMount, type ResizeResult } from '@wsagency/wseffect-app'
 
 type Message = { readonly _tag: 'ElementResized'; readonly result: ResizeResult }
@@ -172,7 +172,7 @@ const resizeAction: Mount.MountAction<Message> =
 
 ```ts
 import { Stream } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { Island, type IslandPatch, type IslandResult } from '@wsagency/wseffect-app'
 
 type Message = { readonly _tag: 'IslandPatchFinished'; readonly result: IslandResult }
@@ -200,7 +200,7 @@ There is no query synchronization helper in this package. Use Foldkit's public `
 <!-- route-query-example:start -->
 ```ts
 import { Effect, pipe, Schema } from 'effect'
-import { Navigation, Route } from 'foldkit'
+import { Navigation, Route } from '@wsagency/wseffect-foldkit'
 
 const SearchQuery = Schema.Struct({
   q: Schema.String,
@@ -255,25 +255,9 @@ The consumer gate measures helper-only JavaScript with Brotli quality 11, exclud
 Only Persistence may add an Effect module to the packed consumer's baseline, and only `persistence/KeyValueStore.js`; all other helpers add none. The gates inspect the packed consumer's emitted module graph, not the historical Gallery framework map.
 
 
-## Effect version (temporary)
+## Effect version
 
-Foldkit 0.168.0 declares Effect 4.0.0 peers, while wseffect packages use Effect 4.0.5. Until Foldkit adopts [PR #1699](https://github.com/foldkit/foldkit/pull/1699), consumers may need the same resolution in their workspace root `pnpm-workspace.yaml`.
-
-<!-- up8:start -->
-```yaml
-overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
-```
-<!-- up8:end -->
-
-Remove this override and its `allowedVersions` entries when the Foldkit upgrade adopts peers accepting Effect 4.0.5. Make that change in the same upgrade PR that removes this snippet and the corresponding packed-consumer fixture configuration, or narrow it to any remaining peer conflicts.
+Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.5 pins. Consumers do not need Foldkit-specific overrides or `allowedVersions` rules.
 
 ## Server contract
 

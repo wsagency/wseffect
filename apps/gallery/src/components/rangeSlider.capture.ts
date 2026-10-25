@@ -1,7 +1,7 @@
 import { Range as SliderRange } from '@wsagency/wseffect-themes/components/slider/range'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
 const singleThumbs = [{ id: 'Minimum value', value: 48 }]
 const rangeThumbs = [{ id: 'Minimum value', value: 25 }, { id: 'Maximum value', value: 70 }]

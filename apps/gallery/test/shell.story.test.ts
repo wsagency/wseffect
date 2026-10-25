@@ -1,8 +1,8 @@
 import { Option } from 'effect'
-import { given, message, model, story } from 'foldkit/story'
+import { given, message, model, story } from '@wsagency/wseffect-foldkit/story'
 import { describe, expect, it } from 'vitest'
 import { Message, createInitialModel, init, update } from '../src/shell.js'
-import * as Url from 'foldkit/url'
+import * as Url from '@wsagency/wseffect-foldkit/url'
 import { PageOutMessage } from '../src/contract.js'
 
 describe('gallery shell', () => {

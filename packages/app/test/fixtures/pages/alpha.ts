@@ -1,6 +1,6 @@
 import { Effect, Option, Schema } from 'effect'
-import { Command, Submodel } from 'foldkit'
-import { defineMessageUnion } from 'foldkit/message'
+import { Command, Submodel } from '@wsagency/wseffect-foldkit'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { pageContract } from '../../../src/contract.js'
 
 const OutMessage = defineMessageUnion({ ShiftDay: { days: Schema.Number } })

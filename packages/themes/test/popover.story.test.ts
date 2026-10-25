@@ -1,7 +1,7 @@
 import * as Option from 'effect/Option'
-import * as UiPopover from '@foldkit/ui/popover'
-import * as Story from 'foldkit/story'
-import { defineMessageUnion } from 'foldkit/message'
+import * as UiPopover from '@wsagency/wseffect-foldkit-ui/popover'
+import * as Story from '@wsagency/wseffect-foldkit/story'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, expect, it } from 'vitest'
 import * as Popover from '../src/components/popover.js'
 

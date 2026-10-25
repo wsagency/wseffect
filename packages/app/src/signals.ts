@@ -3,7 +3,7 @@ import * as Queue from 'effect/Queue'
 import * as Stream from 'effect/Stream'
 import type { Schema } from 'effect'
 import * as SchemaParser from 'effect/SchemaParser'
-import * as Subscription from 'foldkit/subscription'
+import * as Subscription from '@wsagency/wseffect-foldkit/subscription'
 
 export type SignalTransport =
   | { readonly _tag: 'EventSource'; readonly url: string; readonly withCredentials?: boolean }

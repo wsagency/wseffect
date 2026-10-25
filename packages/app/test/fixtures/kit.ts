@@ -1,4 +1,4 @@
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { bindKit } from '../../src/kit/binding.js'
 import { kitMessageFields } from '../../src/kit/messages.js'
 import { makePages, messageSchema } from '../../src/registry.js'

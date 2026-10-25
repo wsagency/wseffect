@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import { brandViewResult } from 'foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import * as VisuallyHidden from './visually-hidden.js'
 export const Props = Schema.Struct({ label: Schema.String })
 export type ViewProps = typeof Props.Type

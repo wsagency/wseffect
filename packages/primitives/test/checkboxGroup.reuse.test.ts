@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
-import { createLazy } from 'foldkit/html'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import { createLazy } from '@wsagency/wseffect-foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { expect, it, vi } from 'vitest'
 import { view } from '../src/checkbox-group.js'
 

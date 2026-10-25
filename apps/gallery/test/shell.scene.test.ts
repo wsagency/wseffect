@@ -1,4 +1,4 @@
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { Context } from 'effect'
 import { describe, expect, it, vi } from 'vitest'
 import { Message as MenusPageMessage, page as menusPage, Menu } from '../src/pages/menus.js'
@@ -23,7 +23,7 @@ describe('gallery shell', () => {
 
   it('memoizes ready page views across unrelated shell updates with stable dispatch', async () => {
     pages.registry.register('menus', menusPage)
-    const htmlRuntime = await import(new URL('./index.js', import.meta.resolve('foldkit/html')).href) as unknown as {
+    const htmlRuntime = await import(new URL('./index.js', import.meta.resolve('@wsagency/wseffect-foldkit/html')).href) as unknown as {
       __beginRender: (registry: object) => void
       __clearRuntime: () => void
       __createBoundaryRegistry: () => object

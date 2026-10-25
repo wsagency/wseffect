@@ -53,9 +53,9 @@
   },
   "peerDependencies": {
     "@effect/platform-browser": "^4.0.5",
-    "@foldkit/vite-plugin": "0.27.1",
+    "@wsagency/wseffect-vite-plugin": "workspace:*",
+    "@wsagency/wseffect-foldkit": "workspace:*",
     "effect": "^4.0.5",
-    "foldkit": "0.168.0",
     "vite": "8.3.4",
     "vite-plugin-pwa": "2.0.0",
     "@wsagency/wseffect-themes": "workspace:*"
@@ -63,10 +63,10 @@
   "devDependencies": {
     "@wsagency/wseffect-primitives": "workspace:*",
     "@wsagency/wseffect-themes": "workspace:*",
-    "@foldkit/ui": "0.168.0",
-    "@foldkit/vite-plugin": "0.27.1",
+    "@wsagency/wseffect-foldkit-ui": "workspace:*",
+    "@wsagency/wseffect-vite-plugin": "workspace:*",
     "@starfederation/datastar-sdk": "1.0.0",
-    "foldkit": "0.168.0",
+    "@wsagency/wseffect-foldkit": "workspace:*",
     "vite": "8.3.4",
     "vite-plugin-pwa": "2.0.0"
   },

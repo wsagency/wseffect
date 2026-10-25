@@ -1,10 +1,10 @@
 import { Option } from 'effect'
-import * as RadioGroupUi from '@foldkit/ui/radioGroup'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import * as RadioGroupUi from '@wsagency/wseffect-foldkit-ui/radioGroup'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it } from 'vitest'
 import * as RadioGroup from '../src/components/radio-group.js'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 const Group = RadioGroup.create<'one' | 'two' | 'three'>()
 const Message = defineMessageUnion({ Tick: {} })
 type Message = typeof Message.Type

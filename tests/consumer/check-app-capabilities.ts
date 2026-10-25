@@ -25,7 +25,7 @@ interface ManifestEntry {
 }
 type Manifest = Record<string, ManifestEntry>
 
-const FIXTURE_EXTERNALS = /^(?:effect|@effect\/platform-browser|foldkit|@foldkit\/ui|@wsagency\/wseffect-themes|virtual:pwa-register)(?:\/.*)?$/
+const FIXTURE_EXTERNALS = /^(?:effect|@effect\/platform-browser|@wsagency\/wseffect-foldkit|@wsagency\/wseffect-foldkit-ui|@wsagency\/wseffect-vite-plugin|@wsagency\/wseffect-themes|virtual:pwa-register)(?:\/.*)?$/
 
 export async function exportedNamesFromTypes(declarationFile: string): Promise<Set<string>> {
   const names = new Set<string>()
@@ -89,8 +89,8 @@ async function findFiles(directory: string, suffix: string): Promise<string[]> {
 }
 
 const BASELINE_APP_SOURCE = `import { Effect, Option, Schema, Stream } from 'effect'
-import { Command, Runtime, Subscription } from 'foldkit'
-import { defineTaggedUnion } from 'foldkit/schema'
+import { Command, Runtime, Subscription } from '@wsagency/wseffect-foldkit'
+import { defineTaggedUnion } from '@wsagency/wseffect-foldkit/schema'
 
 
 const Model = Schema.Struct({ count: Schema.Number })

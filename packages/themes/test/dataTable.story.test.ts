@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
-import * as VirtualList from '@foldkit/ui/virtualList'
+import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import * as DataTable from '../src/components/data-table.js'
 
 type Row = { id: string; name: string; score: number }

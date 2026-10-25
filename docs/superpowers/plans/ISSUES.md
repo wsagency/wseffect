@@ -225,3 +225,8 @@
 - GATE-S1/S2/S4 absolute budgets remain; the separate SP2 shell-growth cap is retired.
 - Refresh `page:persistence` to 2,119 B with reason `7f22e9a persist schema-encoded values (encode on save/migration)`.
 - **Cost if wrong:** up to 64 B of real growth per tiny chunk can pass without a reason.
+
+## 2026-10-25 — Foldkit ownership and upstream proposal policy
+
+- **Director ruling:** Vendor Foldkit core, UI, and Vite plugin as wseffect-owned source packages, replacing the external npm dependencies. This supersedes the earlier exact external Foldkit pins and no-vendoring/no-local-patches constraint.
+- **Upstream proposals:** PRs are optional; propose changes only when they are generally useful to Foldkit users and fit Foldkit's philosophy. Local delivery is not contingent on upstream acceptance. Existing PRs #1699, #1700, #1703, and #1711 remain unchanged.

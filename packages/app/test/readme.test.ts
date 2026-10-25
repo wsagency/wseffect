@@ -7,20 +7,13 @@ import { describe, expect, it } from 'vitest'
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 describe('package README', () => {
-  it('keeps the Effect peer resolution snippet exact', async () => {
+  it('documents the owned Foldkit workspace dependencies without an external peer workaround', async () => {
     const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')
-    const snippet = readme.split('<!-- up8:start -->')[1]?.split('<!-- up8:end -->')[0]?.trim()
-    expect(snippet).toBe(`\`\`\`yaml
-overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
-\`\`\``)
+    expect(readme).toContain('@wsagency/wseffect-foldkit')
+    expect(readme).toContain('@wsagency/wseffect-foldkit-ui')
+    expect(readme).toContain('@wsagency/wseffect-vite-plugin')
+    expect(readme).not.toContain('<!-- up8:start -->')
+    expect(readme).not.toContain('peerDependencyRules')
   })
 
   it('documents cache behavior and limits that update prompts cannot solve', async () => {
@@ -31,8 +24,7 @@ peerDependencyRules:
     expect(readme).toContain('current plus the previous 3 deployments')
     expect(readme).toContain('backend APIs or stored data')
     expect(readme).toContain('loses in-memory application state')
-    expect(readme).toContain('Remove this override and its `allowedVersions` entries when the Foldkit upgrade')
-    expect(readme).toContain('Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments while old tabs may still request lazy page chunks.')
+    expect(readme).toContain('Serve one immutable deployment directory at a time and retain the current plus the previous 3 deployments.')
   })
   it('documentsSupportedRouteQueryPattern', async () => {
     const readme = await readFile(resolve(packageRoot, 'README.md'), 'utf8')

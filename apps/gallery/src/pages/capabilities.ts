@@ -1,5 +1,5 @@
 import { Schema } from 'effect'
-import { Submodel } from 'foldkit'
+import { Submodel } from '@wsagency/wseffect-foldkit'
 import { Grid, Heading, Text } from '@wsagency/wseffect-themes'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 

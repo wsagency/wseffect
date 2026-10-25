@@ -1,5 +1,5 @@
 import { Effect, Queue, Stream } from 'effect'
-import type { Mount } from 'foldkit'
+import type { Mount } from '@wsagency/wseffect-foldkit'
 
 export type ResizeResult =
   | { readonly _tag: 'Resized'; readonly width: number; readonly height: number }

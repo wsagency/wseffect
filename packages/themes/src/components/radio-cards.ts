@@ -1,6 +1,6 @@
-import { brandViewResult } from 'foldkit/brand'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as RadioGroup from './radio-group.js'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'

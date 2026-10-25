@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
-import { brandViewResult } from 'foldkit/brand'
+import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import { radii } from '../props/radius.props.js'

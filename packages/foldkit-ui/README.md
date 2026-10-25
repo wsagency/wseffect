@@ -1,0 +1,3 @@
+# @wsagency/wseffect-foldkit-ui
+
+This package vendors the Foldkit UI source at `@foldkit/ui@0.168.0` from commit `060271955cc2fdd34ddb5e17a64b6662268f79c5`. It is an independently maintained snapshot; see [UPSTREAM.md](./UPSTREAM.md) for provenance, local divergence, sync, and contribution policy. Its public export map is retained from upstream. Upstream examples retain upstream specifiers: `foldkit` maps to `@wsagency/wseffect-foldkit`, `@foldkit/ui` to `@wsagency/wseffect-foldkit-ui`, and `@foldkit/vite-plugin` to `@wsagency/wseffect-vite-plugin`. Licensed under MIT; see [LICENSE](./LICENSE) and [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md).

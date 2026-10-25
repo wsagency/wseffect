@@ -1,5 +1,5 @@
 import * as Link from '@wsagency/wseffect-themes/components/link'
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'
 

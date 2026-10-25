@@ -1,4 +1,4 @@
-import { Submodel } from 'foldkit'
+import { Submodel } from '@wsagency/wseffect-foldkit'
 import type { AnyPage } from '../contract.js'
 import type { KitState } from '../kit/state.js'
 

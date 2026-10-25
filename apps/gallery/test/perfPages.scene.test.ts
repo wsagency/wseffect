@@ -1,4 +1,4 @@
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it, vi } from 'vitest'
 import * as TextField from '@wsagency/wseffect-themes/components/text-field'
 import { Message as VirtualListMessage, page as virtualListPage } from '../src/pages/virtualList.js'

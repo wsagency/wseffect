@@ -1,9 +1,9 @@
-import { brandViewResult } from 'foldkit/brand'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { radii } from '../props/radius.props.js'
 import { accentColors } from '../props/color.props.js'
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as ButtonUi from '@foldkit/ui/button'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as ButtonUi from '@wsagency/wseffect-foldkit-ui/button'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 

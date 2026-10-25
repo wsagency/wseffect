@@ -1,6 +1,6 @@
 import { Option, Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
-import { Submodel } from 'foldkit'
+import { Submodel } from '@wsagency/wseffect-foldkit'
 import { alphaPage } from './fixtures/pages/alpha.js'
 import { betaPage } from './fixtures/pages/beta.js'
 import { makePages } from '../src/registry.js'

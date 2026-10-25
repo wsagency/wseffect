@@ -1,8 +1,8 @@
 import * as TabNav from '@wsagency/wseffect-themes/components/tab-nav'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'
-import { Submodel } from 'foldkit'
+import { Submodel } from '@wsagency/wseffect-foldkit'
 import { Schema } from 'effect'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { galleryPageContract, type PageInputs } from '../contract.js'
 
 const items = [

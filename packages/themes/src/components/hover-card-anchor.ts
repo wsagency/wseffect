@@ -1,7 +1,7 @@
 import { Effect, Schema } from 'effect'
-import * as Mount from 'foldkit/mount'
-import * as UiHoverIntent from '@foldkit/ui/hoverIntent'
-import * as UiAnchor from '@foldkit/ui/anchor'
+import * as Mount from '@wsagency/wseffect-foldkit/mount'
+import * as UiHoverIntent from '@wsagency/wseffect-foldkit-ui/hoverIntent'
+import * as UiAnchor from '@wsagency/wseffect-foldkit-ui/anchor'
 
 export const AnchorHoverCard = Mount.define('AnchorHoverCard', {
   args: { buttonId: Schema.String, anchor: UiAnchor.AnchorConfig },

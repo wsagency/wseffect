@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import { brandViewResult } from 'foldkit/brand'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 export const Props = Schema.Struct({ ratio: Schema.optional(Schema.Number) })
 export type ViewProps = typeof Props.Type
 const wrapperStyle = Object.freeze({ position: 'relative', width: '100%' })

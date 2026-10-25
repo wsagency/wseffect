@@ -1,9 +1,9 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { it } from 'vitest'
 import * as ContextMenu from '../src/context-menu.js'
 import { Stream } from 'effect'
-import * as Menu from '@foldkit/ui/menu'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 
 const menu = ContextMenu.createContextMenu<'disabled' | 'enabled'>()
 const config: ContextMenu.ContextMenuConfig<'disabled' | 'enabled'> = {

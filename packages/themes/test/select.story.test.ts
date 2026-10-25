@@ -1,8 +1,8 @@
 import { Option } from 'effect'
-import type { Html, HtmlBuilder } from 'foldkit/html'
-import * as Listbox from '@foldkit/ui/listbox'
-import * as Scene from 'foldkit/scene'
-import { defineMessageUnion } from 'foldkit/message'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, expect, it } from 'vitest'
 import * as Select from '../src/components/select.js'
 

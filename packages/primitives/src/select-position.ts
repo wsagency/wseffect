@@ -1,5 +1,5 @@
 import { Effect, Stream } from 'effect'
-import type * as Mount from 'foldkit/mount'
+import type * as Mount from '@wsagency/wseffect-foldkit/mount'
 
 export type SelectPositionConfig = {
   panelId: string

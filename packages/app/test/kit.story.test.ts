@@ -1,5 +1,5 @@
 import { Effect, Option } from 'effect'
-import { Command, expectNoOutMessage, expectOutMessage, given, message, model, story } from 'foldkit/story'
+import { Command, expectNoOutMessage, expectOutMessage, given, message, model, story } from '@wsagency/wseffect-foldkit/story'
 import { describe, expect, it } from 'vitest'
 import { alphaPage, AlphaInit, AlphaUpdateCommand, Message as AlphaMessage } from './fixtures/pages/alpha.js'
 import { alphaMessage, alphaOutMessage, makeKitFixture } from './fixtures/kit.js'

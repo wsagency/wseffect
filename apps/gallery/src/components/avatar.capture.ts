@@ -1,4 +1,4 @@
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Avatar from '@wsagency/wseffect-themes/components/avatar'
 import { renderCaptureView } from '../captureView.js'
 import type { CaptureRequest } from '../capture.js'

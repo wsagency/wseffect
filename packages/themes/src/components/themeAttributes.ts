@@ -1,4 +1,4 @@
-import { childAttributes, type ChildAttribute, type HtmlBuilder } from 'foldkit/html'
+import { childAttributes, type ChildAttribute, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { grayMatch } from '../props/grayMatch.js'
 import type { Settings } from './theme.js'
 

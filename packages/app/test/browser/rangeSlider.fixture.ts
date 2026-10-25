@@ -1,6 +1,6 @@
 import { Schema } from 'effect'
-import { makeElement, run } from 'foldkit/runtime'
-import type { HtmlBuilder } from 'foldkit/html'
+import { makeElement, run } from '@wsagency/wseffect-foldkit/runtime'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as RangeSlider from '@wsagency/wseffect-primitives/range-slider'
 
 const initialThumbs = [{ id: 'low', value: 25 }, { id: 'high', value: 75 }]

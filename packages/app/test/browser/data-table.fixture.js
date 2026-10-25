@@ -1,4 +1,4 @@
-import { makeElement, run } from 'foldkit/runtime'
+import { makeElement, run } from '@wsagency/wseffect-foldkit/runtime'
 import * as DataTable from '../../../themes/src/components/data-table.js'
 import '../../../themes/src/css-components/data-table.css'
 

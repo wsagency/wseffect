@@ -31,6 +31,9 @@ test('README states project independence, package scope, and WS Agency attributi
   assert.match(readme, /unofficial[\s\S]*not endorsed[\s\S]*trademark rights/i)
   assert.match(readme, /@wsagency\/wseffect-app/)
   assert.match(readme, /@wsagency\/wseffect-themes/)
+  assert.match(readme, /@wsagency\/wseffect-foldkit/)
+  assert.match(readme, /@wsagency\/wseffect-foldkit-ui/)
+  assert.match(readme, /@wsagency\/wseffect-vite-plugin/)
   assert.match(readme, /## Created for WS Agency/)
   assert.match(readme, /<picture>[\s\S]*https:\/\/ws\.agency\/brand\/ws-vertical-white\.svg[\s\S]*https:\/\/ws\.agency\/brand\/ws-vertical-color\.svg[\s\S]*width="160"[\s\S]*<\/picture>/)
   assert.ok(readme.includes('wseffect was created by [Kristijan Lukačin](https://github.com/klukacin) (@klukacin) for [WS Agency](https://ws.agency), the firm behind this project. We love open source, enterprise development and AI. Have a project in mind? [Let’s build it together](https://ws.agency/contact).'))
@@ -38,12 +41,9 @@ test('README states project independence, package scope, and WS Agency attributi
   assert.match(readme, /https:\/\/design\.ws\.agency\/docs\/usage-and-licenses\.md/)
 })
 
-test('README includes UP-8 snippet exactly between D5 markers', () => {
-  const block = readme.match(/<!-- up8:start -->\n([\s\S]*?)\n<!-- up8:end -->/)?.[1]
-  assert.equal(block, `\`\`\`yaml\noverrides:\n  effect: 4.0.5\n  '@effect/platform-browser': 4.0.5\npeerDependencyRules:\n  allowedVersions:\n    foldkit>effect: 4.0.5\n    foldkit>@effect/platform-browser: 4.0.5\n    '@foldkit/ui>effect': 4.0.5\n    '@foldkit/vite-plugin>effect': 4.0.5\n\`\`\``)
-  assert.match(readme, /## Effect version \(temporary\)/)
-  assert.match(readme, /PR #1699/)
-  assert.match(readme, /same upgrade PR[\s\S]*narrow it to any remaining peer conflicts/)
+test('README documents the vendored Foldkit ownership without an external peer workaround', () => {
+  assert.match(readme, /Vendored Foldkit packages[\s\S]*exact Effect 4\.0\.5 pins/)
+  assert.doesNotMatch(readme, /<!-- up8:start -->|peerDependencyRules|PR #1699/)
 })
 
 test('README has the LIC-3 attribution and required sections in order', () => {
@@ -56,15 +56,13 @@ test('README has the LIC-3 attribution and required sections in order', () => {
   }
 })
 
-test('CONTRIBUTING documents upstream, dependency, performance, and commit rules', () => {
-  assert.match(contributing, /## Upstream Foldkit PRs/)
+test('CONTRIBUTING documents vendored maintenance, optional upstream PRs, performance, and commit rules', () => {
+  assert.match(contributing, /## Vendored Foldkit maintenance/)
+  assert.match(contributing, /Upstream PRs are optional[\s\S]*generally useful[\s\S]*fits Foldkit's philosophy/)
   assert.match(contributing, /--workers=4/)
   assert.match(contributing, /NODE_OPTIONS=--max-old-space-size=8192/)
-  assert.match(contributing, /## Dependency upgrades/)
-  assert.match(contributing, /UP-1[\s\S]*own PR/i)
-  assert.match(contributing, /UP-4[\s\S]*allowedVersions[\s\S]*consumer snippet[\s\S]*TEST-7/i)
-  assert.match(contributing, /UP-6[\s\S]*neutral for correctness and speed[\s\S]*targeted tests/i)
-  assert.match(contributing, /UP-7[\s\S]*no local patches[\s\S]*no vendored Foldkit/i)
+  assert.match(contributing, /## Dependency and size changes/)
+  assert.match(contributing, /upstream size proposals are optional[\s\S]*neutral for correctness and speed[\s\S]*targeted tests/i)
   assert.match(contributing, /## Performance rules/)
   for (const rule of ['PERF-1', 'PERF-2', 'PERF-3', 'PERF-4', 'PERF-5', 'PERF-6', 'TH-15']) {
     assert.ok(contributing.includes(rule), `missing ${rule}`)

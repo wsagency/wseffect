@@ -1,7 +1,7 @@
 import { Effect, Fiber, Schema, Stream } from 'effect'
-import type * as Mount from 'foldkit/mount'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type * as Mount from '@wsagency/wseffect-foldkit/mount'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { expect, it, vi } from 'vitest'
 import * as RangeSlider from '../src/range-slider.js'
 

@@ -12,9 +12,3 @@ minimumReleaseAgeExclude: []
 overrides:
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5

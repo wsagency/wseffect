@@ -1,10 +1,10 @@
-import type { HtmlBuilder } from 'foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Option from 'effect/Option'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Stream from 'effect/Stream'
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, expect, it } from 'vitest'
-import * as UiDialog from '@foldkit/ui/dialog'
+import * as UiDialog from '@wsagency/wseffect-foldkit-ui/dialog'
 import * as AlertDialog from '../src/components/alert-dialog.js'
 
 const Message = defineMessageUnion({ Alert: { message: AlertDialog.Message } })

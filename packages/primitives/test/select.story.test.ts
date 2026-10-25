@@ -1,5 +1,5 @@
 import { Option, Schema } from 'effect'
-import * as Listbox from '@foldkit/ui/listbox'
+import * as Listbox from '@wsagency/wseffect-foldkit-ui/listbox'
 import { expect, it } from 'vitest'
 import * as Select from '../src/select.js'
 

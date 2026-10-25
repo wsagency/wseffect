@@ -1,5 +1,5 @@
-import { brandViewResult } from 'foldkit/brand'
-import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { marginClasses } from '../props/margin.classes.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
 import type { ViewProps } from './heading.props.js'

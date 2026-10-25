@@ -1,8 +1,8 @@
 import { Schema, Stream } from 'effect'
-import * as Menu from '@foldkit/ui/menu'
-import { createLazy } from 'foldkit/html'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
+import { createLazy } from '@wsagency/wseffect-foldkit/html'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { expect, it, vi } from 'vitest'
 import * as ContextMenu from '../src/context-menu.js'
 

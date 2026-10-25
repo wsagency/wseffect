@@ -1,6 +1,6 @@
 import { Effect, Schema } from 'effect'
-import * as Command from 'foldkit/command'
-import type * as Update from 'foldkit/update'
+import * as Command from '@wsagency/wseffect-foldkit/command'
+import type * as Update from '@wsagency/wseffect-foldkit/update'
 
 export type Config = { openDelay: 700; skipDelay: 300 }
 export const Model = Schema.Struct({ isSkipping: Schema.Boolean, expiryVersion: Schema.Number })

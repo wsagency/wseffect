@@ -1,5 +1,5 @@
 import { Effect, Queue, Stream } from 'effect'
-import { Subscription } from 'foldkit'
+import { Subscription } from '@wsagency/wseffect-foldkit'
 import { BREAKPOINTS } from '@wsagency/wseffect-themes/breakpoints'
 
 export type Breakpoint = 'initial' | typeof BREAKPOINTS[number]['name']

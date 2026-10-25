@@ -13,9 +13,9 @@
     "@wsagency/wseffect-app": "workspace:*",
     "@wsagency/wseffect-themes": "workspace:*",
     "@effect/platform-browser": "4.0.5",
-    "@foldkit/ui": "0.168.0",
-    "effect": "4.0.5",
-    "foldkit": "0.168.0"
+    "@wsagency/wseffect-foldkit-ui": "workspace:*",
+    "@wsagency/wseffect-foldkit": "workspace:*",
+    "effect": "4.0.5"
   },
   "devDependencies": {
     "@types/node": "24.19.1",

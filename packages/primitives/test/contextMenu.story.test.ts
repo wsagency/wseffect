@@ -1,9 +1,9 @@
 import * as Floating from '@floating-ui/dom'
-import * as Anchor from '@foldkit/ui/anchor'
+import * as Anchor from '@wsagency/wseffect-foldkit-ui/anchor'
 import { Effect, Fiber, Option, Schema, Stream } from 'effect'
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
-import * as Menu from '@foldkit/ui/menu'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
+import * as Menu from '@wsagency/wseffect-foldkit-ui/menu'
 import { expect, it, vi } from 'vitest'
 import * as ContextMenu from '../src/context-menu.js'
 vi.mock('@floating-ui/dom', async importOriginal => {
@@ -14,8 +14,8 @@ vi.mock('@floating-ui/dom', async importOriginal => {
     computePosition: vi.fn(actual.computePosition),
   }
 })
-vi.mock('@foldkit/ui/anchor', async importOriginal => {
-  const actual = await importOriginal<typeof import('@foldkit/ui/anchor')>()
+vi.mock('@wsagency/wseffect-foldkit-ui/anchor', async importOriginal => {
+  const actual = await importOriginal<typeof Anchor>()
   return { ...actual, portalToContainingRoot: vi.fn(actual.portalToContainingRoot) }
 })
 const sourceMount = { name: 'ContextMenuSourceEvents', f: () => Stream.empty }

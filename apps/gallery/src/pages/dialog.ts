@@ -1,6 +1,6 @@
 import { Option, Schema } from 'effect'
-import { Submodel } from 'foldkit'
-import { defineMessageUnion } from 'foldkit/message'
+import { Submodel } from '@wsagency/wseffect-foldkit'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Button from '@wsagency/wseffect-themes/components/button'
 import * as Dialog from '@wsagency/wseffect-themes/components/dialog'
 import * as Heading from '@wsagency/wseffect-themes/components/heading'

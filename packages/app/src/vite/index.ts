@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { foldkit } from '@foldkit/vite-plugin'
+import { foldkit } from '@wsagency/wseffect-vite-plugin'
 import { VitePWA } from 'vite-plugin-pwa'
 import type { ManifestOptions } from 'vite-plugin-pwa'
 import type { Plugin } from 'vite'

@@ -1,4 +1,4 @@
-import * as Scene from 'foldkit/scene'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
 import { page as layoutPage } from '../src/pages/layout.js'
 import { page as typographyPage } from '../src/pages/typography.js'

@@ -1,4 +1,4 @@
-import type { Html } from 'foldkit/html'
+import type { Html } from '@wsagency/wseffect-foldkit/html'
 
 export type Column<Row> = Readonly<{
   id: string

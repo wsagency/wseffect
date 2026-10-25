@@ -1,5 +1,5 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { describe, it } from 'vitest'
 import * as Theme from '../src/components/theme.js'
 import * as ThemePanel from '../src/components/theme-panel.js'

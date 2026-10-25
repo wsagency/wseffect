@@ -17,7 +17,7 @@ const manifest = () => ({
   files: ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md'],
   exports: { '.': { types: './dist/index.d.ts', default: './dist/index.js' } },
   sideEffects: false,
-  peerDependencies: { foldkit: '0.168.0', effect: '^4.0.5', '@effect/platform-browser': '^4.0.5' },
+  peerDependencies: { '@wsagency/wseffect-foldkit': 'workspace:*', effect: '^4.0.5', '@effect/platform-browser': '^4.0.5' },
   devDependencies: { typescript: '7.0.2' },
 })
 
@@ -58,10 +58,10 @@ test('checkManifest rejects patched dependencies', () => {
   assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /patchedDependencies/)
 })
 
-test('checkManifest requires the exact Foldkit peer version for each package', () => {
+test('checkManifest requires the workspace Foldkit peer name', () => {
   const fixture = manifest()
-  fixture.peerDependencies['@foldkit/vite-plugin'] = '0.168.0'
-  assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /peerDependencies\.@foldkit\/vite-plugin/)
+  fixture.peerDependencies['@wsagency/wseffect-foldkit'] = '0.168.0'
+  assert.match(checkManifest(fixture, 'packages/app/package.json').join('\n'), /peerDependencies\.@wsagency\/wseffect-foldkit/)
 })
 
 test('checkWorkspace rejects additional overrides', () => {
@@ -69,14 +69,8 @@ test('checkWorkspace rejects additional overrides', () => {
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
   solid-js: 1.9.9
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
 `
-  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+  assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
 
 test('checkWorkspace rejects patchedDependencies', () => {
@@ -85,14 +79,8 @@ test('checkWorkspace rejects patchedDependencies', () => {
 overrides:
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
 `
-  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+  assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
 
 test('checkWorkspace rejects packageExtensions', () => {
@@ -103,35 +91,28 @@ test('checkWorkspace rejects packageExtensions', () => {
 overrides:
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
 `
-  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+  assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
 
-test('checkWorkspace rejects extra allowed peer versions', () => {
+test('checkWorkspace rejects obsolete peer rules', () => {
   const workspace = `overrides:
   effect: 4.0.5
   '@effect/platform-browser': 4.0.5
 peerDependencyRules:
   allowedVersions:
     foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
-    'solid-js@*': 1.9.9
 `
-  assert.match(checkWorkspace(workspace).join('\n'), /UP-8/)
+  assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
 
-test('checkWorkspace requires the exact UP-8 consumer block', () => {
-  const workspace = `overrides:\n  effect: 4.0.5\n  '@effect/platform-browser': 4.0.5\npeerDependencyRules:\n  allowedVersions:\n    foldkit>effect: 4.0.5\n    foldkit>@effect/platform-browser: 4.0.5\n    '@foldkit/ui>effect': 4.0.5\n    '@foldkit/vite-plugin>effect': 4.0.5\n`
+test('checkWorkspace accepts the exact shared Effect pins', () => {
+  const workspace = `overrides:
+  effect: 4.0.5
+  '@effect/platform-browser': 4.0.5
+`
   assert.deepEqual(checkWorkspace(workspace), [])
-  assert.match(checkWorkspace(workspace.replace('effect: 4.0.5', 'effect: 4.0.6')).join('\n'), /UP-8/)
+  assert.match(checkWorkspace(workspace.replace('effect: 4.0.5', 'effect: 4.0.6')).join('\n'), /overrides/)
 })
 
 test('checkEffectCopies reports duplicate Effect versions', () => {

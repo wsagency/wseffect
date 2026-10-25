@@ -1,9 +1,9 @@
-import { brandViewResult } from 'foldkit/brand'
-import { childAttributes, type Html, type HtmlBuilder } from 'foldkit/html'
-import * as Update from 'foldkit/update'
-import { defineView } from 'foldkit/submodel'
-import * as UiTabs from '@foldkit/ui/tabs'
-import type { ViewInputs as TabsViewInputs } from '@foldkit/ui/tabs'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
+import { childAttributes, type Html, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
+import * as UiTabs from '@wsagency/wseffect-foldkit-ui/tabs'
+import type { ViewInputs as TabsViewInputs } from '@wsagency/wseffect-foldkit-ui/tabs'
 
 export type ThemedViewInputs<Value extends string> = Omit<TabsViewInputs<Value>, 'toView'> & Readonly<{
   tabToLabel: (value: Value) => Html

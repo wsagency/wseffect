@@ -1,6 +1,6 @@
-import { brandViewResult } from 'foldkit/brand'
+import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { Schema } from 'effect'
-import type { Attribute, Html, HtmlBuilder } from 'foldkit/html'
+import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { accentColors, grayColors } from '../props/color.props.js'
 import { grayMatch } from '../props/grayMatch.js'
 import { radii } from '../props/radius.props.js'

@@ -1,7 +1,7 @@
-import * as UiDialog from '@foldkit/ui/dialog'
+import * as UiDialog from '@wsagency/wseffect-foldkit-ui/dialog'
 import * as Option from 'effect/Option'
-import * as Story from 'foldkit/story'
-import { defineMessageUnion } from 'foldkit/message'
+import * as Story from '@wsagency/wseffect-foldkit/story'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import { describe, expect, it } from 'vitest'
 import * as Dialog from '../src/components/dialog.js'
 

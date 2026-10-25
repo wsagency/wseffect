@@ -17,7 +17,7 @@ describe('themes distribution', () => {
   it('brands or delegates every component view in the built package', async () => {
     for (const name of viewComponentNames) {
       const code = await readFile(resolve(packageRoot, `dist/components/${name}.js`), 'utf8')
-      expect(code, name).toContain(name === 'slider' ? "from '@foldkit/ui/slider'" : "from 'foldkit/brand'")
+      expect(code, name).toContain(name === 'slider' ? "from '@wsagency/wseffect-foldkit-ui/slider'" : "from '@wsagency/wseffect-foldkit/brand'")
     }
   })
 

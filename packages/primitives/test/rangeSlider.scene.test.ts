@@ -1,5 +1,5 @@
-import type { HtmlBuilder } from 'foldkit/html'
-import * as Scene from 'foldkit/scene'
+import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as Scene from '@wsagency/wseffect-foldkit/scene'
 import { it } from 'vitest'
 import * as RangeSlider from '../src/range-slider.js'
 

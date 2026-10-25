@@ -7,6 +7,9 @@ This repository contains:
 - `@wsagency/wseffect-app` — a Foldkit application foundation for lazy pages, PWA behavior, and deployment-version checks.
 - `@wsagency/wseffect-themes` — Radix Themes foundation styles and typed Foldkit view helpers for the pinned component families.
 - `@wsagency/wseffect-primitives` — local, headless Select, ContextMenu, CheckboxGroup, RangeSlider, TooltipGroup, and SelectPosition primitives.
+- `@wsagency/wseffect-foldkit` — wseffect-owned Foldkit core source, vendored from the reproducible 0.168.0 release.
+- `@wsagency/wseffect-foldkit-ui` — wseffect-owned Foldkit UI source, vendored from the reproducible 0.168.0 release.
+- `@wsagency/wseffect-vite-plugin` — wseffect-owned Foldkit Vite plugin source, vendored from the reproducible 0.27.1 release.
 - `apps/gallery` — the integration gallery and browser-test fixture.
 - `bench/radix2solid` — a comparison app built from the radix2solid library.
 
@@ -21,29 +24,13 @@ wseffect was created by [Kristijan Lukačin](https://github.com/klukacin) (@kluk
 
 The WS Agency name and logos are excluded from this project’s MIT license; see [usage and licenses](https://design.ws.agency/docs/usage-and-licenses.md).
 
-## Effect version (temporary)
+## Effect version
 
-Foldkit 0.168.0 declares Effect 4.0.0 peers, while wseffect packages use Effect 4.0.5. Until Foldkit adopts [PR #1699](https://github.com/foldkit/foldkit/pull/1699), consumers may need the same resolution in their workspace root `pnpm-workspace.yaml`.
-
-<!-- up8:start -->
-```yaml
-overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
-peerDependencyRules:
-  allowedVersions:
-    foldkit>effect: 4.0.5
-    foldkit>@effect/platform-browser: 4.0.5
-    '@foldkit/ui>effect': 4.0.5
-    '@foldkit/vite-plugin>effect': 4.0.5
-```
-<!-- up8:end -->
-
-Remove this override and its `allowedVersions` entries when the Foldkit upgrade adopts peers accepting Effect 4.0.5. Make that change in the same upgrade PR that removes this snippet and the corresponding packed-consumer fixture configuration, or narrow it to any remaining peer conflicts.
+Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.5 pins; no Foldkit peer override snippet is needed by consumers.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for upstream Foldkit contribution guidance, dependency-upgrade rules, performance requirements, and commit conventions.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the vendored Foldkit contribution policy, performance requirements, and commit conventions.
 
 ## Local development
 
@@ -51,8 +38,8 @@ Use Node.js 24.21.0 and pnpm 11.5.0. Install the locked dependencies with `pnpm 
 
 ## Distribution and gates
 
-The app and themes packages are distributed as ESM packages. `pnpm check` runs the repository's automated checks, while the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises the packages from their tarballs outside this workspace.
+The app, themes, primitives, and vendored Foldkit packages are distributed as ESM packages. `pnpm check` runs the repository's automated checks, while the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises all six workspace packages from tarballs outside this workspace.
 
 ## License
 
-wseffect is licensed under the MIT License. The repository also retains MIT notices for Radix Themes, Radix Colors, and radix2solid; see [`LICENSE`](LICENSE) for the complete texts. Foldkit is a dependency and is not copied into this repository.
+wseffect is licensed under the MIT License. The repository also retains MIT notices for Radix Themes, Radix Colors, and radix2solid; see [`LICENSE`](LICENSE) for the complete texts. The three Foldkit source snapshots retain their upstream MIT license and third-party notices in their package directories.

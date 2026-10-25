@@ -1,5 +1,5 @@
 import { Effect } from 'effect'
-import type { Command } from 'foldkit'
+import type { Command } from '@wsagency/wseffect-foldkit'
 import type { BrowserCommandResult } from './clipboard.js'
 
 export function scrollIntoViewCommand<M>(id: string, options: ScrollIntoViewOptions, toMessage: (result: BrowserCommandResult) => M): Command.Command<M, never> {

@@ -1,7 +1,7 @@
 import { Schema } from 'effect'
 import { pageContract } from '@wsagency/wseffect-app'
 import * as Theme from '@wsagency/wseffect-themes/components/theme'
-import { defineMessageUnion } from 'foldkit/message'
+import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 
 export type PageInputs = Readonly<{
   path: string

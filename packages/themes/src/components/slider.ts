@@ -1,8 +1,8 @@
-import { childAttributes, type Html, type HtmlBuilder } from 'foldkit/html'
-import { defineView } from 'foldkit/submodel'
-import * as Update from 'foldkit/update'
-import * as SliderUi from '@foldkit/ui/slider'
-import type { ViewInputs as UiInputs, SliderAttributes } from '@foldkit/ui/slider'
+import { childAttributes, type Html, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { defineView } from '@wsagency/wseffect-foldkit/submodel'
+import * as Update from '@wsagency/wseffect-foldkit/update'
+import * as SliderUi from '@wsagency/wseffect-foldkit-ui/slider'
+import type { ViewInputs as UiInputs, SliderAttributes } from '@wsagency/wseffect-foldkit-ui/slider'
 import { classes, Props as SliderProps } from './slider/props.js'
 
 export const Props = SliderProps
