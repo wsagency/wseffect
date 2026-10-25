@@ -18,7 +18,7 @@ const DIFFERENCES = [
   'Both virtual-list pages expose 15 visible rows with the same six child roles; the benchmark also measures row recycling while scrolling.',
 ]
 
-type ScenarioId = Exclude<PerfScenario['id'], 'shared-date'>
+type ScenarioId = PerfScenario['id']
 type ScenarioMetrics = {
   readonly eventMs: readonly number[]
   readonly eventEntryCounts: readonly (readonly number[])[]

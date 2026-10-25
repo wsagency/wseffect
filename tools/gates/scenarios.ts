@@ -15,10 +15,7 @@ export interface PerfScenario {
   readonly hook?: string
   readonly ceilingStatus?: 'proposed-not-runner-validated'
 }
-export type GatePerfScenario = Omit<PerfScenario, 'id'> & {
-  readonly id: Exclude<PerfScenario['id'], 'shared-date'>
-}
-export const SCENARIOS: ReadonlyArray<GatePerfScenario> = [
+export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   {
     id: 'vl-cell',
     route: '/virtual-list',
