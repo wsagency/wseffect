@@ -33,6 +33,14 @@ export {
   type IgnoredMouseClick,
   type SuppressedSpaceScroll,
 } from './index.js'
+export {
+  ContextInvocationSchema,
+  OpenedAtSchema,
+  LongPressExpiredSchema,
+  SourceUnmountedSchema,
+} from './index.js'
+
+export type { ContextInvocation } from './index.js'
 
 export type {
   ActivationTrigger,

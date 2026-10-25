@@ -50,7 +50,32 @@ const PointerOrigin = Schema.Struct({
   timeStamp: Schema.Number,
 })
 
-/** Schema for the menu component's state, tracking open/closed status, active item, activation trigger, and typeahead search. */
+/** Source invocation metadata for a contextual Menu opening. */
+export const ContextInvocationSchema = Schema.Struct({
+  invocation: Schema.Literals(['pointer', 'keyboard', 'touch']),
+  sourceId: Schema.String,
+  sourceToken: Schema.String,
+  point: Schema.optional(Schema.Struct({ x: Schema.Number, y: Schema.Number })),
+})
+
+export type ContextInvocation = typeof ContextInvocationSchema.Type
+
+export const OpenedAtSchema = Schema.Struct({
+  _tag: Schema.Literal('OpenedAt'),
+  invocation: ContextInvocationSchema,
+})
+
+export const LongPressExpiredSchema = Schema.Struct({
+  _tag: Schema.Literal('LongPressExpired'),
+  version: Schema.Number,
+})
+
+export const SourceUnmountedSchema = Schema.Struct({
+  _tag: Schema.Literal('SourceUnmounted'),
+  token: Schema.String,
+})
+
+/** Schema for the menu component's state. */
 export const Model = Schema.Struct({
   id: Schema.String,
   isOpen: Schema.Boolean,
@@ -66,6 +91,12 @@ export const Model = Schema.Struct({
   ),
   maybeLastButtonPointerType: Schema.Option(Schema.String),
   maybePointerOrigin: Schema.Option(PointerOrigin),
+  maybeContextInvocation: Schema.Option(ContextInvocationSchema).pipe(
+    Schema.withDecodingDefaultTypeKey(Effect.succeed(Option.none())),
+  ),
+  longPressVersion: Schema.Number.pipe(
+    Schema.withDecodingDefaultTypeKey(Effect.succeed(0)),
+  ),
 })
 
 export type Model = typeof Model.Type
@@ -75,6 +106,9 @@ export type Model = typeof Model.Type
 /** Union of all messages the menu component can produce. */
 export const Message = defineMessageUnion({
   Opened: { maybeActiveItemIndex: Schema.Option(Schema.Number) },
+  OpenedAt: { invocation: ContextInvocationSchema },
+  LongPressExpired: { version: Schema.Number },
+  SourceUnmounted: { token: Schema.String },
   Closed: {},
   BlurredItems: {},
   ActivatedItem: { index: Schema.Number, activationTrigger: ActivationTrigger },
@@ -183,6 +217,8 @@ export const init = (config: InitConfig): Model => ({
   maybeLastPointerPosition: Option.none(),
   maybeLastButtonPointerType: Option.none(),
   maybePointerOrigin: Option.none(),
+  maybeContextInvocation: Option.none(),
+  longPressVersion: 0,
 })
 
 // UPDATE
@@ -196,6 +232,7 @@ const closedModel = (model: Model): Model =>
     maybeLastPointerPosition: () => Option.none(),
     maybeLastButtonPointerType: () => Option.none(),
     maybePointerOrigin: () => Option.none(),
+    maybeContextInvocation: () => Option.none(),
   })
 
 /** Returns the bare DOM id of the menu trigger button, derived from the
@@ -444,6 +481,27 @@ export const update = (model: Model, message: Message) => {
         }),
       ),
 
+    OpenedAt: ({ invocation }) =>
+      openMenu(
+        modifyFields(model, {
+          maybeContextInvocation: () => Option.some(invocation),
+          maybeActiveItemIndex: () => Option.none(),
+          activationTrigger: () =>
+            invocation.invocation === 'pointer' ? 'Pointer' : 'Keyboard',
+          searchQuery: () => '',
+          searchVersion: () => 0,
+        }),
+      ),
+
+    LongPressExpired: ({ version }) =>
+      version === model.longPressVersion ? { model } : { model },
+
+    SourceUnmounted: ({ token }) =>
+      Option.exists(model.maybeContextInvocation, invocation =>
+        invocation.sourceToken === token,
+      )
+        ? closeMenu(model, closeWithoutFocusCommands)
+        : { model },
     Closed: () => closeMenu(model, closeWithFocusCommands),
 
     BlurredItems: () => {
@@ -688,6 +746,12 @@ export const selectItem = (
   item: string,
   index: number,
 ): UpdateReturn => update(model, Message.SelectedItem({ index, item }))
+
+/** Opens the Menu for a contextual invocation, retaining its source identity. */
+export const openAt = (
+  model: Model,
+  invocation: ContextInvocation,
+): UpdateReturn => update(model, Message.OpenedAt({ invocation }))
 
 // VIEW
 
@@ -1228,6 +1292,10 @@ export type Bundle<Item extends string = string> = Readonly<{
     index: number,
   ) => BundleUpdateReturn<Item>
   open: (model: Model) => BundleUpdateReturn<Item>
+  openAt: (
+    model: Model,
+    invocation: ContextInvocation,
+  ) => BundleUpdateReturn<Item>
   close: (model: Model) => BundleUpdateReturn<Item>
 }>
 
@@ -1261,6 +1329,7 @@ export const create = <Item extends string = string>(): Bundle<Item> => {
     update: (model, message) => cast(update(model, message)),
     selectItem: (model, item, index) => cast(selectItem(model, item, index)),
     open: model => cast(open(model)),
+    openAt: (model, invocation) => cast(openAt(model, invocation)),
     close: model => cast(close(model)),
   }
 }
