@@ -69,6 +69,21 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     ceilingMs: 30,
   },
   {
+    id: 'shared-date',
+    route: '/shared',
+    inputEventType: 'keydown',
+    hook: 'shared-date',
+    prepare: async (page) =>
+      page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
+    warmup: async (page) =>
+      page.locator('[data-perf="shared-date"]').press('ArrowUp'),
+    reset: async (page) =>
+      page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
+    act: async (page) =>
+      page.locator('[data-perf="shared-date"]').press('ArrowUp'),
+    ceilingMs: 30,
+  },
+  {
     id: 'menus-tick',
     route: '/menus',
     inputEventType: 'click',
@@ -206,18 +221,3 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     ceilingStatus: 'proposed-not-runner-validated',
   },
 ]
-export const SHARED_DATE_SCENARIO: PerfScenario = {
-  id: 'shared-date',
-  route: '/shared',
-  inputEventType: 'keydown',
-  hook: 'shared-date',
-  prepare: async (page) =>
-    page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
-  warmup: async (page) =>
-    page.locator('[data-perf="shared-date"]').press('ArrowUp'),
-  reset: async (page) =>
-    page.locator('[data-perf="shared-date"]').fill('2026-01-01'),
-  act: async (page) =>
-    page.locator('[data-perf="shared-date"]').press('ArrowUp'),
-  ceilingMs: 30,
-}
