@@ -826,13 +826,16 @@ export const informItemsChanged = (
   model: Model,
   itemKeys: ReadonlyArray<string>,
 ): ScrollReturn => {
-  const currentKeys = HashSet.fromIterable(itemKeys)
+  const hasMeasuredRowHeights = Object.keys(model.measuredRowHeights).length > 0
+  const currentKeys = hasMeasuredRowHeights
+    ? HashSet.fromIterable(itemKeys)
+    : undefined
   return Update.combine(model, [
     stepModel => ({
       model: modifyFields(stepModel, {
-        measuredRowHeights: Record.filter((_, key) =>
-          HashSet.has(currentKeys, key),
-        ),
+        measuredRowHeights: hasMeasuredRowHeights
+          ? Record.filter((_, key) => HashSet.has(currentKeys!, key))
+          : () => stepModel.measuredRowHeights,
         layoutVersion: Number.increment,
       }),
     }),

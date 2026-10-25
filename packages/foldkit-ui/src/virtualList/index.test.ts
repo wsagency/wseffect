@@ -964,7 +964,25 @@ describe('VirtualList', () => {
       }
       expect(itemChange.commands ?? []).toHaveLength(1)
     })
+
+    it('preserves empty measurements without pruning against item keys', () => {
+      const model = defaultInit()
+      const changed = informItemsChanged(model, ['first'])
+
+      expect(changed.model.measuredRowHeights).toBe(model.measuredRowHeights)
+    })
+
+    it('prunes measurements whose keys are no longer present', () => {
+      const model = {
+        ...defaultInit(),
+        measuredRowHeights: { retained: 48, removed: 52 },
+      }
+      const changed = informItemsChanged(model, ['retained'])
+
+      expect(changed.model.measuredRowHeights).toStrictEqual({ retained: 48 })
+    })
   })
+
 
   describe('MeasuredRows', () => {
     it('stores measurements from the current layout and reconciles the anchor', () => {
