@@ -54,4 +54,4 @@ The candidate was profiled at 4× with three source-mapped captures per scenario
 
 The two upstream issue drafts are marked **implemented locally**: the validation redesign is implemented locally in `8c64324` (with stable-ID inputs in `a550ed1`), and fixed-height key pruning is implemented locally in `f82b085`. The repository benchmark harness was left unchanged; the shared-date scenario used by the scratch measurements matches the existing benchmark tooling.
 
-Final verification command exit codes: clean build + `pnpm check` 0; `pnpm e2e` 0 (45/45); standalone `pnpm test:consumer` 0; `pnpm gate:size --app apps/gallery` 0; `compare-sp2` pending.
+Final verification command exit codes: clean build + `pnpm check` 0; `pnpm e2e` 0 (45/45); standalone `pnpm test:consumer` 0; `pnpm gate:size --app apps/gallery` 0; `compare-sp2` 0 (236/236 passed).
