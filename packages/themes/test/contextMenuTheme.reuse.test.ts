@@ -21,7 +21,6 @@ const renderMenu = vi.fn((label: string, h: HtmlBuilder<Message>) => {
       label: h.span([], ['Main actions']),
       items: [{ value: 'edit', textValue: label, isDisabled: false, content: h.span([], [label]) }],
     }],
-    toItem: () => null,
   }
   return contextMenu.embed(h, { slotId: 'context-menu', model: contextMenu.init(config), config, toParentMessage: () => Message.Tick() })
 })

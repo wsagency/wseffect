@@ -9,6 +9,7 @@ import {
   offset as floatingOffset,
   shift,
   size,
+  type VirtualElement,
 } from '@floating-ui/dom'
 
 /** Schema mirroring `@floating-ui/dom`'s `Placement` literal union: a side
@@ -550,6 +551,48 @@ export const anchorSetup = (
     element.style.removeProperty('--arrow-x')
     element.style.removeProperty('--arrow-y')
 
+    portalCleanup?.()
+  }
+}
+
+/** Positions a floating element against a virtual reference, such as a context
+ *  menu pointer location. The existing portal and Floating UI lifecycle rules
+ *  are retained; the fixed strategy keeps the reference viewport-relative. */
+export const anchorSetupVirtual = (
+  element: Element,
+  reference: VirtualElement,
+  config: AnchorConfig = {},
+): (() => void) => {
+  if (!(element instanceof HTMLElement)) {
+    return Function.constVoid
+  }
+
+  const portalCleanup =
+    config.portal === false ? undefined : portalToContainingRoot(element)
+  element.style.position = 'fixed'
+
+  const cleanupPositioning = autoUpdate(reference, element, () => {
+    void computePosition(reference, element, {
+      strategy: 'fixed',
+      placement: config.placement ?? 'bottom-start',
+      middleware: [
+        floatingOffset((config.gap ?? 0) + (config.offset ?? 0)),
+        flip({ padding: config.padding }),
+        shift({ padding: config.padding }),
+      ],
+    }).then(({ x, y, placement }) => {
+      element.style.position = 'fixed'
+      element.style.left = `${x}px`
+      element.style.top = `${y}px`
+      element.setAttribute('data-placement', placement)
+    })
+  })
+
+  return () => {
+    cleanupPositioning()
+    element.style.removeProperty('left')
+    element.style.removeProperty('top')
+    element.removeAttribute('data-placement')
     portalCleanup?.()
   }
 }

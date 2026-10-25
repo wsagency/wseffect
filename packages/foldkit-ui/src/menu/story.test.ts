@@ -1,4 +1,4 @@
-import { Option } from 'effect'
+import { Option, Schema } from 'effect'
 import { Scene, Story } from '@wsagency/wseffect-foldkit'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { modifyFields } from '@wsagency/wseffect-foldkit/struct'
@@ -7,7 +7,7 @@ import { expect } from 'vitest'
 import { describe, it } from '@effect/vitest'
 
 import * as Animation from '../animation/index.js'
-import type { Model, ViewInputs } from './index.js'
+import { Model, type ViewInputs } from './index.js'
 import {
   AnchorMenu,
   ClickItem,
@@ -152,7 +152,61 @@ describe('Menu', () => {
         maybeLastPointerPosition: Option.none(),
         maybeLastButtonPointerType: Option.none(),
         maybePointerOrigin: Option.none(),
+        maybeContextInvocation: Option.none(),
+        longPressVersion: 0,
       })
+    })
+    it('decodes legacy models without context fields and round-trips invocation messages', () => {
+      const encoded = Schema.encodeSync(Model)(init({ id: 'legacy' }))
+      const legacy: Record<string, unknown> = { ...encoded }
+      delete legacy['maybeContextInvocation']
+      delete legacy['longPressVersion']
+      const decoded = Schema.decodeUnknownSync(Model)(legacy)
+      expect(decoded.maybeContextInvocation).toEqual(Option.none())
+      expect(decoded.longPressVersion).toBe(0)
+
+      const invocation = Message.OpenedAt({
+        invocation: {
+          invocation: 'pointer',
+          sourceId: 'source',
+          sourceToken: 'token',
+          point: { x: 12, y: 34 },
+        },
+      })
+      const encodedMessage = Schema.encodeSync(Message)(invocation)
+      expect(Schema.decodeUnknownSync(Message)(encodedMessage)).toEqual(invocation)
+    })
+
+
+    it('opens context invocation state and uses a versioned 600 ms touch expiry', () => {
+      const touch = Message.OpenedAt({
+        invocation: {
+          invocation: 'touch',
+          sourceId: 'source',
+          sourceToken: 'source-token',
+          point: { x: 20, y: 30 },
+        },
+      })
+      const pending = update(init({ id: 'test' }), touch)
+      expect(pending.model.isOpen).toBe(false)
+      expect(pending.model.maybeContextInvocation).toEqual(
+        Option.some(touch.invocation),
+      )
+      expect(pending.commands?.[0]?.name).toBe('ContextLongPress')
+
+      const opened = update(
+        pending.model,
+        Message.LongPressExpired({ version: pending.model.longPressVersion }),
+      )
+      expect(opened.model.isOpen).toBe(true)
+      const cancelled = update(
+        pending.model,
+        Message.IgnoredMouseClick(),
+      )
+      expect(cancelled.model.maybeContextInvocation).toEqual(Option.none())
+      expect(update(cancelled.model, Message.LongPressExpired({
+        version: pending.model.longPressVersion,
+      })).model.isOpen).toBe(false)
     })
 
     it('accepts isAnimated option', () => {

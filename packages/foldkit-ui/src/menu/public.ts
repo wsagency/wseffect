@@ -1,21 +1,26 @@
 export {
   init,
   create,
-  buttonId,
   Model,
+  openAt,
+  buttonId,
   Message,
   OutMessage,
   type Selected,
   type SelectedItem,
   AnchorMenu,
   PortalMenuBackdrop,
-  type CompletedDelayClearSearch,
+  ContextSourceEvents,
+  ContextMenuAnchor,
+  ContextLongPress,
+  contextTriggerAttributes,
+  FocusButton,
+  FocusSource,
   LockScroll,
   UnlockScroll,
   InertOthers,
   RestoreInert,
   FocusItems,
-  FocusButton,
   ScrollIntoView,
   ClickItem,
   DelayClearSearch,
@@ -33,6 +38,14 @@ export {
   type IgnoredMouseClick,
   type SuppressedSpaceScroll,
 } from './index.js'
+export {
+  ContextInvocationSchema,
+  OpenedAtSchema,
+  LongPressExpiredSchema,
+  SourceUnmountedSchema,
+} from './index.js'
+
+export type { ContextInvocation } from './index.js'
 
 export type {
   ActivationTrigger,
@@ -44,3 +57,14 @@ export type {
 } from './index.js'
 
 export type { AnchorConfig } from '../anchor/index.js'
+export { createContextMenu } from './context.js'
+
+export type {
+  ContextMenuBundle,
+  ContextMenuClasses,
+  ContextMenuConfig,
+  ContextMenuEntry,
+  ContextMenuGroup,
+  ContextMenuItem,
+  ContextMenuSeparator,
+} from './context.js'

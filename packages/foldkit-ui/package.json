@@ -39,6 +39,10 @@
       "types": "./dist/datePicker/public.d.ts",
       "import": "./dist/datePicker/public.js"
     },
+    "./checkboxGroup": {
+      "types": "./dist/checkboxGroup/public.d.ts",
+      "import": "./dist/checkboxGroup/public.js"
+    },
     "./dialog": {
       "types": "./dist/dialog/public.d.ts",
       "import": "./dist/dialog/public.js"
@@ -122,6 +126,10 @@
     "./tooltip": {
       "types": "./dist/tooltip/public.d.ts",
       "import": "./dist/tooltip/public.js"
+    },
+    "./tooltip/group": {
+      "types": "./dist/tooltip/group.d.ts",
+      "import": "./dist/tooltip/group.js"
     },
     "./virtualList": {
       "types": "./dist/virtualList/public.d.ts",

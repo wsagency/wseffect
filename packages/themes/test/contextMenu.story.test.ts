@@ -7,7 +7,6 @@ const menu = ContextMenu.create<'edit'>()
 const config: ContextMenu.Config<'edit'> = {
   id: 'actions', sourceId: 'source', sourceToken: 'exact-live-token', longPressMs: 600,
   items: [{ value: 'edit', textValue: 'Edit', isDisabled: false, content: null }],
-  toItem: () => null,
 }
 
 describe('ContextMenu wrapper', () => {
@@ -16,10 +15,9 @@ describe('ContextMenu wrapper', () => {
     source.id = config.sourceId
     source.setAttribute('data-context-source-token', config.sourceToken)
     document.body.append(source)
-    const opened = menu.update(menu.init(config), {
-      _tag: 'OpenedAt',
+    const opened = menu.update(menu.init(config), Menu.Message.OpenedAt({
       invocation: { sourceId: config.sourceId, sourceToken: config.sourceToken, invocation: 'keyboard' },
-    })
+    }))
     const closed = menu.update(opened.model, Menu.Message.Closed())
     const names = closed.commands?.map(command => command.name) ?? []
     expect(names).toContain('FocusSource')

@@ -5,20 +5,23 @@ import {
   Match,
   Option,
   Predicate,
+  Queue,
   Schema,
+  Stream,
   String,
   pipe,
 } from 'effect'
 import * as Command from '@wsagency/wseffect-foldkit/command'
 import * as Dom from '@wsagency/wseffect-foldkit/dom'
-import type { ChildAttribute, Html } from '@wsagency/wseffect-foldkit/html'
+import type { Attribute, ChildAttribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
 import * as Mount from '@wsagency/wseffect-foldkit/mount'
+import * as Render from '@wsagency/wseffect-foldkit/render'
 import { modifyFields } from '@wsagency/wseffect-foldkit/struct'
 import { type View as SubmodelView, defineView } from '@wsagency/wseffect-foldkit/submodel'
 import * as Update from '@wsagency/wseffect-foldkit/update'
 
-import { AnchorConfig, anchorSetup, portalBackdrop } from '../anchor/index.js'
+import { AnchorConfig, anchorSetup, anchorSetupVirtual, portalBackdrop } from '../anchor/index.js'
 // NOTE: Animation imports are split across schema + update to avoid a circular
 // dependency: animation → html → runtime → devtools → menu → animation.
 // The barrel (../animation) imports from html, which starts the cycle.
@@ -50,7 +53,32 @@ const PointerOrigin = Schema.Struct({
   timeStamp: Schema.Number,
 })
 
-/** Schema for the menu component's state, tracking open/closed status, active item, activation trigger, and typeahead search. */
+/** Source invocation metadata for a contextual Menu opening. */
+export const ContextInvocationSchema = Schema.Struct({
+  invocation: Schema.Literals(['pointer', 'keyboard', 'touch']),
+  sourceId: Schema.String,
+  sourceToken: Schema.String,
+  point: Schema.optional(Schema.Struct({ x: Schema.Number, y: Schema.Number })),
+})
+
+export type ContextInvocation = typeof ContextInvocationSchema.Type
+
+export const OpenedAtSchema = Schema.Struct({
+  _tag: Schema.Literal('OpenedAt'),
+  invocation: ContextInvocationSchema,
+})
+
+export const LongPressExpiredSchema = Schema.Struct({
+  _tag: Schema.Literal('LongPressExpired'),
+  version: Schema.Number,
+})
+
+export const SourceUnmountedSchema = Schema.Struct({
+  _tag: Schema.Literal('SourceUnmounted'),
+  token: Schema.String,
+})
+
+/** Schema for the menu component's state. */
 export const Model = Schema.Struct({
   id: Schema.String,
   isOpen: Schema.Boolean,
@@ -66,6 +94,12 @@ export const Model = Schema.Struct({
   ),
   maybeLastButtonPointerType: Schema.Option(Schema.String),
   maybePointerOrigin: Schema.Option(PointerOrigin),
+  maybeContextInvocation: Schema.Option(ContextInvocationSchema).pipe(
+    Schema.withDecodingDefaultTypeKey(Effect.succeed(Option.none())),
+  ),
+  longPressVersion: Schema.Number.pipe(
+    Schema.withDecodingDefaultTypeKey(Effect.succeed(0)),
+  ),
 })
 
 export type Model = typeof Model.Type
@@ -75,6 +109,9 @@ export type Model = typeof Model.Type
 /** Union of all messages the menu component can produce. */
 export const Message = defineMessageUnion({
   Opened: { maybeActiveItemIndex: Schema.Option(Schema.Number) },
+  OpenedAt: { invocation: ContextInvocationSchema },
+  LongPressExpired: { version: Schema.Number },
+  SourceUnmounted: { token: Schema.String },
   Closed: {},
   BlurredItems: {},
   ActivatedItem: { index: Schema.Number, activationTrigger: ActivationTrigger },
@@ -183,6 +220,8 @@ export const init = (config: InitConfig): Model => ({
   maybeLastPointerPosition: Option.none(),
   maybeLastButtonPointerType: Option.none(),
   maybePointerOrigin: Option.none(),
+  maybeContextInvocation: Option.none(),
+  longPressVersion: 0,
 })
 
 // UPDATE
@@ -196,6 +235,7 @@ const closedModel = (model: Model): Model =>
     maybeLastPointerPosition: () => Option.none(),
     maybeLastButtonPointerType: () => Option.none(),
     maybePointerOrigin: () => Option.none(),
+    maybeContextInvocation: () => Option.none(),
   })
 
 /** Returns the bare DOM id of the menu trigger button, derived from the
@@ -257,6 +297,24 @@ export const FocusButton = Command.define('FocusButton', {
       Effect.as(Message.CompletedFocusButton()),
     ),
 })
+/** Restores focus to the exact still-mounted contextual source token. */
+export const FocusSource = Command.define('FocusSource', {
+  args: { sourceId: Schema.String, sourceToken: Schema.String },
+  messages: [Message.CompletedFocusButton],
+  execute: ({ sourceId, sourceToken }) =>
+    Effect.gen(function* () {
+      yield* Render.afterCommit
+      const source = document.getElementById(sourceId)
+      if (
+        source instanceof HTMLElement &&
+        source.getAttribute('data-context-source-token') === sourceToken
+      ) {
+        source.focus()
+      }
+      return Message.CompletedFocusButton()
+    }),
+})
+
 /** Scrolls the active menu item into view after keyboard navigation. */
 export const ScrollIntoView = Command.define('ScrollIntoView', {
   args: { id: Schema.String, index: Schema.Number },
@@ -286,6 +344,16 @@ export const DelayClearSearch = Command.define('DelayClearSearch', {
       Effect.as(Message.CompletedDelayClearSearch({ version })),
     ),
 })
+/** Waits for a context-source touch hold before opening the Menu. */
+export const ContextLongPress = Command.define('ContextLongPress', {
+  args: { version: Schema.Number },
+  messages: [Message.LongPressExpired],
+  execute: ({ version }) =>
+    Effect.sleep(600).pipe(
+      Effect.as(Message.LongPressExpired({ version })),
+    ),
+})
+
 /** Detects whether the menu button moved or the leave animation ended. Whichever comes first; both outcomes signal the Animation submodel that leave is complete. */
 export const DetectMovementOrAnimationEnd = Command.define(
   'DetectMovementOrAnimationEnd',
@@ -372,7 +440,15 @@ export const update = (model: Model, message: Message) => {
   ]
 
   const closeWithFocusCommands: ReadonlyArray<Command.Command<Message>> = [
-    FocusButton({ id: model.id }),
+    ...Option.match(model.maybeContextInvocation, {
+      onNone: () => [FocusButton({ id: model.id })],
+      onSome: invocation => [
+        FocusSource({
+          sourceId: invocation.sourceId,
+          sourceToken: invocation.sourceToken,
+        }),
+      ],
+    }),
     ...Array.getSomes([maybeUnlockScroll, maybeRestoreInert]),
   ]
 
@@ -444,6 +520,70 @@ export const update = (model: Model, message: Message) => {
         }),
       ),
 
+    OpenedAt: ({ invocation }) => {
+      if (invocation.sourceId === '' || invocation.sourceToken === '') {
+        return { model }
+      }
+      const version = model.longPressVersion + 1
+      const invokedModel = modifyFields(model, {
+        maybeContextInvocation: () => Option.some(invocation),
+        longPressVersion: () => version,
+        maybeActiveItemIndex: () => Option.none(),
+        activationTrigger: () =>
+          invocation.invocation === 'pointer' ? 'Pointer' : 'Keyboard',
+        searchQuery: () => '',
+        searchVersion: () => 0,
+      })
+      if (invocation.invocation === 'touch') {
+        return {
+          model: modifyFields(invokedModel, { isOpen: () => false }),
+          commands: [ContextLongPress({ version })],
+        }
+      }
+      const opened = openMenu(invokedModel)
+      return {
+        ...opened,
+        commands:
+          opened.commands?.filter(command => command.name !== 'FocusItems') ?? [],
+      }
+    },
+
+    LongPressExpired: ({ version }) => {
+      if (
+        version !== model.longPressVersion ||
+        !Option.exists(
+          model.maybeContextInvocation,
+          invocation => invocation.invocation === 'touch',
+        )
+      ) {
+        return { model }
+      }
+      const opened = openMenu(model)
+      return {
+        ...opened,
+        commands:
+          opened.commands?.filter(command => command.name !== 'FocusItems') ?? [],
+      }
+    },
+
+    SourceUnmounted: ({ token }) => {
+      if (
+        !Option.exists(
+          model.maybeContextInvocation,
+          invocation => invocation.sourceToken === token,
+        )
+      ) {
+        return { model }
+      }
+      const closed = closeMenu(model, closeWithoutFocusCommands)
+      return {
+        ...closed,
+        model: modifyFields(closed.model, {
+          maybeContextInvocation: () => Option.none(),
+          longPressVersion: () => model.longPressVersion + 1,
+        }),
+      }
+    },
     Closed: () => closeMenu(model, closeWithFocusCommands),
 
     BlurredItems: () => {
@@ -468,6 +608,21 @@ export const update = (model: Model, message: Message) => {
     }),
 
     MovedPointerOverItem: ({ index, screenX, screenY }) => {
+      const isCancelledTouch = !model.isOpen &&
+        Option.exists(model.maybeContextInvocation, invocation =>
+          invocation.invocation === 'touch' &&
+          invocation.point !== undefined &&
+          (Math.abs(screenX - invocation.point.x) > 8 ||
+            Math.abs(screenY - invocation.point.y) > 8),
+        )
+      if (isCancelledTouch) {
+        return {
+          model: modifyFields(model, {
+            maybeContextInvocation: () => Option.none(),
+            longPressVersion: () => model.longPressVersion + 1,
+          }),
+        }
+      }
       const isSamePosition = Option.exists(
         model.maybeLastPointerPosition,
         position =>
@@ -612,11 +767,23 @@ export const update = (model: Model, message: Message) => {
       }
     },
 
-    IgnoredMouseClick: () => ({
-      model: modifyFields(model, {
-        maybeLastButtonPointerType: () => Option.none(),
-      }),
-    }),
+    IgnoredMouseClick: () =>
+      !model.isOpen &&
+      Option.exists(
+        model.maybeContextInvocation,
+        invocation => invocation.invocation === 'touch',
+      )
+        ? {
+            model: modifyFields(model, {
+              maybeContextInvocation: () => Option.none(),
+              longPressVersion: () => model.longPressVersion + 1,
+            }),
+          }
+        : {
+            model: modifyFields(model, {
+              maybeLastButtonPointerType: () => Option.none(),
+            }),
+          },
   })
 }
 
@@ -668,6 +835,191 @@ export const PortalMenuBackdrop = Mount.define('PortalMenuBackdrop', {
       return Message.CompletedPortalMenuBackdrop()
     }),
 })
+/** Owns context invocation listeners on a source element. */
+export const ContextSourceEvents = (
+  sourceId: string,
+  sourceToken: string,
+): Mount.MountAction<Message> => ({
+  name: 'ContextMenuSourceEvents',
+  f: element =>
+    Stream.callback<Message>(queue =>
+      Effect.gen(function* () {
+        let precedingPointerType = ''
+        let touchLongPressExpired = false
+        let touchStartX = 0
+        let touchStartY = 0
+        let touchLongPressTimer: number | undefined
+        const clearTouchLongPressTimer = () => {
+          if (touchLongPressTimer !== undefined) {
+            window.clearTimeout(touchLongPressTimer)
+            touchLongPressTimer = undefined
+          }
+        }
+        const onContextMenu = (event: Event) => {
+          const pointer = event as MouseEvent
+          if (precedingPointerType !== 'touch' || touchLongPressExpired) {
+            event.preventDefault()
+          }
+          if (precedingPointerType === 'touch') {
+            precedingPointerType = ''
+            touchLongPressExpired = false
+            clearTouchLongPressTimer()
+            return
+          }
+          precedingPointerType = ''
+          Queue.offerUnsafe(
+            queue,
+            Message.OpenedAt({
+              invocation: {
+                invocation: 'pointer',
+                sourceId,
+                sourceToken,
+                point: { x: pointer.clientX, y: pointer.clientY },
+              },
+            }),
+          )
+        }
+        const onPointerDown = (event: Event) => {
+          const pointer = event as PointerEvent
+          precedingPointerType = pointer.pointerType
+          clearTouchLongPressTimer()
+          touchLongPressExpired = false
+          if (pointer.pointerType === 'touch') {
+            touchStartX = pointer.clientX
+            touchStartY = pointer.clientY
+            touchLongPressTimer = window.setTimeout(() => {
+              touchLongPressExpired = true
+            }, 600)
+            Queue.offerUnsafe(
+              queue,
+              Message.OpenedAt({
+                invocation: {
+                  invocation: 'touch',
+                  sourceId,
+                  sourceToken,
+                  point: { x: pointer.clientX, y: pointer.clientY },
+                },
+              }),
+            )
+          }
+        }
+        const onPointerMove = (event: Event) => {
+          const pointer = event as PointerEvent
+          if (pointer.pointerType !== 'touch') return
+          if (
+            Math.abs(pointer.clientX - touchStartX) > 8 ||
+            Math.abs(pointer.clientY - touchStartY) > 8
+          ) {
+            clearTouchLongPressTimer()
+          }
+          Queue.offerUnsafe(
+            queue,
+            Message.MovedPointerOverItem({
+              index: -1,
+              screenX: pointer.clientX,
+              screenY: pointer.clientY,
+            }),
+          )
+        }
+        const onPointerUp = () => {
+          clearTouchLongPressTimer()
+          Queue.offerUnsafe(queue, Message.IgnoredMouseClick())
+        }
+        element.addEventListener('contextmenu', onContextMenu)
+        element.addEventListener('pointerdown', onPointerDown)
+        element.addEventListener('pointermove', onPointerMove)
+        element.addEventListener('pointerup', onPointerUp)
+        element.addEventListener('pointercancel', onPointerUp)
+        yield* Effect.acquireRelease(Effect.void, () =>
+          Effect.sync(() => {
+            clearTouchLongPressTimer()
+            element.removeEventListener('contextmenu', onContextMenu)
+            element.removeEventListener('pointerdown', onPointerDown)
+            element.removeEventListener('pointermove', onPointerMove)
+            element.removeEventListener('pointerup', onPointerUp)
+            element.removeEventListener('pointercancel', onPointerUp)
+          }),
+        )
+        return yield* Effect.never
+      }),
+    ),
+})
+
+/** Attributes that make an element a keyboard and pointer context source. */
+export const contextTriggerAttributes = (
+  sourceId: string,
+  sourceToken: string,
+  h: HtmlBuilder<Message>,
+): ReadonlyArray<Attribute<Message>> => [
+  h.Id(sourceId),
+  h.Attribute('data-context-source-token', sourceToken),
+  h.Attribute('tabindex', '0'),
+  h.OnKeyDownSelfPreventDefault((key, modifiers) =>
+    key === 'ContextMenu' || (key === 'F10' && modifiers.shiftKey)
+      ? Option.some(
+          Message.OpenedAt({
+            invocation: {
+              invocation: 'keyboard',
+              sourceId,
+              sourceToken,
+            },
+          }),
+        )
+      : Option.none(),
+  ),
+  h.OnMount(ContextSourceEvents(sourceId, sourceToken)),
+  h.OnUnmount(Message.SourceUnmounted({ token: sourceToken })),
+]
+
+/** Positions a contextual Menu panel relative to its stored source point. */
+export const ContextMenuAnchor = (
+  sourceId: string,
+  maybePoint: ContextInvocation['point'],
+  anchor: AnchorConfig = {},
+): Mount.MountAction<Message> => ({
+  name: 'ContextMenuAnchor',
+  f: element =>
+    Stream.callback<Message>(queue =>
+      Effect.gen(function* () {
+        if (!(element instanceof HTMLElement)) return
+        const source = element.ownerDocument.getElementById(sourceId)
+        if (!(source instanceof HTMLElement)) return
+        const reference = {
+          contextElement: source,
+          getBoundingClientRect: () =>
+            maybePoint === undefined
+              ? source.getBoundingClientRect()
+              : new DOMRect(maybePoint.x, maybePoint.y, 0, 0),
+        }
+        const document = element.ownerDocument
+        const onDocumentPointerDown = (event: Event) => {
+          const target = event.target
+          if (
+            !(target instanceof Node) ||
+            element.contains(target) ||
+            source.contains(target)
+          ) {
+            return
+          }
+          Queue.offerUnsafe(queue, Message.Closed())
+        }
+        const cleanup = anchorSetupVirtual(element, reference, anchor)
+        document.addEventListener('pointerdown', onDocumentPointerDown, true)
+        yield* Effect.acquireRelease(Effect.void, () =>
+          Effect.sync(() => {
+            document.removeEventListener(
+              'pointerdown',
+              onDocumentPointerDown,
+              true,
+            )
+            cleanup()
+          }),
+        )
+        element.querySelector<HTMLElement>('[data-active]')?.focus()
+        return yield* Effect.never
+      }),
+    ),
+})
 
 /** Programmatically opens the Menu, updating the Model and returning focus and
  *  modal Commands. Use this in domain-event handlers. */
@@ -688,6 +1040,12 @@ export const selectItem = (
   item: string,
   index: number,
 ): UpdateReturn => update(model, Message.SelectedItem({ index, item }))
+
+/** Opens the Menu for a contextual invocation, retaining its source identity. */
+export const openAt = (
+  model: Model,
+  invocation: ContextInvocation,
+): UpdateReturn => update(model, Message.OpenedAt({ invocation }))
 
 // VIEW
 
@@ -1228,6 +1586,10 @@ export type Bundle<Item extends string = string> = Readonly<{
     index: number,
   ) => BundleUpdateReturn<Item>
   open: (model: Model) => BundleUpdateReturn<Item>
+  openAt: (
+    model: Model,
+    invocation: ContextInvocation,
+  ) => BundleUpdateReturn<Item>
   close: (model: Model) => BundleUpdateReturn<Item>
 }>
 
@@ -1261,6 +1623,7 @@ export const create = <Item extends string = string>(): Bundle<Item> => {
     update: (model, message) => cast(update(model, message)),
     selectItem: (model, item, index) => cast(selectItem(model, item, index)),
     open: model => cast(open(model)),
+    openAt: (model, invocation) => cast(openAt(model, invocation)),
     close: model => cast(close(model)),
   }
 }
