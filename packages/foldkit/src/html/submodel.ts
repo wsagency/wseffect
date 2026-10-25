@@ -262,7 +262,7 @@ const walkForFunctions = (
         path.pop()
       }
     }
-  } else {
+  } else if (isPlainObject(source)) {
     for (const key of Object.keys(source)) {
       const value = source[key]
       if (typeof value === 'function') {

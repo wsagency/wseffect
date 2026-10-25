@@ -498,6 +498,7 @@ export function init(
     let nextStartVnode = nextChildren[nextStartIndex]
     let nextEndVnode = nextChildren[nextEndIndex]
     let previousKeyToIndex: Map<Key, number> | undefined
+    let indexInPreviousChildren: number | undefined
     let nextKeys: Set<Key> | undefined
     let deferredRemovals: Array<VNode> | undefined
     let vnodeToMove: VNode
