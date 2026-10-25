@@ -60,7 +60,7 @@
         ]
       },
       "B": {
-        "moves": 0,
+        "moves": 1,
         "insertions": 169,
         "removals": 13,
         "createdElements": 104,
@@ -70,14 +70,14 @@
         "formattedStacks": 0,
         "walkVisits": 3459,
         "hashSetConstructions": 0,
-        "methodMoves": 0,
+        "methodMoves": 1,
         "methodInsertions": 169,
         "methodRemovals": 13,
-        "mutationMoves": 0,
+        "mutationMoves": 1,
         "mutationInsertions": 13,
         "mutationRemovals": 13,
-        "mutationAdded": 13,
-        "mutationRemoved": 13,
+        "mutationAdded": 14,
+        "mutationRemoved": 14,
         "rowsBefore": [
           "vl-row-0",
           "vl-row-1",
@@ -217,6 +217,23 @@
           "vl-row-13"
         ]
       }
+    }
+  },
+  "candidateWalkerRecapture": {
+    "measuredAt": "2026-10-25T19:06:33.759Z",
+    "loadavgAtStart": [
+      3.3,
+      4.04,
+      4.68
+    ],
+    "loadavgAtEnd": [
+      3.3,
+      4.04,
+      4.68
+    ],
+    "walkVisits": {
+      "vl-filter": 3459,
+      "vl-sort": 10020
     }
   },
   "loadavgAtEnd": [
