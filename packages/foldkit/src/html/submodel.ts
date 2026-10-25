@@ -202,20 +202,24 @@ const validatedViewInputs = new WeakSet<object>()
 
 /** Walks below the top level of `viewInputs` and throws if it finds a
  *  function. Top-level functions are auto-scoped to the parent boundary.
- *  Inputs are treated as immutable by convention so validated object
- *  identities can be safely reused. */
+ *  Inputs are immutable by convention so validated identities are reused. */
 const assertNoNestedFunctions = (
   viewInputs: Readonly<Record<string, unknown>>,
 ): void => {
   if (validatedViewInputs.has(viewInputs)) return
-  const path: Array<string | number> = []
-  for (const key of Object.keys(viewInputs)) {
+  for (const key in viewInputs) {
+    if (!Object.hasOwn(viewInputs, key)) continue
     const value = viewInputs[key]
     if (isFrameworkBranded(value)) continue
     if (isPlainObject(value) || Array.isArray(value)) {
-      path.push(key)
-      walkForFunctions(value, path)
-      path.pop()
+      try {
+        walkForFunctions(value)
+      } catch (error) {
+        if (error instanceof NestedViewInputFunctionError) {
+          throw nestedViewInputFunctionError(`${key}.${error.path}`)
+        }
+        throw error
+      }
     }
   }
   validatedViewInputs.add(viewInputs)
@@ -226,55 +230,56 @@ const assertNoNestedFunctions = (
 // as opaque leaves, the same way it treats primitives.
 const isFrameworkBranded = (value: unknown): boolean => isChildAttribute(value)
 
-const walkForFunctions = (
-  source: Readonly<Record<string, unknown>> | ReadonlyArray<unknown>,
-  path: Array<string | number>,
-): void => {
-  if (validatedViewInputs.has(source)) return
-  const fail = (): never => {
-    const formattedPath = path
-      .map((segment, index) =>
-        typeof segment === 'number'
-          ? `.[${segment}]`
-          : index === 0
-            ? segment
-            : `.${segment}`,
-      )
-      .join('')
-    throw new Error(
-      `Foldkit: h.submodel \`viewInputs\` may only contain functions at the ` +
-        `top level. Found a function at \`viewInputs.${formattedPath}\`. ` +
-        `Lift it to the top level of \`viewInputs\` so it can be auto-scoped to ` +
-        `the parent boundary, or pass the value as primitive data.`,
+class NestedViewInputFunctionError extends Error {
+  readonly path: string
+
+  constructor(path: string) {
+    super()
+    this.path = path
+  }
+}
+
+const nestedViewInputFunctionError = (path: string): Error =>
+  new Error(
+    `Foldkit: h.submodel \`viewInputs\` may only contain functions at the ` +
+      `top level. Found a function at \`viewInputs.${path}\`. ` +
+      `Lift it to the top level of \`viewInputs\` so it can be auto-scoped to ` +
+      `the parent boundary, or pass the value as primitive data.`,
+  )
+
+const walkValue = (value: unknown, segment: string | number): void => {
+  if (typeof value === 'function') {
+    throw new NestedViewInputFunctionError(
+      typeof segment === 'number' ? `[${segment}]` : segment,
     )
   }
+  if (isFrameworkBranded(value)) return
+  if (!isPlainObject(value) && !Array.isArray(value)) return
+  try {
+    walkForFunctions(value)
+  } catch (error) {
+    if (error instanceof NestedViewInputFunctionError) {
+      error.path =
+        typeof segment === 'number'
+          ? `[${segment}].${error.path}`
+          : `${segment}.${error.path}`
+    }
+    throw error
+  }
+}
+
+const walkForFunctions = (
+  source: Readonly<Record<string, unknown>> | ReadonlyArray<unknown>,
+): void => {
+  if (validatedViewInputs.has(source)) return
   if (Array.isArray(source)) {
     for (let index = 0; index < source.length; index++) {
-      const value = source[index]
-      if (typeof value === 'function') {
-        path.push(index)
-        fail()
-      }
-      if (isFrameworkBranded(value)) continue
-      if (isPlainObject(value) || Array.isArray(value)) {
-        path.push(index)
-        walkForFunctions(value, path)
-        path.pop()
-      }
+      walkValue(source[index], index)
     }
   } else if (isPlainObject(source)) {
-    for (const key of Object.keys(source)) {
-      const value = source[key]
-      if (typeof value === 'function') {
-        path.push(key)
-        fail()
-      }
-      if (isFrameworkBranded(value)) continue
-      if (isPlainObject(value) || Array.isArray(value)) {
-        path.push(key)
-        walkForFunctions(value, path)
-        path.pop()
-      }
+    for (const key in source) {
+      if (!Object.hasOwn(source, key)) continue
+      walkValue(source[key], key)
     }
   }
   validatedViewInputs.add(source)
