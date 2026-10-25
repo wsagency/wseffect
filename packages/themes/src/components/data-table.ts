@@ -185,7 +185,9 @@ export function init<Row>(config: Config<Row>): Model {
     virtualList: VirtualList.init({
       id: `${config.id}-virtual-list`,
       rowHeightPx: config.rowHeight,
-      initialContainerHeight: config.viewportHeight ?? 360,
+      ...(config.viewportHeight === undefined
+        ? {}
+        : { initialContainerHeight: config.viewportHeight }),
     }),
   }
 }
@@ -231,7 +233,18 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const list = informRowsChanged(model, orderedRowIds, true, focusTarget)
       return {
         model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: list.focusTarget === null ? { rowId: '$grid-root', columnId: '$grid-root' } : list.focusTarget ?? null, virtualList: list.model },
-        commands: mapChildCommands(list.commands),
+        commands: [
+          ...(mapChildCommands(list.commands) ?? []),
+          ...(list.focusTarget === null && config.isGrid
+            ? [focusDataTableCell({
+                containerId: model.virtualList.id,
+                rowId: '$grid-root',
+                columnId: '$grid-root',
+                rowIndex: -1,
+                columnIndex: -1,
+              })]
+            : []),
+        ],
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
     },
@@ -635,6 +648,7 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
         while (state.rowViews.size > rows.length) {
           state.rowViews.delete(state.rowViews.keys().next().value!)
         }
+
         return h.table(tableAttributes, [
           h.caption([], [config.caption]),
           header,

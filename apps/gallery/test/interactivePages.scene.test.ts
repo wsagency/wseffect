@@ -66,13 +66,9 @@ describe('gallery interactive pages', () => {
         const command = simulation.commands.find(candidate => candidate.name === 'ApplyScroll')
         return command === undefined
           ? simulation
-          : Scene.Command.resolve(command as never, dataTablePage.Message.TableEvent({
-            message: DataTable.Message.VirtualList({
-              message: VirtualList.Message.CompletedApplyScroll({
-                version: 1,
-                outcome: VirtualList.ApplyScrollOutcome.Skipped(),
-              }),
-            }),
+          : Scene.Command.resolve(command as never, VirtualList.Message.CompletedApplyScroll({
+            version: 1,
+            outcome: { _tag: 'Skipped' },
           }))(simulation)
       },
       Scene.expect(Scene.text('Record 01*')).toExist(),

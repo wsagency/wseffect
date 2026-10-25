@@ -516,7 +516,6 @@ export const ApplyScroll = Command.define('ApplyScroll', {
           outcome: ApplyScrollOutcome.Skipped(),
         })
       }
-
       element.scrollTop = clampScrollTop(element, maybeScrollTop.value)
       return Message.CompletedApplyScroll({
         version,
@@ -1395,6 +1394,21 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       contentAlignment = 'Start',
     } = viewInputs
 
+    const consumerContainerStyle: Record<string, string> = {}
+    const consumerContainerAttributes = containerAttributes.filter(attribute => {
+      const value = attribute.attribute
+      if (
+        typeof value !== 'object' ||
+        value === null ||
+        !('_tag' in value) ||
+        value._tag !== 'Style' ||
+        !('value' in value)
+      ) {
+        return true
+      }
+      Object.assign(consumerContainerStyle, value.value)
+      return false
+    })
     const baseContainerAttributes = [
       h.Id(model.id),
       ...(containerRole === null ? [] : [h.Role(containerRole)]),
@@ -1404,6 +1418,7 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       ),
       h.OnMount(ObserveVirtualList({ id: model.id })),
       h.Style({
+        ...consumerContainerStyle,
         overflow: 'auto',
         'overflow-anchor': 'none',
         'list-style': 'none',
@@ -1417,7 +1432,7 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
 
     const allContainerAttributes = [
       ...childAttributes(baseContainerAttributes),
-      ...containerAttributes,
+      ...consumerContainerAttributes,
     ]
 
     const renderContainer = (children: ReadonlyArray<Html>): Html =>

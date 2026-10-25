@@ -1,4 +1,4 @@
-import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import { childAttributes, type HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
 
 import { describe, it } from '@effect/vitest'
@@ -118,6 +118,7 @@ const acknowledgeObserver = Scene.Mount.resolve(
               ], [builder.td([builder.Colspan(1), builder.Style({ height: `${heightPx}px` })])]),
             windowToView: ({ topSpacer, rows, bottomSpacer }, builder) =>
               builder.table([], [builder.tbody([], [topSpacer, ...rows, bottomSpacer])]),
+            containerAttributes: childAttributes([h.Style({ overflow: 'hidden', maxHeight: '60px' })]),
           },
           h,
         )
@@ -126,7 +127,8 @@ const acknowledgeObserver = Scene.Mount.resolve(
         { update, view: customView },
         Scene.given(measuredModel),
         Scene.expect(Scene.selector('div#test')).toExist(),
-        Scene.expect(Scene.selector('div#test[role="list"]')).not.toExist(),
+        Scene.expect(Scene.selector('div#test')).toHaveStyle('overflow', 'auto'),
+        Scene.expect(Scene.selector('div#test')).toHaveStyle('max-height', '60px'),
         Scene.expect(Scene.selector('table tbody tr[data-virtual-list-item-key="0"]')).toExist(),
         Scene.expect(Scene.selector('tr[data-virtual-list-item-key="0"][role="row"]')).not.toHaveAttr('aria-setsize', '10'),
         Scene.expectAll(Scene.all.selector('table tbody tr')).toHaveCount(5),
