@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { test } from 'node:test'
 import { build, preview, type PreviewServer } from 'vite'
 import { applyCpuThrottle, assertNoiseBand, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount, traceScriptingDuration } from './perf.ts'
+import type { PerfScenario } from './scenarios.ts'
 
 const syntheticNoiseFloors = {
   'vl-cell': 38,
@@ -472,6 +473,63 @@ test('runScenario captures input durations and records entry counts for every Ga
       assert.ok(result.scriptMs.every((duration) => duration > 0), `${scenario.id} trace contains scripting in its interaction window`)
       assert.ok(result.eventMs.every((duration) => duration >= 16), `${scenario.id} Event Timing preserves the 16 ms threshold`)
     }
+  } finally {
+    await server?.close()
+  }
+})
+test('runScenario settles reset commits before tracing but captures act and its post-commit render', { timeout: 45_000 }, async () => {
+  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
+  let server: PreviewServer | undefined
+  let resetWasCompleteBeforeAct = false
+  try {
+    server = await preview({
+      root: appDir,
+      configFile: resolve(appDir, 'vite.config.ts'),
+      logLevel: 'error',
+      preview: { host: '127.0.0.1', port: 0, strictPort: false },
+    })
+    const baseUrl = server.resolvedUrls?.local?.[0]
+    assert.ok(baseUrl, 'Vite preview exposes a local URL')
+    const scenario: PerfScenario = {
+      id: 'vl-sort',
+      route: '/virtual-list',
+      inputEventType: 'click',
+      hook: 'vl-sort',
+      ceilingMs: 50,
+      prepare: async (page) => page.setContent(`
+        <button id="act">act</button>
+        <script>
+          const burn = (ms) => { const end = performance.now() + ms; while (performance.now() < end) {} }
+          document.querySelector('#act').addEventListener('click', () => {
+            burn(12)
+            document.body.dataset.actState = 'handler'
+            requestAnimationFrame(() => {
+              burn(12)
+              document.body.dataset.actState = 'post-commit'
+            })
+          })
+        </script>
+      `),
+      warmup: async () => {},
+      reset: async (page) => page.evaluate(() => {
+        document.body.dataset.resetState = 'pending'
+        requestAnimationFrame(() => setTimeout(() => {
+          document.body.dataset.resetState = 'first-render'
+          requestAnimationFrame(() => setTimeout(() => {
+            document.body.dataset.resetState = 'post-commit'
+          }, 0))
+        }, 0))
+      }),
+      act: async (page) => {
+        resetWasCompleteBeforeAct = await page.locator('body').getAttribute('data-reset-state') === 'post-commit'
+        await page.locator('#act').click()
+        await page.waitForFunction(() => document.body.dataset.actState === 'post-commit')
+      },
+    }
+    const result = await runScenario(baseUrl, scenario, 1)
+    assert.equal(resetWasCompleteBeforeAct, true, 'reset and its second commit finish before the trace starts')
+    assert.ok(result.scriptMs[0]! >= 20, 'the click handler and its post-commit rAF scripting remain measured')
+    assert.ok(result.animationFrameCounts[0]! >= 1, 'the act post-commit rAF remains in the trace window')
   } finally {
     await server?.close()
   }

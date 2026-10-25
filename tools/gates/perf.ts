@@ -366,15 +366,26 @@ async function installEventTimingObserver(page: Page): Promise<void> {
   })
 }
 
-async function waitForPaintAndObserverFlush(page: Page): Promise<void> {
-  await page.evaluate(() => new Promise<void>((resolveFlush) => {
-    const flushObserver = () => setTimeout(resolveFlush, 0)
+async function waitForPaintAndObserverFlush(page: Page, idlePeriodMs = 0): Promise<void> {
+  await page.evaluate(({ idlePeriodMs: idlePeriod, maxWaitMs }) => new Promise<void>((resolveFlush, rejectFlush) => {
+    let finished = false
+    const timeoutId = setTimeout(() => {
+      finished = true
+      rejectFlush(new Error(`page did not settle within ${maxWaitMs} ms`))
+    }, maxWaitMs)
+    const finish = () => {
+      if (finished) return
+      finished = true
+      clearTimeout(timeoutId)
+      resolveFlush()
+    }
+    const flushObserver = () => setTimeout(finish, idlePeriod)
     const markFlushStart = () => {
       performance.mark('wseffect-harness:flush-start')
       requestAnimationFrame(flushObserver)
     }
     requestAnimationFrame(markFlushStart)
-  }))
+  }), { idlePeriodMs, maxWaitMs: 2_000 })
 }
 
 async function eventEntries(page: Page): Promise<EventEntry[]> {
@@ -444,9 +455,10 @@ export async function runScenario(
         await page.goto(new URL(scenario.route, baseUrl).href, { waitUntil: 'networkidle' })
         const hook = scenario.hook ?? HOOK_BY_SCENARIO[scenario.id]
         await page.locator(`[data-perf="${hook}"]`).waitFor({ state: 'visible' })
-        await scenario.prepare(page)
         await scenario.warmup(page)
+        await waitForPaintAndObserverFlush(page, 50)
         await scenario.reset(page)
+        await waitForPaintAndObserverFlush(page, 50)
         let result: Awaited<ReturnType<typeof traceInteraction>> | undefined
         for (let attempt = 0; attempt < 2; attempt += 1) {
           await installEventTimingObserver(page)
@@ -458,6 +470,7 @@ export async function runScenario(
             invalidTraceAttempts += 1
             await scenario.reset(page)
             await scenario.prepare(page)
+            await waitForPaintAndObserverFlush(page, 50)
           }
         }
         if (result === undefined) throw new InvalidTraceError('trace retries did not produce a valid sample')
