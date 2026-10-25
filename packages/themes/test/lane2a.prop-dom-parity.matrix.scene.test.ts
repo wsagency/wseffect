@@ -297,13 +297,25 @@ describe('Lane 2A Select prop-to-DOM parity', () => {
     Scene.given(SelectBox.init({ id: 'choice', selectedValue: Option.none(), position, items: [], isModal: false })),
     Scene.keydown(Scene.role('combobox', { name: 'choice' }), 'ArrowDown'),
     Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
-    ...(position === 'popper'
+    ...(position === 'item-aligned'
       ? [
+        Scene.Mount.expectHas(Listbox.AnchorListbox({
+          buttonId: 'choice-item-0',
+          anchor: { placement: 'bottom-start', gap: 4 },
+        })),
         Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
         Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
         Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
       ]
-      : [Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never)]),
+      : [
+        Scene.Mount.expectHas(Listbox.AnchorListbox({
+          buttonId: 'choice-button',
+          anchor: { placement: 'bottom-start', gap: 4 },
+        })),
+        Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
+        Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+        Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
+      ]),
     Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-r-size-3'),
     Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('md:rt-r-size-1'),
     Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-variant-classic'),

@@ -89,6 +89,16 @@ describe('Listbox', () => {
       expect(decoded.anchorMode).toBe('Trigger')
     })
   })
+  describe('anchorMode codec', () => {
+    it('round-trips SelectedOrActiveItem and a Message', () => {
+      const model = init({ id: 'item-aligned', anchorMode: 'SelectedOrActiveItem' })
+      const encodedModel = Schema.encodeSync(Model)(model)
+      expect(Schema.decodeUnknownSync(Model)(encodedModel)).toEqual(model)
+      const message = Message.Opened({ maybeActiveItemIndex: Option.some(2) })
+      const encodedMessage = Schema.encodeSync(Message)(message)
+      expect(Schema.decodeUnknownSync(Message)(encodedMessage)).toEqual(message)
+    })
+  })
 
   describe('init', () => {
     it('defaults to closed with no active item', () => {

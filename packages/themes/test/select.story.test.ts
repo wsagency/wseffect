@@ -41,11 +41,13 @@ describe('Select', () => {
     Scene.given(SelectBox.init({ id: 'choice', selectedValue: Option.none(), position: 'item-aligned', items: [], isModal: false })),
     Scene.click(Scene.selector('[role="combobox"]')),
     Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
-    Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never),
+    Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
+    Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+    Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
     Scene.expect(Scene.role('listbox', { name: 'choice' })).toExist(),
     Scene.keydown(Scene.role('listbox', { name: 'choice' }), 't'),
     Scene.Command.resolve(Listbox.DelayClearSearch, Listbox.Message.CompletedDelayClearSearch({ version: 1 })),
-    Scene.expect(Scene.selector('#choice-item-3')).toHaveAttr('data-active', 'true'),
+    Scene.expect(Scene.selector('#choice-item-2')).toHaveAttr('data-active', ''),
   ))
   it('renders groups and sibling separators in the popper Scene', () => Scene.scene(
     { update, view: popperView },
@@ -111,7 +113,11 @@ describe('Select', () => {
           Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
           Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
         ]
-        : [Scene.Mount.resolve({ name: 'SelectPosition' }, undefined as never)]),
+        : [
+          Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
+          Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
+          Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),
+        ]),
       Scene.expect(Scene.selector('.rt-SelectTrigger')).toHaveClass('rt-variant-classic'),
       Scene.expect(Scene.selector('.rt-SelectTrigger')).not.toHaveClass('rt-high-contrast'),
       Scene.expect(Scene.selector('.rt-SelectContent')).toHaveClass('rt-variant-soft'),
