@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { test } from 'node:test'
 import { build, preview, type PreviewServer } from 'vite'
 import { applyCpuThrottle, assertNoiseBand, interactionDuration, noiseBand, regressed, runScenario, SCENARIOS, traceAnimationFrameCount, traceScriptingDuration } from './perf.ts'
+import { SHARED_DATE_SCENARIO } from './scenarios.ts'
 
 const syntheticNoiseFloors = {
   'vl-cell': 38,
@@ -20,6 +21,7 @@ const syntheticNoiseFloors = {
   'tooltip-open': 18,
   'tooltip-close': 18,
   'slider-drag': 20,
+  'shared-date': 27,
 } as const
 const regression = (overrides: Partial<Parameters<typeof regressed>[0]> = {}) => ({
   scenarioId: 'vl-sort' as const,
@@ -75,6 +77,7 @@ test('GATE-P3 keeps an 8 ms absolute script threshold when the synthetic noise f
     'select-choose': 0,
     'tooltip-open': 0,
     'tooltip-close': 0,
+    'shared-date': 0,
     'slider-drag': 0,
   }
   assert.equal(regressed(regression({ candScript: [18] }), zeroNoiseFloors), false)
@@ -134,6 +137,12 @@ test('performance scenarios retain the GATE-P2 ceilings and use trusted input ev
   ])
   assert.ok(SCENARIOS.every(({ prepare, warmup, reset, act }) =>
     typeof prepare === 'function' && typeof warmup === 'function' && typeof reset === 'function' && typeof act === 'function'))
+})
+test('shared-date is available for local profiling without expanding gate scenarios', () => {
+  assert.equal(SHARED_DATE_SCENARIO.route, '/shared')
+  assert.equal(SHARED_DATE_SCENARIO.hook, 'shared-date')
+  assert.equal(SHARED_DATE_SCENARIO.inputEventType, 'keydown')
+  assert.equal(SCENARIOS.some(({ id }) => id === SHARED_DATE_SCENARIO.id), false)
 })
 test('DataTable 10k scenarios wire the data-table operations at the proposed 4× ceiling', async () => {
   const dataTableScenarios = SCENARIOS.filter(({ id }) => id.startsWith('dt-'))
