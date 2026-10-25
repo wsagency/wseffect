@@ -1,6 +1,6 @@
 # Implemented locally: avoid repeated deep validation of large `h.submodel` inputs
 
-**Status:** implemented locally in `8c64324` (validation redesign) and `a550ed1` (stable-ID inputs); no upstream PR has been submitted.
+**Status:** implemented locally in `000602b`, `b1678da`, `36140da`, and `8c64324` (validation redesign); the related deferred-callsite-formatting optimization is separately implemented in `a550ed1`. No upstream PR has been submitted.
 **Affected package:** `foldkit@0.168.0` (`apps/gallery/package.json`).
 
 ## Title

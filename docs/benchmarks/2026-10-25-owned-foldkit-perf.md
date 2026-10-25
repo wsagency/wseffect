@@ -29,14 +29,16 @@ The observed 4× `vl-sort` scripting median fell by 12.80 ms, but its 14.89 ms A
 
 ## Deterministic counters
 
-Counters were collected separately at 1×, resetting after each scenario's preparation and warmup. Walk visits instrumented the mapped validation walker; HashSet constructions instrumented the mapped `VirtualList.informItemsChanged` call site. DOM methods and `Error.prepareStackTrace` were counted during one filter or sort interaction. Instrumentation was scratch-only and the built assets were restored afterward. Raw observations: [`data/2026-10-25-owned-foldkit-perf-counters.json`](data/2026-10-25-owned-foldkit-perf-counters.json).
+Counters were collected separately at 1×, resetting after each scenario's preparation and warmup. Walk visits instrumented the mapped validation walker; HashSet constructions instrumented the mapped `VirtualList.informItemsChanged` call site. The DOM counters include node creation (`Document.createElement[NS]`, `createTextNode`, `createComment`, `cloneNode`), `Node.insertBefore`/`appendChild`/`removeChild`/`replaceChild`, and element/text/document-node `remove`, `before`, `after`, `replaceWith`, `replaceChildren`, `append`, and `prepend`. A `MutationObserver` independently checked added/removed node records. The earlier filter capture's 182/0 insertion/removal split was a counter artifact; the complete recapture found 169/13 on both builds. Instrumentation was scratch-only and the built assets were restored afterward. Raw complete observations: [`data/2026-10-25-owned-foldkit-perf-counters.json`](data/2026-10-25-owned-foldkit-perf-counters.json).
 
-| Interaction | Build | Walk visits | HashSet constructions | DOM moves | Insertions | Removals | Formatted stacks |
-|---|---|---:|---:|---:|---:|---:|---:|
-| Filter | Baseline | 6,898 | 1 | 1 | 169 | 13 | 10 |
-| Filter | Candidate | 3,459 | 0 | 0 | 182 | 0 | 0 |
-| Sort | Baseline | 40,040 | 1 | 13 | 364 | 28 | 20 |
-| Sort | Candidate | 20,040 | 0 | 13 | 364 | 28 | 0 |
+`Insertions` and `removals` below are wrapped native DOM method calls; `moves` are insertions of a node already parented by the target. Creation totals count the DOM factories. The keyed-list regression test checks exact DOM `data-key` order and child count after a shrinking filter and a subsequent reordering filter. In the Gallery filter interaction, both builds end with 14 visible rows. Shrinking-filter DOM work is equal except the candidate eliminates one move (baseline 1 move + 169 inserts + 13 removals; candidate 0 + 169 + 13); both create 104 elements and 65 text nodes. Sort performs more DOM work in the candidate: creation 182→364 nodes (112→224 elements, 70→140 text nodes), insertions 182→364, removals 14→28, with 13 moves unchanged. Including created nodes and DOM method calls, this is 391→769 total operations. The observed 4× scripting median was 12.80 ms lower, with validation visits 30,030→20,040, HashSet constructions 1→0, and formatted stacks 15→0. Despite doubled sort DOM work, the overall measured scripting median favors the candidate; timing bands are broad, so that net result is directional rather than conclusive.
+
+| Interaction | Build | Walk visits | HashSet constructions | DOM moves | Insertions | Removals | Created elements | Created text nodes | Formatted stacks |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Filter | Baseline | 6,898 | 1 | 1 | 169 | 13 | 104 | 65 | 10 |
+| Filter | Candidate | 3,459 | 0 | 0 | 169 | 13 | 104 | 65 | 0 |
+| Sort | Baseline | 30,030 | 1 | 13 | 182 | 14 | 112 | 70 | 15 |
+| Sort | Candidate | 20,040 | 0 | 13 | 364 | 28 | 224 | 140 | 0 |
 
 ## Candidate source-map profiles
 
@@ -52,6 +54,6 @@ The candidate was profiled at 4× with three source-mapped captures per scenario
 
 ## Implementation and verification
 
-The two upstream issue drafts are marked **implemented locally**: the validation redesign is implemented locally in `8c64324` (with stable-ID inputs in `a550ed1`), and fixed-height key pruning is implemented locally in `f82b085`. The repository benchmark harness was left unchanged; the shared-date scenario used by the scratch measurements matches the existing benchmark tooling.
+The two upstream issue drafts are marked **implemented locally**: validation redesign commits are `000602b`, `b1678da`, `36140da`, and `8c64324`; the separate deferred-callsite-formatting optimization is `a550ed1`. Fixed-height key pruning is implemented locally in `f82b085`. The repository benchmark harness was left unchanged; the shared-date scenario used by the scratch measurements matches the existing benchmark tooling.
 
-Final verification command exit codes: clean build + `pnpm check` 0; `pnpm e2e` 0 (45/45); standalone `pnpm test:consumer` 0; `pnpm gate:size --app apps/gallery` 0; `compare-sp2` 0 (236/236 passed).
+Final verification command exit codes: clean build + `pnpm check` 0; one full `pnpm e2e` 0 (136/136); standalone `pnpm test:consumer` 0; `pnpm gate:size --app apps/gallery` 0; `compare-sp2` 0 (236/236 passed).

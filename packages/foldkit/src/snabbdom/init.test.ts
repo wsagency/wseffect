@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { datasetModule } from './dataset.js'
 import { h } from './h.js'
 import { __overrideDuplicateKeyWarning, init } from './init.js'
 import {
@@ -48,6 +49,34 @@ describe('identity-aware patching', () => {
 
     expect(listItemsIn(patched)).toEqual([before[0], before[2], before[3]])
     expect(insertBefore).not.toHaveBeenCalled()
+  })
+
+  it('filters keyed children without leaving stale nodes after shrink or reorder', () => {
+    const patchWithDataset = init([datasetModule])
+    const renderList = (keys: ReadonlyArray<string>): VNode =>
+      h(
+        'ul',
+        {},
+        keys.map(key => h('li', { key, dataset: { key } }, [key])),
+      )
+    const keysIn = (node: VNode): Array<string | undefined> =>
+      Array.from(elementOf(node).children, child =>
+        (child as HTMLElement).dataset['key'],
+      )
+    const container = document.createElement('div')
+    const mounted = patchWithDataset(
+      container,
+      renderList(['a', 'b', 'c', 'd', 'e']),
+    )
+
+    const shrunk = patchWithDataset(mounted, renderList(['a', 'c', 'e']))
+    expect(keysIn(shrunk)).toEqual(['a', 'c', 'e'])
+    expect(elementOf(shrunk).children).toHaveLength(3)
+
+    const reordered = patchWithDataset(shrunk, renderList(['e', 'a']))
+    expect(keysIn(reordered)).toEqual(['e', 'a'])
+    expect(elementOf(reordered).children).toHaveLength(2)
+    expect(elementOf(reordered).textContent).toBe('ea')
   })
 
   it('preserves reference-identical siblings around a changed middle', () => {
