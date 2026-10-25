@@ -1,6 +1,6 @@
 # List and form scripting attribution
 
-**Status:** historical directional profiling and scratch-prototype evidence, superseded by the owned Foldkit measurements in [`2026-10-25-owned-foldkit-perf.md`](2026-10-25-owned-foldkit-perf.md). Changes were implemented locally in callsite `a550ed1`, keyed diff `3c5f389`, fixed-height item pruning `f82b085`, and input-validation caching `000602b`/`b1678da`/`36140da`/`8c64324`; no upstream PR has been submitted.
+**Status:** historical directional profiling and scratch-prototype evidence, superseded by the owned Foldkit measurements in [`2026-10-25-owned-foldkit-perf.md`](2026-10-25-owned-foldkit-perf.md). The prototype ABAB also used the pre-fix harness with reset overlap, so its apparent gains are not reliable. Changes were implemented locally in callsite `a550ed1`, keyed diff `3c5f389`, fixed-height item pruning `f82b085`, and input-validation caching `000602b`/`b1678da`/`36140da`/`8c64324`; no upstream PR has been submitted.
 
 ## Method
 

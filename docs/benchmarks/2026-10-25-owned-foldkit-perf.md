@@ -33,25 +33,15 @@ After settling the reset update, the 4× `vl-sort` scripting median is 1.64 ms h
 
 Counters were collected separately at 1× after each scenario's warmup and reset settled: the reset DOM state was observed, at least two animation frames passed, and a 50 ms idle period completed before counters were zeroed. The settlement wait is bounded at 2 s. Walk visits instrumented the mapped validation walker; HashSet constructions instrumented the mapped `VirtualList.informItemsChanged` call site. The DOM counters include node creation (`Document.createElement[NS]`, `createTextNode`, `createComment`, `cloneNode`), `Node.insertBefore`/`appendChild`/`removeChild`/`replaceChild`, and element/text/document-node `remove`, `before`, `after`, `replaceWith`, `replaceChildren`, `append`, and `prepend`. A `MutationObserver` independently checked added/removed node records. The earlier sort capture that reported 182→364 created nodes overlapped a reset render and is discarded. Instrumentation was scratch-only and the built assets were restored afterward. Raw complete observations: [`data/2026-10-25-owned-foldkit-perf-counters.json`](data/2026-10-25-owned-foldkit-perf-counters.json).
 
-`Insertions` and `removals` below are wrapped native DOM method calls; `moves` are insertions of a node already parented by the target. Creation totals count the DOM factories. In both Gallery scenarios, the keyed-diff change makes no measurable DOM difference: moves, insertions, removals, and created nodes match across builds. Its benefit is limited to the reorder patterns covered by its tests; scripting gains come from validation caching, the HashSet skip, and deferred callsite formatting. Filtering ends with 14 visible rows; both builds perform 1 move, 169 insertions, and 13 removals, creating 104 elements and 65 text nodes. Sort uses 13 moves, 182 insertions, and 14 removals in both builds, creating 112 elements and 70 text nodes (391 total counted DOM operations per build).
+`Insertions` and `removals` below are wrapped native DOM method calls; `moves` are insertions of a node already parented by the target. Creation totals count the DOM factories. Candidate walk visits are now instrumented at the actual `walkValue` function: the candidate visits all 3,459 filtered IDs and 10,020 sorted IDs, versus 6,898 and 20,020 in the baseline; both candidate interactions avoid a HashSet construction and 10 stack formats. These counters show removed redundant work, not a measurable scripting change after settling. Filter has 0 candidate moves versus 1 baseline move; insertions, removals, and created nodes match. Sort has 13 moves, 182 insertions, and 14 removals in both builds, creating 112 elements and 70 text nodes (391 total counted DOM operations per build).
 
 | Interaction | Build | Walk visits | HashSet constructions | DOM moves | Insertions | Removals | Created elements | Created text nodes | Formatted stacks |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | Filter | Baseline | 6,898 | 1 | 1 | 169 | 13 | 104 | 65 | 10 |
-| Filter | Candidate | 0 | 0 | 1 | 169 | 13 | 104 | 65 | 0 |
+| Filter | Candidate | 3,459 | 0 | 0 | 169 | 13 | 104 | 65 | 0 |
 | Sort | Baseline | 20,020 | 1 | 13 | 182 | 14 | 112 | 70 | 10 |
-| Sort | Candidate | 0 | 0 | 13 | 182 | 14 | 112 | 70 | 0 |
-## Candidate source-map profiles
-
-The candidate was profiled at 4× with three source-mapped captures per scenario; raw captures and load averages are in [`data/2026-10-25-owned-foldkit-perf-profiles.json`](data/2026-10-25-owned-foldkit-perf-profiles.json). Native `program` and `idle` samples dominate the captures, so this list reports the largest mapped JavaScript origins averaged across the three captures, excluding native frames:
-
-| Scenario | Remaining mapped hot spots (approx. mean sampled ms / capture) |
-|---|---|
-| `vl-cell` | Foldkit UI `input/index.js` (~1.03); Gallery `virtualList.ts` `CellChanged` (~0.68); Effect schema equivalence (~0.41); Foldkit Snabbdom init (~0.38). |
-| `vl-sort` | Foldkit UI `virtualList/index.js` (~3.91); Effect `Function.js` (~1.30); Foldkit `html/index.js` (~1.28); Foldkit Snabbdom init (~1.02); Foldkit branding (~0.78). |
-| `vl-select` | Foldkit `runtime/subscriptionFibers.js` (~0.54); Foldkit `propsModule.js` (~0.49); Gallery shell (~0.45); Effect schema equivalence (~0.32); app prefetch (~0.27). |
-| `form-field` | Foldkit `html/index.js` (~0.61); Effect internal effect loop (~0.56); Foldkit `html/submodel.js` (~0.40); Effect `SchemaAST.js` (~0.30). |
-| `shared-date` | Foldkit `runtime/documentMetadata.js` (~0.63); Foldkit `controlledDomState.js` (~0.48); Themes Box (~0.44); Themes Flex (~0.44); Gallery date picker (~0.34). |
+| Sort | Candidate | 10,020 | 0 | 13 | 182 | 14 | 112 | 70 | 0 |
+Earlier sampled attributions (including 6–9 ms attributed to `HashMap.set`) predated the settlement fix and overstated these costs, as the settled ABAB shows.
 
 ## Implementation and verification
 
