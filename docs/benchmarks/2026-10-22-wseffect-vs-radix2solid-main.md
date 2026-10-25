@@ -1,5 +1,7 @@
 # WSEffect main vs Radix2Solid
 
+> Superseded by [the 2026-10-25 comparison](2026-10-25-wseffect-vs-radix2solid-main.md), which reruns the benchmark with the fixed measurement harness and current main.
+
 ## Scope and method
 
 This comparison measures WSEffect main at `9446806602435889908c147e0b08b9c13ab22563` against the pinned Radix2Solid fixture at `383676172abb84b4a1d2e54a087d290437ee8848`. It covers `vl-cell`, `vl-filter`, `vl-sort`, `vl-select`, `form-field`, `menus-tick`, `theme-appearance`, `theme-accent`, `shared-date`, `dialog-open`, `dropdown-open`, `nav-cold`, and `nav-prefetch` at 1× and 4× CPU throttle. Each app/scenario/rate cell uses five ABAB blocks (10 measured sessions per app); each A/A band uses 10 adjacent same-app pairs. Event Timing and trace scripting medians follow [GATE-P1 §12.1](../superpowers/specs/2026-10-19-wseffect-foundation-design.md#121-perf-gate-p1). Event Timing is quantized at a 16ms observation threshold; scripting is the shared CDP timeline's scripting duration.

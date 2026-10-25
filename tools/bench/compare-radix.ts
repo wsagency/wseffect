@@ -135,7 +135,7 @@ const EXTRA_SCENARIOS: readonly PerfScenario[] = [
   customScenario('nav-cold', '/virtual-list', 'nav-cold', async (page) => page.locator('[data-perf="nav-cold"]').click(), async (page) => { await page.goto(new URL('/virtual-list', page.url()).href, { waitUntil: 'networkidle' }) }, 'click', async (page) => page.locator('main').waitFor({ state: 'visible' })),
   customScenario('nav-prefetch', '/virtual-list', 'nav-prefetch', async (page) => page.locator('[data-perf="nav-prefetch"]').click(), async (page) => { await page.goto(new URL('/virtual-list', page.url()).href, { waitUntil: 'networkidle' }) }, 'click', async (page) => { await page.locator('[data-perf="nav-prefetch"]').hover(); await page.waitForTimeout(500) }),
 ]
-const ALL_SCENARIOS: readonly PerfScenario[] = [...SCENARIOS, ...EXTRA_SCENARIOS]
+export const COMPARISON_SCENARIOS: readonly PerfScenario[] = [...SCENARIOS.filter(({ id }) => !id.startsWith('dt-')), ...EXTRA_SCENARIOS]
 
 interface ServedApp {
   readonly server: Awaited<ReturnType<typeof preview>>
@@ -210,7 +210,7 @@ async function run(): Promise<void> {
       throttleSelfTest: browserSelfTest,
       throttleSelfTestRetries: selfTest.retries,
       method: 'Five ABAB blocks: each block runs wseffect, radix2solid, wseffect, radix2solid (10 sessions per app/scenario/rate). A/A: 10 adjacent same-app pairs (20 sessions per app/scenario/rate), collected in alternating app order. Event Timing via PerformanceObserver; trace scripting via the shared CDP timeline runner. Invalid trace captures are retried once and discarded attempts are counted per app/scenario/rate. Each session includes before/after host load averages. Noise-screen band is max of the apps\' nearest-rank p95 adjacent-pair absolute deltas; winner only when absolute medians gap exceeds band.',
-      scenarios: ALL_SCENARIOS.map(({ id, route, hook }) => ({ id, route, hook })),
+      scenarios: COMPARISON_SCENARIOS.map(({ id, route, hook }) => ({ id, route, hook })),
       size: { wseffect: wseffect.size, radix2solid: radix2solid.size },
       results: {},
     }
@@ -218,7 +218,7 @@ async function run(): Promise<void> {
     for (const rate of RATES) {
       const rateResults: Record<string, ScenarioData> = {}
       allResults[`${rate}x`] = rateResults
-      for (const scenario of ALL_SCENARIOS) {
+      for (const scenario of COMPARISON_SCENARIOS) {
         const abab: Record<AppName, Sample[]> = { wseffect: [], radix2solid: [] }
         for (let block = 0; block < BLOCKS; block += 1) {
           for (const appName of ['wseffect', 'radix2solid', 'wseffect', 'radix2solid'] as const) {

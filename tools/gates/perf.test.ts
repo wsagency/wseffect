@@ -129,7 +129,7 @@ test('performance scenarios retain the GATE-P2 ceilings and use trusted input ev
     ['dt-sort', 50, 'click'],
     ['dt-select', 50, 'click'],
     ['select-open', 50, 'click'],
-    ['select-choose', 50, 'click'],
+    ['select-choose', 50, 'pointerdown'],
     ['tooltip-open', 30, 'keydown'],
     ['tooltip-close', 30, 'keydown'],
     ['slider-drag', 30, 'click'],
@@ -195,7 +195,7 @@ test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag 
   assert.deepEqual(sp2Scenarios.map(({ id, route, inputEventType, hook, ceilingMs, ceilingStatus }) =>
     [id, route, inputEventType, hook, ceilingMs, ceilingStatus]), [
     ['select-open', '/components/select', 'click', 'select-open', 50, 'proposed-not-runner-validated'],
-    ['select-choose', '/components/select', 'click', 'select-open', 50, 'proposed-not-runner-validated'],
+    ['select-choose', '/components/select', 'pointerdown', 'select-open', 50, 'proposed-not-runner-validated'],
     ['tooltip-open', '/components/tooltip', 'keydown', 'tooltip-open', 30, 'proposed-not-runner-validated'],
     ['tooltip-close', '/components/tooltip', 'keydown', 'tooltip-close', 30, 'proposed-not-runner-validated'],
     ['slider-drag', '/components/range-slider', 'click', 'slider-drag', 30, 'proposed-not-runner-validated'],
@@ -203,6 +203,7 @@ test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag 
 
   const calls: string[] = []
   const locator = (selector: string) => ({
+    getByRole: (role: string) => ({ first: () => locator(`${selector}.getByRole(${role}).first()`) }),
     click: async () => { calls.push(`${selector}.click`) },
     focus: async () => { calls.push(`${selector}.focus`) },
     press: async (key: string) => { calls.push(`${selector}.press(${key})`) },
@@ -212,6 +213,7 @@ test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag 
     },
   })
   const page = {
+    reload: async (options: { waitUntil: string }) => { calls.push(`page.reload(${options.waitUntil})`) },
     locator,
     mouse: {
       move: async (x: number, y: number) => { calls.push(`mouse.move(${x},${y})`) },
@@ -220,8 +222,8 @@ test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag 
     },
   } as never
   const expectedCalls = [
-    ['[data-perf="select-open"] button.click', '[data-perf="select-open"] button.click', '[data-perf="select-open"] button.click'],
-    ['[data-perf="select-open"] button.click', '[data-perf="select-choose"].click'],
+    ['[data-perf="select-open"] button.click', '[data-perf="select-open"] button.press(Escape)', '[data-perf="select-open"] button.click'],
+    ['[data-perf="select-open"] button.click', 'page.reload(networkidle)', '[data-perf="select-open"] button.click', '[data-perf="select-choose"].click'],
     [
       '[data-perf="tooltip-open"].focus',
       '[data-perf="tooltip-open"].press(Tab)',
@@ -236,9 +238,9 @@ test('SP2 controls wire Select 1k, Tooltip focus, and trusted range-slider drag 
       '[data-perf="tooltip-close"] button.press(Tab)',
     ],
     [
-      '[data-perf="slider-drag"] input[data-thumb-id="Minimum value"].boundingBox',
+      '[data-perf="slider-drag"].getByRole(slider).first().boundingBox',
       'mouse.move(15,25)', 'mouse.down', 'mouse.move(35,25)', 'mouse.up',
-      '[data-perf="slider-drag"] input[data-thumb-id="Minimum value"].boundingBox',
+      '[data-perf="slider-drag"].getByRole(slider).first().boundingBox',
       'mouse.move(15,25)', 'mouse.down', 'mouse.move(-5,25)', 'mouse.up',
     ],
   ]

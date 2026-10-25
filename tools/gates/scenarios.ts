@@ -6,7 +6,7 @@ export interface PerfScenario {
     | 'dt-update' | 'dt-filter' | 'dt-sort' | 'dt-select'
     | 'select-open' | 'select-choose' | 'tooltip-open' | 'tooltip-close' | 'slider-drag';
   readonly route: string
-  readonly inputEventType: 'click' | 'keydown'
+  readonly inputEventType: 'click' | 'keydown' | 'pointerdown'
   readonly prepare: (page: Page) => Promise<void>
   readonly warmup: (page: Page) => Promise<void>
   readonly reset: (page: Page) => Promise<void>
@@ -135,7 +135,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     hook: 'select-open',
     prepare: async () => {},
     warmup: async (page) => page.locator('[data-perf="select-open"] button').click(),
-    reset: async (page) => page.locator('[data-perf="select-open"] button').click(),
+    reset: async (page) => page.locator('[data-perf="select-open"] button').press('Escape'),
     act: async (page) => page.locator('[data-perf="select-open"] button').click(),
     ceilingMs: 50,
     ceilingStatus: 'proposed-not-runner-validated',
@@ -143,11 +143,14 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
   {
     id: 'select-choose',
     route: '/components/select',
-    inputEventType: 'click',
+    inputEventType: 'pointerdown',
     hook: 'select-open',
     prepare: async () => {},
     warmup: async (page) => page.locator('[data-perf="select-open"] button').click(),
-    reset: async () => {},
+    reset: async (page) => {
+      await page.reload({ waitUntil: 'networkidle' })
+      await page.locator('[data-perf="select-open"] button').click()
+    },
     act: async (page) => page.locator('[data-perf="select-choose"]').click(),
     ceilingMs: 50,
     ceilingStatus: 'proposed-not-runner-validated',
@@ -186,7 +189,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     hook: 'slider-drag',
     prepare: async () => {},
     warmup: async (page) => {
-      const box = await page.locator('[data-perf="slider-drag"] input[data-thumb-id="Minimum value"]').boundingBox()
+      const box = await page.locator('[data-perf="slider-drag"]').getByRole('slider').first().boundingBox()
       if (!box) throw new Error('RangeSlider perf thumb is not visible')
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
       await page.mouse.down()
@@ -195,7 +198,7 @@ export const SCENARIOS: ReadonlyArray<PerfScenario> = [
     },
     reset: async () => {},
     act: async (page) => {
-      const box = await page.locator('[data-perf="slider-drag"] input[data-thumb-id="Minimum value"]').boundingBox()
+      const box = await page.locator('[data-perf="slider-drag"]').getByRole('slider').first().boundingBox()
       if (!box) throw new Error('RangeSlider perf thumb is not visible')
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
       await page.mouse.down()
