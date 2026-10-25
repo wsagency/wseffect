@@ -35,6 +35,21 @@ const listItemsIn = (node: VNode): Array<HTMLLIElement> =>
   Array.from(elementOf(node).querySelectorAll('li'))
 
 describe('identity-aware patching', () => {
+  it('does not move retained nodes when filtering to an ordered subsequence', () => {
+    const renderList = (keys: ReadonlyArray<string>): VNode =>
+      h('ul', {}, keys.map(key => h('li', { key }, [key])))
+    const container = document.createElement('div')
+    const mounted = patch(container, renderList(['a', 'b', 'c', 'd']))
+    const before = listItemsIn(mounted)
+    const ul = elementOf(mounted)
+    const insertBefore = vi.spyOn(ul, 'insertBefore')
+
+    const patched = patch(mounted, renderList(['a', 'c', 'd']))
+
+    expect(listItemsIn(patched)).toEqual([before[0], before[2], before[3]])
+    expect(insertBefore).not.toHaveBeenCalled()
+  })
+
   it('preserves reference-identical siblings around a changed middle', () => {
     const stableStart = h('li', { key: 'start' }, ['start'])
     const stableEnd = h('li', { key: 'end' }, ['end'])
