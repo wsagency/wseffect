@@ -1,6 +1,6 @@
 # Proposal: invoke Menu from a context target
 
-**Status:** local proposal draft; not submitted upstream.
+**Status:** approved for local implementation; lane work is in progress. No upstream PR is required; upstream follow-up is optional.
 **Affected package:** `@foldkit/ui@0.168.0`.
 
 ## Problem
