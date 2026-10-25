@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createServer } from 'node:http'
 import { resolve } from 'node:path'
 import { test } from 'node:test'
 import { build, preview, type PreviewServer } from 'vite'
@@ -478,38 +479,38 @@ test('runScenario captures input durations and records entry counts for every Ga
   }
 })
 test('runScenario settles reset commits before tracing but captures act and its post-commit render', { timeout: 45_000 }, async () => {
-  const appDir = resolve(import.meta.dirname, '../../apps/gallery')
-  let server: PreviewServer | undefined
+  const markup = `
+    <button data-perf="vl-sort">hook</button>
+    <button id="act">act</button>
+    <script>
+      const burn = (ms) => { const end = performance.now() + ms; while (performance.now() < end) {} }
+      document.querySelector('#act').addEventListener('click', () => {
+        burn(12)
+        document.body.dataset.actState = 'handler'
+        requestAnimationFrame(() => {
+          burn(12)
+          document.body.dataset.actState = 'post-commit'
+        })
+      })
+    </script>
+  `
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'content-type': 'text/html' })
+    response.end(markup)
+  })
   let resetWasCompleteBeforeAct = false
+  await new Promise<void>((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
+  const address = server.address()
+  assert.ok(address && typeof address === 'object', 'test server has a TCP address')
+  const baseUrl = `http://127.0.0.1:${address.port}`
   try {
-    server = await preview({
-      root: appDir,
-      configFile: resolve(appDir, 'vite.config.ts'),
-      logLevel: 'error',
-      preview: { host: '127.0.0.1', port: 0, strictPort: false },
-    })
-    const baseUrl = server.resolvedUrls?.local?.[0]
-    assert.ok(baseUrl, 'Vite preview exposes a local URL')
     const scenario: PerfScenario = {
       id: 'vl-sort',
-      route: '/virtual-list',
+      route: '/',
       inputEventType: 'click',
       hook: 'vl-sort',
       ceilingMs: 50,
-      prepare: async (page) => page.setContent(`
-        <button id="act">act</button>
-        <script>
-          const burn = (ms) => { const end = performance.now() + ms; while (performance.now() < end) {} }
-          document.querySelector('#act').addEventListener('click', () => {
-            burn(12)
-            document.body.dataset.actState = 'handler'
-            requestAnimationFrame(() => {
-              burn(12)
-              document.body.dataset.actState = 'post-commit'
-            })
-          })
-        </script>
-      `),
+      prepare: async () => {},
       warmup: async () => {},
       reset: async (page) => page.evaluate(() => {
         document.body.dataset.resetState = 'pending'
@@ -531,7 +532,7 @@ test('runScenario settles reset commits before tracing but captures act and its 
     assert.ok(result.scriptMs[0]! >= 20, 'the click handler and its post-commit rAF scripting remain measured')
     assert.ok(result.animationFrameCounts[0]! >= 1, 'the act post-commit rAF remains in the trace window')
   } finally {
-    await server?.close()
+    await new Promise<void>((resolveClose, rejectClose) => server.close((error) => error ? rejectClose(error) : resolveClose()))
   }
 })
 
