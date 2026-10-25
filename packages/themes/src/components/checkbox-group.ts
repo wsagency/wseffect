@@ -1,6 +1,7 @@
 import { brandViewResult } from '@wsagency/wseffect-foldkit/brand'
 import { Schema } from 'effect'
-import type { Attribute, Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
+import * as UiCheckboxGroup from '@wsagency/wseffect-foldkit-ui/checkboxGroup'
 import { accentColors } from '../props/color.props.js'
 import { responsiveSchema } from '../props/componentSchema.js'
 import { responsiveProp, responsiveClasses } from '../props/responsive.js'
@@ -28,32 +29,36 @@ export const view = <Value extends string, Message>(props: Props & {
   toggleMessage(value: Value, isChecked: boolean): Message
 }, h: HtmlBuilder<Message>): Html => {
   const sizeClasses = responsiveClasses(sizeProp, props.size ?? '2').classes
-  const rootAttributes: Attribute<Message>[] = [
-    h.Id(props.id), h.Role('group'),
-    ...(props.ariaLabel === undefined ? [h.AriaLabelledBy(`${props.id}-label`)] : [h.AriaLabel(props.ariaLabel)]),
-    h.Class('rt-CheckboxGroupRoot'),
-  ]
-  return brandViewResult(h.div(rootAttributes, [
-    ...(props.label === undefined ? [] : [h.span([h.Id(`${props.id}-label`)], [props.label])]),
-    ...props.options.map((option, index) => {
-      const isChecked = props.selected.has(option.value)
-      const isDisabled = props.isDisabled === true || option.isDisabled === true
-      const labelId = `${props.id}-option-${index}-label`
-      return h.label([h.Class(['rt-CheckboxGroupItem', 'rt-Text', ...sizeClasses].join(' '))], [
-        h.button([
-          h.Type('button'),
-          h.Role('checkbox'),
-          h.AriaChecked(isChecked),
-          h.AriaLabelledBy(labelId),
-          h.Disabled(isDisabled),
-          h.AriaDisabled(isDisabled),
-          ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
-          h.Class(['rt-reset', 'rt-BaseCheckboxRoot', 'rt-CheckboxGroupItemCheckbox', ...sizeClasses, `rt-variant-${props.variant ?? 'surface'}`, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
-          h.DataAttribute('state', isChecked ? 'checked' : 'unchecked'),
-          ...(!isDisabled ? [h.OnClick(props.toggleMessage(option.value, !isChecked))] : []),
-        ], isChecked ? [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [thickCheckIcon(h)])] : []),
-        h.span([h.Id(labelId), h.Class('rt-CheckboxGroupItemInner')], [option.label]),
-      ])
-    }),
-  ]), 'wseffect/CheckboxGroup')
+  return brandViewResult(UiCheckboxGroup.view({
+    id: props.id,
+    label: props.label,
+    ariaLabel: props.ariaLabel,
+    options: props.options,
+    selected: props.selected,
+    isDisabled: props.isDisabled,
+    toggleMessage: props.toggleMessage,
+    toView: ({ rootAttributes, options }) => h.div([
+      ...rootAttributes,
+      ...(props.ariaLabel === undefined ? [] : [h.AriaLabel(props.ariaLabel)]),
+      h.Class('rt-CheckboxGroupRoot'),
+    ], [
+      ...(props.label === undefined ? [] : [h.span([h.Id(`${props.id}-label`)], [props.label])]),
+      ...options.map(({ option, checkbox }, index) => {
+        const isChecked = props.selected.has(option.value)
+        const isDisabled = props.isDisabled === true || option.isDisabled === true
+        const labelId = `${props.id}-option-${index}-label`
+        return h.label([h.Class(['rt-CheckboxGroupItem', 'rt-Text', ...sizeClasses].join(' '))], [
+          h.button([
+            ...checkbox.checkbox,
+            h.AriaLabelledBy(labelId),
+            h.Disabled(isDisabled),
+            ...(props.color === undefined ? [] : [h.DataAttribute('accent-color', props.color)]),
+            h.Class(['rt-reset', 'rt-BaseCheckboxRoot', 'rt-CheckboxGroupItemCheckbox', ...sizeClasses, `rt-variant-${props.variant ?? 'surface'}`, ...(props.highContrast ? ['rt-high-contrast'] : [])].join(' ')),
+            h.DataAttribute('state', isChecked ? 'checked' : 'unchecked'),
+          ], isChecked ? [h.span([h.Class('rt-BaseCheckboxIndicator'), h.AriaHidden(true)], [thickCheckIcon(h)])] : []),
+          h.span([h.Id(labelId), h.Class('rt-CheckboxGroupItemInner')], [option.label]),
+        ])
+      }),
+    ]),
+  }, h), 'wseffect/CheckboxGroup')
 }
