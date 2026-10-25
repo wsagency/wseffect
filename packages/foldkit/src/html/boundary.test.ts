@@ -18,6 +18,8 @@ import {
   restoreBoundaryWrapsForLazyHit,
 
 } from './boundary.js'
+import type { DispatchSync } from './runtimeSingleton.js'
+
 
 describe('boundary callsites', () => {
   it('does not format Error stacks while registering unique boundaries', () => {
