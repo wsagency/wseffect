@@ -222,7 +222,7 @@ function isRenderedAt<Row>(
   if (rowIndex < 0) return false
   const rendered = VirtualList.renderedRange(model.virtualList, {
     items: ids,
-    itemToKey: id => id,
+    itemToKey: String,
     itemToRowHeightPx: () => config.rowHeight,
     overscan: config.overscanRows,
   }, scrollTop)

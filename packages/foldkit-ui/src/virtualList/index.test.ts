@@ -13,6 +13,7 @@ import {
   ScrollTarget,
   informItemsChanged,
   init,
+  renderedRange,
   scrollToEnd,
   scrollToIndex,
   scrollToKey,
@@ -145,6 +146,18 @@ const completedApplyScroll = (version: number) =>
   })
 
 describe('VirtualList', () => {
+  it('calculates the rendered range from the measured scroll position', () => {
+    const measured = update(
+      defaultInit(),
+      Message.ResizedContainer({ containerWidth: 320, containerHeight: 60 }),
+    ).model
+    expect(renderedRange(measured, {
+      items: ['a', 'b', 'c', 'd'],
+      itemToKey: item => item,
+      itemToRowHeightPx: () => 30,
+      overscan: 0,
+    }, 30)).toEqual({ startIndex: 1, endIndex: 3 })
+  })
   describe('init', () => {
     it('starts in the Unmeasured state with scrollTop 0 and pendingScroll Idle', () => {
       const model = defaultInit()

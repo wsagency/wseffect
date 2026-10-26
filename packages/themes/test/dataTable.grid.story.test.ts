@@ -89,6 +89,20 @@ describe('DataTable Grid model', () => {
     expect(model.orderedRowIds).toEqual(['b'])
     expect(model.activeCell).toEqual({ rowId: 'b', columnId: 'label' })
   })
+  it('targets a retained cell outside the filtered rendered range for focus recovery', () => {
+    const cfg = config({
+      rows: [...rows, { id: 'd', label: 'Delta', rank: 4 }],
+      overscanRows: 0,
+      viewportHeight: 36,
+    })
+    let model = setCell(DataTable.init(cfg), cfg, 'd', 'label')
+    model = update(model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 36 }),
+    })).model
+    const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'a' }))
+    expect(result.model.orderedRowIds).toEqual(['a', 'b', 'c', 'd'])
+    expect(result.model.pendingFocus).toEqual({ rowId: 'd', columnId: 'label' })
+  })
 
   it('recovers removed active rows and focuses after the replacement row commits', () => {
     const cfg = config()

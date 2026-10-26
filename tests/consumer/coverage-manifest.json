@@ -1966,6 +1966,10 @@
     "public-surface",
     "consumer-install"
   ],
+  "export:@wsagency/wseffect-foldkit-ui:./virtualList:renderedRange": [
+    "public-surface",
+    "consumer-install"
+  ],
   "export:@wsagency/wseffect-foldkit-ui:./virtualList:scrollTo": [
     "public-surface",
     "consumer-install"
@@ -9698,6 +9702,10 @@
     "consumer-install"
   ],
   "type:@wsagency/wseffect-foldkit-ui:./virtualList:init": [
+    "public-surface",
+    "consumer-install"
+  ],
+  "type:@wsagency/wseffect-foldkit-ui:./virtualList:renderedRange": [
     "public-surface",
     "consumer-install"
   ],
