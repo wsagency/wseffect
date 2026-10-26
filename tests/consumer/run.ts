@@ -186,7 +186,7 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
   await writeFile(resolve(root, 'tsconfig.json'), `${JSON.stringify({
     extends: './tsconfig.base.json',
     compilerOptions: { composite: true, declaration: true, noEmit: true },
-    include: ['src/**/*.ts', 'vite.config.ts'],
+    include: ['src/**/*.ts', 'sp2/**/*.ts', 'vite.config.ts'],
   }, null, 2)}\n`)
   await cp(resolve(repoRoot, 'e2e'), resolve(root, 'e2e'), { recursive: true })
   await cp(resolve(repoRoot, 'tools/serve'), resolve(root, 'tools/serve'), { recursive: true })
@@ -295,6 +295,8 @@ async function main(): Promise<void> {
         WSEFFECT_SP2_OUT_DIR: bundle.outDir,
       }))
     }
+    run('node', ['sp2-foldkit-ui-out/bundle.js'], root)
+    passedChecks.push('sp2-foldkit-ui-runtime')
     const checkboxGroupMaps = await filesUnder(resolve(root, sp2Bundles[2]!.outDir), '.js.map')
     const checkboxGroupSources = (await Promise.all(checkboxGroupMaps.map(async (path) => {
       const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }

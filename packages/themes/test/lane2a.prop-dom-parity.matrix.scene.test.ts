@@ -302,6 +302,7 @@ describe('Lane 2A Select prop-to-DOM parity', () => {
         Scene.Mount.expectHas(Listbox.AnchorListbox({
           buttonId: 'choice-button',
           anchor: { placement: 'bottom-start', gap: 4 },
+          anchorMode: 'SelectedOrActiveItem',
           selectedItemId: 'choice-item-0',
         })),
         Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),

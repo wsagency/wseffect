@@ -1,6 +1,7 @@
+import { Option } from 'effect'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
-import { describe, it } from '@effect/vitest'
+import { describe, expect, it } from '@effect/vitest'
 import * as Menu from './index.js'
 import { createContextMenu, type ContextMenuConfig } from './context.js'
 
@@ -81,17 +82,29 @@ describe('Menu ContextMenu Scene', () => {
         sourceToken: config.sourceToken,
       },
     })).model
+    const activeAfterDocumentation = bundle.update(
+      opened,
+      Menu.Message.ActivatedItem({ index: 3, activationTrigger: 'Keyboard' }),
+    ).model
 
+    expect(Menu.resolveTypeaheadMatch(
+      ['Edit', 'Delete', 'Download', 'Documentation'],
+      'd',
+      Option.some(3),
+      index => index === 0,
+      item => item,
+      false,
+    )).toEqual(Option.some(1))
     Scene.scene(
       { update, view },
-      Scene.given(opened),
+      Scene.given(activeAfterDocumentation),
       Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
       Scene.keydown(Scene.role('menu'), 'd'),
       Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toHaveAttr('data-active', ''),
       Scene.keydown(Scene.role('menu'), 'o'),
       Scene.expectHandled(),
-      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
       Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
     )
   })

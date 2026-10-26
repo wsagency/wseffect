@@ -1,4 +1,4 @@
-import { Effect, Option, Stream } from 'effect'
+import { Effect, Fiber, Option, Stream } from 'effect'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import type * as Mount from '@wsagency/wseffect-foldkit/mount'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
@@ -148,4 +148,100 @@ it('falls back to trigger placement when the selected item is absent', async () 
   expect(await positionWithItem(undefined)).toEqual({
     top: '100px', left: '10px', minWidth: '80px', disconnected: 1,
   })
+})
+
+const createPositioningFixture = async (inShadowRoot: boolean, longList: boolean) => {
+  let resolveObserved!: () => void
+  const observed = new Promise<void>(resolve => { resolveObserved = resolve })
+  class Observer {
+    constructor(_callback: ResizeObserverCallback) {}
+    observe(): void { resolveObserved() }
+    unobserve(): void {}
+    disconnect(): void {}
+  }
+  vi.stubGlobal('ResizeObserver', Observer)
+  const host = document.createElement('div')
+  const root = inShadowRoot ? host.attachShadow({ mode: 'open' }) : document.body
+  if (inShadowRoot) document.body.append(host)
+  const trigger = document.createElement('button')
+  trigger.id = 'trigger'
+  const panel = document.createElement('div')
+  panel.id = 'panel'
+  panel.tabIndex = -1
+  panel.style.visibility = 'hidden'
+  const selected = document.createElement('div')
+  selected.id = 'selected'
+  selected.setAttribute('data-selected', '')
+  const active = document.createElement('div')
+  active.id = 'active'
+  panel.append(selected, active)
+  root.append(trigger, panel)
+  vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(rect(80, 80, 24) as DOMRect)
+  vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(rect(20, 80, 40) as DOMRect)
+  vi.spyOn(selected, 'getBoundingClientRect').mockReturnValue(rect(60, 80, 20) as DOMRect)
+  vi.spyOn(active, 'getBoundingClientRect').mockReturnValue(rect(90, 80, 20) as DOMRect)
+  if (longList) {
+    Object.defineProperty(panel, 'scrollHeight', { configurable: true, value: 200 })
+    selected.scrollIntoView = vi.fn()
+  }
+  const action = Listbox.AnchorListbox({
+    buttonId: 'trigger',
+    anchor: {},
+    selectedItemId: 'selected',
+  })
+  const fiber = Effect.runFork(Stream.runDrain(action.f(panel, Stream.never)))
+  await observed
+  return {
+    host,
+    trigger,
+    panel,
+    selected,
+    active,
+    fiber,
+    cleanup: async () => {
+      await Effect.runPromise(Fiber.interrupt(fiber))
+      trigger.remove()
+      panel.remove()
+      host.remove()
+      vi.unstubAllGlobals()
+    },
+  }
+}
+
+it('fits a long item-aligned list inside the viewport and scrolls the selection into view', async () => {
+  const initialHeight = window.innerHeight
+  Object.defineProperty(window, 'innerHeight', { configurable: true, value: 100 })
+  const fixture = await createPositioningFixture(false, true)
+  try {
+    expect(fixture.panel.style.visibility).toBe('')
+    expect(fixture.panel.style.top).toBe('8px')
+    expect(fixture.panel.style.maxHeight).toBe('84px')
+    expect(fixture.panel.style.overflowY).toBe('auto')
+    expect(fixture.selected.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' })
+  } finally {
+    await fixture.cleanup()
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: initialHeight })
+  }
+})
+
+it('resolves an item-aligned trigger inside its shadow root', async () => {
+  const fixture = await createPositioningFixture(true, false)
+  try {
+    expect(fixture.panel.style.visibility).toBe('')
+    expect(fixture.panel.style.left).toBe('10px')
+    expect(fixture.panel.style.top).toBe('40px')
+  } finally {
+    await fixture.cleanup()
+  }
+})
+
+it('re-aligns to the current active item after a DOM patch', async () => {
+  const fixture = await createPositioningFixture(false, false)
+  try {
+    expect(fixture.panel.style.top).toBe('40px')
+    fixture.active.setAttribute('data-active', '')
+    await vi.waitFor(() => expect(fixture.panel.style.top).toBe('10px'))
+  } finally {
+    await fixture.cleanup()
+  }
 })

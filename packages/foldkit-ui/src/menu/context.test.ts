@@ -166,3 +166,69 @@ describe('Menu ContextMenu source', () => {
     })
   })
 })
+describe('Menu ContextMenu anchor', () => {
+  it('reveals and focuses a context menu at pointer and keyboard sources', async () => {
+    const initialWidth = window.innerWidth
+    const initialHeight = window.innerHeight
+    const initialClientWidth = document.documentElement.clientWidth
+    const initialClientHeight = document.documentElement.clientHeight
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 768 })
+    Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: 1024 })
+    Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 768 })
+    const checkInvocation = async (
+      invocation: Menu.ContextInvocation,
+      sourceRect: DOMRect,
+      expectedPosition: { left: number; top: number },
+    ) => {
+      const source = document.createElement('button')
+      source.id = invocation.sourceId
+      const panel = document.createElement('div')
+      panel.style.visibility = 'hidden'
+      panel.tabIndex = -1
+      panel.append(document.createElement('button'))
+      document.body.append(source, panel)
+      vi.spyOn(source, 'getBoundingClientRect').mockReturnValue(sourceRect)
+
+      const opened = Menu.openAt(bundle.init(config), invocation)
+      expect(opened.model.isOpen).toBe(true)
+      const action = Menu.ContextMenuAnchor(invocation.sourceId, invocation.point, { portal: false })
+      const fiber = Effect.runFork(Stream.runDrain(action.f(panel, Stream.never)))
+      try {
+        await vi.waitFor(() => {
+          expect(panel.style.visibility).toBe('')
+          expect(panel.style.left).toBe(`${expectedPosition.left}px`)
+          expect(panel.style.top).toBe(`${expectedPosition.top}px`)
+          expect(document.activeElement).toBe(panel)
+        })
+      } finally {
+        await Effect.runPromise(Fiber.interrupt(fiber))
+        source.remove()
+        panel.remove()
+      }
+    }
+
+    const rect = (left: number, top: number) => ({
+      x: left, y: top, left, top, right: left + 80, bottom: top + 24,
+      width: 80, height: 24, toJSON: () => ({}),
+    })
+    try {
+      await checkInvocation({
+        invocation: 'pointer',
+        sourceId: config.sourceId,
+        sourceToken: config.sourceToken,
+        point: { x: 24, y: 32 },
+      }, rect(0, 0) as DOMRect, { left: 24, top: 32 })
+      await checkInvocation({
+        invocation: 'keyboard',
+        sourceId: config.sourceId,
+        sourceToken: config.sourceToken,
+      }, rect(50, 70) as DOMRect, { left: 50, top: 94 })
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: initialWidth })
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: initialHeight })
+      Object.defineProperty(document.documentElement, 'clientWidth', { configurable: true, value: initialClientWidth })
+      Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: initialClientHeight })
+    }
+  })
+})

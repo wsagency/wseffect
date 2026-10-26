@@ -16,14 +16,15 @@ test(
     const source = (path: string) => `/repo/packages/foldkit-ui/src/${path}`
     for (const path of [
       'menu/context.ts',
+      'menu/index.ts',
       'tooltip/group.ts',
       'slider/range.ts',
       'anchor/anchor.ts',
+      'listbox/shared.ts',
       'listboxSelect/index.ts',
       'virtualList/index.ts',
       'checkboxGroup/index.ts',
     ]) assert.equal(isUpdateCoverageSource(source(path)), true)
-    assert.equal(isUpdateCoverageSource(source('menu/index.ts')), false)
     assert.equal(isUpdateCoverageSource(source('listbox/single.ts')), false)
     assert.equal(isUpdateCoverageSource(source('slider/range.test.ts')), false)
   },

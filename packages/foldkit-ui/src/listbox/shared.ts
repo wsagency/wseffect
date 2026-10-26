@@ -640,46 +640,103 @@ export const makeUpdate = <Model extends BaseModel>(
 const setupSelectedItemAnchor = (
   panel: HTMLElement,
   buttonId: string,
-  selectedItemId: string,
+  selectedItemId: string | undefined,
   anchor: AnchorConfig,
 ): (() => void) => {
-  const trigger = panel.ownerDocument.getElementById(buttonId)
+  const owner = panel.getRootNode()
+  const getElementById = (id: string): Element | null =>
+    owner instanceof ShadowRoot
+      ? owner.getElementById(id)
+      : panel.ownerDocument.getElementById(id)
+  const trigger = getElementById(buttonId)
   if (!(trigger instanceof HTMLElement)) return () => {}
 
-  const item = panel.ownerDocument.getElementById(selectedItemId)
   const portalCleanup = anchor.portal === false
     ? undefined
     : portalToContainingRoot(panel)
+  const collisionPadding = 8
+  let observer: ResizeObserver | undefined
+  let observedItem: Element | undefined
+  const getItem = (): Element | null =>
+    panel.querySelector('[data-active]') ??
+    panel.querySelector('[data-selected]') ??
+    (selectedItemId === undefined ? null : getElementById(selectedItemId))
   const position = () => {
     const triggerRect = trigger.getBoundingClientRect()
+    const item = getItem()
+    const panelRect = panel.getBoundingClientRect()
+    const viewport = panel.ownerDocument.defaultView
+    const viewportWidth = viewport?.innerWidth ?? panel.ownerDocument.documentElement.clientWidth
+    const viewportHeight = viewport?.innerHeight ?? panel.ownerDocument.documentElement.clientHeight
+    const maxHeight = Math.max(0, viewportHeight - collisionPadding * 2)
+    const panelHeight = Math.min(
+      Math.max(panelRect.height, panel.scrollHeight),
+      maxHeight,
+    )
+    const panelWidth = Math.max(panelRect.width, panel.scrollWidth)
+    const alignedTop = item === null
+      ? triggerRect.top
+      : triggerRect.top - (item.getBoundingClientRect().top - panelRect.top)
+    const left = Math.min(
+      Math.max(collisionPadding, triggerRect.left),
+      Math.max(collisionPadding, viewportWidth - collisionPadding - panelWidth),
+    )
+    const top = Math.min(
+      Math.max(collisionPadding, alignedTop),
+      Math.max(collisionPadding, viewportHeight - collisionPadding - panelHeight),
+    )
     panel.style.position = 'fixed'
-    panel.style.left = `${triggerRect.left}px`
-    panel.style.top = item === null
-      ? `${triggerRect.top}px`
-      : `${triggerRect.top - (item.getBoundingClientRect().top - panel.getBoundingClientRect().top)}px`
+    panel.style.left = `${left}px`
+    panel.style.top = `${top}px`
     panel.style.minWidth = `${triggerRect.width}px`
+    panel.style.maxWidth = `${Math.max(0, viewportWidth - collisionPadding * 2)}px`
+    panel.style.maxHeight = `${maxHeight}px`
+    panel.style.overflowY = 'auto'
+    panel.style.overscrollBehavior = 'none'
     panel.style.removeProperty('visibility')
+    if (item instanceof HTMLElement) item.scrollIntoView?.({ block: 'nearest' })
+    if (observer && item !== observedItem) {
+      if (observedItem) observer.unobserve(observedItem)
+      if (item) observer.observe(item)
+      observedItem = item ?? undefined
+    }
   }
   position()
   panel.focus()
 
-  let observer: ResizeObserver | undefined
   try {
     if (typeof ResizeObserver !== 'undefined') {
       observer = new ResizeObserver(position)
       observer.observe(trigger)
       observer.observe(panel)
-      if (item !== null) observer.observe(item)
+      const item = getItem()
+      if (item) {
+        observer.observe(item)
+        observedItem = item
+      }
     }
   } catch {
     observer?.disconnect()
     observer = undefined
   }
+  const mutations = typeof MutationObserver === 'undefined'
+    ? undefined
+    : new MutationObserver(position)
+  mutations?.observe(panel, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-active', 'data-selected'],
+  })
   return () => {
     observer?.disconnect()
+    mutations?.disconnect()
     panel.style.removeProperty('left')
     panel.style.removeProperty('top')
     panel.style.removeProperty('min-width')
+    panel.style.removeProperty('max-width')
+    panel.style.removeProperty('max-height')
+    panel.style.removeProperty('overflow-y')
+    panel.style.removeProperty('overscroll-behavior')
     portalCleanup?.()
   }
 }
@@ -688,14 +745,16 @@ export const AnchorListbox = Mount.define('AnchorListbox', {
   args: {
     buttonId: Schema.String,
     anchor: AnchorConfig,
+    anchorMode: Schema.optional(Schema.Literals(['Trigger', 'SelectedOrActiveItem'])),
     selectedItemId: Schema.optional(Schema.String),
   },
   messages: [Message.CompletedAnchorListbox],
-  execute: ({ element, buttonId, anchor, selectedItemId }) =>
+  execute: ({ element, buttonId, anchor, anchorMode, selectedItemId }) =>
     Effect.gen(function* () {
       yield* Effect.acquireRelease(
         Effect.sync(() =>
-          selectedItemId !== undefined && element instanceof HTMLElement
+          (anchorMode === 'SelectedOrActiveItem' || selectedItemId !== undefined) &&
+            element instanceof HTMLElement
             ? setupSelectedItemAnchor(element, buttonId, selectedItemId, anchor)
             : anchorSetup(element, {
                 buttonId,
@@ -1138,8 +1197,11 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
         h.OnMount(AnchorListbox({
           buttonId: `${id}-button`,
           anchor,
-          ...(anchorItemIndex >= 0
-            ? { selectedItemId: itemId(id, anchorItemIndex) }
+          ...(model.anchorMode === 'SelectedOrActiveItem'
+            ? {
+                anchorMode: model.anchorMode,
+                ...(anchorItemIndex >= 0 ? { selectedItemId: itemId(id, anchorItemIndex) } : {}),
+              }
             : {}),
         })),
       ]

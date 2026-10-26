@@ -81,9 +81,11 @@ async function findSourceFiles(directory: string): Promise<string[]> {
 
 const absorbedUpdateSources = [
   '/packages/foldkit-ui/src/menu/context.ts',
+  '/packages/foldkit-ui/src/menu/index.ts',
   '/packages/foldkit-ui/src/tooltip/group.ts',
   '/packages/foldkit-ui/src/slider/range.ts',
   '/packages/foldkit-ui/src/anchor/anchor.ts',
+  '/packages/foldkit-ui/src/listbox/shared.ts',
   '/packages/foldkit-ui/src/listboxSelect/index.ts',
   '/packages/foldkit-ui/src/virtualList/index.ts',
   '/packages/foldkit-ui/src/checkboxGroup/index.ts',

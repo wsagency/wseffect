@@ -981,7 +981,8 @@ export const contextTriggerAttributes = (
   h.OnUnmount(Message.SourceUnmounted({ token: sourceToken })),
 ]
 
-/** Positions a contextual Menu panel relative to its stored source point. */
+/** Positions and reveals a contextual Menu panel relative to its source, then
+ *  focuses the items container once the first position is ready. */
 export const ContextMenuAnchor = (
   sourceId: string,
   maybePoint: ContextInvocation['point'],
@@ -1025,7 +1026,6 @@ export const ContextMenuAnchor = (
             cleanup()
           }),
         )
-        element.querySelector<HTMLElement>('[data-active]')?.focus()
         return yield* Effect.never
       }),
     ),
