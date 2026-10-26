@@ -9,13 +9,14 @@ const SelectBox = Select.create<Value>()
 type Value = string
 const params = new URLSearchParams(location.search)
 const position = params.get('position') === 'popper' ? 'popper' : 'item-aligned'
+const edge = params.get('edge')
 const geometry = params.get('geometry')
-const longList = geometry !== null
+const longList = edge?.endsWith('-long') ?? geometry !== null
 const longItems = Array.from({ length: 50 }, (_, index) => {
   const value = `item-${index}`
   return { value, textValue: `Item ${index}`, isDisabled: false, content: null }
 })
-let selectedValue: Option.Option<Value> = Option.some(longList ? 'item-35' : 'red')
+let selectedValue: Option.Option<Value> = Option.some(longList ? 'item-35' : edge !== null ? 'second' : 'red')
 if (geometry !== null) {
   const style = document.createElement('style')
   style.textContent = `#choice-button { position: fixed; top: ${geometry === 'bottom' ? '740px' : '24px'}; }`
@@ -45,20 +46,25 @@ const view = (model: Select.Model, h: HtmlBuilder<Select.Message>) => SelectBox.
         ...item,
         content: h.span([], [`Item ${item.value.slice(5)}`]),
       }))
-    : [
-        {
-          id: 'colors',
-          label: h.span([], ['Warm Colors']),
-          items: [
-            { value: 'red', textValue: 'Red', isDisabled: false, content: h.span([], ['Red']) },
-            { kind: 'separator', id: 'group-break' },
-            { value: 'blue', textValue: 'Blue', isDisabled: false, content: h.span([], ['Blue']) },
-            { value: 'green', textValue: 'Disabled green', isDisabled: true, content: h.span([], ['Disabled green']) },
-          ],
-        },
-        { kind: 'separator', id: 'root-break' },
-        { value: 'yellow', textValue: 'Yellow', isDisabled: false, content: h.span([], ['Yellow']) },
-      ],
+    : edge !== null
+      ? [
+          { value: 'first', textValue: 'Item 0', isDisabled: false, content: h.span([], ['Item 0']) },
+          { value: 'second', textValue: 'Item 1', isDisabled: false, content: h.span([], ['Item 1']) },
+        ]
+      : [
+          {
+            id: 'colors',
+            label: h.span([], ['Warm Colors']),
+            items: [
+              { value: 'red', textValue: 'Red', isDisabled: false, content: h.span([], ['Red']) },
+              { kind: 'separator', id: 'group-break' },
+              { value: 'blue', textValue: 'Blue', isDisabled: false, content: h.span([], ['Blue']) },
+              { value: 'green', textValue: 'Disabled green', isDisabled: true, content: h.span([], ['Disabled green']) },
+            ],
+          },
+          { kind: 'separator', id: 'root-break' },
+          { value: 'yellow', textValue: 'Yellow', isDisabled: false, content: h.span([], ['Yellow']) },
+        ],
 }, h)
 
 const application = makeElement({

@@ -42,6 +42,19 @@ test('keyboard invocation focuses the first item for immediate Enter; pointer in
   await expect(firstItem).toBeFocused()
   await expect(firstItem).toHaveAttribute('data-active', '')
 })
+test('keyboard invocation selects the first item immediately with Space', async ({ page }) => {
+  await page.goto('/components/context-menu')
+  const target = source(page)
+  await target.focus()
+  await page.keyboard.press('Shift+F10')
+  const firstItem = page.getByRole('menuitem', { name: 'Open', exact: true })
+  await expect(menu(page)).toBeVisible()
+  await expect(firstItem).toBeFocused()
+  await expect(firstItem).toHaveAttribute('data-active', '')
+  await page.keyboard.press('Space')
+  await expect(page.getByText('Selected: Open', { exact: true })).toBeVisible()
+  await expect(menu(page)).toHaveCount(0)
+})
 
 test('does not restore focus to a replacement source reusing the original id', async ({ page }) => {
   await page.goto('/components/context-menu')

@@ -670,9 +670,10 @@ const setupSelectedItemAnchor = (
     const viewportHeight = viewport?.innerHeight ?? panel.ownerDocument.documentElement.clientHeight
     const maxHeight = Math.max(0, viewportHeight - collisionPadding * 2)
     const panelWidth = Math.max(panelRect.width, panel.scrollWidth)
-    const itemOffset = item instanceof HTMLElement
-      ? item.getBoundingClientRect().top - panelRect.top + panel.scrollTop
-      : undefined
+    const itemRect = item instanceof HTMLElement ? item.getBoundingClientRect() : undefined
+    const itemOffset = itemRect === undefined
+      ? undefined
+      : itemRect.top - panelRect.top + panel.scrollTop
     let availableHeight = maxHeight
     if (itemOffset !== undefined) {
       const alignedTop = triggerRect.top - itemOffset
@@ -689,6 +690,7 @@ const setupSelectedItemAnchor = (
         )
       }
     }
+    if (itemRect !== undefined) availableHeight = Math.max(availableHeight, itemRect.height)
     const panelHeight = Math.min(
       Math.max(panelRect.height, panel.scrollHeight),
       availableHeight,
@@ -713,12 +715,20 @@ const setupSelectedItemAnchor = (
     panel.style.overflowY = 'auto'
     panel.style.overscrollBehavior = 'none'
     panel.style.removeProperty('visibility')
-    if (item instanceof HTMLElement && itemOffset !== undefined) {
+    if (itemOffset !== undefined && itemRect !== undefined) {
       const maxScrollTop = Math.max(0, panel.scrollHeight - panel.clientHeight)
-      panel.scrollTop = Math.min(
-        maxScrollTop,
-        Math.max(0, itemOffset + top - triggerRect.top),
+      const minScrollTop = Math.max(
+        0,
+        itemOffset + itemRect.height - panel.clientHeight,
+        top + itemOffset + itemRect.height - (viewportHeight - collisionPadding),
       )
+      const maxVisibleScrollTop = Math.min(
+        maxScrollTop,
+        itemOffset,
+        top + itemOffset - collisionPadding,
+      )
+      const alignedScrollTop = itemOffset + top - triggerRect.top
+      panel.scrollTop = Math.min(maxVisibleScrollTop, Math.max(minScrollTop, alignedScrollTop))
     }
     if (observer && item !== observedItem) {
       if (observedItem) observer.unobserve(observedItem)

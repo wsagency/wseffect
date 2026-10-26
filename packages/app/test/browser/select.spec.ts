@@ -117,6 +117,51 @@ test('item-aligned selection stays aligned with the trigger when the panel is cl
     expect(Math.abs(alignment.itemTop - alignment.triggerTop), `${geometry}: ${JSON.stringify(alignment)}`).toBeLessThanOrEqual(1)
   }
 })
+test('item-aligned selection remains fully visible at viewport edges with short and long lists', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  for (const edge of ['top-short', 'top-long', 'bottom-short', 'bottom-long'] as const) {
+    await page.goto(`${baseUrl}/packages/app/test/browser/select.html?edge=${edge}`)
+    const trigger = page.locator('button.rt-SelectTrigger')
+    await page.addStyleTag({
+      content: `button#choice-button { position: fixed !important; top: ${edge.startsWith('top-') ? '0px' : 'auto'} !important; bottom: ${edge.startsWith('bottom-') ? '0px' : 'auto'} !important; } [role="listbox"] { padding: 0 !important; }`,
+    })
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    const selected = page.getByRole('option', {
+      name: edge.endsWith('-short') ? 'Item 1' : 'Item 35',
+      exact: true,
+    })
+    await expect(selected).toBeVisible()
+    await expect(page.getByRole('option')).toHaveCount(edge.endsWith('-short') ? 2 : 50)
+    const geometry = await page.evaluate(() => {
+      const triggerRect = document.querySelector('button.rt-SelectTrigger')!.getBoundingClientRect()
+      const panel = document.querySelector('[role="listbox"]') as HTMLElement
+      const item = document.querySelector('[role="option"][data-selected]')!
+      const panelRect = panel.getBoundingClientRect()
+      const itemRect = item.getBoundingClientRect()
+      return {
+        triggerTop: triggerRect.top,
+        triggerBottom: triggerRect.bottom,
+        panelTop: panelRect.top,
+        panelBottom: panelRect.bottom,
+        panelHeight: panelRect.height,
+        scrollHeight: panel.scrollHeight,
+        itemTop: itemRect.top,
+        itemBottom: itemRect.bottom,
+        itemHeight: itemRect.height,
+        viewportHeight: window.innerHeight,
+      }
+    })
+    if (edge.startsWith('top-')) expect(geometry.triggerTop).toBe(0)
+    else expect(geometry.triggerBottom).toBe(800)
+    expect(geometry.panelHeight).toBeGreaterThanOrEqual(geometry.itemHeight)
+    expect(geometry.itemHeight).toBe(32)
+    expect(geometry.itemTop).toBeGreaterThanOrEqual(geometry.panelTop)
+    expect(geometry.itemBottom).toBeLessThanOrEqual(geometry.panelBottom)
+    expect(geometry.itemTop).toBeGreaterThanOrEqual(8)
+    expect(geometry.itemBottom).toBeLessThanOrEqual(geometry.viewportHeight - 8)
+  }
+})
 
 test('Select popper hides its scrollbar when the options fit', async ({ page }) => {
   await page.goto(`${baseUrl}/packages/app/test/browser/select.html?position=popper`)
