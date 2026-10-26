@@ -158,16 +158,16 @@ function informRowsChanged(
   model: Model,
   ids: ReadonlyArray<string>,
   reset: boolean,
-  focusTarget?: Model['activeCell'],
+  findFocusTarget: (virtualList: VirtualList.Model) => Model['activeCell'] | undefined,
 ) {
   const informed = VirtualList.informItemsChanged(model.virtualList, ids)
+  const resetList = reset ? VirtualList.scrollToIndex(informed.model, 0) : informed
+  const focusTarget = findFocusTarget(resetList.model)
   const list = focusTarget === undefined
-    ? reset
-      ? VirtualList.scrollToIndex(informed.model, 0)
-      : informed
+    ? resetList
     : focusTarget === null
-      ? VirtualList.scrollToIndex(informed.model, 0)
-      : VirtualList.scrollToKey(informed.model, focusTarget.rowId, { alignment: 'Nearest' })
+      ? VirtualList.scrollToIndex(resetList.model, 0)
+      : VirtualList.scrollToKey(resetList.model, focusTarget.rowId, { alignment: 'Nearest' })
   return {
     model: list.model,
     focusTarget,
@@ -216,7 +216,6 @@ function isRenderedAt<Row>(
   config: Config<Row>,
   ids: ReadonlyArray<string>,
   rowId: string,
-  scrollTop: number,
 ): boolean {
   const rowIndex = ids.indexOf(rowId)
   if (rowIndex < 0) return false
@@ -225,7 +224,7 @@ function isRenderedAt<Row>(
     itemToKey: String,
     itemToRowHeightPx: () => config.rowHeight,
     overscan: config.overscanRows,
-  }, scrollTop)
+  })
   return rowIndex >= rendered.startIndex && rowIndex < rendered.endIndex
 }
 
@@ -234,14 +233,13 @@ function focusTargetForRows<Row>(
   config: Config<Row>,
   ids: ReadonlyArray<string>,
   activeCell: Model['activeCell'],
-  scrollTop: number,
 ): Model['activeCell'] | undefined {
   const recovered = recoveredFocusTarget(model, activeCell)
   if (recovered !== undefined) return recovered
   if (
     activeCell !== null
     && activeCell.rowId !== gridHeaderRowId
-    && !isRenderedAt(model, config, ids, activeCell.rowId, scrollTop)
+    && !isRenderedAt(model, config, ids, activeCell.rowId)
   ) return activeCell
   return undefined
 }
@@ -270,8 +268,8 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       tableStates.set(config.id, state as TableState<unknown>)
       const orderedRowIds = computeOrder(state, model.filter, model.sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, model.virtualList.scrollTop)
-      const list = informRowsChanged(model, orderedRowIds, false, focusTarget)
+      const list = informRowsChanged(model, orderedRowIds, false, virtualList =>
+        focusTargetForRows({ ...model, virtualList }, config, orderedRowIds, activeCell))
       return {
         model: { ...model, orderedRowIds, activeCell, pendingFocus: list.focusTarget === null ? { rowId: '$grid-root', columnId: '$grid-root' } : list.focusTarget ?? null, virtualList: list.model },
         commands: [
@@ -285,8 +283,8 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const state = stateFor(config)
       const orderedRowIds = computeOrder(state, value, model.sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, 0)
-      const list = informRowsChanged(model, orderedRowIds, true, focusTarget)
+      const list = informRowsChanged(model, orderedRowIds, true, virtualList =>
+        focusTargetForRows({ ...model, virtualList }, config, orderedRowIds, activeCell))
       return {
         model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: list.focusTarget === null ? { rowId: '$grid-root', columnId: '$grid-root' } : list.focusTarget ?? null, virtualList: list.model },
         commands: [
@@ -307,8 +305,8 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const state = stateFor(config)
       const orderedRowIds = computeOrder(state, model.filter, sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, model.virtualList.scrollTop)
-      const list = informRowsChanged(model, orderedRowIds, false, focusTarget)
+      const list = informRowsChanged(model, orderedRowIds, false, virtualList =>
+        focusTargetForRows({ ...model, virtualList }, config, orderedRowIds, activeCell))
       return {
         model: {
           ...model,
