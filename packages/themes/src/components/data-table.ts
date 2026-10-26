@@ -220,13 +220,13 @@ function isRenderedAt<Row>(
 ): boolean {
   const rowIndex = ids.indexOf(rowId)
   if (rowIndex < 0) return false
-  const containerHeight = model.virtualList.measurement._tag === 'Measured'
-    ? model.virtualList.measurement.containerHeight
-    : model.virtualList.initialContainerHeight ?? config.viewportHeight ?? 360
-  const overscan = config.overscanRows
-  const startIndex = Math.max(0, Math.floor(scrollTop / config.rowHeight) - overscan)
-  const endIndex = Math.min(ids.length, Math.ceil((scrollTop + containerHeight) / config.rowHeight) + overscan)
-  return rowIndex >= startIndex && rowIndex < endIndex
+  const rendered = VirtualList.renderedRange(model.virtualList, {
+    items: ids,
+    itemToKey: id => id,
+    itemToRowHeightPx: () => config.rowHeight,
+    overscan: config.overscanRows,
+  }, scrollTop)
+  return rowIndex >= rendered.startIndex && rowIndex < rendered.endIndex
 }
 
 function focusTargetForRows<Row>(
@@ -369,6 +369,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const skippedRowScroll =
         childMessage._tag === 'CompletedApplyScroll' &&
         childMessage.outcome._tag === 'Skipped' &&
+        childMessage.version === model.virtualList.pendingScrollVersion &&
         model.pendingFocus !== null &&
         model.pendingFocus.rowId !== '$grid-root'
       const commands = mapChildCommands(result.commands) ?? []

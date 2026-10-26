@@ -219,7 +219,54 @@ describe('DataTable Grid model', () => {
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-1' } },
     })
   })
+  it('uses VirtualList leading offsets when checking the reordered focus window', () => {
+    const manyRows = Array.from({ length: 5 }, (_, index) => ({
+      id: `row-${index}`,
+      label: `Record ${index}`,
+      rank: index,
+    }))
+    const cfg = config({ rows: manyRows, viewportHeight: 36, overscanRows: 0 })
+    const initial = DataTable.init(cfg)
+    const model = {
+      ...initial,
+      activeCell: { rowId: 'row-0', columnId: 'rank' },
+      virtualList: VirtualList.update(initial.virtualList, VirtualList.Message.ResizedContainer({
+        containerWidth: 400,
+        containerHeight: 36,
+        leadingOffsetPx: 36,
+      })).model,
+    }
+    const reordered = config({ ...cfg, rows: [manyRows[0]!, ...manyRows.slice(2), manyRows[1]!] })
+    const result = update(model, reordered, DataTable.Message.RowsChanged())
+    expect(result.model.pendingFocus).toEqual({ rowId: 'row-0', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-0' } },
+    })
+  })
 
+  it('does not retry a skipped row scroll after a user scroll supersedes it', () => {
+    const cfg = config()
+    const requested = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({
+      key: 'ArrowDown',
+      ctrlKey: false,
+    }))
+    const requestVersion = requested.model.virtualList.pendingScrollVersion
+    const scrolled = update(requested.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.ObservedContainerScroll({
+        scrollTop: 0,
+        scrollHeight: 108,
+        containerHeight: 72,
+        anchor: { _tag: 'None' },
+      }),
+    }))
+    const staleCompletion = update(scrolled.model, cfg, DataTable.Message.VirtualList({
+      message: VirtualList.Message.CompletedApplyScroll({
+        version: requestVersion,
+        outcome: { _tag: 'Skipped' },
+      }),
+    }))
+    expect(staleCompletion.commands?.find(command => command.name === 'ApplyScroll')).toBeUndefined()
+  })
   it('focuses an emptied grid root when the row-targeted scroll is skipped', () => {
     const cfg = config()
     const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')

@@ -24,7 +24,8 @@
 - Scoped custom virtual-row discovery to the nearest marked viewport so nested keyed lists cannot capture outer scroll, focus, or measurement operations.
 - DataTable delegates scroll-container ownership to `VirtualList` and marks its native table body as the virtual row area; the table does not add a second scroll viewport.
 - Added `VirtualList`'s measured `leadingOffsetPx` model field; the observer measures the marked row area's content-space offset (including caption/header geometry) and updates it during container/row-area measurement.
-- Slider.Range patch handling reads the live root `data-disabled` attribute for pointer-driven disabled state changes.
+- Exported `VirtualList.renderedRange` so consumers can use its shared viewport-window calculation, including measured leading offsets, row-height strategy, and overscan.
+- Slider.Range patch handling reads the live mount host's `data-disabled` attribute for pointer-driven disabled state changes.
 - This file, the provenance README, and the first local changelog entry are maintained by wseffect.
 - Removed upstream website API-doc tooling (`typedoc.json`, `typedoc-entry.ts`, `tsconfig.docs.json`); neither local builds nor tests use these files.
 
