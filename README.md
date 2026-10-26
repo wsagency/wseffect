@@ -37,7 +37,7 @@ Use Node.js 24.21.0 and pnpm 11.5.0. Install the locked dependencies with `pnpm 
 
 ## Distribution and gates
 
-The app, themes, primitives, and vendored Foldkit packages are distributed as ESM packages. `pnpm check` runs the repository's automated checks, while the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises all six workspace packages from tarballs outside this workspace.
+The app, themes, and vendored Foldkit packages are distributed as ESM packages. `pnpm check` runs the repository's automated checks, while the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises all five workspace packages from tarballs outside this workspace.
 
 ## License
 
