@@ -257,6 +257,73 @@ describe('DataTable Grid model', () => {
       request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-0' } },
     })
   })
+  it('uses the reconciled viewport anchor before recovering a reordered active row', () => {
+    const manyRows = Array.from({ length: 20 }, (_, index) => ({
+      id: `row-${index}`,
+      label: `Record ${index}`,
+      rank: index,
+    }))
+    const cfg = config({ rows: manyRows, viewportHeight: 72, overscanRows: 0 })
+    let model = DataTable.init(cfg)
+    model = update(model, cfg, DataTable.Message.SortChanged({ columnId: 'rank' })).model
+    model = {
+      ...model,
+      activeCell: { rowId: 'row-13', columnId: 'rank' },
+      virtualList: VirtualList.update(model.virtualList, VirtualList.Message.ObservedContainerScroll({
+        scrollTop: 5 * cfg.rowHeight,
+        scrollHeight: manyRows.length * cfg.rowHeight,
+        containerHeight: 72,
+        anchor: { _tag: 'Row', key: 'row-5', index: 5, viewportOffset: 0 },
+      })).model,
+    }
+
+    const result = update(model, cfg, DataTable.Message.SortChanged({ columnId: 'rank' }))
+    expect(result.model.orderedRowIds).toEqual([...manyRows].reverse().map(row => row.id))
+    expect(result.model.pendingFocus).toEqual({ rowId: 'row-13', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-13' } },
+    })
+  })
+
+  it('checks filter focus recovery at the reset viewport with a measured leading offset', () => {
+    const manyRows = Array.from({ length: 5 }, (_, index) => ({
+      id: `row-${index}`,
+      label: `Record ${index}`,
+      rank: index,
+    }))
+    for (const { viewportHeight, shouldRecover } of [
+      { viewportHeight: 72, shouldRecover: false },
+      { viewportHeight: 36, shouldRecover: true },
+    ]) {
+      const cfg = config({
+        id: `data-table-filter-offset-${viewportHeight}`,
+        rows: manyRows,
+        viewportHeight,
+        overscanRows: 0,
+      })
+      const initial = DataTable.init(cfg)
+      const model = {
+        ...initial,
+        activeCell: { rowId: 'row-1', columnId: 'rank' },
+        virtualList: VirtualList.update(initial.virtualList, VirtualList.Message.ResizedContainer({
+          containerWidth: 400,
+          containerHeight: viewportHeight,
+          leadingOffsetPx: 36,
+        })).model,
+      }
+      const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'Record' }))
+
+      if (shouldRecover) {
+        expect(result.model.pendingFocus).toEqual({ rowId: 'row-1', columnId: 'rank' })
+        expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+          request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-1' } },
+        })
+      } else {
+        expect(result.model.pendingFocus).toBeNull()
+        expect(result.commands?.some(command => command.name === 'FocusDataTableCell')).toBe(false)
+      }
+    }
+  })
 
   it('does not retry a skipped row scroll after a user scroll supersedes it', () => {
     const cfg = config()
