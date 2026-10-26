@@ -49,6 +49,15 @@ function gridScene(renderCount: Map<string, number>, changeRows: boolean) {
     update,
     view,
     initialModel: DataTable.init(cfg),
+    resolveLifetime: Scene.Mount.resolve(
+      { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+      DataTable.Message.VirtualList({
+        message: VirtualList.Message.CompletedApplyScroll({
+          version: -1,
+          outcome: { _tag: 'Skipped' },
+        }),
+      }),
+    ),
     resize: Scene.Mount.resolve(
       { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
       VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
@@ -75,6 +84,7 @@ describe('DataTable Grid row view cache reuse', () => {
     Scene.scene(
       { update: scene.update, view: scene.view },
       Scene.given(scene.initialModel),
+      scene.resolveLifetime,
       scene.resize,
       Scene.tap(() => expect([...renderCount.values()]).toEqual([1, 1, 1])),
       Scene.click('input[aria-label="Select row a"]'),
@@ -89,6 +99,7 @@ describe('DataTable Grid row view cache reuse', () => {
     Scene.scene(
       { update: scene.update, view: scene.view },
       Scene.given(scene.initialModel),
+      scene.resolveLifetime,
       scene.resize,
       Scene.tap(() => expect([...renderCount.values()]).toEqual([1, 1, 1])),
       Scene.click(Scene.role('button', { name: 'Change row' })),

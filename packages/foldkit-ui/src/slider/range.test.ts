@@ -1,3 +1,4 @@
+import { Option } from 'effect'
 import { inertHtml as ih } from '@wsagency/wseffect-foldkit/html'
 import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 
@@ -35,6 +36,82 @@ describe('Slider.Range', () => {
     const rangeView = Range.view(Range.init(config), config, h)
     expect(styleAt(childAt(childAt(rangeView ?? undefined, 0), 0)))
       .toBe('left:18%;top:0;width:52%;height:100%')
+  })
+  it('maps thumb keyboard and input interactions to range messages', () => {
+    const inputs: Array<(value: string) => Range.RangeMessage> = []
+    const keyHandlers: Array<
+      (key: string) => Option.Option<Range.RangeMessage>
+    > = []
+    const builder = new Proxy({}, {
+      get: (_target, key) => {
+        if (key === 'OnInput') {
+          return (handler: (value: string) => Range.RangeMessage) => {
+            inputs.push(handler)
+          }
+        }
+        if (key === 'OnKeyDownPreventDefault') {
+          return (
+            handler: (key: string) => Option.Option<Range.RangeMessage>,
+          ) => {
+            keyHandlers.push(handler)
+          }
+        }
+        return () => undefined
+      },
+    }) as unknown as HtmlBuilder<Range.RangeMessage>
+
+    const model = Range.init(config)
+    Range.view(model, config, builder)
+    const keyMessage = keyHandlers[0]!
+    expect(keyMessage('Home')).toEqual(
+      Option.some({ _tag: 'SetBoundary', id: 'low', boundary: 'min' }),
+    )
+    expect(keyMessage('End')).toEqual(
+      Option.some({ _tag: 'SetBoundary', id: 'low', boundary: 'max' }),
+    )
+    expect(keyMessage('PageUp')).toEqual(
+      Option.some({ _tag: 'Page', id: 'low', direction: 1 }),
+    )
+    expect(keyMessage('PageDown')).toEqual(
+      Option.some({ _tag: 'Page', id: 'low', direction: -1 }),
+    )
+    expect(keyMessage('ArrowRight')).toEqual(
+      Option.some({ _tag: 'Step', id: 'low', delta: 1 }),
+    )
+    expect(keyMessage('ArrowUp')).toEqual(
+      Option.some({ _tag: 'Step', id: 'low', delta: 1 }),
+    )
+    expect(keyMessage('ArrowLeft')).toEqual(
+      Option.some({ _tag: 'Step', id: 'low', delta: -1 }),
+    )
+    expect(keyMessage('ArrowDown')).toEqual(
+      Option.some({ _tag: 'Step', id: 'low', delta: -1 }),
+    )
+    expect(keyMessage('Escape')).toEqual(Option.none())
+    expect(keyMessage('Tab')).toEqual(Option.none())
+
+    const inputMessage = inputs[0]!('35')
+    expect(inputMessage).toEqual({
+      _tag: 'DragValue',
+      id: 'low',
+      value: 35,
+    })
+    expect(Range.update(model, config, inputMessage).outMessage).toEqual({
+      _tag: 'ValuesChanged',
+      thumbs: [
+        { ...config.thumbs[0], value: 34 },
+        config.thumbs[1],
+      ],
+    })
+
+    const dragging = Range.update(model, config, {
+      _tag: 'DragStart',
+      id: 'low',
+    }).model
+    Range.view(dragging, config, builder)
+    expect(keyHandlers.at(-1)?.('Escape')).toEqual(
+      Option.some({ _tag: 'CancelDrag' }),
+    )
   })
 
   it('uses a per-thumb lower bound as the effective step-grid origin', () => {

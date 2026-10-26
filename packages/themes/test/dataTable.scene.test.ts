@@ -9,10 +9,23 @@ const rows: ReadonlyArray<Row> = [
   { id: 'a', name: 'Alpha', score: 2 },
   { id: 'b', name: 'Beta', score: 1 },
 ]
-type VNode = Exclude<Html, null>
+type VNode = Exclude<Html, string | null>
 
-function isVNode(node: string | VNode): node is VNode {
-  return typeof node !== 'string'
+function isVNode(node: string | VNode | null): node is VNode {
+  return node !== null && typeof node !== 'string'
+}
+function findVNode(
+  html: Html | undefined,
+  predicate: (node: VNode) => boolean,
+): VNode | undefined {
+  if (html === undefined || !isVNode(html)) return undefined
+  if (predicate(html)) return html
+  for (const child of html.children ?? []) {
+    if (child === null || typeof child === 'string') continue
+    const match = findVNode(child, predicate)
+    if (match !== undefined) return match
+  }
+  return undefined
 }
 
 function config(isGrid = false, selectedRowIds: ReadonlySet<string> = new Set()): DataTable.Config<Row> {
@@ -60,6 +73,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.expect(Scene.selector('tr[data-virtual-list-item-key="a"]')).toExist(),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
@@ -73,6 +95,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
@@ -94,6 +125,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
@@ -120,6 +160,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
@@ -148,6 +197,15 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
+      Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
@@ -163,13 +221,21 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
+      Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const table = simulation.html?.children?.[0]
-        if (table === undefined || !isVNode(table)) return simulation
-        expect(table.data?.props?.tabIndex).toBe(0)
+        const grid = findVNode(simulation.html, node => node.data?.attrs?.role === 'grid')
+        expect(grid?.data?.props?.tabIndex).toBe(0)
         return simulation
       },
     )
@@ -180,6 +246,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(DataTable.init(cfg)),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
@@ -217,18 +292,84 @@ describe('DataTable view semantics', () => {
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(model),
       Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
+      Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const table = simulation.html.children?.[0]
-        const head = table && isVNode(table) ? table.children?.[1] : undefined
-        const row = head && isVNode(head) ? head.children?.[0] : undefined
-        const cells = row && isVNode(row) ? row.children ?? [] : []
-        expect(row && isVNode(row) ? row.data?.attrs?.['aria-rowindex'] : undefined).toBe('1')
-        expect(cells[1] && isVNode(cells[1]) ? cells[1].data?.attrs?.['aria-colindex'] : undefined).toBe('2')
-        expect(cells[1] && isVNode(cells[1]) ? cells[1].data?.props?.tabIndex : undefined).toBe(0)
-        expect(cells[2] && isVNode(cells[2]) ? cells[2].data?.props?.tabIndex : undefined).toBe(-1)
+        const headerRow = findVNode(simulation.html, node =>
+          node.data?.attrs?.role === 'row' &&
+          node.data.attrs['aria-rowindex'] === '1',
+        )
+        const nameHeader = findVNode(simulation.html, node =>
+          node.data?.attrs?.role === 'columnheader' &&
+          node.data.attrs['aria-colindex'] === '2',
+        )
+        const scoreHeader = findVNode(simulation.html, node =>
+          node.data?.attrs?.role === 'columnheader' &&
+          node.data.attrs['aria-colindex'] === '3',
+        )
+        expect(headerRow).toBeDefined()
+        expect(nameHeader?.data?.props?.tabIndex).toBe(0)
+        expect(scoreHeader?.data?.props?.tabIndex).toBe(-1)
+        return simulation
+      },
+    )
+  })
+  it('moves from the first mounted row to the sticky header with overscan disabled', () => {
+    const cfg: DataTable.Config<Row> = {
+      ...config(true),
+      id: 'table-scene-keyboard-boundary',
+      viewportHeight: 36,
+      overscanRows: 0,
+      tableStyle: { size: '2', variant: 'surface' },
+    }
+    const active = DataTable.update(
+      DataTable.init(cfg),
+      cfg,
+      DataTable.Message.ActiveCellChanged({ rowId: 'a', columnId: 'name' }),
+    ).model
+    const moved = DataTable.update(
+      active,
+      cfg,
+      DataTable.Message.GridKey({ key: 'ArrowUp', ctrlKey: false }),
+    )
+    expect(moved.model.activeCell).toEqual({ rowId: '$header', columnId: 'name' })
+
+    Scene.scene(
+      { update: updateFor(cfg), view: viewFor(cfg) },
+      Scene.given(moved.model),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
+      Scene.Mount.resolve(
+        { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
+        VirtualList.Message.ResizedContainer({
+          containerWidth: 400,
+          containerHeight: cfg.viewportHeight!,
+        }),
+      ),
+      Scene.expect(Scene.selector('.rt-TableHeader')).toExist(),
+      (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
+        const activeHeader = findVNode(simulation.html, node =>
+          node.data?.attrs?.role === 'columnheader' &&
+          node.data.attrs['aria-colindex'] === '2',
+        )
+        expect(activeHeader?.data?.props?.tabIndex).toBe(0)
         return simulation
       },
     )
@@ -266,6 +407,15 @@ describe('DataTable view semantics', () => {
     Scene.scene(
       { update: updateFor(cfg), view: viewFor(cfg) },
       Scene.given(scrolled),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: cfg.id } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: cfg.rowHeight }),

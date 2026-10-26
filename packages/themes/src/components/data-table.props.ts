@@ -34,7 +34,5 @@ export type Config<Row> = Readonly<{
   rowHeight: number
   /** Initial virtual viewport height in pixels, before the browser measures it. */
   viewportHeight?: number
-  /** Leading caption/header height before the virtualized row area. */
-  leadingOffsetPx?: number
   overscanRows: number
 }>

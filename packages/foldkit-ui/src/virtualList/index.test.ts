@@ -990,6 +990,76 @@ describe('VirtualList', () => {
       }
       expect(itemChange.commands ?? []).toHaveLength(1)
     })
+    it('restores a row anchor by key or falls back to its prior index', async () => {
+      const keys = ['row-0', 'row-1', 'row-2', 'row-3', 'row-4', 'row-5', 'row-6', 'row-7', 'row-8', 'row-9']
+      const row = [{ index: 4, key: 'row-4', start: 150, height: 30 }]
+      const anchored = (key: string) => update(
+        defaultInit(),
+        Message.ObservedContainerScroll({
+          scrollTop: 100,
+          scrollHeight: 500,
+          containerHeight: 90,
+          anchor: { _tag: 'Row', key, index: 4, viewportOffset: 10 },
+        }),
+      ).model
+
+      expect(await executeScroll(
+        informItemsChanged(anchored('row-4'), keys),
+        100,
+        90,
+        row,
+        500,
+      )).toBe(140)
+      expect(await executeScroll(
+        informItemsChanged(anchored('removed'), keys),
+        100,
+        90,
+        row,
+        500,
+      )).toBe(140)
+    })
+
+    it('restores pixel and end anchors after items change', async () => {
+      const keys = ['first', 'second']
+      const offsetModel = update(
+        defaultInit(),
+        Message.ObservedContainerScroll({
+          scrollTop: 80,
+          scrollHeight: 500,
+          containerHeight: 90,
+          anchor: { _tag: 'None' },
+        }),
+      ).model
+      expect(await executeScroll(
+        informItemsChanged(offsetModel, keys),
+        0,
+        90,
+        [],
+        500,
+      )).toBe(80)
+
+      const followEnd = init({
+        id: 'test',
+        rowHeightPx: 30,
+        followEnd: { thresholdPx: 1 },
+      })
+      const endModel = update(
+        followEnd,
+        Message.ObservedContainerScroll({
+          scrollTop: 410,
+          scrollHeight: 500,
+          containerHeight: 90,
+          anchor: { _tag: 'None' },
+        }),
+      ).model
+      expect(await executeScroll(
+        informItemsChanged(endModel, keys),
+        0,
+        90,
+        [],
+        500,
+      )).toBe(410)
+    })
 
     it('preserves empty measurements without pruning against item keys', () => {
       const model = defaultInit()
@@ -1024,6 +1094,21 @@ describe('VirtualList', () => {
       })
       expect(measurement.commands ?? []).toHaveLength(1)
     })
+    it('ignores a repeated row height without scheduling another layout pass', () => {
+      const model = {
+        ...defaultInit(),
+        measuredRowHeights: { 'row-1': 72 },
+      }
+      const measurement = update(
+        model,
+        Message.MeasuredRows({
+          measurements: [{ key: 'row-1', height: 72, layoutVersion: 0 }],
+        }),
+      )
+
+      expect(measurement.model).toBe(model)
+      expect(measurement.commands).toBeUndefined()
+    })
 
     it('ignores stale measurements from a previous items layout', () => {
       const model = informItemsChanged(defaultInit(), []).model
@@ -1037,5 +1122,127 @@ describe('VirtualList', () => {
       expect(measurement.model.measuredRowHeights).toStrictEqual({})
       expect(measurement.commands).toBeUndefined()
     })
+  })
+  it('measures row-area offsets and emits resized row geometry from its observers', async () => {
+    type RecordedResizeObserver = {
+      readonly callback: ResizeObserverCallback
+      observe: (target: Element) => void
+      unobserve: (target: Element) => void
+      disconnect: () => void
+      notify: (target: Element) => void
+    }
+    const observers: Array<RecordedResizeObserver> = []
+    class TestResizeObserver implements RecordedResizeObserver {
+      readonly targets = new Set<Element>()
+      readonly callback: ResizeObserverCallback
+      constructor(callback: ResizeObserverCallback) {
+        this.callback = callback
+        observers.push(this)
+      }
+      observe(target: Element) { this.targets.add(target) }
+      unobserve(target: Element) { this.targets.delete(target) }
+      disconnect() { this.targets.clear() }
+      notify(target: Element) {
+        this.callback([{
+          target,
+          contentRect: target.getBoundingClientRect(),
+        } as ResizeObserverEntry], this as unknown as ResizeObserver)
+      }
+    }
+    const resizeObserverDescriptor = Object.getOwnPropertyDescriptor(
+      globalThis,
+      'ResizeObserver',
+    )
+    Object.defineProperty(globalThis, 'ResizeObserver', {
+      configurable: true,
+      value: TestResizeObserver,
+    })
+
+    const element = createScrollElement(20, 60, [], 360, 0, 3)
+    const rowArea = document.createElement('div')
+    rowArea.setAttribute('data-virtual-list-row-area', '')
+    rowArea.getBoundingClientRect = () => ({
+      x: 0, y: 35, left: 0, top: 35, right: 100, bottom: 95,
+      width: 100, height: 60, toJSON: () => ({}),
+    })
+    const row = document.createElement('div')
+    row.setAttribute('data-virtual-list-item-index', '0')
+    row.setAttribute('data-virtual-list-item-key', 'row-a')
+    row.setAttribute('data-virtual-list-layout-version', '0')
+    row.setAttribute('data-virtual-list-measure', 'true')
+    row.getBoundingClientRect = () => ({
+      x: 0, y: 35, left: 0, top: 35, right: 100, bottom: 77,
+      width: 100, height: 42, toJSON: () => ({}),
+    })
+    rowArea.append(row)
+    element.append(rowArea)
+    document.body.append(element)
+
+    const messages: ReadonlyArray<typeof Message.Type>[] = []
+    try {
+      await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+        const started = yield* Deferred.make<void>()
+        const emitted = yield* Deferred.make<void>()
+        yield* ObserveVirtualList({ id: 'test' })
+          .f(element, Mount.liveViewStateChanges)
+          .pipe(
+            Stream.runForEach(message => {
+              messages.push([message])
+              return messages.length >= 5
+                ? Deferred.succeed(emitted, undefined)
+                : Deferred.succeed(started, undefined)
+            }),
+            Effect.forkScoped,
+          )
+        yield* Deferred.await(started)
+        observers[0]!.notify(element)
+        const invalidRow = document.createElement('div')
+        observers[1]!.notify(invalidRow)
+        observers[1]!.notify(row)
+        element.dispatchEvent(new Event('scroll'))
+        yield* Deferred.await(emitted)
+      })))
+    } finally {
+      element.remove()
+      if (resizeObserverDescriptor === undefined) {
+        Reflect.deleteProperty(globalThis, 'ResizeObserver')
+      } else {
+        Object.defineProperty(globalThis, 'ResizeObserver', resizeObserverDescriptor)
+      }
+    }
+
+    const emittedMessages = messages.flat()
+    expect(emittedMessages).toContainEqual(expect.objectContaining({
+      _tag: 'ResizedContainer',
+      leadingOffsetPx: 52,
+    }))
+    expect(emittedMessages).toContainEqual(expect.objectContaining({
+      _tag: 'MeasuredRows',
+      measurements: [{ key: 'row-a', height: 42, layoutVersion: 0 }],
+    }))
+    expect(emittedMessages).toContainEqual(expect.objectContaining({
+      _tag: 'ObservedContainerScroll',
+      scrollTop: 20,
+    }))
+  })
+  it('does not observe an SVG viewport as an HTML scroll container', async () => {
+    const element = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    const messages: (typeof Message.Type)[] = []
+    await Effect.runPromise(Effect.scoped(Effect.gen(function* () {
+      const started = yield* Deferred.make<void>()
+      yield* ObserveVirtualList({ id: 'svg' })
+        .f(element, Stream.make('Live'))
+        .pipe(
+          Stream.onStart(Deferred.succeed(started, undefined)),
+          Stream.runForEach(message => {
+            messages.push(message)
+            return Effect.void
+          }),
+          Effect.forkScoped,
+        )
+      yield* Deferred.await(started)
+      yield* Effect.sleep('10 millis')
+    })))
+    expect(messages).toEqual([])
   })
 })

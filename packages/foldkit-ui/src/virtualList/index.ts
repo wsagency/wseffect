@@ -124,6 +124,7 @@ export const Model = Schema.Struct({
   scrollTop: Schema.Number,
   measurement: Measurement,
   initialContainerHeight: Schema.optional(Schema.Number),
+  leadingOffsetPx: Schema.optional(Schema.Number),
   viewportAnchor: ViewportAnchor,
   measuredRowHeights: Schema.Record(Schema.String, Schema.Number),
   layoutVersion: Schema.Number,
@@ -148,6 +149,7 @@ export const Message = defineMessageUnion({
   ResizedContainer: {
     containerWidth: Schema.Number,
     containerHeight: Schema.Number,
+    leadingOffsetPx: Schema.optional(Schema.Number),
   },
   MeasuredRows: {
     measurements: Schema.Array(
@@ -213,6 +215,7 @@ export const init = (config: InitConfig): Model => {
     rowHeightPx: config.rowHeightPx,
     scrollTop: config.initialScrollTop ?? 0,
     measurement: Measurement.Unmeasured(),
+    leadingOffsetPx: 0,
     ...(config.initialContainerHeight === undefined
       ? {}
       : { initialContainerHeight: config.initialContainerHeight }),
@@ -390,15 +393,10 @@ const rowOffsets = (container: HTMLElement, row: HTMLElement): RowOffsets => {
 const rowForTarget = (
   element: HTMLElement,
   target: typeof ScrollTarget.Index.Type | typeof ScrollTarget.Key.Type,
-): Option.Option<HTMLElement> =>
-  ScrollTarget.matchOrElse(
-    target,
-    {
-      Index: ({ index }) => rowForIndex(element, index),
-      Key: ({ key }) => rowForKey(element, key),
-    },
-    () => Option.none(),
-  )
+): Option.Option<HTMLElement> => {
+  if (target._tag === 'Index') return rowForIndex(element, target.index)
+  return rowForKey(element, target.key)
+}
 
 const scrollTopForRowTarget = (
   element: HTMLElement,
@@ -623,6 +621,7 @@ const measureContainer = (
   model: Model,
   containerWidth: number,
   containerHeight: number,
+  leadingOffsetPx?: number,
 ): ScrollReturn => {
   const wasUnmeasured = model.measurement._tag === 'Unmeasured'
   const didWidthChange = Measurement.match<boolean>(model.measurement, {
@@ -636,6 +635,7 @@ const measureContainer = (
     model: modifyFields(stepModel, {
       measurement: () =>
         Measurement.Measured({ containerWidth, containerHeight }),
+      leadingOffsetPx: current => leadingOffsetPx ?? current ?? 0,
       measuredRowHeights: measuredRowHeights =>
         didWidthChange ? Record.empty() : measuredRowHeights,
       layoutVersion: layoutVersion =>
@@ -738,8 +738,8 @@ export const update = (model: Model, message: Message) =>
       }
     },
 
-    ResizedContainer: ({ containerWidth, containerHeight }) =>
-      measureContainer(model, containerWidth, containerHeight),
+    ResizedContainer: ({ containerWidth, containerHeight, leadingOffsetPx }) =>
+      measureContainer(model, containerWidth, containerHeight, leadingOffsetPx),
 
     MeasuredRows: ({ measurements }) =>
       applyRowMeasurements(model, measurements),
@@ -872,11 +872,7 @@ const prefixSum = <Item>(
 }
 
 const lastOrZero = (values: ReadonlyArray<number>): number =>
-  pipe(
-    values,
-    Array.last,
-    Option.getOrElse(() => 0),
-  )
+  values[values.length - 1] ?? 0
 
 /** Alignment of content when its total height is shorter than the viewport. */
 export const ContentAlignment = Schema.Literals(['Start', 'End'])
@@ -951,11 +947,7 @@ const offsetAt = (layout: ListLayout, index: number): number =>
   Option.match(layout.maybeCumulativeOffsets, {
     onNone: () => index * layout.rowHeightPx,
     onSome: cumulativeOffsets =>
-      pipe(
-        cumulativeOffsets,
-        Array.get(index),
-        Option.getOrElse(() => layout.totalHeight),
-      ),
+      cumulativeOffsets[index] ?? layout.totalHeight,
   })
 
 const rowOffsetsForIndex = (
@@ -1167,12 +1159,31 @@ const observeVirtualList = (
           return () => undefined
         }
 
+        const leadingOffsetFor = () => {
+          const rowAreas = element.querySelectorAll<HTMLElement>(
+            '[data-virtual-list-row-area]',
+          )
+          const rowArea = Array.findFirst(rowAreas, area =>
+            area.closest('[data-virtual-list-scroll-version]') === element,
+          )
+          if (Option.isNone(rowArea)) return 0
+          const viewportTop =
+            element.getBoundingClientRect().top + element.clientTop
+          return Math.max(
+            0,
+            rowArea.value.getBoundingClientRect().top -
+              viewportTop +
+              element.scrollTop,
+          )
+        }
+
         const emitContainerMeasurement = () =>
           Queue.offerUnsafe(
             queue,
             Message.ResizedContainer({
               containerWidth: element.clientWidth,
               containerHeight: element.clientHeight,
+              leadingOffsetPx: leadingOffsetFor(),
             }),
           )
 
@@ -1190,20 +1201,30 @@ const observeVirtualList = (
           )
         element.addEventListener('scroll', scrollListener, { passive: true })
 
-        const containerResizeObserver = new ResizeObserver(entries => {
-          const lastEntry = Array.last(entries)
-          if (Option.isSome(lastEntry)) {
-            Queue.offerUnsafe(
-              queue,
-              Message.ResizedContainer({
-                containerWidth: lastEntry.value.contentRect.width,
-                containerHeight: lastEntry.value.contentRect.height,
-              }),
-            )
-          }
-        })
+        const containerResizeObserver = new ResizeObserver(() =>
+          emitContainerMeasurement(),
+        )
         containerResizeObserver.observe(element)
+        let observedRowArea: HTMLElement | null = null
 
+        const updateObservedRowArea = () => {
+          const rowAreas = element.querySelectorAll<HTMLElement>(
+            '[data-virtual-list-row-area]',
+          )
+          const rowArea = Array.findFirst(rowAreas, area =>
+            area.closest('[data-virtual-list-scroll-version]') === element,
+          )
+          const nextRowArea = Option.getOrNull(rowArea)
+          if (nextRowArea === observedRowArea) return
+          if (observedRowArea !== null) {
+            containerResizeObserver.unobserve(observedRowArea)
+          }
+          observedRowArea = nextRowArea
+          if (observedRowArea !== null) {
+            containerResizeObserver.observe(observedRowArea)
+          }
+          emitContainerMeasurement()
+        }
         const observedRows = new Map<HTMLElement, string>()
         const rowResizeObserver = new ResizeObserver(entries => {
           const measurements = Array.flatMap(entries, entry =>
@@ -1218,6 +1239,7 @@ const observeVirtualList = (
         })
 
         const reconcileRows = () => {
+          updateObservedRowArea()
           if (element.childElementCount === 0) {
             emitContainerMeasurement()
           }
@@ -1308,7 +1330,6 @@ type BaseViewInputs<Item> = Readonly<{
   items: ReadonlyArray<Item>
   itemToKey: (item: Item, index: number) => string
   overscan?: number
-  leadingOffsetPx?: number
   containerElement?: Exclude<TagName, 'textarea'>
   containerRole?: 'list' | 'grid' | null
   rowElement?: Exclude<TagName, 'textarea'>
@@ -1393,7 +1414,6 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       itemToRowHeightPx,
       dynamicRowHeights,
       itemToEstimatedRowHeightPx,
-      leadingOffsetPx = 0,
       overscan = DEFAULT_OVERSCAN,
       containerElement = 'ul',
       containerRole = 'list',
@@ -1459,7 +1479,7 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       dynamicRowHeights,
       itemToEstimatedRowHeightPx,
       contentAlignment,
-      leadingOffsetPx,
+      model.leadingOffsetPx ?? 0,
     )
     const windowForCurrentViewport = () =>
       visibleWindowForLayout(

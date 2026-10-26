@@ -643,7 +643,6 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
         return handled ? Option.some(Message.GridKey({ key, ctrlKey: modifiers.ctrlKey || modifiers.metaKey })) : Option.none()
       }),
     ] : []),
-    h.OnMount(dataTableStateLifetime({ tableId: config.id })),
   ]
   const containerId = model.virtualList.id
   const rootClasses = tableStyle === undefined
@@ -660,7 +659,6 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
       itemToKey: rowId => rowId,
       itemToRowHeightPx: () => config.rowHeight,
       overscan: config.overscanRows,
-      leadingOffsetPx: config.leadingOffsetPx ?? config.rowHeight,
       containerElement: 'div',
       containerRole: null,
       containerAttributes: childAttributes([
@@ -711,7 +709,7 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
         return h.table(tableAttributes, [
           h.caption([], [config.caption]),
           header,
-          h.tbody(hasTableStyle ? [h.Class('rt-TableBody')] : [], [
+          h.tbody([h.DataAttribute('virtual-list-row-area', ''), ...(hasTableStyle ? [h.Class('rt-TableBody')] : [])], [
             topSpacer,
             ...rows,
             bottomSpacer,
@@ -720,5 +718,10 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
       },
     },
   })
-  return brandViewResult(tableView, 'wseffect/DataTable')
+  return brandViewResult(
+    h.div([h.OnMount(dataTableStateLifetime({ tableId: config.id }))], [
+      tableView,
+    ]),
+    'wseffect/DataTable',
+  )
 }
