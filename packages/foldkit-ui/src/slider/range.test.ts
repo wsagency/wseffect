@@ -289,6 +289,7 @@ describe('Slider.Range', () => {
       await vi.waitFor(() => expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue', 'DragEnd']))
       host.setAttribute('data-disabled', 'true')
       expect(pointerDown().defaultPrevented).toBe(false)
+      expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue', 'DragEnd'])
     } finally {
       await Effect.runPromise(Fiber.interrupt(fiber))
     }
