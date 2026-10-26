@@ -1,8 +1,8 @@
-import { Option } from 'effect'
+import { Effect, Option, Stream } from 'effect'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import type * as Mount from '@wsagency/wseffect-foldkit/mount'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import * as Listbox from '../listbox/public.js'
 import * as Select from './index.js'
 
@@ -34,7 +34,7 @@ const captureOnMount = (
 const acknowledgeAnchor = Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox())
 const acknowledgeBackdrop = Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop())
 
-it('anchors item-aligned panels to the selected item and popper panels to their trigger', () => {
+it('uses the trigger as the external anchor and resolves active before selected item', () => {
   const actions: Array<Mount.MountAction<Select.SelectMessage>> = []
   const select = Select.createSelect<Value>()
   const update = (model: Select.SelectModel, message: Select.SelectMessage) => select.update(model, message)
@@ -46,19 +46,106 @@ it('anchors item-aligned panels to the selected item and popper panels to their 
     { update, view: captureOnMount(select, config, actions) },
     Scene.given(model), acknowledgeAnchor, acknowledgeBackdrop,
   )
-  expect(actions.find(action => action.name === 'AnchorListbox')?.args?.['buttonId']).toBe('choice-item-1')
+  const itemAlignedAnchor = actions.find(action => action.name === 'AnchorListbox')
+  expect(itemAlignedAnchor?.args?.['buttonId']).toBe('choice-button')
+  expect(itemAlignedAnchor?.args?.['selectedItemId']).toBe('choice-item-1')
+
+  actions.length = 0
+  const activeConfig = { ...config, selectedValue: Option.none() }
+  const activeSelect = Select.createSelect<Value>()
+  const activeModel = activeSelect.update(
+    activeSelect.init(activeConfig),
+    Listbox.Message.Opened({ maybeActiveItemIndex: Option.some(0) }),
+  ).model
+  Scene.scene(
+    { update: activeSelect.update, view: captureOnMount(activeSelect, activeConfig, actions) },
+    Scene.given(activeModel), acknowledgeAnchor, acknowledgeBackdrop,
+  )
+  expect(actions.find(action => action.name === 'AnchorListbox')?.args?.['selectedItemId']).toBe('choice-item-0')
 
   actions.length = 0
   const popperConfig: Select.Config<Value> = { ...config, position: 'popper' }
   const popper = Select.createSelect<Value>()
-  const updatePopper = (current: Select.SelectModel, message: Select.SelectMessage) => popper.update(current, message)
   const popperModel = popper.update(
     popper.init(popperConfig),
     Listbox.Message.Opened({ maybeActiveItemIndex: Option.none() }),
   ).model
   Scene.scene(
-    { update: updatePopper, view: captureOnMount(popper, popperConfig, actions) },
+    { update: popper.update, view: captureOnMount(popper, popperConfig, actions) },
     Scene.given(popperModel), acknowledgeAnchor, acknowledgeBackdrop,
   )
-  expect(actions.find(action => action.name === 'AnchorListbox')?.args?.['buttonId']).toBe('choice-button')
+  const popperAnchor = actions.find(action => action.name === 'AnchorListbox')
+  expect(popperAnchor?.args?.['buttonId']).toBe('choice-button')
+  expect(popperAnchor?.args?.['selectedItemId']).toBeUndefined()
+})
+
+const rect = (top: number, width: number, height: number) => ({
+  x: 10,
+  y: top,
+  top,
+  left: 10,
+  right: 10 + width,
+  bottom: top + height,
+  width,
+  height,
+  toJSON: () => ({}),
+})
+
+const positionWithItem = async (itemTop?: number) => {
+  let disconnected = 0
+  let positioned: { top: string; left: string; minWidth: string } | undefined
+  let observed!: () => void
+  const observerReady = new Promise<void>(resolve => { observed = resolve })
+  class Observer {
+    constructor(_callback: ResizeObserverCallback) {}
+    observe(): void {
+      positioned = {
+        top: panel.style.top,
+        left: panel.style.left,
+        minWidth: panel.style.minWidth,
+      }
+      observed()
+    }
+    disconnect(): void { disconnected += 1 }
+  }
+  vi.stubGlobal('ResizeObserver', Observer)
+  const trigger = document.createElement('button')
+  trigger.id = 'trigger'
+  const panel = document.createElement('div')
+  panel.id = 'panel'
+  const item = document.createElement('div')
+  item.id = 'selected'
+  if (itemTop !== undefined) panel.append(item)
+  document.body.append(trigger, panel)
+  vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(rect(100, 80, 30))
+  vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(rect(20, 80, 180))
+  vi.spyOn(item, 'getBoundingClientRect').mockReturnValue(rect(itemTop ?? 70, 80, 20))
+
+  const action = Listbox.AnchorListbox({
+    buttonId: 'trigger',
+    anchor: {},
+    selectedItemId: 'selected',
+  })
+  const result = await Effect.runPromise(Effect.race(
+    Stream.runHead(action.f(panel, Stream.empty)).pipe(Effect.as('finished')),
+    Effect.promise(() => observerReady).pipe(Effect.as('observed')),
+  ))
+  expect(result).toBe('observed')
+  const geometry = { ...positioned, disconnected }
+  trigger.remove()
+  panel.remove()
+  vi.unstubAllGlobals()
+  return geometry
+}
+
+it('aligns the selected item with trigger geometry and disconnects its observer', async () => {
+  expect(await positionWithItem(70)).toEqual({
+    top: '50px', left: '10px', minWidth: '80px', disconnected: 1,
+  })
+})
+
+it('falls back to trigger placement when the selected item is absent', async () => {
+  expect(await positionWithItem(undefined)).toEqual({
+    top: '100px', left: '10px', minWidth: '80px', disconnected: 1,
+  })
 })

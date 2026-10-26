@@ -78,15 +78,15 @@ const givenOpenAnimated = Story.steps(
 
 describe('Listbox', () => {
   describe('legacy model decoding', () => {
-    it('defaults a missing anchorMode to the trigger', () => {
+    it('defaults a missing anchorMode to the trigger and round-trips the decoded model', () => {
       const { anchorMode: _anchorMode, ...legacyModel } = init({
         id: 'legacy',
       })
-      const decoded = Schema.decodeUnknownSync(
-        Model,
-      )(legacyModel)
+      const decoded = Schema.decodeUnknownSync(Model)(legacyModel)
 
       expect(decoded.anchorMode).toBe('Trigger')
+      const encodedDecoded = Schema.encodeSync(Model)(decoded)
+      expect(Schema.decodeUnknownSync(Model)(encodedDecoded)).toEqual(decoded)
     })
   })
   describe('anchorMode codec', () => {

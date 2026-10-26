@@ -119,6 +119,41 @@ describe('Menu', () => {
         ),
       )
     })
+    it('uses the contextual anchor for pointer-point and keyboard-source invocations', () => {
+      const pointerModel = TestMenu.openAt(init({ id: 'test' }), {
+        invocation: 'pointer',
+        sourceId: 'source',
+        sourceToken: 'pointer-source',
+        point: { x: 42, y: 73 },
+      }).model
+      const keyboardModel = TestMenu.openAt(init({ id: 'test' }), {
+        invocation: 'keyboard',
+        sourceId: 'source',
+        sourceToken: 'keyboard-source',
+      }).model
+
+      Scene.scene(
+        { update, view: sceneView() },
+        Scene.given(pointerModel),
+        Scene.expect(Scene.selector('#test-items')).toExist(),
+        Scene.Mount.resolve(
+          { name: 'ContextMenuAnchor' },
+          Message.CompletedAnchorMenu(),
+        ),
+        Scene.Mount.resolve(PortalMenuBackdrop, Message.CompletedPortalMenuBackdrop()),
+      )
+      Scene.scene(
+        { update, view: sceneView() },
+        Scene.given(keyboardModel),
+        Scene.expect(Scene.selector('#test-items')).toExist(),
+        Scene.Mount.resolve(
+          { name: 'ContextMenuAnchor' },
+          Message.CompletedAnchorMenu(),
+        ),
+        Scene.Mount.resolve(PortalMenuBackdrop, Message.CompletedPortalMenuBackdrop()),
+      )
+    })
+
 
     it('keeps the items panel out of the Tab order', () => {
       Scene.scene(
@@ -164,6 +199,8 @@ describe('Menu', () => {
       const decoded = Schema.decodeUnknownSync(Model)(legacy)
       expect(decoded.maybeContextInvocation).toEqual(Option.none())
       expect(decoded.longPressVersion).toBe(0)
+      const encodedDecoded = Schema.encodeSync(Model)(decoded)
+      expect(Schema.decodeUnknownSync(Model)(encodedDecoded)).toEqual(decoded)
 
       const invocation = Message.OpenedAt({
         invocation: {
@@ -208,6 +245,27 @@ describe('Menu', () => {
         version: pending.model.longPressVersion,
       })).model.isOpen).toBe(false)
     })
+    it('invalidates a pending touch invocation when closed before its expiry', () => {
+      const pending = update(init({ id: 'test' }), Message.OpenedAt({
+        invocation: {
+          invocation: 'touch',
+          sourceId: 'source',
+          sourceToken: 'token',
+          point: { x: 12, y: 34 },
+        },
+      })).model
+      const closed = update(pending, Message.Closed()).model
+
+      expect(closed.maybeContextInvocation).toEqual(Option.none())
+      expect(closed.longPressVersion).toBe(pending.longPressVersion + 1)
+      const expired = update(
+        closed,
+        Message.LongPressExpired({ version: pending.longPressVersion }),
+      )
+      expect(expired.model.isOpen).toBe(false)
+      expect(expired.model.maybeContextInvocation).toEqual(Option.none())
+    })
+
 
     it('accepts isAnimated option', () => {
       const model = init({ id: 'test', isAnimated: true })

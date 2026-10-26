@@ -156,4 +156,13 @@ describe('Menu ContextMenu source', () => {
     expect(sourceUnmount.model.isOpen).toBe(false)
     expect(sourceUnmount.model.maybeContextInvocation).toEqual(Option.none())
   })
+  it('programmatically selects a value through the typed ContextMenu bundle', () => {
+    const result = bundle.selectItem(bundle.init(config), 'delete', 1)
+    expect(result.model.isOpen).toBe(false)
+    expect(result.outMessage).toEqual({
+      _tag: 'Selected',
+      value: 'delete',
+      index: 1,
+    })
+  })
 })

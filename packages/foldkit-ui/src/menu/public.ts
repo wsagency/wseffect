@@ -25,7 +25,6 @@ export {
   ClickItem,
   DelayClearSearch,
   DetectMovementOrAnimationEnd,
-  type Opened,
   type Closed,
   type BlurredItems,
   type ActivatedItem,
@@ -54,6 +53,8 @@ export type {
   ItemConfig,
   GroupHeading,
   Bundle,
+  CompletedDelayClearSearch,
+  Opened,
 } from './index.js'
 
 export type { AnchorConfig } from '../anchor/index.js'
