@@ -24,6 +24,7 @@ const view = (model: Select.Model, h: HtmlBuilder<Select.Message | undefined>) =
 const anchor = (selectedItemId?: string) => Listbox.AnchorListbox({
   buttonId: 'fruit-button',
   anchor: { placement: 'bottom-start', gap: 4 },
+  anchorMode: 'SelectedOrActiveItem',
   ...(selectedItemId === undefined ? {} : { selectedItemId }),
 })
 

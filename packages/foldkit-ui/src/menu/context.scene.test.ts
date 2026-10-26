@@ -1,6 +1,7 @@
+import { Option } from 'effect'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
-import { describe, it } from '@effect/vitest'
+import { describe, expect, it } from '@effect/vitest'
 import * as Menu from './index.js'
 import { createContextMenu, type ContextMenuConfig } from './context.js'
 
@@ -81,19 +82,84 @@ describe('Menu ContextMenu Scene', () => {
         sourceToken: config.sourceToken,
       },
     })).model
+    const activeAfterDocumentation = bundle.update(
+      opened,
+      Menu.Message.ActivatedItem({ index: 3, activationTrigger: 'Keyboard' }),
+    ).model
 
+    expect(Menu.resolveTypeaheadMatch(
+      ['Edit', 'Delete', 'Download', 'Documentation'],
+      'd',
+      Option.some(3),
+      index => index === 0,
+      item => item,
+      false,
+    )).toEqual(Option.some(1))
     Scene.scene(
       { update, view },
-      Scene.given(opened),
+      Scene.given(activeAfterDocumentation),
       Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
       Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
       Scene.keydown(Scene.role('menu'), 'd'),
       Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toHaveAttr('data-active', ''),
       Scene.keydown(Scene.role('menu'), 'o'),
       Scene.expectHandled(),
       Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
-      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
     )
+  })
+
+  it('moves keyboard focus among enabled items and closes on Escape', () => {
+    const opened = bundle.openAt(bundle.init(config), {
+      invocation: 'keyboard',
+      sourceId: config.sourceId,
+      sourceToken: config.sourceToken,
+    })
+    Scene.scene(
+      { update, view },
+      Scene.given(opened.model),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.keydown(Scene.role('menu'), 'ArrowDown'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
+      Scene.keydown(Scene.role('menu'), 'ArrowUp'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toHaveAttr('data-active', ''),
+      Scene.keydown(Scene.role('menu'), 'Escape'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menu')).not.toExist(),
+      Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
+    )
+  })
+
+  it('opens touch invocations only after long-press expiry and cancels after movement', () => {
+    const invoked = bundle.openAt(bundle.init(config), {
+      invocation: 'touch',
+      sourceId: config.sourceId,
+      sourceToken: config.sourceToken,
+      point: { x: 10, y: 20 },
+    })
+    expect(invoked.model.isOpen).toBe(false)
+    expect(invoked.commands?.some(command => command.name === 'ContextLongPress')).toBe(true)
+
+    const opened = bundle.update(
+      invoked.model,
+      Menu.Message.LongPressExpired({ version: invoked.model.longPressVersion }),
+    )
+    expect(opened.model.isOpen).toBe(true)
+    expect(opened.model.maybeContextInvocation).toEqual(invoked.model.maybeContextInvocation)
+
+    const moved = bundle.update(
+      invoked.model,
+      Menu.Message.MovedPointerOverItem({ index: -1, screenX: 19, screenY: 20 }),
+    )
+    expect(moved.model.maybeContextInvocation).toEqual(Option.none())
+    expect(moved.model.longPressVersion).toBe(invoked.model.longPressVersion + 1)
+    expect(bundle.update(
+      moved.model,
+      Menu.Message.LongPressExpired({ version: invoked.model.longPressVersion }),
+    ).model.isOpen).toBe(false)
   })
 
 

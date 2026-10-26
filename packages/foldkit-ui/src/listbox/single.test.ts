@@ -2261,5 +2261,35 @@ describe('Listbox', () => {
         )
       })
     })
+
+    it('renders an item configuration with multiple sibling content nodes', () => {
+      Scene.scene(
+        {
+          update,
+          view: (model, h) =>
+            view(model, {
+              items: ['Apple'],
+              itemToConfig: () => ({
+                content: [
+                  h.span([h.Id('item-prefix')], ['Fresh']),
+                  h.span([h.Id('item-suffix')], ['fruit']),
+                ],
+              }),
+              buttonContent: null,
+              maybeSelectedValue: Option.none(),
+            }, h),
+        },
+        Scene.given(openModel()),
+        Scene.expect(Scene.role('option')).toExist(),
+        Scene.tap(({ html }) => {
+          const item = Option.getOrThrow(Scene.find(html, '[role="option"]'))
+          expect(item.children).toHaveLength(2)
+          expect(Option.isSome(Scene.find(html, '#item-prefix'))).toBe(true)
+          expect(Option.isSome(Scene.find(html, '#item-suffix'))).toBe(true)
+        }),
+        acknowledgeAnchor,
+        acknowledgeBackdrop,
+      )
+    })
   })
 })

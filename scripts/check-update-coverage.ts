@@ -79,6 +79,11 @@ async function findSourceFiles(directory: string): Promise<string[]> {
   return matches
 }
 
+// Vendored Menu and Listbox state machines contain many untouched callbacks,
+// so do not require file-wide function coverage. Their local context, anchor,
+// mode, and multi-child changes have focused behavior coverage in
+// foldkit-ui/src/menu/context*.test.ts, listboxSelect/selectPosition.test.ts,
+// and listbox/single.test.ts.
 const absorbedUpdateSources = [
   '/packages/foldkit-ui/src/menu/context.ts',
   '/packages/foldkit-ui/src/tooltip/group.ts',

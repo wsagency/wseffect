@@ -570,6 +570,8 @@ export const anchorSetupVirtual = (
   const portalCleanup =
     config.portal === false ? undefined : portalToContainingRoot(element)
   element.style.position = 'fixed'
+  let isActive = true
+  let isFirstUpdate = true
 
   const cleanupPositioning = autoUpdate(reference, element, () => {
     void computePosition(reference, element, {
@@ -581,14 +583,23 @@ export const anchorSetupVirtual = (
         shift({ padding: config.padding }),
       ],
     }).then(({ x, y, placement }) => {
+      if (!isActive) return
       element.style.position = 'fixed'
       element.style.left = `${x}px`
       element.style.top = `${y}px`
       element.setAttribute('data-placement', placement)
+      if (isFirstUpdate) {
+        isFirstUpdate = false
+        element.style.visibility = ''
+        if (element instanceof HTMLElement) {
+          element.focus({ preventScroll: true })
+        }
+      }
     })
   })
 
   return () => {
+    isActive = false
     cleanupPositioning()
     element.style.removeProperty('left')
     element.style.removeProperty('top')
