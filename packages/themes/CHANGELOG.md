@@ -42,3 +42,5 @@
 - Make item-aligned Select option IDs index options only, excluding separators; typeahead now targets the same option ID as popper mode.
 - Render DataTable's fixed-height virtual rows from its configured viewport before the initial browser measurement.
 - Render DataTable through Foldkit UI VirtualList's single library-owned scroll viewport and `windowToView`; remove DataTable's local scroll command while retaining row focus behavior.
+
+- Preserve DataTable Grid focus after filter/sort changes, recover empty results at the grid root, and measure the caption/header offset for virtual row navigation.

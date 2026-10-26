@@ -33,6 +33,15 @@ describe('gallery interactive pages', () => {
       { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
       Scene.given(initial.model),
       Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: 'gallery-data-table' } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
+      Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: 'gallery-data-table-virtual-list' } },
         VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),
       ),
@@ -53,6 +62,15 @@ describe('gallery interactive pages', () => {
     Scene.scene(
       { update: dataTablePage.update, view: (model, h) => dataTablePage.view(model, inputs, h) },
       Scene.given(initial.model),
+      Scene.Mount.resolve(
+        { name: 'DataTableStateLifetime', args: { tableId: 'gallery-data-table' } },
+        DataTable.Message.VirtualList({
+          message: VirtualList.Message.CompletedApplyScroll({
+            version: -1,
+            outcome: { _tag: 'Skipped' },
+          }),
+        }),
+      ),
       Scene.Mount.resolve(
         { name: 'ObserveVirtualList', args: { id: 'gallery-data-table-virtual-list' } },
         VirtualList.Message.ResizedContainer({ containerWidth: 640, containerHeight: 360 }),

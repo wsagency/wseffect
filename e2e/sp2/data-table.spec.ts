@@ -91,3 +91,53 @@ test('filtering to a result set that retains the active row restores focus outsi
   await expect(restoredCell).toBeFocused()
   await expect(page.locator('#data-table-active-cell')).toHaveText('Focused row-10000 / status')
 })
+
+test('measures caption and sticky-header height for virtual rows', async ({ page }) => {
+  await page.goto('/components/data-table')
+  const grid = page.getByRole('grid')
+  const viewport = page.locator('#gallery-data-table-virtual-list')
+  const geometry = await viewport.evaluate(root => {
+    const table = root.querySelector('table')!
+    const caption = table.querySelector('caption')!
+    const header = table.querySelector('thead')!
+    const body = table.querySelector('tbody')!
+    const rootTop = root.getBoundingClientRect().top + root.clientTop
+    return {
+      leadingOffset: body.getBoundingClientRect().top - rootTop + root.scrollTop,
+      captionHeight: caption.getBoundingClientRect().height,
+      headerHeight: header.getBoundingClientRect().height,
+    }
+  })
+  expect(geometry.leadingOffset).toBeGreaterThan(36)
+  expect(geometry.leadingOffset).toBeCloseTo(
+    geometry.captionHeight + geometry.headerHeight,
+    0,
+  )
+
+  const firstCell = grid.getByRole('row').nth(1).getByRole('gridcell').first()
+  await firstCell.focus()
+  await page.keyboard.press('Control+End')
+  const lastCell = grid.locator('[data-virtual-list-item-key="row-10000"]')
+    .getByRole('gridcell')
+    .last()
+  await expect(lastCell).toBeFocused()
+  const bounds = await page.evaluate(() => {
+    const viewport = document.querySelector<HTMLElement>(
+      '#gallery-data-table-virtual-list',
+    )!
+    const header = document.querySelector<HTMLElement>(
+      '#gallery-data-table-virtual-list thead',
+    )!
+    const cell = document.querySelector<HTMLElement>(
+      '[data-virtual-list-item-key="row-10000"] [role="gridcell"]:last-child',
+    )!
+    return {
+      headerBottom: header.getBoundingClientRect().bottom,
+      viewportBottom: viewport.getBoundingClientRect().bottom,
+      cellTop: cell.getBoundingClientRect().top,
+      cellBottom: cell.getBoundingClientRect().bottom,
+    }
+  })
+  expect(bounds.cellTop).toBeGreaterThanOrEqual(bounds.headerBottom - 1)
+  expect(bounds.cellBottom).toBeLessThanOrEqual(bounds.viewportBottom + 1)
+})

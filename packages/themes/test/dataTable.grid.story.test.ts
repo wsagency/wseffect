@@ -191,6 +191,51 @@ describe('DataTable Grid model', () => {
     })
   })
 
+  it('does not refocus the grid when filtering leaves the active cell mounted', () => {
+    const cfg = config({ viewportHeight: 120, overscanRows: 0 })
+    const model = setCell(DataTable.init(cfg), cfg, 'a', 'rank')
+    const result = update(model, cfg, DataTable.Message.FilterChanged({ value: 'a' }))
+    expect(result.model.activeCell).toEqual({ rowId: 'a', columnId: 'rank' })
+    expect(result.model.pendingFocus).toBeNull()
+    expect(result.commands?.some(command => command.name === 'FocusDataTableCell')).toBe(false)
+  })
+
+  it('retargets a surviving cell that moves outside the window after rows change', () => {
+    const manyRows = Array.from({ length: 20 }, (_, index) => ({
+      id: `row-${index}`,
+      label: `Record ${index}`,
+      rank: index,
+    }))
+    const cfg = config({ rows: manyRows, viewportHeight: 72, overscanRows: 0 })
+    const model = {
+      ...DataTable.init(cfg),
+      activeCell: { rowId: 'row-1', columnId: 'rank' },
+    }
+    const changed = config({ ...cfg, rows: [...manyRows].reverse() })
+    const result = update(model, changed, DataTable.Message.RowsChanged())
+    expect(result.model.activeCell).toEqual({ rowId: 'row-1', columnId: 'rank' })
+    expect(result.model.pendingFocus).toEqual({ rowId: 'row-1', columnId: 'rank' })
+    expect(result.commands?.find(command => command.name === 'ApplyScroll')?.args).toMatchObject({
+      request: { _tag: 'Target', target: { _tag: 'Key', key: 'row-1' } },
+    })
+  })
+
+  it('focuses an emptied grid root when the row-targeted scroll is skipped', () => {
+    const cfg = config()
+    const model = setCell(DataTable.init(cfg), cfg, 'b', 'rank')
+    const emptied = config({ rows: [] })
+    const result = update(model, emptied, DataTable.Message.RowsChanged())
+    const completed = update(result.model, emptied, DataTable.Message.VirtualList({
+      message: VirtualList.Message.CompletedApplyScroll({
+        version: result.model.virtualList.pendingScrollVersion,
+        outcome: { _tag: 'Skipped' },
+      }),
+    }))
+    expect(result.model.pendingFocus).toEqual({ rowId: '$grid-root', columnId: '$grid-root' })
+    expect(result.commands?.some(command => command.name === 'FocusDataTableCell')).toBe(true)
+    expect(completed.commands?.some(command => command.name === 'FocusDataTableCell')).toBe(false)
+  })
+
   it('scrolls the target into the committed range before focusing it', () => {
     const cfg = config()
     const result = update(DataTable.init(cfg), cfg, DataTable.Message.GridKey({ key: 'ArrowDown', ctrlKey: false }))

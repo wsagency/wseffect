@@ -11,6 +11,25 @@ import {
 } from './check-update-coverage.ts'
 
 test(
+  'update coverage includes locally absorbed Foldkit UI state machines only',
+  () => {
+    const source = (path: string) => `/repo/packages/foldkit-ui/src/${path}`
+    for (const path of [
+      'menu/context.ts',
+      'tooltip/group.ts',
+      'slider/range.ts',
+      'anchor/anchor.ts',
+      'listboxSelect/index.ts',
+      'virtualList/index.ts',
+      'checkboxGroup/index.ts',
+    ]) assert.equal(isUpdateCoverageSource(source(path)), true)
+    assert.equal(isUpdateCoverageSource(source('menu/index.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('listbox/single.ts')), false)
+    assert.equal(isUpdateCoverageSource(source('slider/range.test.ts')), false)
+  },
+)
+
+test(
   'update coverage scans wseffect sources, not vendored Foldkit or test fixtures',
   () => {
     const source = (packageName: string, path: string) =>

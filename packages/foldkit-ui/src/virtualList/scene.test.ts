@@ -2,6 +2,7 @@ import { childAttributes, type HtmlBuilder } from '@wsagency/wseffect-foldkit/ht
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
 
 import { describe, it } from '@effect/vitest'
+import { expect } from 'vitest'
 
 import {
   Message,
@@ -10,7 +11,12 @@ import {
   type RowHeightInputs,
   ScrollTarget,
   type ViewInputs,
+  informItemsChanged,
   init,
+  scrollToEnd,
+  scrollToIndex,
+  scrollToKey,
+  scrollToOffset,
   update,
   view,
 } from './index.js'
@@ -87,6 +93,146 @@ const measuredModel = (() => {
   )
   return measurement.model
 })()
+const variableHeightView =
+  (items: ReadonlyArray<DemoItem> = demoItems) =>
+  (model: Model, h: HtmlBuilder<Message>) =>
+    view<DemoItem>()(model, {
+      items,
+      itemToKey: item => String(item.id),
+      itemToView: item => h.div([], [h.span([], [item.label])]),
+      itemToRowHeightPx: (_item, index) => index % 2 === 0 ? 30 : 45,
+      overscan: 0,
+    }, h)
+
+const rowSelector = (index: number) =>
+  Scene.selector(`li[data-virtual-list-item-index="${index}"]`)
+
+it('keeps logical scroll targets and viewport anchors in the variable-height window', () => {
+  const keys = demoItems.map(item => String(item.id))
+  const observed = (
+    scrollTop: number,
+    anchor: { _tag: 'None' } | {
+      _tag: 'Row'
+      key: string
+      index: number
+      viewportOffset: number
+    },
+  ) => update(measuredModel, Message.ObservedContainerScroll({
+    scrollTop,
+    scrollHeight: 375,
+    containerHeight: 90,
+    anchor,
+  })).model
+  const preserve = (model: Model) => {
+    const result = informItemsChanged(model, keys).model
+    if (result.pendingScroll._tag !== 'Pending') {
+      throw new Error('Expected an anchor-preserving scroll request')
+    }
+    expect(result.pendingScroll.request._tag).toBe('Anchor')
+    return result
+  }
+
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToIndex(measuredModel, 5).model),
+    Scene.expect(rowSelector(5)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToKey(measuredModel, '8').model),
+    Scene.expect(rowSelector(8)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToOffset(measuredModel, 60).model),
+    Scene.expect(rowSelector(1)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToEnd(measuredModel).model),
+    Scene.expect(rowSelector(9)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToKey(measuredModel, 'missing').model),
+    Scene.expect(rowSelector(0)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(scrollToIndex(measuredModel, 99).model),
+    Scene.expect(rowSelector(9)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(preserve(observed(60, { _tag: 'None' }))),
+    Scene.expect(rowSelector(1)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(preserve(observed(140, {
+      _tag: 'Row',
+      key: '4',
+      index: 4,
+      viewportOffset: 10,
+    }))),
+    Scene.expect(rowSelector(4)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(preserve(observed(170, {
+      _tag: 'Row',
+      key: 'removed',
+      index: 5,
+      viewportOffset: 10,
+    }))),
+    Scene.expect(rowSelector(5)).toExist(),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView([]) },
+    Scene.given(scrollToIndex(measuredModel, 4).model),
+    Scene.expectAll(Scene.all.selector('li[data-virtual-list-item-index]'))
+      .toHaveCount(0),
+    acknowledgeObserver,
+  )
+  Scene.scene(
+    { update, view: variableHeightView([]) },
+    Scene.given(preserve(observed(140, {
+      _tag: 'Row',
+      key: 'removed',
+      index: 4,
+      viewportOffset: 10,
+    }))),
+    Scene.expectAll(Scene.all.selector('li[data-virtual-list-item-index]'))
+      .toHaveCount(0),
+    acknowledgeObserver,
+  )
+
+  const followEnd = update(
+    init({ id: 'test', rowHeightPx: ROW_HEIGHT, followEnd: { thresholdPx: 1 } }),
+    Message.ResizedContainer({ containerWidth: 320, containerHeight: 90 }),
+  ).model
+  const atEnd = update(followEnd, Message.ObservedContainerScroll({
+    scrollTop: 285,
+    scrollHeight: 375,
+    containerHeight: 90,
+    anchor: { _tag: 'None' },
+  })).model
+  Scene.scene(
+    { update, view: variableHeightView() },
+    Scene.given(preserve(atEnd)),
+    Scene.expect(rowSelector(9)).toExist(),
+    acknowledgeObserver,
+  )
+})
 
 const container = Scene.selector('ul#test')
 const rows = Scene.all.selector('li[data-virtual-list-item-index]')
@@ -131,6 +277,38 @@ const acknowledgeObserver = Scene.Mount.resolve(
         Scene.expect(Scene.selector('table tbody tr[data-virtual-list-item-key="0"]')).toExist(),
         Scene.expect(Scene.selector('tr[data-virtual-list-item-key="0"][role="row"]')).not.toHaveAttr('aria-setsize', '10'),
         Scene.expectAll(Scene.all.selector('table tbody tr')).toHaveCount(5),
+        acknowledgeObserver,
+      )
+    })
+    it('uses the measured leading viewport offset when rendering the visible logical slice', () => {
+      const measured = update(
+        measuredModel,
+        Message.ResizedContainer({
+          containerWidth: 320,
+          containerHeight: 60,
+          leadingOffsetPx: 60,
+        }),
+      ).model
+      const scrolled = update(measured, Message.ObservedContainerScroll({
+        scrollTop: 90,
+        scrollHeight: 360,
+        containerHeight: 60,
+        anchor: { _tag: 'None' },
+      })).model
+      const offsetView = (model: Model, h: HtmlBuilder<Message>) =>
+        view<DemoItem>()(model, {
+          items: demoItems,
+          itemToKey: item => String(item.id),
+          itemToRowHeightPx: () => ROW_HEIGHT,
+          rowToView: (item, _index, key, attributes, builder) =>
+            builder.keyed('li')(key, attributes, [builder.span([], [item.label])]),
+          overscan: 0,
+        }, h)
+
+      Scene.scene(
+        { update, view: offsetView },
+        Scene.given(scrolled),
+        Scene.expect(Scene.selector('li[data-virtual-list-item-index="2"]')).toExist(),
         acknowledgeObserver,
       )
     })
