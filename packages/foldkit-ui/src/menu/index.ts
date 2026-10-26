@@ -982,7 +982,7 @@ export const contextTriggerAttributes = (
 ]
 
 /** Positions and reveals a contextual Menu panel relative to its source, then
- *  focuses the items container once the first position is ready. */
+ *  focuses its active item once the first position is ready. */
 export const ContextMenuAnchor = (
   sourceId: string,
   maybePoint: ContextInvocation['point'],
@@ -1014,8 +1014,16 @@ export const ContextMenuAnchor = (
           }
           Queue.offerUnsafe(queue, Message.Closed())
         }
-        const cleanup = anchorSetupVirtual(element, reference, anchor)
-        document.addEventListener('pointerdown', onDocumentPointerDown, true)
+        document.addEventListener(
+          'pointerdown',
+          onDocumentPointerDown,
+          true,
+        )
+        const cleanup = anchorSetupVirtual(element, reference, anchor, () => {
+          element.querySelector<HTMLElement>('[data-active]')?.focus({
+            preventScroll: true,
+          })
+        })
         yield* Effect.acquireRelease(Effect.void, () =>
           Effect.sync(() => {
             document.removeEventListener(

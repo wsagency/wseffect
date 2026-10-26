@@ -91,6 +91,32 @@ for (const position of ['item-aligned', 'popper'] as const) {
     await expect(page.getByRole('option', { name: 'Yellow' })).toHaveAttribute('data-active')
   })
 }
+test('item-aligned selection stays aligned with the trigger when the panel is clamped', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  for (const geometry of ['top', 'bottom'] as const) {
+    await page.goto(`${baseUrl}/packages/app/test/browser/select.html?geometry=${geometry}`)
+    const trigger = page.locator('button.rt-SelectTrigger')
+    await trigger.focus()
+    await page.keyboard.press('ArrowDown')
+    const selected = page.getByRole('option', { name: 'Item 35', exact: true })
+    await expect(selected).toBeVisible()
+    const alignment = await page.evaluate(() => {
+      const triggerRect = document.querySelector('button.rt-SelectTrigger')!.getBoundingClientRect()
+      const listbox = document.querySelector('[role="listbox"]') as HTMLElement
+      const item = document.querySelector('[role="option"][data-selected]')!
+      const itemRect = item.getBoundingClientRect()
+      return {
+        triggerTop: triggerRect.top,
+        itemTop: itemRect.top,
+        scrollTop: listbox.scrollTop,
+        scrollHeight: listbox.scrollHeight,
+        clientHeight: listbox.clientHeight,
+        panelTop: listbox.getBoundingClientRect().top,
+      }
+    })
+    expect(Math.abs(alignment.itemTop - alignment.triggerTop), `${geometry}: ${JSON.stringify(alignment)}`).toBeLessThanOrEqual(1)
+  }
+})
 
 test('Select popper hides its scrollbar when the options fit', async ({ page }) => {
   await page.goto(`${baseUrl}/packages/app/test/browser/select.html?position=popper`)

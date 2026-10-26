@@ -562,6 +562,7 @@ export const anchorSetupVirtual = (
   element: Element,
   reference: VirtualElement,
   config: AnchorConfig = {},
+  onInitialFocus?: () => void,
 ): (() => void) => {
   if (!(element instanceof HTMLElement)) {
     return Function.constVoid
@@ -594,6 +595,7 @@ export const anchorSetupVirtual = (
         if (element instanceof HTMLElement) {
           element.focus({ preventScroll: true })
         }
+        onInitialFocus?.()
       }
     })
   })

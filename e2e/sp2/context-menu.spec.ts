@@ -24,6 +24,44 @@ test('pointer and keyboard invocation support refined typeahead and restore focu
   await expect(menu(page)).toHaveCount(0)
   await expect(target).toBeFocused()
 })
+test('keyboard invocation focuses the first item for immediate Enter; pointer invocation focuses it too', async ({ page }) => {
+  await page.goto('/components/context-menu')
+  const target = source(page)
+  await target.focus()
+  await page.keyboard.press('Shift+F10')
+  const firstItem = page.getByRole('menuitem', { name: 'Open', exact: true })
+  await expect(menu(page)).toBeVisible()
+  await expect(firstItem).toBeFocused()
+  await expect(firstItem).toHaveAttribute('data-active', '')
+  await page.keyboard.press('Enter')
+  await expect(page.getByText('Selected: Open', { exact: true })).toBeVisible()
+  await expect(menu(page)).toHaveCount(0)
+
+  await target.click({ button: 'right' })
+  await expect(menu(page)).toBeVisible()
+  await expect(firstItem).toBeFocused()
+  await expect(firstItem).toHaveAttribute('data-active', '')
+})
+
+test('does not restore focus to a replacement source reusing the original id', async ({ page }) => {
+  await page.goto('/components/context-menu')
+  const target = source(page)
+  await target.click({ button: 'right' })
+  await expect(menu(page)).toBeVisible()
+  await page.evaluate(() => {
+    const original = document.getElementById('gallery-context-source')!
+    const replacement = document.createElement('button')
+    replacement.id = original.id
+    replacement.setAttribute('data-context-source-token', 'replacement-token')
+    replacement.textContent = 'Replacement'
+    original.replaceWith(replacement)
+  })
+  const impostor = page.locator('#gallery-context-source')
+  await expect(impostor).not.toBeFocused()
+  await page.getByRole('menuitem', { name: 'Open', exact: true }).click()
+  await expect(menu(page)).toHaveCount(0)
+  await expect(impostor).not.toBeFocused()
+})
 
 test('outside press closes a pointer-opened menu and restores focus to its source', async ({ page }) => {
   await page.goto('/components/context-menu')
