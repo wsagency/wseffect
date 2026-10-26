@@ -19,7 +19,12 @@ import { makeModifyFieldsFor } from '@wsagency/wseffect-foldkit/struct'
 import { type View as SubmodelView, defineView } from '@wsagency/wseffect-foldkit/submodel'
 import * as Update from '@wsagency/wseffect-foldkit/update'
 
-import { AnchorConfig, anchorSetup, portalBackdrop } from '../anchor/index.js'
+import {
+  AnchorConfig,
+  anchorSetup,
+  portalBackdrop,
+  portalToContainingRoot,
+} from '../anchor/index.js'
 // NOTE: Animation imports are split across schema + update to avoid a circular
 // dependency: animation → html → runtime → devtools → listbox → animation.
 // The barrel (../animation) imports from html, which starts the cycle.
@@ -632,18 +637,71 @@ export const makeUpdate = <Model extends BaseModel>(
  *
  *  Exposed so Scene tests can call
  *  `Scene.Mount.resolve(AnchorListbox, CompletedAnchorListbox())`. */
+const setupSelectedItemAnchor = (
+  panel: HTMLElement,
+  buttonId: string,
+  selectedItemId: string,
+  anchor: AnchorConfig,
+): (() => void) => {
+  const trigger = panel.ownerDocument.getElementById(buttonId)
+  if (!(trigger instanceof HTMLElement)) return () => {}
+
+  const item = panel.ownerDocument.getElementById(selectedItemId)
+  const portalCleanup = anchor.portal === false
+    ? undefined
+    : portalToContainingRoot(panel)
+  const position = () => {
+    const triggerRect = trigger.getBoundingClientRect()
+    panel.style.position = 'fixed'
+    panel.style.left = `${triggerRect.left}px`
+    panel.style.top = item === null
+      ? `${triggerRect.top}px`
+      : `${triggerRect.top - (item.getBoundingClientRect().top - panel.getBoundingClientRect().top)}px`
+    panel.style.minWidth = `${triggerRect.width}px`
+    panel.style.removeProperty('visibility')
+  }
+  position()
+  panel.focus()
+
+  let observer: ResizeObserver | undefined
+  try {
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(position)
+      observer.observe(trigger)
+      observer.observe(panel)
+      if (item !== null) observer.observe(item)
+    }
+  } catch {
+    observer?.disconnect()
+    observer = undefined
+  }
+  return () => {
+    observer?.disconnect()
+    panel.style.removeProperty('left')
+    panel.style.removeProperty('top')
+    panel.style.removeProperty('min-width')
+    portalCleanup?.()
+  }
+}
+
 export const AnchorListbox = Mount.define('AnchorListbox', {
-  args: { buttonId: Schema.String, anchor: AnchorConfig },
+  args: {
+    buttonId: Schema.String,
+    anchor: AnchorConfig,
+    selectedItemId: Schema.optional(Schema.String),
+  },
   messages: [Message.CompletedAnchorListbox],
-  execute: ({ element, buttonId, anchor }) =>
+  execute: ({ element, buttonId, anchor, selectedItemId }) =>
     Effect.gen(function* () {
       yield* Effect.acquireRelease(
         Effect.sync(() =>
-          anchorSetup(element, {
-            buttonId,
-            anchor,
-            focusAfterPosition: true,
-          }),
+          selectedItemId !== undefined && element instanceof HTMLElement
+            ? setupSelectedItemAnchor(element, buttonId, selectedItemId, anchor)
+            : anchorSetup(element, {
+                buttonId,
+                anchor,
+                focusAfterPosition: true,
+              }),
         ),
         cleanup => Effect.sync(cleanup),
       )
@@ -1071,18 +1129,19 @@ export const makeView = <Model extends BaseModel>(behavior: ViewBehavior) => {
               Option.getOrElse(selectedItemIndex, () => -1),
             )
           : -1
-      const anchorTargetId =
-        anchorItemIndex >= 0
-          ? itemId(id, anchorItemIndex)
-          : `${id}-button`
-
       const anchorAttributes = [
         h.Style({
           position: 'absolute',
           margin: '0',
           visibility: 'hidden',
         }),
-        h.OnMount(AnchorListbox({ buttonId: anchorTargetId, anchor })),
+        h.OnMount(AnchorListbox({
+          buttonId: `${id}-button`,
+          anchor,
+          ...(anchorItemIndex >= 0
+            ? { selectedItemId: itemId(id, anchorItemIndex) }
+            : {}),
+        })),
       ]
 
       const itemsContainerAttributes = [

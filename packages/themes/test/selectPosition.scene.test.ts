@@ -21,9 +21,10 @@ const view = (model: Select.Model, h: HtmlBuilder<Select.Message | undefined>) =
     items: [{ value: 'one', textValue: 'One', isDisabled: false, content: h.span([], ['One']) }],
   }, h as HtmlBuilder<Select.Message>)
 
-const anchor = (buttonId: string) => Listbox.AnchorListbox({
-  buttonId,
+const anchor = (selectedItemId?: string) => Listbox.AnchorListbox({
+  buttonId: 'fruit-button',
   anchor: { placement: 'bottom-start', gap: 4 },
+  ...(selectedItemId === undefined ? {} : { selectedItemId }),
 })
 
 describe('Select item-aligned positioning', () => {
@@ -47,7 +48,7 @@ describe('Select item-aligned positioning', () => {
     Scene.given(SelectBox.init({ ...config, selectedValue: Option.none() })),
     Scene.click(Scene.role('combobox', { name: 'fruit' })),
     Scene.Command.resolve(Listbox.FocusItems, Listbox.Message.CompletedFocusItems()),
-    Scene.Mount.expectHas(anchor('fruit-button')),
+    Scene.Mount.expectHas(anchor()),
     Scene.Mount.resolve(Listbox.AnchorListbox, Listbox.Message.CompletedAnchorListbox()),
     Scene.Mount.resolve(Listbox.PortalListboxBackdrop, Listbox.Message.CompletedPortalListboxBackdrop()),
     Scene.Mount.resolve({ name: 'ScrollAreaSync' }, Listbox.Message.CompletedPortalListboxBackdrop()),

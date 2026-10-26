@@ -286,6 +286,7 @@ async function main(): Promise<void> {
     const sp2Bundles = [
       { entry: 'sp2/foldkit-ui.ts', outDir: 'sp2-foldkit-ui-out' },
       { entry: 'sp2/box-heading.ts', outDir: 'sp2-box-heading-out' },
+      { entry: 'sp2/checkbox-group.ts', outDir: 'sp2-checkbox-group-out' },
     ]
     for (const bundle of sp2Bundles) {
       run('pnpm', ['exec', 'vite', 'build', '--config', 'vite.sp2.config.ts'], root, packedBuildEnvironment({
@@ -294,12 +295,12 @@ async function main(): Promise<void> {
         WSEFFECT_SP2_OUT_DIR: bundle.outDir,
       }))
     }
-    const foldkitUiMaps = await filesUnder(resolve(root, sp2Bundles[0]!.outDir), '.js.map')
-    const foldkitUiSources = (await Promise.all(foldkitUiMaps.map(async (path) => {
+    const checkboxGroupMaps = await filesUnder(resolve(root, sp2Bundles[2]!.outDir), '.js.map')
+    const checkboxGroupSources = (await Promise.all(checkboxGroupMaps.map(async (path) => {
       const map = JSON.parse(await readFile(path, 'utf8')) as { sources?: string[] }
       return map.sources ?? []
     }))).flat()
-    fail(checkFoldkitUiTreeShaking(foldkitUiSources))
+    fail(checkFoldkitUiTreeShaking(checkboxGroupSources))
     passedChecks.push('sp2-foldkit-ui-tree-shaking')
 
     const boxHeadingMaps = await filesUnder(resolve(root, sp2Bundles[1]!.outDir), '.js.map')

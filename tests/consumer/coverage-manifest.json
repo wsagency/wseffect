@@ -8889,6 +8889,10 @@
     "public-surface",
     "consumer-install"
   ],
+  "type:@wsagency/wseffect-foldkit-ui:./menu:CompletedDelayClearSearch": [
+    "public-surface",
+    "consumer-install"
+  ],
   "type:@wsagency/wseffect-foldkit-ui:./menu:FocusButton": [
     "public-surface",
     "consumer-install"

@@ -148,8 +148,9 @@ export const createContextMenu = <Value extends string>(): ContextMenuBundle<Val
                 }
               }
               if (String.isNonEmpty(key) && key.length === 1 && !modifiers.ctrlKey && !modifiers.altKey && !modifiers.metaKey) {
+                const refining = model.searchQuery.length > 0
                 const search = `${model.searchQuery}${key}`.toLowerCase()
-                for (let step = 0; step < items.length; step += 1) {
+                for (let step = refining ? 0 : 1; step <= items.length; step += 1) {
                   const index = (active + step + items.length) % items.length
                   const item = items[index]
                   if (item !== undefined && !isSeparator(item) && !item.isDisabled && item.textValue.toLowerCase().startsWith(search)) {

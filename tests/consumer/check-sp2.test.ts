@@ -25,7 +25,7 @@ test('absorbed Foldkit UI exports are covered and primitives are absent from the
     name: string
     exports: Record<string, unknown>
   }
-  const requiredSubpaths = ['./checkboxGroup', './tooltip/group', './listboxSelect']
+  const requiredSubpaths = ['./checkboxGroup', './tooltip/group', './listboxSelect', './menu', './slider', './select']
   const required = [
     ...requiredSubpaths.map(subpath => `subpath:${packageJson.name}:${subpath}`),
     `export:${packageJson.name}:./checkboxGroup:view`,
@@ -34,12 +34,22 @@ test('absorbed Foldkit UI exports are covered and primitives are absent from the
     `export:${packageJson.name}:./menu:createContextMenu`,
     `export:${packageJson.name}:./menu:ContextInvocationSchema`,
     `export:${packageJson.name}:./slider:Range`,
+    `export:${packageJson.name}:./select:view`,
+    `type:${packageJson.name}:./menu:CompletedDelayClearSearch`,
     `type:${packageJson.name}:./listbox:InitConfig`,
     `type:${packageJson.name}:./listbox:ViewInputs`,
   ]
   assert.deepEqual(requiredSubpaths.filter(subpath => !Object.hasOwn(packageJson.exports, subpath)), [])
   assert.deepEqual(required.filter(item => !Object.hasOwn(manifest, item)), [])
   assert.equal(Object.keys(manifest).some(item => item.includes('@wsagency/wseffect-primitives')), false)
+})
+
+test('packed fixture independently imports popup and native Select APIs', async () => {
+  const fixture = await readFile(new URL('fixtures/sp2/foldkit-ui.ts', import.meta.url), 'utf8')
+  assert.match(fixture, /@wsagency\/wseffect-foldkit-ui\/listboxSelect/)
+  assert.match(fixture, /@wsagency\/wseffect-foldkit-ui\/select/)
+  assert.match(fixture, /createListboxSelect/)
+  assert.match(fixture, /nativeSelectView/)
 })
 
 test('SP2 packed CSS artifacts are exercised by the consumer runner', async () => {
@@ -50,7 +60,7 @@ test('SP2 packed CSS artifacts are exercised by the consumer runner', async () =
 
 test('packed runner checks Foldkit UI tree-shaking and excludes the primitives package', async () => {
   const source = await readFile(new URL('run.ts', import.meta.url), 'utf8')
-  assert.match(source, /checkFoldkitUiTreeShaking\(foldkitUiSources\)/)
+  assert.match(source, /checkFoldkitUiTreeShaking\(checkboxGroupSources\)/)
   assert.match(source, /checkNoPrimitivePackageReferences/)
   assert.match(source, /sp2\/foldkit-ui\.ts/)
   assert.doesNotMatch(source, /@wsagency\/wseffect-primitives/)

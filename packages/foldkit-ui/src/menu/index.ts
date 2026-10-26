@@ -477,7 +477,17 @@ export const update = (model: Model, message: Message) => {
     commands: ReadonlyArray<Command.Command<Message>>,
   ): Update.Return<Model, Message> => {
     if (!baseModel.isOpen) {
-      return { model: baseModel }
+      return Option.exists(
+        baseModel.maybeContextInvocation,
+        invocation => invocation.invocation === 'touch',
+      )
+        ? {
+            model: modifyFields(baseModel, {
+              maybeContextInvocation: () => Option.none(),
+              longPressVersion: () => baseModel.longPressVersion + 1,
+            }),
+          }
+        : { model: baseModel }
     }
 
     const closed = closedModel(baseModel)
@@ -1373,13 +1383,24 @@ const menuViewImpl = defineView<Model, Message, ViewInputs<string>>(
 
     const anchorAttributes = [
       h.Style({ position: 'absolute', margin: '0', visibility: 'hidden' }),
-      h.OnMount(AnchorMenu({ buttonId: `${id}-button`, anchor })),
+      h.OnMount(
+        Option.match(model.maybeContextInvocation, {
+          onNone: () => AnchorMenu({ buttonId: `${id}-button`, anchor }),
+          onSome: invocation =>
+            ContextMenuAnchor(invocation.sourceId, invocation.point, anchor),
+        }),
+      ),
     ]
 
     const itemsContainerAttributes = [
       h.Id(`${id}-items`),
       h.Role('menu'),
-      h.AriaLabelledBy(`${id}-button`),
+      h.AriaLabelledBy(
+        Option.match(model.maybeContextInvocation, {
+          onNone: () => `${id}-button`,
+          onSome: invocation => invocation.sourceId,
+        }),
+      ),
       ...maybeActiveDescendant,
       h.Tabindex(-1),
       ...anchorAttributes,

@@ -4,8 +4,8 @@ import { describe, it } from '@effect/vitest'
 import * as Menu from './index.js'
 import { createContextMenu, type ContextMenuConfig } from './context.js'
 
-const bundle = createContextMenu<'edit' | 'delete'>()
-const config: ContextMenuConfig<'edit' | 'delete'> = {
+const bundle = createContextMenu<'edit' | 'delete' | 'download' | 'docs'>()
+const config: ContextMenuConfig<'edit' | 'delete' | 'download' | 'docs'> = {
   id: 'actions',
   sourceId: 'source',
   sourceToken: 'source-token',
@@ -16,6 +16,8 @@ const config: ContextMenuConfig<'edit' | 'delete'> = {
       label: null,
       items: [{ value: 'delete', textValue: 'Delete', isDisabled: false, content: null }],
     },
+    { value: 'download', textValue: 'Download', isDisabled: false, content: null },
+    { value: 'docs', textValue: 'Documentation', isDisabled: false, content: null },
   ],
 }
 
@@ -60,6 +62,29 @@ describe('Menu ContextMenu Scene', () => {
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
     )
   })
+  it('starts fresh typeahead after the active item and wraps around', () => {
+    const opened = bundle.update(bundle.init(config), Menu.Message.OpenedAt({
+      invocation: {
+        invocation: 'keyboard',
+        sourceId: config.sourceId,
+        sourceToken: config.sourceToken,
+      },
+    })).model
+
+    Scene.scene(
+      { update, view },
+      Scene.given(opened),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.keydown(Scene.role('menu'), 'd'),
+      Scene.expectHandled(),
+      Scene.keydown(Scene.role('menu'), 'o'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
+      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
+    )
+  })
+
 
   it('supports Shift+F10 on the focusable source', () => {
     Scene.scene(
