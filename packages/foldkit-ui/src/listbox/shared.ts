@@ -669,14 +669,33 @@ const setupSelectedItemAnchor = (
     const viewportWidth = viewport?.innerWidth ?? panel.ownerDocument.documentElement.clientWidth
     const viewportHeight = viewport?.innerHeight ?? panel.ownerDocument.documentElement.clientHeight
     const maxHeight = Math.max(0, viewportHeight - collisionPadding * 2)
+    const panelWidth = Math.max(panelRect.width, panel.scrollWidth)
+    const itemOffset = item instanceof HTMLElement
+      ? item.getBoundingClientRect().top - panelRect.top + panel.scrollTop
+      : undefined
+    let availableHeight = maxHeight
+    if (itemOffset !== undefined) {
+      const alignedTop = triggerRect.top - itemOffset
+      if (alignedTop < collisionPadding) {
+        const requiredScroll = collisionPadding - alignedTop
+        availableHeight = Math.min(
+          availableHeight,
+          Math.max(0, panel.scrollHeight - requiredScroll),
+        )
+      } else if (alignedTop > viewportHeight - collisionPadding - availableHeight) {
+        availableHeight = Math.min(
+          availableHeight,
+          Math.max(0, viewportHeight - collisionPadding - alignedTop),
+        )
+      }
+    }
     const panelHeight = Math.min(
       Math.max(panelRect.height, panel.scrollHeight),
-      maxHeight,
+      availableHeight,
     )
-    const panelWidth = Math.max(panelRect.width, panel.scrollWidth)
-    const alignedTop = item === null
+    const alignedTop = itemOffset === undefined
       ? triggerRect.top
-      : triggerRect.top - (item.getBoundingClientRect().top - panelRect.top)
+      : triggerRect.top - itemOffset
     const left = Math.min(
       Math.max(collisionPadding, triggerRect.left),
       Math.max(collisionPadding, viewportWidth - collisionPadding - panelWidth),
@@ -690,11 +709,17 @@ const setupSelectedItemAnchor = (
     panel.style.top = `${top}px`
     panel.style.minWidth = `${triggerRect.width}px`
     panel.style.maxWidth = `${Math.max(0, viewportWidth - collisionPadding * 2)}px`
-    panel.style.maxHeight = `${maxHeight}px`
+    panel.style.maxHeight = `${availableHeight}px`
     panel.style.overflowY = 'auto'
     panel.style.overscrollBehavior = 'none'
     panel.style.removeProperty('visibility')
-    if (item instanceof HTMLElement) item.scrollIntoView?.({ block: 'nearest' })
+    if (item instanceof HTMLElement && itemOffset !== undefined) {
+      const maxScrollTop = Math.max(0, panel.scrollHeight - panel.clientHeight)
+      panel.scrollTop = Math.min(
+        maxScrollTop,
+        Math.max(0, itemOffset + top - triggerRect.top),
+      )
+    }
     if (observer && item !== observedItem) {
       if (observedItem) observer.unobserve(observedItem)
       if (item) observer.observe(item)

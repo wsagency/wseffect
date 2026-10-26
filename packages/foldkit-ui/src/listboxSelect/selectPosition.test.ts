@@ -206,7 +206,6 @@ const createPositioningFixture = async (
   vi.spyOn(active, 'getBoundingClientRect').mockReturnValue(rect(90, 80, 20) as DOMRect)
   if (longList) {
     Object.defineProperty(panel, 'scrollHeight', { configurable: true, value: 200 })
-    selected.scrollIntoView = vi.fn()
   }
   const action = Listbox.AnchorListbox({
     buttonId: 'trigger',
@@ -234,16 +233,15 @@ const createPositioningFixture = async (
   }
 }
 
-it('fits a long item-aligned list inside the viewport and scrolls the selection into view', async () => {
+it('fits a long item-aligned list and preserves the selected item alignment', async () => {
   const initialHeight = window.innerHeight
   Object.defineProperty(window, 'innerHeight', { configurable: true, value: 100 })
   const fixture = await createPositioningFixture(false, true)
   try {
     expect(fixture.panel.style.visibility).toBe('')
-    expect(fixture.panel.style.top).toBe('8px')
-    expect(fixture.panel.style.maxHeight).toBe('84px')
+    expect(fixture.panel.style.top).toBe('40px')
+    expect(fixture.panel.style.maxHeight).toBe('52px')
     expect(fixture.panel.style.overflowY).toBe('auto')
-    expect(fixture.selected.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' })
   } finally {
     await fixture.cleanup()
     Object.defineProperty(window, 'innerHeight', { configurable: true, value: initialHeight })
