@@ -761,6 +761,31 @@ describe('VirtualList', () => {
 
       expect(scrollTop).toBe(40)
     })
+    it('targets its own row when nested inside an outer keyed row', async () => {
+      const outerViewport = document.createElement('div')
+      outerViewport.setAttribute('data-virtual-list-scroll-version', '1')
+      const outerRow = document.createElement('div')
+      outerRow.setAttribute('data-virtual-list-item-key', 'outer')
+      outerRow.setAttribute('data-virtual-list-item-index', '0')
+      const inner = createScrollElement(
+        0,
+        30,
+        [{ index: 3, key: 'own-row', start: 90, height: 30 }],
+        1000,
+        1,
+      )
+      outerRow.append(inner)
+      outerViewport.append(outerRow)
+      document.body.append(outerViewport)
+
+      try {
+        const scroll = scrollToKey(init({ id: 'test', rowHeightPx: 30 }), 'own-row')
+        expect(await runMountedScroll(scroll, inner)).toBe(90)
+      } finally {
+        outerViewport.remove()
+      }
+    })
+
   })
 
   describe('scrollToOffset', () => {

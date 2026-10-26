@@ -1,6 +1,7 @@
-import { Option, Schema } from 'effect'
+import { Effect, Option, Schema } from 'effect'
 import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import { Command, Update } from '@wsagency/wseffect-foldkit'
+import * as Mount from '@wsagency/wseffect-foldkit/mount'
 import { childAttributes, createLazy } from '@wsagency/wseffect-foldkit/html'
 import type { Html, HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import { defineMessageUnion } from '@wsagency/wseffect-foldkit/message'
@@ -44,7 +45,6 @@ export const Message = defineMessageUnion({
   ActiveCellChanged: { rowId: Schema.String, columnId: Schema.String },
   GridKey: { key: Schema.String, ctrlKey: Schema.Boolean },
   VirtualList: { message: VirtualList.Message },
-  TableUnmounted: { tableId: Schema.String },
   FocusTargetCompleted: {
     rowId: Schema.String,
     columnId: Schema.String,
@@ -63,6 +63,19 @@ export const OutMessage = defineMessageUnion({
 export type OutMessage = typeof OutMessage.Type
 
 const tableStates = new Map<string, TableState<unknown>>()
+const dataTableStateLifetime = Mount.define('DataTableStateLifetime', {
+  args: { tableId: Schema.String },
+  messages: [Message.VirtualList],
+  execute: ({ tableId }) => Effect.acquireRelease(
+    Effect.succeed(Message.VirtualList({
+      message: VirtualList.Message.CompletedApplyScroll({
+        version: -1,
+        outcome: { _tag: 'Skipped' },
+      }),
+    })),
+    () => Effect.sync(() => tableStates.delete(tableId)),
+  ),
+})
 const { focusDataTableCell, focusHeaderCell } = makeDataTableMounts(Message)
 const selectionColumnId = '$selection'
 const gridHeaderRowId = '$header'
@@ -198,6 +211,49 @@ function recoveredFocusTarget(model: Model, activeCell: Model['activeCell']): Mo
     activeCell?.rowId === gridHeaderRowId) return undefined
   return activeCell
 }
+function isRenderedAt<Row>(
+  model: Model,
+  config: Config<Row>,
+  ids: ReadonlyArray<string>,
+  rowId: string,
+  scrollTop: number,
+): boolean {
+  const rowIndex = ids.indexOf(rowId)
+  if (rowIndex < 0) return false
+  const containerHeight = model.virtualList.measurement._tag === 'Measured'
+    ? model.virtualList.measurement.containerHeight
+    : model.virtualList.initialContainerHeight ?? config.viewportHeight ?? 360
+  const overscan = config.overscanRows
+  const startIndex = Math.max(0, Math.floor(scrollTop / config.rowHeight) - overscan)
+  const endIndex = Math.min(ids.length, Math.ceil((scrollTop + containerHeight) / config.rowHeight) + overscan)
+  return rowIndex >= startIndex && rowIndex < endIndex
+}
+
+function focusTargetForRows<Row>(
+  model: Model,
+  config: Config<Row>,
+  ids: ReadonlyArray<string>,
+  activeCell: Model['activeCell'],
+  scrollTop: number,
+): Model['activeCell'] | undefined {
+  const recovered = recoveredFocusTarget(model, activeCell)
+  if (recovered !== undefined) return recovered
+  if (
+    activeCell !== null
+    && activeCell.rowId !== gridHeaderRowId
+    && !isRenderedAt(model, config, ids, activeCell.rowId, scrollTop)
+  ) return activeCell
+  return undefined
+}
+
+const focusGridRoot = (containerId: string) =>
+  focusDataTableCell({
+    containerId,
+    rowId: '$grid-root',
+    columnId: '$grid-root',
+    rowIndex: -1,
+    columnIndex: -1,
+  })
 
 export function update<Row>(model: Model, config: Config<Row>, message: Message): Update.ReturnWithOutMessage<Model, Message, OutMessage> {
   return Message.match(message, {
@@ -214,11 +270,14 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       tableStates.set(config.id, state as TableState<unknown>)
       const orderedRowIds = computeOrder(state, model.filter, model.sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const focusTarget = recoveredFocusTarget(model, activeCell)
+      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, model.virtualList.scrollTop)
       const list = informRowsChanged(model, orderedRowIds, false, focusTarget)
       return {
         model: { ...model, orderedRowIds, activeCell, pendingFocus: list.focusTarget === null ? { rowId: '$grid-root', columnId: '$grid-root' } : list.focusTarget ?? null, virtualList: list.model },
-        commands: mapChildCommands(list.commands),
+        commands: [
+          ...(mapChildCommands(list.commands) ?? []),
+          ...(list.focusTarget === null && config.isGrid ? [focusGridRoot(model.virtualList.id)] : []),
+        ],
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
     },
@@ -226,24 +285,13 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const state = stateFor(config)
       const orderedRowIds = computeOrder(state, value, model.sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const recoveredFocus = recoveredFocusTarget(model, activeCell)
-      const focusTarget = recoveredFocus === undefined
-        ? activeCell !== null && activeCell.rowId !== gridHeaderRowId ? activeCell : undefined
-        : recoveredFocus
+      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, 0)
       const list = informRowsChanged(model, orderedRowIds, true, focusTarget)
       return {
         model: { ...model, filter: value, orderedRowIds, activeCell, pendingFocus: list.focusTarget === null ? { rowId: '$grid-root', columnId: '$grid-root' } : list.focusTarget ?? null, virtualList: list.model },
         commands: [
           ...(mapChildCommands(list.commands) ?? []),
-          ...(list.focusTarget === null && config.isGrid
-            ? [focusDataTableCell({
-                containerId: model.virtualList.id,
-                rowId: '$grid-root',
-                columnId: '$grid-root',
-                rowIndex: -1,
-                columnIndex: -1,
-              })]
-            : []),
+          ...(list.focusTarget === null && config.isGrid ? [focusGridRoot(model.virtualList.id)] : []),
         ],
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
@@ -259,7 +307,7 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
       const state = stateFor(config)
       const orderedRowIds = computeOrder(state, model.filter, sort)
       const activeCell = recoverActiveCell(model, config, orderedRowIds)
-      const focusTarget = recoveredFocusTarget(model, activeCell)
+      const focusTarget = focusTargetForRows(model, config, orderedRowIds, activeCell, model.virtualList.scrollTop)
       const list = informRowsChanged(model, orderedRowIds, false, focusTarget)
       return {
         model: {
@@ -272,7 +320,10 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
             : list.focusTarget ?? null,
           virtualList: list.model,
         },
-        commands: mapChildCommands(list.commands),
+        commands: [
+          ...(mapChildCommands(list.commands) ?? []),
+          ...(list.focusTarget === null && config.isGrid ? [focusGridRoot(model.virtualList.id)] : []),
+        ],
         outMessage: focusOutMessage(model, activeCell, config.isGrid),
       }
     },
@@ -311,12 +362,24 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
     GridKey: ({ key, ctrlKey }) => handleGridKey(model, config, key, ctrlKey),
     VirtualList: ({ message: childMessage }) => {
       const result = VirtualList.update(model.virtualList, childMessage)
-      const shouldFocusAfterCommit =
+      const completedScroll =
         childMessage._tag === 'CompletedApplyScroll' &&
         childMessage.outcome._tag === 'Applied' &&
         model.pendingFocus !== null
+      const skippedRowScroll =
+        childMessage._tag === 'CompletedApplyScroll' &&
+        childMessage.outcome._tag === 'Skipped' &&
+        model.pendingFocus !== null &&
+        model.pendingFocus.rowId !== '$grid-root'
       const commands = mapChildCommands(result.commands) ?? []
-      if (!shouldFocusAfterCommit || model.pendingFocus === null) {
+      if (skippedRowScroll && model.pendingFocus !== null) {
+        const retry = VirtualList.scrollToKey(result.model, model.pendingFocus.rowId, { alignment: 'Nearest' })
+        return {
+          model: { ...model, virtualList: retry.model },
+          commands: [...commands, ...(mapChildCommands(retry.commands) ?? [])],
+        }
+      }
+      if (!completedScroll || model.pendingFocus === null) {
         return {
           model: { ...model, virtualList: result.model },
           commands,
@@ -344,10 +407,6 @@ export function update<Row>(model: Model, config: Config<Row>, message: Message)
           }),
         ],
       }
-    },
-    TableUnmounted: ({ tableId }) => {
-      tableStates.delete(tableId)
-      return { model }
     },
     FocusTargetCompleted: ({
       rowId,
@@ -584,6 +643,7 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
         return handled ? Option.some(Message.GridKey({ key, ctrlKey: modifiers.ctrlKey || modifiers.metaKey })) : Option.none()
       }),
     ] : []),
+    h.OnMount(dataTableStateLifetime({ tableId: config.id })),
   ]
   const containerId = model.virtualList.id
   const rootClasses = tableStyle === undefined
@@ -600,12 +660,12 @@ export function view<Row>(model: Model, config: Config<Row>, h: HtmlBuilder<Mess
       itemToKey: rowId => rowId,
       itemToRowHeightPx: () => config.rowHeight,
       overscan: config.overscanRows,
+      leadingOffsetPx: config.leadingOffsetPx ?? config.rowHeight,
       containerElement: 'div',
       containerRole: null,
       containerAttributes: childAttributes([
         h.Class(rootClasses),
         h.Style({ maxHeight: `${config.viewportHeight ?? 360}px` }),
-        h.OnUnmount(Message.TableUnmounted({ tableId: config.id })),
       ]),
       rowElement: 'tr',
       rowRole: 'row',

@@ -293,11 +293,11 @@ const renderedRows = (element: HTMLElement): ReadonlyArray<HTMLElement> =>
   pipe(
     element.querySelectorAll<HTMLElement>('[data-virtual-list-item-key]'),
     Array.fromIterable,
-    Array.filter(
-      row =>
-        row.closest('[data-virtual-list-item-key]') === row &&
-        row.parentElement?.closest('[data-virtual-list-item-key]') === null,
-    ),
+    Array.filter(row => {
+      if (row.closest('[data-virtual-list-scroll-version]') !== element) return false
+      const ancestorRow = row.parentElement?.closest('[data-virtual-list-item-key]')
+      return ancestorRow?.closest('[data-virtual-list-scroll-version]') !== element
+    }),
   )
 
 const rowIndex = (element: HTMLElement): Option.Option<number> =>
@@ -888,6 +888,7 @@ type ListLayout = Readonly<{
   rowHeightPx: number
   totalHeight: number
   leadingInset: number
+  leadingOffsetPx: number
   containerHeight: number
   maxScrollTop: number
 }>
@@ -905,6 +906,7 @@ const listLayout = <Item>(
     | ((item: Item, index: number) => number)
     | undefined,
   contentAlignment: ContentAlignment,
+  leadingOffsetPx: number,
 ): ListLayout => {
   const rowHeightFor = (item: Item, index: number): number => {
     if (dynamicRowHeights !== undefined) {
@@ -939,8 +941,9 @@ const listLayout = <Item>(
     rowHeightPx: model.rowHeightPx,
     totalHeight,
     leadingInset,
+    leadingOffsetPx,
     containerHeight,
-    maxScrollTop: Math.max(0, leadingInset + totalHeight - containerHeight),
+    maxScrollTop: Math.max(0, leadingOffsetPx + leadingInset + totalHeight - containerHeight),
   }
 }
 
@@ -966,8 +969,8 @@ const rowOffsetsForIndex = (
 
   const clampedIndex = Math.max(0, Math.min(index, itemCount - 1))
   return Option.some({
-    startOffset: layout.leadingInset + offsetAt(layout, clampedIndex),
-    endOffset: layout.leadingInset + offsetAt(layout, clampedIndex + 1),
+    startOffset: layout.leadingOffsetPx + layout.leadingInset + offsetAt(layout, clampedIndex),
+    endOffset: layout.leadingOffsetPx + layout.leadingInset + offsetAt(layout, clampedIndex + 1),
   })
 }
 
@@ -1081,10 +1084,11 @@ const visibleWindowForLayout = (
   itemCount: number,
   overscan: number,
 ): VisibleWindow => {
-  const contentScrollTop = Math.max(0, scrollTop - layout.leadingInset)
+  const contentStart = layout.leadingOffsetPx + layout.leadingInset
+  const contentScrollTop = Math.max(0, scrollTop - contentStart)
   const contentViewportEnd = Math.max(
     0,
-    scrollTop + layout.containerHeight - layout.leadingInset,
+    scrollTop + layout.containerHeight - contentStart,
   )
   const firstVisibleIndex = Option.match(layout.maybeCumulativeOffsets, {
     onNone: () => Math.floor(contentScrollTop / layout.rowHeightPx),
@@ -1304,6 +1308,7 @@ type BaseViewInputs<Item> = Readonly<{
   items: ReadonlyArray<Item>
   itemToKey: (item: Item, index: number) => string
   overscan?: number
+  leadingOffsetPx?: number
   containerElement?: Exclude<TagName, 'textarea'>
   containerRole?: 'list' | 'grid' | null
   rowElement?: Exclude<TagName, 'textarea'>
@@ -1388,6 +1393,7 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       itemToRowHeightPx,
       dynamicRowHeights,
       itemToEstimatedRowHeightPx,
+      leadingOffsetPx = 0,
       overscan = DEFAULT_OVERSCAN,
       containerElement = 'ul',
       containerRole = 'list',
@@ -1453,6 +1459,7 @@ const viewImpl = defineView<Model, Message, ViewInputs<unknown>>(
       dynamicRowHeights,
       itemToEstimatedRowHeightPx,
       contentAlignment,
+      leadingOffsetPx,
     )
     const windowForCurrentViewport = () =>
       visibleWindowForLayout(

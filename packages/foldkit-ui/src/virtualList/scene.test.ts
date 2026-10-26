@@ -134,6 +134,35 @@ const acknowledgeObserver = Scene.Mount.resolve(
         acknowledgeObserver,
       )
     })
+    it('uses a declared leading viewport offset when rendering the visible logical slice', () => {
+      const measured = update(
+        measuredModel,
+        Message.ResizedContainer({ containerWidth: 320, containerHeight: 60 }),
+      ).model
+      const scrolled = update(measured, Message.ObservedContainerScroll({
+        scrollTop: 90,
+        scrollHeight: 360,
+        containerHeight: 60,
+        anchor: { _tag: 'None' },
+      })).model
+      const offsetView = (model: Model, h: HtmlBuilder<Message>) =>
+        view<DemoItem>()(model, {
+          items: demoItems,
+          itemToKey: item => String(item.id),
+          itemToRowHeightPx: () => ROW_HEIGHT,
+          rowToView: (item, _index, key, attributes, builder) =>
+            builder.keyed('li')(key, attributes, [builder.span([], [item.label])]),
+          overscan: 0,
+          leadingOffsetPx: 60,
+        }, h)
+
+      Scene.scene(
+        { update, view: offsetView },
+        Scene.given(scrolled),
+        Scene.expect(Scene.selector('li[data-virtual-list-item-index="2"]')).toExist(),
+        acknowledgeObserver,
+      )
+    })
   })
 
 describe('VirtualList', () => {

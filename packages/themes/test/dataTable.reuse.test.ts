@@ -1,3 +1,4 @@
+import * as Runtime from '@wsagency/wseffect-foldkit/runtime'
 import type { HtmlBuilder } from '@wsagency/wseffect-foldkit/html'
 import * as VirtualList from '@wsagency/wseffect-foldkit-ui/virtualList'
 import * as Scene from '@wsagency/wseffect-foldkit/scene'
@@ -180,7 +181,7 @@ describe('DataTable row view cache reuse', () => {
       }),
     )
   })
-  it('disposes row-view cache on table lifetime cleanup', () => {
+  it('disposes row-view cache through an embedded runtime lifetime finalizer', async () => {
     const renderCount = new Map<string, number>()
     const columns: ReadonlyArray<DataTable.Column<Row>> = [{
       id: 'label',
@@ -192,20 +193,37 @@ describe('DataTable row view cache reuse', () => {
         return null
       },
     }]
-    const cfg = makeConfig(originalRows, columns)
-    const update = (model: DataTable.Model, message: DataTable.Message) => DataTable.update(model, cfg, message)
-    const resolveMeasurement = Scene.Mount.resolve(
-      { name: 'ObserveVirtualList', args: { id: `${cfg.id}-virtual-list` } },
-      VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
-    )
-    const view = (model: DataTable.Model, h: HtmlBuilder<DataTable.Message>) => DataTable.view(model, cfg, h)
-    Scene.scene(
-      { update, view },
-      Scene.given(DataTable.init(cfg)),
-      resolveMeasurement,
-      Scene.tap(() => expect(renderCount.get('a')).toBe(1)),
-      Scene.Subscription.emit(DataTable.Message.TableUnmounted({ tableId: cfg.id })),
-      Scene.tap(() => expect(renderCount.get('a')).toBe(2)),
-    )
+    const cfg = { ...makeConfig(originalRows, columns), viewportHeight: 180 }
+    const container = document.createElement('div')
+    container.id = 'data-table-runtime'
+    document.body.append(container)
+    const makeProgram = (model: DataTable.Model) => Runtime.makeElement({
+      Model: DataTable.Model,
+      init: () => ({ model }),
+      update: (currentModel, message) => {
+        const result = DataTable.update(currentModel, cfg, message)
+        return result.commands === undefined
+          ? { model: result.model }
+          : { model: result.model, commands: result.commands }
+      },
+      view: (model: DataTable.Model, h: HtmlBuilder<DataTable.Message>) => h.div([], [DataTable.view(model, cfg, h)]),
+      container,
+    })
+    const initialModel = DataTable.init(cfg)
+    const firstRuntime = Runtime.embed(makeProgram(initialModel))
+    let secondRuntime: { dispose: () => void } | undefined
+    try {
+      await vi.waitFor(() => expect(container.querySelector('table')).not.toBeNull())
+      await vi.waitFor(() => expect(renderCount.get('a')).toBe(1))
+      firstRuntime.dispose()
+      await vi.waitFor(() => expect(container.childNodes.length).toBe(0))
+      const updated = DataTable.update(initialModel, cfg, DataTable.Message.FilterChanged({ value: 'Alpha' }))
+      secondRuntime = Runtime.embed(makeProgram(updated.model))
+      await vi.waitFor(() => expect(renderCount.get('a')).toBe(2))
+    } finally {
+      secondRuntime?.dispose()
+      firstRuntime.dispose()
+      container.remove()
+    }
   })
 })

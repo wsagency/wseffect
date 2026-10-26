@@ -79,12 +79,25 @@ async function findSourceFiles(directory: string): Promise<string[]> {
   return matches
 }
 
+const absorbedUpdateSources = [
+  '/packages/foldkit-ui/src/menu/context.ts',
+  '/packages/foldkit-ui/src/tooltip/group.ts',
+  '/packages/foldkit-ui/src/slider/range.ts',
+  '/packages/foldkit-ui/src/anchor/anchor.ts',
+  '/packages/foldkit-ui/src/listboxSelect/index.ts',
+  '/packages/foldkit-ui/src/virtualList/index.ts',
+  '/packages/foldkit-ui/src/checkboxGroup/index.ts',
+]
+
 export function isUpdateCoverageSource(path: string): boolean {
+  if (
+    path.includes('/packages/foldkit-ui/')
+    && !absorbedUpdateSources.some(source => path.endsWith(source))
+  ) return false
   return path.includes('/src/')
     && !path.endsWith('.test.ts')
     && !path.includes('/src/test/')
-    && !path.includes('/packages/foldkit/')
-    && !path.includes('/packages/foldkit-ui/')
+    && !path.includes('/packages/foldkit/src/')
     && !path.includes('/packages/vite-plugin/')
 }
 
