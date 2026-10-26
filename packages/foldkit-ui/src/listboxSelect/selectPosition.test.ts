@@ -149,8 +149,31 @@ it('falls back to trigger placement when the selected item is absent', async () 
     top: '100px', left: '10px', minWidth: '80px', disconnected: 1,
   })
 })
+it('no-ops selected-or-active anchoring when its trigger is absent', async () => {
+  const panel = document.createElement('div')
+  panel.style.visibility = 'hidden'
+  const getRootNode = vi.spyOn(panel, 'getRootNode')
+  const action = Listbox.AnchorListbox({
+    buttonId: 'missing-trigger',
+    anchor: {},
+    anchorMode: 'SelectedOrActiveItem',
+  })
+  const fiber = Effect.runFork(Stream.runDrain(action.f(panel, Stream.never)))
+  try {
+    await vi.waitFor(() => expect(getRootNode).toHaveBeenCalled())
+    expect(panel.style.visibility).toBe('hidden')
+    expect(panel.style.position).toBe('')
+  } finally {
+    await Effect.runPromise(Fiber.interrupt(fiber))
+  }
+})
 
-const createPositioningFixture = async (inShadowRoot: boolean, longList: boolean) => {
+
+const createPositioningFixture = async (
+  inShadowRoot: boolean,
+  longList: boolean,
+  useAnchorMode = false,
+) => {
   let resolveObserved!: () => void
   const observed = new Promise<void>(resolve => { resolveObserved = resolve })
   class Observer {
@@ -174,6 +197,7 @@ const createPositioningFixture = async (inShadowRoot: boolean, longList: boolean
   selected.setAttribute('data-selected', '')
   const active = document.createElement('div')
   active.id = 'active'
+  if (useAnchorMode) active.setAttribute('data-active', '')
   panel.append(selected, active)
   root.append(trigger, panel)
   vi.spyOn(trigger, 'getBoundingClientRect').mockReturnValue(rect(80, 80, 24) as DOMRect)
@@ -187,7 +211,9 @@ const createPositioningFixture = async (inShadowRoot: boolean, longList: boolean
   const action = Listbox.AnchorListbox({
     buttonId: 'trigger',
     anchor: {},
-    selectedItemId: 'selected',
+    ...(useAnchorMode
+      ? { anchorMode: 'SelectedOrActiveItem' as const }
+      : { selectedItemId: 'selected' }),
   })
   const fiber = Effect.runFork(Stream.runDrain(action.f(panel, Stream.never)))
   await observed
@@ -241,6 +267,16 @@ it('re-aligns to the current active item after a DOM patch', async () => {
     expect(fixture.panel.style.top).toBe('40px')
     fixture.active.setAttribute('data-active', '')
     await vi.waitFor(() => expect(fixture.panel.style.top).toBe('10px'))
+  } finally {
+    await fixture.cleanup()
+  }
+})
+
+it('uses the active item when SelectedOrActiveItem mode has no selection', async () => {
+  const fixture = await createPositioningFixture(false, false, true)
+  try {
+    expect(fixture.panel.style.visibility).toBe('')
+    expect(fixture.panel.style.top).toBe('10px')
   } finally {
     await fixture.cleanup()
   }

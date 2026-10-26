@@ -231,4 +231,25 @@ describe('Menu ContextMenu anchor', () => {
       Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: initialClientHeight })
     }
   })
+  it('closes the contextual menu after a pointer press outside its source and panel', async () => {
+    const source = document.createElement('button')
+    source.id = config.sourceId
+    const panel = document.createElement('div')
+    panel.style.visibility = 'hidden'
+    panel.tabIndex = -1
+    document.body.append(source, panel)
+    vi.spyOn(source, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 80, 24))
+    vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(new DOMRect(20, 20, 100, 60))
+
+    const action = Menu.ContextMenuAnchor(config.sourceId, { x: 24, y: 32 }, { portal: false })
+    const closed = Effect.runPromise(Stream.runHead(action.f(panel, Stream.never)))
+    try {
+      await vi.waitFor(() => expect(panel.style.visibility).toBe(''))
+      document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+      expect(await closed).toEqual(Option.some(Menu.Message.Closed()))
+    } finally {
+      source.remove()
+      panel.remove()
+    }
+  })
 })

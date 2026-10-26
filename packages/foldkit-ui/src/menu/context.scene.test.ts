@@ -109,6 +109,59 @@ describe('Menu ContextMenu Scene', () => {
     )
   })
 
+  it('moves keyboard focus among enabled items and closes on Escape', () => {
+    const opened = bundle.openAt(bundle.init(config), {
+      invocation: 'keyboard',
+      sourceId: config.sourceId,
+      sourceToken: config.sourceToken,
+    })
+    Scene.scene(
+      { update, view },
+      Scene.given(opened.model),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.keydown(Scene.role('menu'), 'ArrowDown'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Download' })).toHaveAttr('data-active', ''),
+      Scene.keydown(Scene.role('menu'), 'ArrowUp'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toHaveAttr('data-active', ''),
+      Scene.keydown(Scene.role('menu'), 'Escape'),
+      Scene.expectHandled(),
+      Scene.expect(Scene.role('menu')).not.toExist(),
+      Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
+    )
+  })
+
+  it('opens touch invocations only after long-press expiry and cancels after movement', () => {
+    const invoked = bundle.openAt(bundle.init(config), {
+      invocation: 'touch',
+      sourceId: config.sourceId,
+      sourceToken: config.sourceToken,
+      point: { x: 10, y: 20 },
+    })
+    expect(invoked.model.isOpen).toBe(false)
+    expect(invoked.commands?.some(command => command.name === 'ContextLongPress')).toBe(true)
+
+    const opened = bundle.update(
+      invoked.model,
+      Menu.Message.LongPressExpired({ version: invoked.model.longPressVersion }),
+    )
+    expect(opened.model.isOpen).toBe(true)
+    expect(opened.model.maybeContextInvocation).toEqual(invoked.model.maybeContextInvocation)
+
+    const moved = bundle.update(
+      invoked.model,
+      Menu.Message.MovedPointerOverItem({ index: -1, screenX: 19, screenY: 20 }),
+    )
+    expect(moved.model.maybeContextInvocation).toEqual(Option.none())
+    expect(moved.model.longPressVersion).toBe(invoked.model.longPressVersion + 1)
+    expect(bundle.update(
+      moved.model,
+      Menu.Message.LongPressExpired({ version: invoked.model.longPressVersion }),
+    ).model.isOpen).toBe(false)
+  })
+
 
   it('supports Shift+F10 on the focusable source', () => {
     Scene.scene(
