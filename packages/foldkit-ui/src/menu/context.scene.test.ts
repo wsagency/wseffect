@@ -62,6 +62,17 @@ describe('Menu ContextMenu Scene', () => {
       Scene.Mount.expectEnded({ name: 'ContextMenuAnchor' }),
     )
   })
+  it('opens programmatically from the source when no contextual invocation exists', () => {
+    const opened = bundle.open(bundle.init(config))
+    Scene.scene(
+      { update, view },
+      Scene.given(opened.model),
+      Scene.Mount.resolve({ name: 'ContextMenuSourceEvents' }, Menu.Message.IgnoredMouseClick()),
+      Scene.Mount.resolve({ name: 'ContextMenuAnchor' }, Menu.Message.CompletedAnchorMenu()),
+      Scene.expect(Scene.role('menu')).toExist(),
+      Scene.expect(Scene.role('menuitem', { name: 'Delete' })).toExist(),
+    )
+  })
   it('starts fresh typeahead after the active item and wraps around', () => {
     const opened = bundle.update(bundle.init(config), Menu.Message.OpenedAt({
       invocation: {

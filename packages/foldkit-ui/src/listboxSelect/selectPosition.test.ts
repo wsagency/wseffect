@@ -93,11 +93,19 @@ const rect = (top: number, width: number, height: number) => ({
 
 const positionWithItem = async (itemTop?: number) => {
   let disconnected = 0
+  let positioned: { top: string; left: string; minWidth: string } | undefined
   let observed!: () => void
   const observerReady = new Promise<void>(resolve => { observed = resolve })
   class Observer {
     constructor(_callback: ResizeObserverCallback) {}
-    observe(): void { observed() }
+    observe(): void {
+      positioned = {
+        top: panel.style.top,
+        left: panel.style.left,
+        minWidth: panel.style.minWidth,
+      }
+      observed()
+    }
     disconnect(): void { disconnected += 1 }
   }
   vi.stubGlobal('ResizeObserver', Observer)
@@ -123,12 +131,7 @@ const positionWithItem = async (itemTop?: number) => {
     Effect.promise(() => observerReady).pipe(Effect.as('observed')),
   ))
   expect(result).toBe('observed')
-  const geometry = {
-    top: panel.style.top,
-    left: panel.style.left,
-    minWidth: panel.style.minWidth,
-    disconnected,
-  }
+  const geometry = { ...positioned, disconnected }
   trigger.remove()
   panel.remove()
   vi.unstubAllGlobals()
