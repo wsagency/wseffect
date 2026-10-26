@@ -38,6 +38,9 @@ const pages = {
   'context-menu': lazy(() => import('./pages/sp2')),
   'theme-panel': lazy(() => import('./pages/sp2')),
   'data-table': lazy(() => import('./pages/sp2')),
+  'perf-select': lazy(() => import('./pages/perf-select')),
+  'perf-tooltip': lazy(() => import('./pages/perf-tooltip')),
+  'perf-slider': lazy(() => import('./pages/perf-slider')),
 } satisfies Record<string, Component<AppPageProps>>
 
 type Route = keyof typeof pages | 'home'
@@ -76,6 +79,9 @@ const links: ReadonlyArray<{ readonly id: string; readonly href: string; readonl
   { id: 'contextMenu', href: '/context-menu', label: 'Context menu', route: 'context-menu' },
   { id: 'themePanel', href: '/theme-panel', label: 'Theme panel', route: 'theme-panel' },
   { id: 'dataTable', href: '/data-table', label: 'Data table', route: 'data-table' },
+  { id: 'perfSelect', href: '/components/select', label: 'Select perf', route: 'perf-select' },
+  { id: 'perfTooltip', href: '/components/tooltip', label: 'Tooltip perf', route: 'perf-tooltip' },
+  { id: 'perfSlider', href: '/components/range-slider', label: 'Range slider perf', route: 'perf-slider' },
 ]
 
 function routeForPath(pathname: string): Route {

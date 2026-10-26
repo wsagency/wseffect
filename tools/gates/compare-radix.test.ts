@@ -3,8 +3,29 @@ import assert from 'node:assert/strict'
 import { basename, dirname, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { test } from 'node:test'
-import { median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark, pressBenchmarkButton, resetDropdownForBenchmark, benchmarkOutputPath, writeReportAtomically } from '../bench/compare-radix.ts'
+import { COMPARISON_SCENARIOS, median, aaP95AbsDelta, noiseScreen, readRadixFixtureCommit, applySettingChange, runHarnessSelfTestWithRafRetry, resetDialogForBenchmark, pressBenchmarkButton, resetDropdownForBenchmark, benchmarkOutputPath, writeReportAtomically } from '../bench/compare-radix.ts'
 
+
+test('comparison covers matched scenarios and excludes the unsupported DataTable cases', () => {
+  assert.deepEqual(COMPARISON_SCENARIOS.filter(({ id }) => id.startsWith('dt-')), [])
+  for (const id of ['select-open', 'select-choose', 'tooltip-open', 'tooltip-close', 'slider-drag']) {
+    assert.ok(COMPARISON_SCENARIOS.some(scenario => scenario.id === id), `${id} is missing`)
+  }
+})
+
+test('reopens Select after a rejected select-choice trace retry', async () => {
+  const calls: string[] = []
+  const scenario = COMPARISON_SCENARIOS.find(({ id }) => id === 'select-choose')
+  assert.ok(scenario)
+  await scenario.reset({
+    reload: async (options: { waitUntil: string }) => { calls.push(`reload:${options.waitUntil}`) },
+    locator: (selector: string) => {
+      assert.equal(selector, '[data-perf="select-open"] button')
+      return { click: async () => { calls.push('click') } }
+    },
+  } as never)
+  assert.deepEqual(calls, ['reload:networkidle', 'click'])
+})
 test('median handles odd and even sample counts without mutating input', () => {
   const values = [9, 1, 5, 3]
   assert.equal(median(values), 4)
