@@ -237,6 +237,7 @@ describe('DataTable row view cache reuse', () => {
       disconnect() {}
     } as unknown as typeof ResizeObserver
     const initialModel = DataTable.init(cfg)
+    const deleteSpy = vi.spyOn(Map.prototype, 'delete')
     const firstRuntime = Runtime.embed(makeProgram(initialModel, container))
     let secondRuntime: { dispose: () => void } | undefined
     let secondContainer: HTMLElement | undefined
@@ -246,6 +247,7 @@ describe('DataTable row view cache reuse', () => {
       await vi.waitFor(() => expect(renderCount.get('a')).toBe(1))
       firstRuntime.dispose()
       await vi.waitFor(() => expect(document.body.querySelector('table')).toBeNull())
+      expect(deleteSpy).toHaveBeenCalledWith(cfg.id)
       const updated = DataTable.update(initialModel, cfg, DataTable.Message.FilterChanged({ value: 'Alpha' }))
       secondContainer = document.createElement('div')
       secondContainer.id = 'data-table-runtime-second'
@@ -256,6 +258,7 @@ describe('DataTable row view cache reuse', () => {
     } finally {
       secondRuntime?.dispose()
       firstRuntime.dispose()
+      deleteSpy.mockRestore()
       if (previousResizeObserver === undefined) {
         Reflect.deleteProperty(globalThis, 'ResizeObserver')
       } else {

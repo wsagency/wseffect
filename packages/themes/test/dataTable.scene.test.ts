@@ -28,6 +28,19 @@ function findVNode(
   return undefined
 }
 
+function findVNodes(
+  html: Html | undefined,
+  predicate: (node: VNode) => boolean,
+): ReadonlyArray<VNode> {
+  if (html === undefined || !isVNode(html)) return []
+  const matches: VNode[] = predicate(html) ? [html] : []
+  for (const child of html.children ?? []) {
+    if (child === null || typeof child === 'string') continue
+    matches.push(...findVNodes(child, predicate))
+  }
+  return matches
+}
+
 function config(isGrid = false, selectedRowIds: ReadonlySet<string> = new Set()): DataTable.Config<Row> {
   return {
     id: `table-scene-${isGrid ? 'grid' : 'native'}`,
@@ -139,12 +152,9 @@ describe('DataTable view semantics', () => {
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const table = simulation.html?.children?.[0]
-        if (!table || !isVNode(table)) return simulation
-        const body = table.children?.[2]
-        if (!body || !isVNode(body)) return simulation
-        const rows = (body.children ?? []).filter((row): row is VNode =>
-          isVNode(row) && row.data?.attrs?.['data-virtual-list-item-key'] !== undefined)
+        const rows = findVNodes(simulation.html, node =>
+          node.data?.attrs?.['data-virtual-list-item-key'] !== undefined)
+        expect(rows).toHaveLength(2)
         expect(rows[0]?.children).toHaveLength(2)
         return simulation
       },
@@ -260,12 +270,9 @@ describe('DataTable view semantics', () => {
         VirtualList.Message.ResizedContainer({ containerWidth: 400, containerHeight: 180 }),
       ),
       (simulation: Scene.SceneSimulation<DataTable.Model, DataTable.Message, DataTable.OutMessage>) => {
-        const table = simulation.html.children?.[0]
-        if (table === undefined || !isVNode(table)) return simulation
-        const body = table.children?.[2]
-        if (!body || !isVNode(body)) return simulation
-        const rows = (body.children ?? []).filter((row): row is VNode =>
-          isVNode(row) && row.data?.attrs?.['data-virtual-list-item-key'] !== undefined)
+        const rows = findVNodes(simulation.html, node =>
+          node.data?.attrs?.['data-virtual-list-item-key'] !== undefined)
+        expect(rows).toHaveLength(2)
         const cells = rows.flatMap(row => (row.children ?? []).filter((cell): cell is VNode =>
           isVNode(cell) && cell.data?.attrs?.role === 'gridcell'))
         expect(cells.filter(cell => cell.data?.props?.tabIndex === 0)).toHaveLength(1)

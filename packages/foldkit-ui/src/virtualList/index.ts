@@ -1390,6 +1390,49 @@ export type RowHeightInputs<Item> =
     }>
 
 export type ViewInputs<Item> = BaseViewInputs<Item> & RowHeightInputs<Item>
+/** Returns the item-index range rendered for a VirtualList view, including
+ *  its measured leading offset and row-height strategy. An optional scrollTop
+ *  evaluates the same window at a prospective viewport position. */
+export const renderedRange = <Item>(
+  model: Model,
+  inputs: Pick<
+    ViewInputs<Item>,
+    | 'items'
+    | 'itemToKey'
+    | 'itemToRowHeightPx'
+    | 'dynamicRowHeights'
+    | 'itemToEstimatedRowHeightPx'
+    | 'overscan'
+    | 'contentAlignment'
+  >,
+  scrollTop?: number,
+): Readonly<{ startIndex: number; endIndex: number }> => {
+  if (model.measurement._tag === 'Unmeasured' && model.initialContainerHeight === undefined) {
+    return { startIndex: 0, endIndex: 0 }
+  }
+  const itemToRowHeightPx = 'itemToRowHeightPx' in inputs ? inputs.itemToRowHeightPx : undefined
+  const dynamicRowHeights = 'dynamicRowHeights' in inputs ? inputs.dynamicRowHeights : undefined
+  const itemToEstimatedRowHeightPx = 'itemToEstimatedRowHeightPx' in inputs
+    ? inputs.itemToEstimatedRowHeightPx
+    : undefined
+  const layout = listLayout(
+    model,
+    inputs.items,
+    inputs.itemToKey,
+    itemToRowHeightPx,
+    dynamicRowHeights,
+    itemToEstimatedRowHeightPx,
+    inputs.contentAlignment ?? 'Start',
+    model.leadingOffsetPx ?? 0,
+  )
+  const visible = visibleWindowForLayout(
+    layout,
+    scrollTop ?? scrollTopForView(model, layout, inputs.items, inputs.itemToKey),
+    inputs.items.length,
+    inputs.overscan ?? DEFAULT_OVERSCAN,
+  )
+  return { startIndex: visible.startIndex, endIndex: visible.endIndex }
+}
 
 /** Renders a virtualized list. Only items inside the viewport (plus an
  *  overscan buffer) are mounted; spacer elements above and below the

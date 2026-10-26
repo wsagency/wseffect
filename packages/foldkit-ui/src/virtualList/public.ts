@@ -1,6 +1,7 @@
 export {
   init,
   update,
+  renderedRange,
   informItemsChanged,
   scrollTo,
   scrollToEnd,

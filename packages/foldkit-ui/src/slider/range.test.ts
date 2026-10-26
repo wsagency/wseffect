@@ -239,7 +239,7 @@ describe('Slider.Range', () => {
       addListener.mockRestore()
     }
   })
-  it('reads disabled state from the live root attribute after patches', async () => {
+  it('reads disabled state from the mounted element after patches', async () => {
     let mounted: Mount.MountAction<Range.RangeMessage> | undefined
     const builder = new Proxy({}, {
       get: (_target, key) => key === 'OnMount'
@@ -249,12 +249,12 @@ describe('Slider.Range', () => {
     Range.view(Range.init(config), config, builder)
     const root = document.createElement('div')
     root.setAttribute('data-range-slider-root', '')
-    root.setAttribute('data-disabled', 'true')
     root.getBoundingClientRect = () => ({
       x: 0, y: 0, left: 0, top: 0, right: 100, bottom: 20, width: 100, height: 20,
       toJSON: () => ({}),
     })
     const host = root.appendChild(document.createElement('div'))
+    host.setAttribute('data-disabled', 'true')
     const input = document.createElement('input')
     input.type = 'range'
     input.dataset['thumbId'] = 'low'
@@ -274,21 +274,21 @@ describe('Slider.Range', () => {
         clientX: { value: 18 },
       })
       host.dispatchEvent(event)
+      return event
     }
     try {
       await vi.waitFor(() => expect(addListener).toHaveBeenCalledWith('pointerdown', expect.any(Function)))
-      pointerDown()
+      expect(pointerDown().defaultPrevented).toBe(false)
       expect(messages).toEqual([])
-      root.setAttribute('data-disabled', 'false')
-      pointerDown()
+      host.removeAttribute('data-disabled')
+      expect(pointerDown().defaultPrevented).toBe(true)
       await vi.waitFor(() => expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue']))
       const pointerUp = new Event('pointerup', { bubbles: true })
       Object.defineProperty(pointerUp, 'pointerId', { value: 1 })
       document.dispatchEvent(pointerUp)
       await vi.waitFor(() => expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue', 'DragEnd']))
-      root.setAttribute('data-disabled', 'true')
-      pointerDown()
-      expect(messages.map(message => message._tag)).toEqual(['DragStart', 'DragValue', 'DragEnd'])
+      host.setAttribute('data-disabled', 'true')
+      expect(pointerDown().defaultPrevented).toBe(false)
     } finally {
       await Effect.runPromise(Fiber.interrupt(fiber))
     }

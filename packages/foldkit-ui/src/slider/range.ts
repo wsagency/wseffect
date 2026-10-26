@@ -105,7 +105,7 @@ const pointerMount = (config: RangeConfig): Mount.MountAction<RangeMessage> => (
     }
     const down = (event: Event) => {
       const pointer = event as PointerEvent
-      if (pointer.button !== 0 || root.getAttribute('data-disabled') === 'true') return
+      if (pointer.button !== 0 || host.getAttribute('data-disabled') === 'true') return
       const value = position(pointer)
       if (value === undefined) return
       const inputs = Array.from(host.querySelectorAll<HTMLInputElement>('input[data-thumb-id]'))
