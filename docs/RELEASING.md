@@ -4,21 +4,27 @@ This runbook publishes the five `@wsagency/wseffect-*` packages as one coordinat
 
 ## Before tagging
 
-Run all commands from a clean checkout of `origin/main`, with the project's pinned Node/pnpm versions. **Keep each release sequence inside one mise-controlled shell**; do not run pnpm or Node from the workstation's system PATH (which may select another Node version). For example:
+Run all commands from a clean checkout of `origin/main`, with the project's pinned Node/pnpm versions. **Start one interactive mise-controlled shell and keep it open through registry verification** so the shared archive and publish paths remain defined. Do not run pnpm or Node from the workstation's system PATH (which may select another Node version):
 
 ```sh
-mise exec node@24.21.0 pnpm@11.5.0 -- bash -lc '
-  export TMPDIR="$HOME/.cache/wseffect-work/release-packages/tmp"
-  mkdir -p "$TMPDIR"
-  git fetch origin --prune
-  test "$(git branch --show-current)" = main
-  test -z "$(git status --porcelain)"
-  test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
-  pnpm install --frozen-lockfile
-  pnpm check
-  node scripts/check-repo.ts --release-version 0.1.0-rc.0
-  pnpm release:preflight -- --version 0.1.0-rc.0
-'
+mise exec node@24.21.0 pnpm@11.5.0 -- bash
+```
+
+In that shell, initialize the external paths once, then run the preparation checks:
+
+```sh
+export TMPDIR="$HOME/.cache/wseffect-work/release-packages/tmp"
+mkdir -p "$TMPDIR"
+archives_dir="$TMPDIR/archives"
+release_dir="$HOME/.cache/wseffect-work/release-publish-0.1.0-rc.0"
+git fetch origin --prune
+test "$(git branch --show-current)" = main
+test -z "$(git status --porcelain)"
+test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+pnpm install --frozen-lockfile
+pnpm check
+node scripts/check-repo.ts --release-version 0.1.0-rc.0
+pnpm release:preflight -- --version 0.1.0-rc.0
 ```
 
 Before continuing, confirm that all five package manifests agree on `0.1.0-rc.0`, every internal package range is coherent, published Effect peers are `^4.0.5`, all repository Effect pins are exactly `4.0.7`, and every package has public npm `publishConfig` with `access: public`, `registry: https://registry.npmjs.org/`, and `tag: next`. The preflight prints both the manifest-derived dependency edges and the computed topological publish order. Review those edges/order against the manifests; **never maintain or assume a separate package sequence**.
@@ -37,20 +43,16 @@ git tag -a v0.1.0-rc.0 -m 'wseffect 0.1.0-rc.0'
 git worktree add --detach "$HOME/.cache/wseffect-work/release-0.1.0-rc.0" v0.1.0-rc.0
 ```
 
-From that fresh detached worktree, in one mise shell, install frozen dependencies, build and run the full checks; then pack and inspect the graph-derived archives:
+From that fresh detached worktree, in the same mise shell, install frozen dependencies, build and run the full checks; then pack and inspect the graph-derived archives:
 
 ```sh
-mise exec node@24.21.0 pnpm@11.5.0 -- bash -lc '
-  cd "$HOME/.cache/wseffect-work/release-0.1.0-rc.0"
-  export TMPDIR="$HOME/.cache/wseffect-work/release-packages/tmp"
-  mkdir -p "$TMPDIR"
-  pnpm install --frozen-lockfile
-  pnpm build
-  pnpm check
-  node scripts/check-repo.ts --release-version 0.1.0-rc.0
-  pnpm release:preflight -- --version 0.1.0-rc.0
-  pnpm release:pack -- --out "$TMPDIR/archives"
-'
+cd "$HOME/.cache/wseffect-work/release-0.1.0-rc.0"
+pnpm install --frozen-lockfile
+pnpm build
+pnpm check
+node scripts/check-repo.ts --release-version 0.1.0-rc.0
+pnpm release:preflight -- --version 0.1.0-rc.0
+pnpm release:pack -- --out "$archives_dir"
 ```
 
 Use the order printed by preflight/pack output. Packing emits one `{package, archive, sha256}` record per package in computed graph order. Confirm five archives and preserve every hash in the release record. `inspectArchive` must pass each archive: check its embedded name/version and repository, exports and targets, required notices/licenses/UPSTREAM files, rewritten internal references at exactly `0.1.0-rc.0`, no workspace/file/link dependencies, no unintended test artifacts, and no secrets or host paths. On any inspection failure, stop and prepare a corrected higher RC; do not publish a questionable archive.
@@ -59,12 +61,16 @@ Run `npm publish --dry-run <archive> --access public --tag next --registry=https
 
 ## Publish
 
-After all dry runs pass, copy the finalized `.tgz` archives and checksum release record to a temporary directory outside **every** Git working tree. Verify copied hashes against the pack output. Create a temporary npm userconfig outside the repository; do not reuse or expose a persistent npm config.
+After all dry runs pass, copy the finalized `.tgz` archives and checksum release record into `"$release_dir"`, which was set in the mise shell before the detached worktree was created. Verify copied hashes against the pack output. Both `release_dir` and `archives_dir` are outside the detached Git worktree. Create a temporary npm userconfig outside every repository; do not reuse or expose a persistent npm config.
 
 ```sh
-release_dir="$HOME/.cache/wseffect-work/release-0.1.0-rc.0/publish"
 mkdir -p "$release_dir"
+if git -C "$release_dir" rev-parse --is-inside-work-tree; then
+  echo "Publish directory is inside a Git working tree; stop." >&2
+  exit 1
+fi
 # Copy only finalized archives and the release record here; verify their SHA-256 values.
+cp "$archives_dir"/*.tgz "$release_dir/"
 npmrc="$release_dir/npmrc"
 : > "$npmrc"
 chmod 600 "$npmrc"
@@ -84,14 +90,14 @@ Replace `<package>` and `$archive` with the package name and matching archive fr
 After all five sequential publish/dist-tag pairs, verify registry metadata and integrity with the read-only release verifier and allow for registry propagation:
 
 ```sh
-pnpm release:verify -- --version 0.1.0-rc.0
+pnpm release:verify -- --version 0.1.0-rc.0 --out "$archives_dir"
 ```
 
 Wait and retry verification if version, integrity, `next`, or `latest` has not propagated. Treat a persistent mismatch as a stop condition; do not pin consumers or proceed to website release until all five packages verify. Log out and clean up the temporary userconfig and credentials when finished:
 
 ```sh
 npm logout --registry=https://registry.npmjs.org/
-rm -f "$npmrc"
+rm -rf "$release_dir"
 unset NPM_CONFIG_USERCONFIG
 ```
 
