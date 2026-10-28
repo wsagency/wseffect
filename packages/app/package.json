@@ -4,12 +4,21 @@
   "private": false,
   "type": "module",
   "license": "MIT",
+  "description": "Effect-powered tooling for building web applications",
+  "keywords": ["effect", "web", "application", "typescript"],
+  "author": "WS Agency",
+  "maintainers": [{ "name": "WS Agency", "url": "https://ws.agency" }],
+  "engines": { "node": ">=20.19.0" },
+  "homepage": "https://wseffect.com",
+  "bugs": { "url": "https://github.com/wsagency/wseffect/issues" },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "tag": "next"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git.wsagency.io/ws-agency/wseffect.git",
+    "url": "git+https://github.com/wsagency/wseffect.git",
     "directory": "packages/app"
   },
   "files": [

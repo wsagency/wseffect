@@ -82,7 +82,8 @@ export function checkManifest(manifest: Manifest, path: string, releaseVersion?:
   } else {
     if (excludedFromExistingChecks) return errors
     if (manifest.version !== '0.0.0') fail('version must be 0.0.0')
-    if (manifest.repository?.url !== 'git+https://git.wsagency.io/ws-agency/wseffect.git' || !manifest.repository.directory) {
+    if (!['git+https://git.wsagency.io/ws-agency/wseffect.git', 'git+https://github.com/wsagency/wseffect.git']
+      .includes(manifest.repository?.url ?? '') || !manifest.repository?.directory) {
       fail('repository must identify the wseffect repository and package directory')
     }
   }

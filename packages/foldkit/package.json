@@ -1,6 +1,7 @@
 {
   "name": "@wsagency/wseffect-foldkit",
   "version": "0.0.0",
+  "private": false,
   "description": "A TypeScript frontend framework, built on Effect and architected like Elm",
   "type": "module",
   "main": "./dist/index.js",
@@ -198,11 +199,23 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://git.wsagency.io/ws-agency/wseffect.git",
+    "url": "git+https://github.com/wsagency/wseffect.git",
     "directory": "packages/foldkit"
   },
+  "homepage": "https://wseffect.com",
+  "bugs": {
+    "url": "https://github.com/wsagency/wseffect/issues"
+  },
+  "maintainers": [
+    {
+      "name": "WS Agency",
+      "url": "https://ws.agency"
+    }
+  ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "tag": "next"
   },
   "engines": {
     "node": ">=20.19.0"

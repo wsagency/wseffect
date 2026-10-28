@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import { checkEffectCopies, checkManifest, checkWorkspace } from './check-repo.ts'
 
@@ -23,6 +24,12 @@ const manifest = () => ({
 
 test('acceptsDevelopmentVersionOutsideRelease', () => {
   assert.deepEqual(checkManifest(manifest(), 'packages/app/package.json'), [])
+})
+
+test('acceptsCanonicalPublicRepositoryOutsideReleaseMode', () => {
+  const fixture = manifest()
+  fixture.repository.url = 'git+https://github.com/wsagency/wseffect.git'
+  assert.deepEqual(checkManifest(fixture, 'packages/app/package.json'), [])
 })
 
 test('acceptsOnlySamePreparedRcForRelease', () => {
@@ -92,6 +99,27 @@ test('requiresPublicPackageMetadata', () => {
   const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
   for (const field of ['description', 'keywords', 'author', 'maintainers', 'engines']) {
     assert.ok(errors.some((error) => error.includes(field)), `expected ${field} validation`)
+  }
+})
+
+test('all release package manifests have canonical npm metadata', async () => {
+  for (const name of ['app', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin']) {
+    const path = `packages/${name}/package.json`
+    const fixture = JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'))
+    assert.deepEqual(checkManifest(fixture, path, '0.0.0'), [], `${path} must be release-ready`)
+    assert.deepEqual(fixture.repository, {
+      type: 'git',
+      url: 'git+https://github.com/wsagency/wseffect.git',
+      directory: `packages/${name}`,
+    })
+    assert.deepEqual(fixture.homepage, 'https://wseffect.com')
+    assert.deepEqual(fixture.bugs, { url: 'https://github.com/wsagency/wseffect/issues' })
+    assert.deepEqual(fixture.publishConfig, {
+      access: 'public',
+      registry: 'https://registry.npmjs.org/',
+      tag: 'next',
+    })
+    assert.deepEqual(fixture.engines, { node: '>=20.19.0' }, `${path} runtime floor`)
   }
 })
 
