@@ -174,8 +174,8 @@
     "parse5": "8.0.1"
   },
   "peerDependencies": {
-    "@effect/platform-browser": "4.0.7",
-    "effect": "4.0.7"
+    "@effect/platform-browser": "^4.0.5",
+    "effect": "^4.0.5"
   },
   "devDependencies": {
     "@effect/platform-browser": "4.0.7",

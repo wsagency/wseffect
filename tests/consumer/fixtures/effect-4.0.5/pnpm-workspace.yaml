@@ -1,0 +1,6 @@
+minimumReleaseAgeExclude:
+  - '@wsagency/wseffect-app'
+  - '@wsagency/wseffect-themes'
+  - '@wsagency/wseffect-foldkit'
+  - '@wsagency/wseffect-foldkit-ui'
+  - '@wsagency/wseffect-vite-plugin'

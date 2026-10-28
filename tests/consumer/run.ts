@@ -126,7 +126,8 @@ async function packPackages(packsDir: string): Promise<Record<(typeof packageNam
   return tarballs
 }
 
-async function copyConsumerFixture(root: string, tarballs: Record<(typeof packageNames)[number], string>): Promise<void> {
+async function copyConsumerFixture(root: string, tarballs: Record<(typeof packageNames)[number], string>, effectVersion: string): Promise<void> {
+  const versionFixture = resolve(consumerDir, `fixtures/effect-${effectVersion}`)
   const galleryDir = resolve(repoRoot, 'apps/gallery')
   await cp(galleryDir, root, {
     recursive: true,
@@ -152,18 +153,14 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
   }
   const dependencies = {
     ...galleryManifest.dependencies,
-    '@wsagency/wseffect-app': `file:${tarballs.app}`,
-    '@wsagency/wseffect-themes': `file:${tarballs.themes}`,
-    '@wsagency/wseffect-foldkit': `file:${tarballs.foldkit}`,
-    '@wsagency/wseffect-foldkit-ui': `file:${tarballs['foldkit-ui']}`,
-    '@wsagency/wseffect-vite-plugin': `file:${tarballs['vite-plugin']}`,
+    ...JSON.parse(await readFile(resolve(versionFixture, 'package.json'), 'utf8')).dependencies,
   }
   delete dependencies['@wsagency/wseffect-app']
   delete dependencies['@wsagency/wseffect-themes']
   delete dependencies['@wsagency/wseffect-foldkit']
   delete dependencies['@wsagency/wseffect-foldkit-ui']
   delete dependencies['@wsagency/wseffect-vite-plugin']
-  const devDependencies = { ...rootManifest.devDependencies }
+  const devDependencies = { ...rootManifest.devDependencies, effect: effectVersion, '@effect/platform-browser': effectVersion }
   delete devDependencies['@wsagency/wseffect-vite-plugin']
   const packageJson = {
     packageManager: rootManifest.packageManager,
@@ -181,6 +178,7 @@ async function copyConsumerFixture(root: string, tarballs: Record<(typeof packag
     devDependencies,
   }
   await writeFile(resolve(root, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`)
+  await cp(resolve(versionFixture, 'pnpm-workspace.yaml'), resolve(root, 'pnpm-workspace.yaml'))
 
   await cp(resolve(repoRoot, 'tsconfig.base.json'), resolve(root, 'tsconfig.base.json'))
   await writeFile(resolve(root, 'tsconfig.json'), `${JSON.stringify({
@@ -230,9 +228,10 @@ async function main(): Promise<void> {
   await mkdir(packsDir, { recursive: true })
   try {
     const tarballs = await packPackages(packsDir)
-    const root = join(scratch, 'apps', 'gallery')
-    await mkdir(root, { recursive: true })
-    await copyConsumerFixture(root, tarballs)
+    for (const effectVersion of ['4.0.5', '4.0.7']) {
+      const root = join(scratch, 'apps', `effect-${effectVersion}`, 'gallery')
+      await mkdir(root, { recursive: true })
+      await copyConsumerFixture(root, tarballs, effectVersion)
 
     run('pnpm', ['install', '--lockfile-only'], root)
     run('pnpm', ['install', '--frozen-lockfile'], root)
@@ -338,6 +337,7 @@ async function main(): Promise<void> {
     const coverageManifest = JSON.parse(await readFile(resolve(consumerDir, 'coverage-manifest.json'), 'utf8')) as CoverageManifest
     fail(checkCoverageManifest(coverageManifest, publicSurface, passedChecks))
     console.log('packed consumer: all checks passed')
+    }
   } finally {
     await rm(scratch, { recursive: true, force: true })
   }

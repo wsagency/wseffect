@@ -1,0 +1,34 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@effect/platform-browser':
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
+      effect:
+        specifier: 4.0.7
+        version: 4.0.7
+
+packages:
+
+  '@effect/platform-browser@4.0.7':
+    resolution: {integrity: sha512-FHzX6Q8pUwAB8fL8Jw75NXsXcOAe/iT7KVhb5ricaCcCNqVeIrhWUTM677HqVkRONzQPH09RB9r5NbNUa2YtFg==}
+    peerDependencies:
+      effect: ^4.0.7
+
+  effect@4.0.7:
+    resolution: {integrity: sha512-47CiUzNAmeLr40pDT9vKMxxtB8o3bdpZEKU4IUM3fVxsK2GYzPsV7fQoZP0I41A308BZd71nMxqJ0KRh3s9u2g==}
+
+snapshots:
+
+  '@effect/platform-browser@4.0.7(effect@4.0.7)':
+    dependencies:
+      effect: 4.0.7
+
+  effect@4.0.7: {}

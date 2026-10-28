@@ -214,6 +214,9 @@ importers:
 
   packages/foldkit-ui:
     dependencies:
+      '@effect/platform-browser':
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
       '@floating-ui/dom':
         specifier: 1.8.0
         version: 1.8.0
@@ -260,6 +263,9 @@ importers:
 
   packages/vite-plugin:
     dependencies:
+      '@effect/platform-browser':
+        specifier: 4.0.7
+        version: 4.0.7(effect@4.0.7)
       '@effect/platform-node':
         specifier: 4.0.7
         version: 4.0.7(effect@4.0.7)(redis@6.3.0)

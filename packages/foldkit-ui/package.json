@@ -156,7 +156,8 @@
   },
   "peerDependencies": {
     "@wsagency/wseffect-foldkit": "workspace:*",
-    "effect": "4.0.7"
+    "@effect/platform-browser": "^4.0.5",
+    "effect": "^4.0.5"
   },
   "dependencies": {
     "@floating-ui/dom": "1.8.0"
