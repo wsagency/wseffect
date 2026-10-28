@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { execFile } from 'node:child_process'
+import { posix } from 'node:path'
 import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
@@ -117,6 +118,26 @@ export async function inspectArchive({
     }
   }
 
+  const foldkitTestUtilityFiles = new Set<string>()
+  if (expectedName === '@wsagency/wseffect-foldkit') {
+    const pending = [...exportTargets].filter((target) => target.startsWith('dist/test/') && paths.has(target))
+    while (pending.length > 0) {
+      const path = pending.pop()!
+      if (foldkitTestUtilityFiles.has(path)) continue
+      foldkitTestUtilityFiles.add(path)
+      const contents = await readMember(path)
+      if (!contents) continue
+      const text = contents.toString('utf8')
+      const imports = /(?:\bfrom\s*|\bimport\s*\(\s*)['"](\.[^'"]+)['"]/g
+      for (const match of text.matchAll(imports)) {
+        const resolved = posix.normalize(posix.join(posix.dirname(path), match[1]!))
+        const candidates = [resolved]
+        if (resolved.endsWith('.js')) candidates.push(resolved.slice(0, -3) + '.d.ts')
+        else if (!posix.extname(resolved)) candidates.push(`${resolved}.js`, `${resolved}.d.ts`, `${resolved}/index.js`, `${resolved}/index.d.ts`)
+        for (const candidate of candidates) if (paths.has(candidate)) pending.push(candidate)
+      }
+    }
+  }
   const required = ['README.md', 'LICENSE', 'CHANGELOG.md', 'WS-AGENCY-NOTICE.md']
   if (['@wsagency/wseffect-foldkit', '@wsagency/wseffect-foldkit-ui', '@wsagency/wseffect-vite-plugin', '@wsagency/wseffect-themes'].includes(expectedName)) required.push('UPSTREAM.md')
   for (const filename of required) if (!paths.has(filename)) errors.push(`Required file is missing from archive: ${filename}`)
@@ -125,7 +146,7 @@ export async function inspectArchive({
     if (/\.d\.ts\.map$/i.test(path)) errors.push(`Forbidden declaration map in archive: ${path}`)
     const testArtifact = /(?:^|\/)(?:test|__tests__)(?:\/|$)|(?:^|\/)[^/]*(?:\.test|\.spec)\.[^/]*$/i.test(path)
       || /(?:^|\/)vitest-setup(?:\.[^/]+)?$/i.test(path)
-    const allowedFoldkitTestUtility = expectedName === '@wsagency/wseffect-foldkit' && path.startsWith('dist/test/')
+    const allowedFoldkitTestUtility = foldkitTestUtilityFiles.has(path)
     const allowedToastTestUtility = expectedName === '@wsagency/wseffect-foldkit-ui' && path === 'dist/toast/test.js'
     if (testArtifact && !allowedFoldkitTestUtility && !allowedToastTestUtility && !exportTargets.has(path)) {
       errors.push(`Unexported test artifact in archive: ${path}`)

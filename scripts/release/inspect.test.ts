@@ -64,6 +64,26 @@ test('checksPackedManifestAndWorkspaceRewrite', async () => {
   }))
   assert.ok(wrongVersion.errors.some((error) => /internal dependency/i.test(error)))
 })
+test('rejectsWrongPackedPackageIdentityAndRepository', async () => {
+  const base = {
+    name, version,
+    exports: { '.': { types: './dist/index.d.ts', import: './dist/index.js' } },
+    repository: { type: 'git', url: repositoryUrl, directory: 'packages/foldkit' },
+    homepage: 'https://wseffect.com',
+    bugs: { url: 'https://github.com/wsagency/wseffect/issues' },
+    publishConfig: { access: 'public', registry: 'https://registry.npmjs.org/', tag: 'next' },
+    dependencies: { '@wsagency/wseffect-core': version },
+  }
+  const cases: Array<{ manifest: Record<string, unknown>; expectedError: RegExp }> = [
+    { manifest: { ...base, name: '@wsagency/wseffect-other' }, expectedError: /manifest name/i },
+    { manifest: { ...base, version: '9.9.9' }, expectedError: /manifest version/i },
+    { manifest: { ...base, repository: { type: 'git', url: 'https://example.com/repo.git', directory: 'packages/foldkit' } }, expectedError: /repository URL/i },
+  ]
+  for (const { manifest, expectedError } of cases) {
+    const result = await inspect(await createArchive({ manifest }))
+    assert.ok(result.errors.some((error) => expectedError.test(error)), `expected ${expectedError}; got ${result.errors.join('; ')}`)
+  }
+})
 test('rejectsChangedReleaseMetadata', async () => {
   const base = {
     name, version,
@@ -92,6 +112,10 @@ test('checksExportTargetsAndRequiredDocs', async () => {
   assert.ok(missingTarget.errors.some((error) => /export.*missing/i.test(error)))
   const missingDoc = await inspect(await createArchive({ omit: ['README.md'] }))
   assert.ok(missingDoc.errors.some((error) => /README/i.test(error)))
+  for (const filename of ['LICENSE', 'CHANGELOG.md']) {
+    const missingRequiredFile = await inspect(await createArchive({ omit: [filename] }))
+    assert.ok(missingRequiredFile.errors.some((error) => error.includes(filename)))
+  }
 })
 
 test('rejectsForbiddenWorkspaceFileLinkSpecs', async () => {
@@ -110,23 +134,60 @@ test('rejectsMissingNoticesOrUPSTREAM', async () => {
 })
 
 test('rejectsUnexportedTestArtifactsAndMaps', async () => {
-  for (const filename of ['dist/internal.test.js', 'dist/internal.d.ts.map', 'dist/__tests__/private.js', 'dist/vitest-setup.js']) {
+  for (const filename of ['dist/internal.test.js', 'dist/internal.d.ts.map', 'dist/__tests__/private.js', 'dist/test/private.js', 'dist/vitest-setup.js']) {
     const result = await inspect(await createArchive({ extraFiles: { [filename]: 'not exported' } }))
     assert.ok(result.errors.some((error) => error.includes(filename)), `expected rejection for ${filename}; got ${result.errors.join('; ')}`)
   }
 })
-test('allowsExportedFoldkitTestUtilities', async () => {
+test('rejectsMissingExportedTestUtilityTarget', async () => {
   const manifest = {
     name, version,
-    exports: { './test': { types: './dist/test/index.d.ts', import: './dist/test/index.js' }, './test/vitest': { types: './dist/test/vitest.d.ts', import: './dist/test/vitest.js' } },
+    exports: {
+      './test': { types: './dist/test/public.d.ts', import: './dist/test/public.js' },
+      './test/vitest': { types: './dist/test/vitest.d.ts', import: './dist/test/vitest.js' },
+    },
     repository: { type: 'git', url: repositoryUrl, directory: 'packages/foldkit' },
     homepage: 'https://wseffect.com',
     bugs: { url: 'https://github.com/wsagency/wseffect/issues' },
     publishConfig: { access: 'public', registry: 'https://registry.npmjs.org/', tag: 'next' },
     dependencies: {},
   }
-  const result = await inspect(await createArchive({ manifest, extraFiles: { 'dist/test/index.js': '', 'dist/test/index.d.ts': '', 'dist/test/vitest.js': '', 'dist/test/vitest.d.ts': '' } }))
-  assert.deepEqual(result.errors, [])
+  const result = await inspect(await createArchive({
+    manifest,
+    extraFiles: {
+      'dist/test/public.js': '',
+      'dist/test/public.d.ts': '',
+      'dist/test/vitest.d.ts': '',
+    },
+    omit: ['dist/test/vitest.js'],
+  }))
+  assert.ok(result.errors.some((error) => error.includes('dist/test/vitest.js')))
+})
+test('allowsOnlyFoldkitTestUtilityImportClosure', async () => {
+  const manifest = {
+    name, version,
+    exports: {
+      './test': { types: './dist/test/public.d.ts', import: './dist/test/public.js' },
+      './test/vitest': { types: './dist/test/vitest.d.ts', import: './dist/test/vitest.js' },
+    },
+    repository: { type: 'git', url: repositoryUrl, directory: 'packages/foldkit' },
+    homepage: 'https://wseffect.com',
+    bugs: { url: 'https://github.com/wsagency/wseffect/issues' },
+    publishConfig: { access: 'public', registry: 'https://registry.npmjs.org/', tag: 'next' },
+    dependencies: {},
+  }
+  const extraFiles = {
+    'dist/test/public.js': `import './internal.js'\n`,
+    'dist/test/public.d.ts': `import type { Internal } from './internal.js'\nexport {}\n`,
+    'dist/test/vitest.js': `import './internal.js'\n`,
+    'dist/test/vitest.d.ts': 'export {}\n',
+    'dist/test/internal.js': 'export {}\n',
+    'dist/test/internal.d.ts': 'export type Internal = unknown\n',
+  }
+  const accepted = await inspect(await createArchive({ manifest, extraFiles }))
+  assert.deepEqual(accepted.errors, [])
+  const rejected = await inspect(await createArchive({ manifest, extraFiles: { ...extraFiles, 'dist/test/private.js': 'export {}\n' } }))
+  assert.ok(rejected.errors.some((error) => error.includes('dist/test/private.js')))
 })
 
 test('rejectsSecretOrHostPathMarkers', async () => {
