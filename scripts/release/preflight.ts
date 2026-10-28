@@ -79,13 +79,21 @@ export async function checkEffectExclusions(root: string): Promise<string[]> {
     const settingIndex = lines.findIndex((line) => /^\s*minimumReleaseAgeExclude\s*:/.test(line))
     if (settingIndex < 0) continue
     const setting = lines[settingIndex]!
-    let section = setting.slice(setting.indexOf(':') + 1).trim()
-    if (!section.startsWith('[')) {
+    const value = setting.slice(setting.indexOf(':') + 1).trim()
+    let section: string
+    if (value.startsWith('[')) {
+      let flow = value
+      for (const line of lines.slice(settingIndex + 1)) {
+        if (!flow.includes(']')) flow += `\n${line.replace(/#.*$/, '')}`
+      }
+      section = flow.slice(1, flow.lastIndexOf(']'))
+    } else {
       const values: string[] = []
       for (const line of lines.slice(settingIndex + 1)) {
+        if (line.trim() === '' || /^\s*#/.test(line)) continue
+        if (/^\S[^:]*:/.test(line)) break
         const item = line.match(/^\s+-\s*(.*?)\s*$/)
         if (item) values.push(item[1]!)
-        else if (line.trim() !== '') break
       }
       section = values.join(',')
     }
@@ -101,23 +109,26 @@ export async function checkEffectExclusions(root: string): Promise<string[]> {
 }
 
 
-export async function packRelease(options: { version: string; root: string; out?: string; record?: string; forceRecord?: boolean; printGraph?: boolean }, dependencies: ReleaseDependencies = {}): Promise<ReleaseArchive[]> {
+export async function packRelease(options: { version: string; root: string; out?: string; record?: string; forceRecord?: boolean; persistRecord?: boolean; printGraph?: boolean }, dependencies: ReleaseDependencies = {}): Promise<ReleaseArchive[]> {
   const root = resolve(options.root)
   const out = resolve(options.out ?? join(process.env.HOME ?? '', '.cache/wseffect-work/release-packages/archives'))
   const recordPath = resolve(options.record ?? join(process.env.HOME ?? '', '.cache/wseffect-work/release-records', `${options.version}.json`))
-  const [realRoot, realOut, realRecord] = await Promise.all([realPathWithMissingAncestors(root), realPathWithMissingAncestors(out), realPathWithMissingAncestors(recordPath)])
+  const [realRoot, realOut] = await Promise.all([realPathWithMissingAncestors(root), realPathWithMissingAncestors(out)])
   const isInsideRoot = (candidate: string) => {
     const path = relative(realRoot, candidate)
     return path === '' || (path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path))
   }
   if (isInsideRoot(realOut)) throw new Error(`Pack output must be outside the Git working tree: ${out}`)
-  if (isInsideRoot(realRecord)) throw new Error(`Release record must be outside the Git working tree: ${recordPath}`)
-  if (!options.forceRecord) {
-    try {
-      await readFile(recordPath)
-      throw new Error(`Release record already exists: ${recordPath}; use --force-record to overwrite it`)
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+  if (options.persistRecord !== false) {
+    const realRecord = await realPathWithMissingAncestors(recordPath)
+    if (isInsideRoot(realRecord)) throw new Error(`Release record must be outside the Git working tree: ${recordPath}`)
+    if (!options.forceRecord) {
+      try {
+        await readFile(recordPath)
+        throw new Error(`Release record already exists: ${recordPath}; use --force-record to overwrite it`)
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+      }
     }
   }
   await mkdir(out, { recursive: true })
@@ -143,12 +154,14 @@ export async function packRelease(options: { version: string; root: string; out?
     if (inspection.errors.length) throw new Error(`${name}: ${inspection.errors.join('; ')}`)
     archives.push({ package: name, archive, sha256: inspection.sha256, integrity: inspection.integrity })
   }
-  const gitSha = await run('git', ['rev-parse', 'HEAD'], { cwd: root })
-  const record: ReleaseRecord = { version: options.version, gitSha, timestamp: new Date().toISOString(), packages: archives.map(({ package: packageName, archive, sha256, integrity }) => ({ package: packageName, archive, sha256, integrity })) }
-  await mkdir(dirname(recordPath), { recursive: true })
-  await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`, { flag: options.forceRecord ? 'w' : 'wx' })
+  if (options.persistRecord !== false) {
+    const gitSha = await run('git', ['rev-parse', 'HEAD'], { cwd: root })
+    const record: ReleaseRecord = { version: options.version, gitSha, timestamp: new Date().toISOString(), packages: archives.map(({ package: packageName, archive, sha256, integrity }) => ({ package: packageName, archive, sha256, integrity })) }
+    await mkdir(dirname(recordPath), { recursive: true })
+    await writeFile(recordPath, `${JSON.stringify(record, null, 2)}\n`, { flag: options.forceRecord ? 'w' : 'wx' })
+    console.log(`Release record: ${recordPath}`)
+  }
   console.log(JSON.stringify(archives))
-  console.log(`Release record: ${recordPath}`)
   return archives
 }
 
@@ -159,7 +172,7 @@ function consoleGraph(graph: ReleaseGraph): void {
   for (const name of graph.order) console.log(`  ${name}`)
 }
 
-export async function runPreflight(options: { version: string; root: string; out?: string; record?: string; forceRecord?: boolean; historyAuditReport?: string; historyAuditReviewed?: boolean }, dependencies: ReleaseDependencies = {}): Promise<PreflightResult> {
+export async function runPreflight(options: { version: string; root: string; out?: string; historyAuditReport?: string; historyAuditReviewed?: boolean }, dependencies: ReleaseDependencies = {}): Promise<PreflightResult> {
   const root = resolve(options.root)
   const errors: string[] = []
   const run = dependencies.run ?? realRun
@@ -194,7 +207,7 @@ export async function runPreflight(options: { version: string; root: string; out
   const archives: ReleaseArchive[] = []
   if (errors.length === 0) {
     try {
-      const packed = await packRelease({ ...options, root, printGraph: false }, { manifests, graph, run, inspect })
+      const packed = await packRelease({ version: options.version, root, out: options.out, persistRecord: false, printGraph: false }, { manifests, graph, run, inspect })
       archives.push(...packed)
       for (const artifact of archives) await attempt('npm', ['publish', artifact.archive, '--dry-run', '--ignore-scripts', '--tag', 'next', '--access', 'public'], root)
     } catch (error) { errors.push(error instanceof Error ? error.message : String(error)) }
@@ -220,7 +233,7 @@ async function main(): Promise<void> {
   if (!packMode && !version) throw new Error('--version requires a version')
   const result = packMode
     ? await packRelease({ version: version ?? (await readManifests(root))[0]!.version, root, out, record, forceRecord })
-    : await runPreflight({ version: version!, root, out, record, forceRecord, historyAuditReport, historyAuditReviewed })
+    : await runPreflight({ version: version!, root, out, historyAuditReport, historyAuditReviewed })
   if (!packMode && !result.ok) {
     for (const error of result.errors) console.error(`REFUSED: ${error}`)
     process.exitCode = 1

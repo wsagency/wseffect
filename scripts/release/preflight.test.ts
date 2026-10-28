@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
 import test from 'node:test'
 import { join } from 'node:path'
 import { checkEffectExclusions, packRelease, runPreflight } from './preflight.ts'
@@ -32,7 +32,7 @@ test('preflight requires a clean main branch equal to freshly fetched origin/mai
 
 test('preflight checks coordinated versions, repository checks, archives and every npm dry-run', async () => {
   const f = fixture()
-  const result = await runPreflight({ version: '1.2.3', root: '/repo', historyAuditReviewed: true, forceRecord: true }, {
+  const result = await runPreflight({ version: '1.2.3', root: '/repo', historyAuditReviewed: true }, {
     ...f,
     run: async (command, args, options) => {
       f.commands.push({ command, args, cwd: options?.cwd })
@@ -112,12 +112,12 @@ test('preflight rejects archive inspection errors and npm dry-run failures', asy
     checkManifest: () => [],
     checkHistoryAudit: async () => ({ ok: true }),
   }
-  const inspectionFailure = await runPreflight({ version: '1.2.3', root: '/repo', forceRecord: true }, dependencies)
+  const inspectionFailure = await runPreflight({ version: '1.2.3', root: '/repo' }, dependencies)
   assert.match(inspectionFailure.errors.join('\\n'), /bad archive/)
   assert.equal(f.commands.some((command) => command.args.includes('--dry-run')), false)
   rejectInspection = false
   rejectDryRun = true
-  const dryRunFailure = await runPreflight({ version: '1.2.3', root: '/repo', forceRecord: true }, dependencies)
+  const dryRunFailure = await runPreflight({ version: '1.2.3', root: '/repo' }, dependencies)
   assert.match(dryRunFailure.errors.join('\\n'), /dry-run rejected/)
 })
 
@@ -206,7 +206,7 @@ test('pack persists graph ordered release record and refuses overwrite unless fo
 test('preflight accepts detached HEAD only at origin/main, but rejects other detached and named branches and stale main', async () => {
   const check = async (branch: string, head: string, origin: string) => {
     const f = fixture()
-    return runPreflight({ version: '1.2.3', root: '/repo', historyAuditReviewed: true, forceRecord: true }, {
+    return runPreflight({ version: '1.2.3', root: '/repo', historyAuditReviewed: true }, {
       ...f,
       run: async (_command, args) => {
         if (args[0] === 'branch') return branch
@@ -240,5 +240,59 @@ test('preflight detects temporary Effect exclusions in root and consumer fixture
     assert.deepEqual(await checkEffectExclusions(root), [])
   } finally {
     await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('preflight scans Effect exclusions through blank lines, comments, and flow sequences', async () => {
+  const root = await makeTempRoot()
+  try {
+    const rootWorkspace = join(root, 'pnpm-workspace.yaml')
+    const cases = [
+      "minimumReleaseAgeExclude:\n  - react@1.0.0\n\n  - effect@4.0.7\n",
+      "minimumReleaseAgeExclude:\n  - react@1.0.0\n  # temporary Effect pin\n  - '@effect/platform-browser@4.0.7'\n",
+      "minimumReleaseAgeExclude: [ react@1.0.0,\n  '@effect/platform-browser@4.0.7' ]\n",
+    ]
+    for (const config of cases) {
+      await writeFile(rootWorkspace, config)
+      assert.match((await checkEffectExclusions(root)).join('\n'), /@effect\/|effect@/)
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+})
+
+test('preflight leaves canonical release record for the final pack only', async () => {
+  const parent = await makeTempRoot()
+  const root = join(parent, 'repo')
+  const out = join(parent, 'archives')
+  const recordDirectory = join(parent, '.cache/wseffect-work/release-records')
+  const record = join(recordDirectory, '1.2.3.json')
+  const originalHome = process.env.HOME
+  process.env.HOME = parent
+  await mkdir(root)
+  const f = fixture()
+  const dependencies = {
+    ...f,
+    run: async (command: string, args: string[]) => args[0] === 'branch' ? 'main' : args[0] === 'rev-parse' ? 'git-sha' : '',
+    inspect: async () => ({ errors: [], sha256: 'sha256', integrity: 'sha512-integrity', manifest: {} }),
+    checkManifest: () => [],
+    checkHistoryAudit: async () => ({ ok: true }),
+  }
+  try {
+    for (let run = 0; run < 2; run++) {
+      const result = await runPreflight({ version: '1.2.3', root, out, historyAuditReviewed: true }, dependencies)
+      assert.equal(result.ok, true, result.errors.join('\n'))
+      await assert.rejects(readFile(record), { code: 'ENOENT' })
+    }
+    await packRelease({ version: '1.2.3', root, out, record }, dependencies)
+    const persisted = JSON.parse(await readFile(record, 'utf8'))
+    assert.equal(persisted.version, '1.2.3')
+    assert.equal(persisted.gitSha, 'git-sha')
+    assert.deepEqual(persisted.packages.map((item: { package: string }) => item.package), f.graph.order)
+    assert.deepEqual(await readdir(recordDirectory), ['1.2.3.json'])
+  } finally {
+    if (originalHome === undefined) delete process.env.HOME
+    else process.env.HOME = originalHome
+    await rm(parent, { recursive: true, force: true })
   }
 })
