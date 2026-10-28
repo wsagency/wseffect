@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test, { after, before } from 'node:test'
-import { mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises'
 import { execFileSync } from 'node:child_process'
+import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -13,9 +14,7 @@ const notices: Record<string, string> = {}
 let packDirectory = ''
 
 before(async () => {
-  const tempRoot = process.env.TMPDIR ?? join(process.env.HOME ?? '.', '.cache/wseffect-work/release-packages/tmp')
-  await mkdir(tempRoot, { recursive: true })
-  packDirectory = await mkdtemp(join(tempRoot, 'wseffect-packaging-'))
+  packDirectory = await mkdtemp(join(tmpdir(), 'wseffect-packaging-'))
   for (const directory of packages) {
     execFileSync('pnpm', ['--dir', resolve(repoRoot, 'packages', directory), 'pack', '--pack-destination', packDirectory], { stdio: 'pipe' })
     const filename = (await readdir(packDirectory)).find((file) => file.endsWith('.tgz') && file.includes(`wseffect-${directory}`))
@@ -55,7 +54,10 @@ test('noticeExcludesBrandRightsFromMit', () => {
     assert.match(notice, /MIT[^.\n]*(?:code|software)[^.\n]*only/i, `${directory} notice must limit MIT to code`)
     assert.match(notice, /no (?:trademark )?rights?[^.\n]*(?:WS Agency|name|logo)|(?:WS Agency|name|logo)[^.\n]*no (?:trademark )?rights?/i, `${directory} notice must deny WS Agency name and logo rights`)
     assert.match(notice, /unofficial/i, `${directory} notice must identify the project as unofficial`)
-    const upstream = directory === 'themes' ? /Radix|WorkOS|radix2solid/i : /Foldkit/i
+    assert.match(notice, /not endorsed by/i, `${directory} notice must state non-endorsement`)
+    assert.doesNotMatch(notice, /not affiliated with/i, `${directory} notice must not incorrectly disclaim WS Agency affiliation`)
+    assert.match(notice, /not endorsed by[^.\n]*WS Agency/i, `${directory} notice must include WS Agency in the non-endorsement statement`)
+    const upstream = directory === 'themes' ? /not endorsed by Radix, WorkOS, radix2solid/i : /not endorsed by Foldkit/i
     assert.match(notice, upstream, `${directory} notice must identify applicable upstream rights holders`)
   }
 })
