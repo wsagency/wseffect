@@ -36,9 +36,42 @@ test('includesPeerAndDependencyEdges', () => {
 
 test('rejectsMissingInternalPackage', () => {
   assert.throws(
-    () => releaseOrder([manifest('consumer', { dependencies: { absent: 'workspace:*' } })]),
-    /missing.*absent.*consumer/i,
+    () => releaseOrder([manifest('consumer', {
+      dependencies: { '@wsagency/wseffect-absent': 'workspace:*' },
+    })]),
+    /missing.*@wsagency\/wseffect-absent.*consumer/i,
   )
+})
+test('rejectsMissingInternalPackageWithWorkspaceCaret', () => {
+  assert.throws(
+    () => releaseOrder([manifest('consumer', {
+      dependencies: { '@wsagency/wseffect-absent': 'workspace:^' },
+    })]),
+    /missing.*@wsagency\/wseffect-absent.*consumer/i,
+  )
+})
+
+test('rejectsMissingInternalPackageWithSemverRange', () => {
+  assert.throws(
+    () => releaseOrder([manifest('consumer', {
+      dependencies: { '@wsagency/wseffect-absent': '^0.1.0' },
+    })]),
+    /missing.*@wsagency\/wseffect-absent.*consumer/i,
+  )
+})
+
+test('includesPresentInternalPackageWithWorkspaceCaret', () => {
+  const result = releaseOrder([
+    manifest('consumer', {
+      dependencies: { '@wsagency/wseffect-dependency': 'workspace:^' },
+    }),
+    manifest('@wsagency/wseffect-dependency'),
+  ])
+
+  assert.deepEqual(result.order, ['@wsagency/wseffect-dependency', 'consumer'])
+  assert.deepEqual(result.edges, [
+    { from: '@wsagency/wseffect-dependency', to: 'consumer' },
+  ])
 })
 
 test('rejectsCycle', () => {

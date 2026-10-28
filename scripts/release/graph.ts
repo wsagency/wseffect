@@ -30,8 +30,9 @@ export function releaseOrder(
 
   for (const manifest of manifests) {
     for (const dependencies of [manifest.dependencies, manifest.peerDependencies]) {
-      for (const [dependency, version] of Object.entries(dependencies ?? {})) {
-        if (version !== 'workspace:*') continue
+      for (const dependency of Object.keys(dependencies ?? {})) {
+        const isInternal = dependency.startsWith('@wsagency/wseffect-') || names.has(dependency)
+        if (!isInternal) continue
         if (!names.has(dependency)) {
           throw new Error(`Missing internal package ${dependency} required by ${manifest.name}`)
         }
