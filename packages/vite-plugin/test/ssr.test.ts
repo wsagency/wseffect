@@ -21,6 +21,7 @@ import { describe, expect, it, onTestFinished } from 'vitest'
 
 import { foldkit } from '../src/index.ts'
 import { foldkitSsr } from '../src/ssr.ts'
+import { createIsolatedViteServer } from './viteServer.ts'
 
 type RawResponse = Readonly<{
   status: number
@@ -248,44 +249,46 @@ const startServer = async (
   const port = await findFreePort()
   const createServer =
     options.hostVite === true ? createHostServer : createViteServer
-  const server = await createServer({
-    root: options.root ?? FIXTURE_ROOT,
-    ...(options.base === undefined ? {} : { base: options.base }),
-    configFile: false,
-    logLevel: 'silent',
-    ...(options.warnings === undefined
-      ? {}
-      : { customLogger: collectingLogger(options.warnings) }),
-    plugins: [
-      ...(options.runnableSsr === false ? [nonRunnableSsrPlugin] : []),
-      ...(options.hostVite === true ? [foreignCopyAssertionPlugin] : []),
-      ...(options.seedVary === undefined
-        ? []
-        : [seedVaryPlugin(options.seedVary)]),
-      foldkitSsr({
-        serverEntry: '/entry.server.ts',
-        ...(options.clientEntry === undefined
-          ? {}
-          : { clientEntry: options.clientEntry }),
-        ...(options.origin === undefined ? {} : { origin: options.origin }),
-        ...(options.buildId === undefined ? {} : { buildId: options.buildId }),
-        ...(options.quietStandDown === undefined
-          ? {}
-          : { quietStandDown: options.quietStandDown }),
-      }),
-    ],
-    server: {
-      host: '127.0.0.1',
-      port,
-      strictPort: true,
-      ...(options.cors === undefined ? {} : { cors: options.cors }),
-      ...allowedHostsConfiguration(options.allowedHosts),
-      ...(options.proxyTarget === undefined
+  const server = await createIsolatedViteServer(
+    {
+      root: options.root ?? FIXTURE_ROOT,
+      ...(options.base === undefined ? {} : { base: options.base }),
+      configFile: false,
+      logLevel: 'silent',
+      ...(options.warnings === undefined
         ? {}
-        : { proxy: { '/api': options.proxyTarget } }),
+        : { customLogger: collectingLogger(options.warnings) }),
+      plugins: [
+        ...(options.runnableSsr === false ? [nonRunnableSsrPlugin] : []),
+        ...(options.hostVite === true ? [foreignCopyAssertionPlugin] : []),
+        ...(options.seedVary === undefined
+          ? []
+          : [seedVaryPlugin(options.seedVary)]),
+        foldkitSsr({
+          serverEntry: '/entry.server.ts',
+          ...(options.clientEntry === undefined
+            ? {}
+            : { clientEntry: options.clientEntry }),
+          ...(options.origin === undefined ? {} : { origin: options.origin }),
+          ...(options.buildId === undefined ? {} : { buildId: options.buildId }),
+          ...(options.quietStandDown === undefined
+            ? {}
+            : { quietStandDown: options.quietStandDown }),
+        }),
+      ],
+      server: {
+        host: '127.0.0.1',
+        port,
+        strictPort: true,
+        ...(options.cors === undefined ? {} : { cors: options.cors }),
+        ...allowedHostsConfiguration(options.allowedHosts),
+        ...(options.proxyTarget === undefined
+          ? {}
+          : { proxy: { '/api': options.proxyTarget } }),
+      },
     },
-  })
-  onTestFinished(() => server.close().catch(() => undefined))
+    createServer,
+  )
   await server.listen()
   return `http://127.0.0.1:${port}`
 }
@@ -294,7 +297,7 @@ const startAutomaticIdentityServer = async (): Promise<
   Readonly<{ origin: string; server: ViteDevServer }>
 > => {
   const port = await findFreePort()
-  const server = await createViteServer({
+  const server = await createIsolatedViteServer({
     root: AUTOMATIC_IDENTITY_FIXTURE_ROOT,
     configFile: false,
     logLevel: 'silent',
@@ -312,7 +315,6 @@ const startAutomaticIdentityServer = async (): Promise<
       strictPort: true,
     },
   })
-  onTestFinished(() => server.close().catch(() => undefined))
   await server.listen()
   return { origin: `http://127.0.0.1:${port}`, server }
 }

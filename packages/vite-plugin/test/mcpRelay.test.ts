@@ -13,11 +13,9 @@ import { networkInterfaces, tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import {
   type HmrContext,
-  type InlineConfig,
   type MinimalPluginContextWithoutEnvironment,
   type Plugin,
   type ViteDevServer,
-  createServer,
 } from 'vite'
 import {
   afterEach,
@@ -41,26 +39,10 @@ import {
   relayRegistryDirectoryRefusal,
   retireRelayRecord,
 } from '../src/relayRegistry.ts'
+import { createIsolatedViteServer } from './viteServer.ts'
 
 const PACKAGE_ROOT = resolve(import.meta.dirname, '..')
 const TEST_TIMEOUT = 20_000
-const createServerWithIsolatedCache = async (config: InlineConfig) => {
-  const cacheDir = await mkdtemp(join(tmpdir(), 'foldkit-mcp-vite-cache-'))
-  try {
-    const server = await createServer({ ...config, cacheDir })
-    onTestFinished(async () => {
-      try {
-        await server.close().catch(() => undefined)
-      } finally {
-        await rm(cacheDir, { recursive: true, force: true })
-      }
-    })
-    return server
-  } catch (error) {
-    await rm(cacheDir, { recursive: true, force: true })
-    throw error
-  }
-}
 
 const POLL_TIMEOUT = 10_000
 const MODEL_PRESERVATION_RESPONSE_BUDGET = 500
@@ -98,7 +80,7 @@ const isPortAccepting = (port: number) =>
   })
 
 const startMiddlewareModeServer = async (devToolsMcpPort: number) => {
-  const server = await createServerWithIsolatedCache({
+  const server = await createIsolatedViteServer({
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
@@ -113,7 +95,7 @@ const startStandaloneServer = async (
   devToolsMcpPort: number,
   serverPort: number,
 ) => {
-  const server = await createServerWithIsolatedCache({
+  const server = await createIsolatedViteServer({
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
@@ -229,7 +211,7 @@ const startMiddlewareServer = async (
   mode: string | undefined = undefined,
   plugins: ReadonlyArray<Plugin> = [],
 ) => {
-  const server = await createServerWithIsolatedCache({
+  const server = await createIsolatedViteServer({
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
@@ -247,7 +229,7 @@ const startListeningServer = async (
   plugins: ReadonlyArray<Plugin> = [],
   host = '127.0.0.1',
 ) => {
-  const server = await createServerWithIsolatedCache({
+  const server = await createIsolatedViteServer({
     root: PACKAGE_ROOT,
     configFile: false,
     logLevel: 'silent',
