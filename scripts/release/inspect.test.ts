@@ -32,6 +32,7 @@ async function createArchive(options: { manifest?: Record<string, unknown>; extr
     'CHANGELOG.md': 'Initial release\n',
     'WS-AGENCY-NOTICE.md': 'Unofficial; not endorsed by WS Agency.\n',
     'UPSTREAM.md': 'Upstream information\n',
+    'THIRD-PARTY-NOTICES.md': 'Third-party fixture notices\n',
     'dist/index.js': 'export {}\n',
     'dist/index.d.ts': 'export {}\n',
     ...options.extraFiles,
@@ -50,7 +51,8 @@ async function createArchive(options: { manifest?: Record<string, unknown>; extr
 before(async () => { fixtureRoot = await mkdtemp(join(tmpdir(), 'wseffect-inspect-')) })
 after(async () => { await rm(fixtureRoot, { recursive: true, force: true }) })
 
-const inspect = (path: string) => inspectArchive({ archivePath: path, expectedName: name, version, repositoryUrl })
+const sourceNotices = Buffer.from('Third-party fixture notices\n')
+const inspect = (path: string) => inspectArchive({ archivePath: path, expectedName: name, version, repositoryUrl, sourceNotices })
 
 test('checksPackedManifestAndWorkspaceRewrite', async () => {
   const archive = await createArchive()
@@ -131,6 +133,13 @@ test('rejectsMissingNoticesOrUPSTREAM', async () => {
     const result = await inspect(await createArchive({ omit: [filename] }))
     assert.ok(result.errors.some((error) => error.includes(filename)))
   }
+})
+
+test('requires matching THIRD-PARTY-NOTICES.md when the package source has it', async () => {
+  const missing = await inspect(await createArchive({ omit: ['THIRD-PARTY-NOTICES.md'] }))
+  assert.ok(missing.errors.some((error) => error.includes('Required file is missing from archive: THIRD-PARTY-NOTICES.md')))
+  const mismatched = await inspect(await createArchive({ extraFiles: { 'THIRD-PARTY-NOTICES.md': 'different notices\n' } }))
+  assert.ok(mismatched.errors.some((error) => error.includes('THIRD-PARTY-NOTICES.md does not match package source')))
 })
 
 test('rejectsUnexportedTestArtifactsAndMaps', async () => {

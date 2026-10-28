@@ -66,12 +66,15 @@ test('keepsThirdPartyNotices', async () => {
   for (const directory of packages) {
     const entries = archives[directory]
     const sourceLicense = await readFile(resolve(repoRoot, 'packages', directory, 'LICENSE'))
-    const archivedLicense = execFileSync('tar', ['-xOf', archivePaths[directory], 'package/LICENSE'])
+    const archivedLicense = execFileSync('tar', ['-xOf', archivePaths[directory]!, 'package/LICENSE'])
     assert.deepEqual(archivedLicense, sourceLicense, `${directory} LICENSE must remain unchanged`)
-    if (entries.has('THIRD-PARTY-NOTICES.md')) {
+    try {
       const sourceNotices = await readFile(resolve(repoRoot, 'packages', directory, 'THIRD-PARTY-NOTICES.md'))
-      const archivedNotices = execFileSync('tar', ['-xOf', archivePaths[directory], 'package/THIRD-PARTY-NOTICES.md'])
+      assert.ok(entries?.has('THIRD-PARTY-NOTICES.md'), `${directory} archive must include THIRD-PARTY-NOTICES.md when present in source`)
+      const archivedNotices = execFileSync('tar', ['-xOf', archivePaths[directory]!, 'package/THIRD-PARTY-NOTICES.md'])
       assert.deepEqual(archivedNotices, sourceNotices, `${directory} THIRD-PARTY-NOTICES.md must remain unchanged`)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
     }
   }
 })

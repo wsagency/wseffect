@@ -28,6 +28,7 @@ export type InspectionResult = {
   manifest: Manifest
   errors: string[]
   sha256: string
+  integrity: string
 }
 
 export async function inspectArchive({
@@ -35,14 +36,17 @@ export async function inspectArchive({
   expectedName,
   version,
   repositoryUrl,
+  sourceNotices,
 }: {
   archivePath: string
   expectedName: string
   version: string
   repositoryUrl: string
+  sourceNotices?: Buffer
 }): Promise<InspectionResult> {
   const archive = await readFile(archivePath)
   const sha256 = createHash('sha256').update(archive).digest('hex')
+  const integrity = `sha512-${createHash('sha512').update(archive).digest('base64')}`
   const { stdout } = await execFileAsync('tar', ['-tzf', archivePath], { maxBuffer: 32 * 1024 * 1024 })
   const entries = stdout.split('\n').filter(Boolean)
   const fileEntries = entries.filter((entry) => entry.startsWith('package/') && !entry.endsWith('/'))
@@ -140,7 +144,12 @@ export async function inspectArchive({
   }
   const required = ['README.md', 'LICENSE', 'CHANGELOG.md', 'WS-AGENCY-NOTICE.md']
   if (['@wsagency/wseffect-foldkit', '@wsagency/wseffect-foldkit-ui', '@wsagency/wseffect-vite-plugin', '@wsagency/wseffect-themes'].includes(expectedName)) required.push('UPSTREAM.md')
+  if (sourceNotices) required.push('THIRD-PARTY-NOTICES.md')
   for (const filename of required) if (!paths.has(filename)) errors.push(`Required file is missing from archive: ${filename}`)
+  if (sourceNotices) {
+    const archivedNotices = await readMember('THIRD-PARTY-NOTICES.md')
+    if (archivedNotices && !archivedNotices.equals(sourceNotices)) errors.push('THIRD-PARTY-NOTICES.md does not match package source')
+  }
 
   for (const path of paths) {
     if (/\.d\.ts\.map$/i.test(path)) errors.push(`Forbidden declaration map in archive: ${path}`)
@@ -171,5 +180,5 @@ export async function inspectArchive({
     for (const [label, pattern] of forbiddenMarkers) if (pattern.test(text)) errors.push(`Forbidden ${label} marker in ${path}`)
   }
 
-  return { manifest, errors, sha256 }
+  return { manifest, errors, sha256, integrity }
 }
