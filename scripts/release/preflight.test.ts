@@ -32,6 +32,29 @@ test('preflight requires a clean main branch equal to freshly fetched origin/mai
 
 test('preflight checks coordinated versions, repository checks, archives and every npm dry-run', async () => {
   const f = fixture()
+  const result = await runPreflight({ version: '1.2.3', root: '/repo', historyAuditReviewed: true }, {
+    ...f,
+    run: async (command, args, options) => {
+      f.commands.push({ command, args, cwd: options?.cwd })
+      if (args[0] === 'branch') return 'main'
+      if (args[0] === 'status') return ''
+      if (args[0] === 'rev-parse') return 'same'
+      return ''
+    },
+    inspect: async () => ({ errors: [], sha256: 'abc', manifest: {} }),
+    checkManifest: () => [],
+    checkHistoryAudit: async ({ ownerApprovedClean }) => ({ ok: ownerApprovedClean }),
+  })
+  assert.equal(result.ok, true, result.errors.join('\n'))
+  assert.deepEqual(result.order, f.graph.order)
+  const dryRuns = f.commands.filter((entry) => entry.command === 'npm' && entry.args[0] === 'publish')
+  assert.equal(dryRuns.length, 5)
+  assert.deepEqual(dryRuns.map((entry) => entry.args), result.archives.map((artifact) => ['publish', artifact.archive, '--dry-run', '--ignore-scripts', '--tag', 'next', '--access', 'public']))
+  assert.ok(f.commands.some((x) => x.args.includes('--release-version')))
+})
+test('preflight does not default owner audit approval and refuses before packing', async () => {
+  const f = fixture()
+  let ownerApprovedClean: boolean | undefined
   const result = await runPreflight({ version: '1.2.3', root: '/repo' }, {
     ...f,
     run: async (command, args, options) => {
@@ -43,13 +66,16 @@ test('preflight checks coordinated versions, repository checks, archives and eve
     },
     inspect: async () => ({ errors: [], sha256: 'abc', manifest: {} }),
     checkManifest: () => [],
+    checkHistoryAudit: async ({ ownerApprovedClean: approved }) => {
+      ownerApprovedClean = approved
+      return { ok: false, reason: 'History audit requires --history-audit-reviewed' }
+    },
   })
-  assert.equal(result.ok, true, result.errors.join('\n'))
-  assert.deepEqual(result.order, f.graph.order)
-  const dryRuns = f.commands.filter((entry) => entry.command === 'npm' && entry.args[0] === 'publish')
-  assert.equal(dryRuns.length, 5)
-  assert.deepEqual(dryRuns.map((entry) => entry.args), result.archives.map((artifact) => ['publish', artifact.archive, '--dry-run', '--ignore-scripts', '--tag', 'next', '--access', 'public']))
-  assert.ok(f.commands.some((x) => x.args.includes('--release-version')))
+  assert.equal(ownerApprovedClean, false)
+  assert.equal(result.ok, false)
+  assert.match(result.errors.join('\n'), /--history-audit-reviewed/)
+  assert.equal(result.archives.length, 0)
+  assert.equal(f.commands.some((entry) => entry.command === 'npm'), false)
 })
 
 test('preflight rejects mismatched manifest versions before artifact packing', async () => {
@@ -84,6 +110,7 @@ test('preflight rejects archive inspection errors and npm dry-run failures', asy
     },
     inspect: async () => ({ errors: rejectInspection ? ['bad archive'] : [], sha256: 'abc', manifest: {} }),
     checkManifest: () => [],
+    checkHistoryAudit: async () => ({ ok: true }),
   }
   const inspectionFailure = await runPreflight({ version: '1.2.3', root: '/repo' }, dependencies)
   assert.match(inspectionFailure.errors.join('\\n'), /bad archive/)

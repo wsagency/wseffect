@@ -12,6 +12,8 @@ mise exec node@24.21.0 pnpm@11.5.0 -- bash
 
 In that shell, initialize the external paths once, then run the preparation checks:
 
+Before any GitHub mirror push, release tag, or package publish, the independent history auditor must complete the history audit and save its report outside Git at `"$HOME/.cache/wseffect-work/history-audit/REPORT.md"`. The publishing owner, **klukacin**, must read the report and verify it covers every ref, secrets, and internal-only content. Only after that review, run preflight with `--history-audit-reviewed` to explicitly confirm the owner-approved audit. Preflight refuses by default without that flag; never copy the report into the repository.
+
 ```sh
 export TMPDIR="$HOME/.cache/wseffect-work/release-packages/tmp"
 mkdir -p "$TMPDIR"
@@ -24,7 +26,7 @@ test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 pnpm install --frozen-lockfile
 pnpm check
 node scripts/check-repo.ts --release-version 0.1.0-rc.0
-pnpm release:preflight -- --version 0.1.0-rc.0
+pnpm release:preflight -- --version 0.1.0-rc.0 --history-audit-reviewed
 ```
 
 Before continuing, confirm that all five package manifests agree on `0.1.0-rc.0`, every internal package range is coherent, published Effect peers are `^4.0.5`, all repository Effect pins are exactly `4.0.7`, and every package has public npm `publishConfig` with `access: public`, `registry: https://registry.npmjs.org/`, and `tag: next`. The preflight prints both the manifest-derived dependency edges and the computed topological publish order. Review those edges/order against the manifests; **never maintain or assume a separate package sequence**.
@@ -51,7 +53,7 @@ pnpm install --frozen-lockfile
 pnpm build
 pnpm check
 node scripts/check-repo.ts --release-version 0.1.0-rc.0
-pnpm release:preflight -- --version 0.1.0-rc.0
+pnpm release:preflight -- --version 0.1.0-rc.0 --history-audit-reviewed
 pnpm release:pack -- --out "$archives_dir"
 ```
 

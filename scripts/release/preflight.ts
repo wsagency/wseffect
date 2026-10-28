@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { checkManifest } from '../check-repo.ts'
 import { releaseOrder, type PackageManifest, type ReleaseEdge } from './graph.ts'
+import { checkHistoryAudit } from './history-gate.ts'
 import { inspectArchive, type InspectionResult } from './inspect.ts'
 
 const execFileAsync = promisify(execFile)
@@ -20,6 +21,7 @@ export type ReleaseDependencies = {
   run?: CommandRunner
   inspect?: (args: { archivePath: string; expectedName: string; version: string; repositoryUrl: string }) => Promise<InspectionResult>
   checkManifest?: typeof checkManifest
+  checkHistoryAudit?: typeof checkHistoryAudit
 }
 export type PreflightResult = { ok: boolean; errors: string[]; order: string[]; edges: ReleaseEdge[]; archives: ReleaseArchive[] }
 
@@ -92,7 +94,7 @@ function consoleGraph(graph: ReleaseGraph): void {
   for (const name of graph.order) console.log(`  ${name}`)
 }
 
-export async function runPreflight(options: { version: string; root: string; out?: string }, dependencies: ReleaseDependencies = {}): Promise<PreflightResult> {
+export async function runPreflight(options: { version: string; root: string; out?: string; historyAuditReport?: string; historyAuditReviewed?: boolean }, dependencies: ReleaseDependencies = {}): Promise<PreflightResult> {
   const root = resolve(options.root)
   const errors: string[] = []
   const run = dependencies.run ?? realRun
@@ -118,6 +120,11 @@ export async function runPreflight(options: { version: string; root: string; out
     errors.push(...guardManifest(manifest, `packages/${packageDirectory(manifest)}/package.json`, options.version))
   }
   await attempt(process.execPath, ['scripts/check-repo.ts', '--release-version', options.version])
+  const audit = await (dependencies.checkHistoryAudit ?? checkHistoryAudit)({
+    reportPath: options.historyAuditReport ?? join(process.env.HOME ?? '', '.cache/wseffect-work/history-audit/REPORT.md'),
+    ownerApprovedClean: options.historyAuditReviewed ?? false,
+  })
+  if (!audit.ok) errors.push(audit.reason ?? 'History audit was not approved')
   const archives: ReleaseArchive[] = []
   if (errors.length === 0) {
     try {
@@ -137,11 +144,14 @@ async function main(): Promise<void> {
   const version = versionIndex >= 0 ? args[versionIndex + 1] : undefined
   const outIndex = args.indexOf('--out')
   const out = outIndex >= 0 ? args[outIndex + 1] : undefined
+  const reportIndex = args.indexOf('--history-audit-report')
+  const historyAuditReport = reportIndex >= 0 ? args[reportIndex + 1] : undefined
+  const historyAuditReviewed = args.includes('--history-audit-reviewed')
   const packMode = args.includes('--pack') || !preflight
   if (!packMode && !version) throw new Error('--version requires a version')
   const result = packMode
     ? await packRelease({ version: version ?? (await readManifests(root))[0]!.version, root, out })
-    : await runPreflight({ version: version!, root, out })
+    : await runPreflight({ version: version!, root, out, historyAuditReport, historyAuditReviewed })
   if (!packMode && !result.ok) {
     for (const error of result.errors) console.error(`REFUSED: ${error}`)
     process.exitCode = 1
