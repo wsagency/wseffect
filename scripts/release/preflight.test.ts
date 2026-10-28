@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
+import { mkdtemp, mkdir, rm, symlink } from 'node:fs/promises'
 import test from 'node:test'
+import { join } from 'node:path'
 import { runPreflight, packRelease } from './preflight.ts'
 
 const packageNames = ['@wsagency/wseffect-app', '@wsagency/wseffect-themes', '@wsagency/wseffect-foldkit', '@wsagency/wseffect-foldkit-ui', '@wsagency/wseffect-vite-plugin']
@@ -44,7 +46,9 @@ test('preflight checks coordinated versions, repository checks, archives and eve
   })
   assert.equal(result.ok, true, result.errors.join('\n'))
   assert.deepEqual(result.order, f.graph.order)
-  assert.deepEqual(f.commands.filter((x) => x.args.includes('--dry-run')).length, 5)
+  const dryRuns = f.commands.filter((entry) => entry.command === 'npm' && entry.args[0] === 'publish')
+  assert.equal(dryRuns.length, 5)
+  assert.deepEqual(dryRuns.map((entry) => entry.args), result.archives.map((artifact) => ['publish', artifact.archive, '--dry-run', '--ignore-scripts', '--tag', 'next', '--access', 'public']))
   assert.ok(f.commands.some((x) => x.args.includes('--release-version')))
 })
 
@@ -103,4 +107,46 @@ test('pack emits inspected archives and hashes in graph order outside the reposi
   })
   assert.deepEqual(result.map((item) => item.package), f.graph.order)
   assert.ok(f.commands.filter((x) => x.args[0] === 'pack').every((x) => x.command === 'pnpm' && x.cwd?.startsWith('/repo/packages/') && x.args.includes(out)))
+})
+
+async function makeTempRoot(): Promise<string> {
+  const base = join(process.env.HOME!, '.cache/wseffect-work/release-packages/tmp')
+  await mkdir(base, { recursive: true })
+  return mkdtemp(join(base, 'preflight-pack-test-'))
+}
+
+test('pack rejects a child directory named with a leading dot-dot prefix', async () => {
+  const parent = await makeTempRoot()
+  const root = join(parent, 'repo')
+  await mkdir(root)
+  try {
+    await assert.rejects(packRelease({ version: '1.2.3', root, out: join(root, '..cache') }, { manifests: [], graph: { order: [], edges: [] } }), /outside the Git working tree/)
+  } finally {
+    await rm(parent, { recursive: true, force: true })
+  }
+})
+
+test('pack accepts an actual sibling output directory', async () => {
+  const parent = await makeTempRoot()
+  const root = join(parent, 'repo')
+  await mkdir(root)
+  try {
+    const result = await packRelease({ version: '1.2.3', root, out: join(parent, 'archives') }, { manifests: [], graph: { order: [], edges: [] }, run: async () => '' })
+    assert.deepEqual(result, [])
+  } finally {
+    await rm(parent, { recursive: true, force: true })
+  }
+})
+
+test('pack rejects an output symlink resolving into the worktree', async () => {
+  const parent = await makeTempRoot()
+  const root = join(parent, 'repo')
+  const link = join(parent, 'linked-archives')
+  await mkdir(root)
+  await symlink(root, link, 'dir')
+  try {
+    await assert.rejects(packRelease({ version: '1.2.3', root, out: link }, { manifests: [], graph: { order: [], edges: [] } }), /outside the Git working tree/)
+  } finally {
+    await rm(parent, { recursive: true, force: true })
+  }
 })

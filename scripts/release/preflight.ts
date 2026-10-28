@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process'
-import { mkdir, readFile } from 'node:fs/promises'
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path'
+import { mkdir, readFile, realpath } from 'node:fs/promises'
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { checkManifest } from '../check-repo.ts'
@@ -31,17 +31,36 @@ async function realRun(command: string, args: string[], options?: { cwd?: string
 async function readManifests(root: string): Promise<ReleasePackageManifest[]> {
   return Promise.all(packageDirectories.map(async (directory) => JSON.parse(await readFile(join(root, 'packages', directory, 'package.json'), 'utf8')) as ReleasePackageManifest))
 }
-
 function packageDirectory(manifest: ReleasePackageManifest): string {
   const suffix = manifest.name.replace('@wsagency/wseffect-', '')
   return suffix
 }
+async function realPathWithMissingAncestors(path: string): Promise<string> {
+  let candidate = resolve(path)
+  const missingSegments: string[] = []
+  while (true) {
+    try {
+      const existingPath = await realpath(candidate)
+      return resolve(existingPath, ...missingSegments)
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code
+      if (code !== 'ENOENT' && code !== 'ENOTDIR') throw error
+      const parent = dirname(candidate)
+      if (parent === candidate) throw error
+      missingSegments.unshift(basename(candidate))
+      candidate = parent
+    }
+  }
+}
+
 
 export async function packRelease(options: { version: string; root: string; out?: string; printGraph?: boolean }, dependencies: ReleaseDependencies = {}): Promise<ReleaseArchive[]> {
   const root = resolve(options.root)
   const out = resolve(options.out ?? join(process.env.HOME ?? '', '.cache/wseffect-work/release-packages/archives'))
-  const relativeOut = relative(root, out)
-  if (!isAbsolute(out) || (!relativeOut.startsWith('..') && relativeOut !== '..')) throw new Error(`Pack output must be outside the Git working tree: ${out}`)
+  const [realRoot, realOut] = await Promise.all([realPathWithMissingAncestors(root), realPathWithMissingAncestors(out)])
+  const relativeOut = relative(realRoot, realOut)
+  const insideRoot = relativeOut === '' || (relativeOut !== '..' && !relativeOut.startsWith(`..${sep}`) && !isAbsolute(relativeOut))
+  if (insideRoot) throw new Error(`Pack output must be outside the Git working tree: ${out}`)
   await mkdir(out, { recursive: true })
   const manifests = dependencies.manifests ?? await readManifests(root)
   const graph = dependencies.graph ?? releaseOrder(manifests)
@@ -104,7 +123,7 @@ export async function runPreflight(options: { version: string; root: string; out
     try {
       const packed = await packRelease({ ...options, root, printGraph: false }, { manifests, graph, run, inspect })
       archives.push(...packed)
-      for (const artifact of archives) await attempt('npm', ['publish', artifact.archive, '--dry-run', '--ignore-scripts'], root)
+      for (const artifact of archives) await attempt('npm', ['publish', artifact.archive, '--dry-run', '--ignore-scripts', '--tag', 'next', '--access', 'public'], root)
     } catch (error) { errors.push(error instanceof Error ? error.message : String(error)) }
   }
   return { ok: errors.length === 0, errors, order: graph.order, edges: graph.edges, archives }
