@@ -1,7 +1,6 @@
-import { createHash } from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 
@@ -56,14 +55,11 @@ async function main(): Promise<void> {
   const versionIndex = args.indexOf('--version')
   const version = versionIndex >= 0 ? args[versionIndex + 1] : undefined
   if (!version) throw new Error('--version requires a version')
-  const outIndex = args.indexOf('--out')
-  const out = resolve(outIndex >= 0 ? args[outIndex + 1] ?? join(process.env.HOME ?? '', '.cache/wseffect-work/release-packages/archives') : join(process.env.HOME ?? '', '.cache/wseffect-work/release-packages/archives'))
-  const expected: RegistryExpectation = {}
-  for (const name of packageNames) {
-    const fileName = `${name.replace('@', '').replace('/', '-')}-${version}.tgz`
-    const archive = await readFile(join(out, fileName))
-    expected[name] = { integrity: `sha512-${createHash('sha512').update(archive).digest('base64')}` }
-  }
+  const recordIndex = args.indexOf('--record')
+  const recordPath = resolve(recordIndex >= 0 ? args[recordIndex + 1] ?? '' : join(process.env.HOME ?? '', '.cache/wseffect-work/release-records', `${version}.json`))
+  const record = JSON.parse(await readFile(recordPath, 'utf8')) as { version: string; packages: Array<{ package: string; integrity: string }> }
+  if (record.version !== version) throw new Error(`Release record version ${record.version} does not match ${version}`)
+  const expected: RegistryExpectation = Object.fromEntries(record.packages.map((item) => [item.package, { integrity: item.integrity }]))
   const result = await verifyRegistry({ version, expected })
   if (!result.ok) {
     console.error('Registry verification failed; no publish or dist-tag changes were attempted.')
