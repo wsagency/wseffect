@@ -61,6 +61,21 @@ test('TextField keeps its label and description outside the Radix-sized input ro
   expect(geometry.rootHeight).toBe(geometry.sizeHeight)
 })
 
+test('TextField uses the pinned Radix2Solid boxed surface defaults', async ({ page }) => {
+  await page.goto('/text-field')
+  const root = page.locator('main .rt-TextFieldRoot')
+  await expect(root).toHaveClass(/\brt-r-size-2\b.*\brt-variant-surface\b/)
+  const style = await root.evaluate((element) => {
+    const css = getComputedStyle(element)
+    return { background: css.backgroundColor, borderWidth: css.borderWidth, borderStyle: css.borderStyle, padding: css.padding, shadow: css.boxShadow }
+  })
+  expect(style.background).toBe('rgba(255, 255, 255, 0.85)')
+  expect(style.borderWidth).toBe('0px')
+  expect(style.borderStyle).toBe('none')
+  expect(style.padding).toBe('1px')
+  expect(style.shadow).toContain('0px 0px 0px 1px inset')
+})
+
 test('Dialog content uses the pinned 600px default max width', async ({ page }) => {
   await page.goto('/dialog')
   await page.getByRole('button', { name: 'Open dialog' }).click()

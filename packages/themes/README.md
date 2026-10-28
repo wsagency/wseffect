@@ -43,7 +43,20 @@ Menus inherit that shared root Theme by default. A menu inside a nested Theme ca
 import '@wsagency/wseffect-themes/styles.css'
 ```
 
-For a smaller footprint, import only the files you need. For example, an app using the TextField can import `@wsagency/wseffect-themes/tokens/base.css`, the specific `@wsagency/wseffect-themes/tokens/colors/<color>.css` token files it uses, `@wsagency/wseffect-themes/css/text-field.css`, and `@wsagency/wseffect-themes/utilities.css`. The gallery instead uses the `tokens/base.css` and selected `tokens/colors/*.css` files, plus the `components.css` and `utilities.css` aggregates. Do not import `styles.css` together with `components.css`; they overlap and duplicate component rules.
+For a smaller footprint, import only the files needed by your components and theme. This TextField example uses the granular set required for its root, label/description wrapper, text styles, and utility classes:
+
+```ts
+import '@wsagency/wseffect-themes/tokens/base.css'
+import '@wsagency/wseffect-themes/tokens/colors/gray.css'
+import '@wsagency/wseffect-themes/tokens/colors/blue.css'
+import '@wsagency/wseffect-themes/css/common.css'
+import '@wsagency/wseffect-themes/css/flex.css'
+import '@wsagency/wseffect-themes/css/text.css'
+import '@wsagency/wseffect-themes/css/text-field.css'
+import '@wsagency/wseffect-themes/utilities.css'
+```
+
+`css/common.css` supplies the shared reset and foundation rules; `css/flex.css` and `css/text.css` style the TextField wrapper and its label/description; `utilities.css` supplies its responsive direction and gap classes. Add the token files for the gray and accent palettes used by your Theme. The gallery instead imports its selected `tokens/base.css`/`tokens/colors/*.css` files with the `components.css` and `utilities.css` aggregates. Do not import `styles.css` together with `components.css`; they overlap and duplicate component rules.
 
 ## License
 
