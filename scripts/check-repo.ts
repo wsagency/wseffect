@@ -28,6 +28,34 @@ type Manifest = {
 
 const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'WS-AGENCY-NOTICE.md'])
 const upstreamPackages = ['packages/themes/', 'packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/'] as const
+const publishablePackagePaths = [
+  'packages/app/package.json',
+  'packages/themes/package.json',
+  'packages/foldkit/package.json',
+  'packages/foldkit-ui/package.json',
+  'packages/vite-plugin/package.json',
+] as const
+const semverPattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/
+
+export function checkDevelopmentPackageVersions(
+  versions: Readonly<Record<string, string | undefined>>,
+): string[] {
+  const errors: string[] = []
+  let coordinatedVersion: string | undefined
+  for (const path of publishablePackagePaths) {
+    const version = versions[path]
+    if (!version || !semverPattern.test(version)) {
+      errors.push(`${path}: version must be valid semver`)
+      continue
+    }
+    if (coordinatedVersion === undefined) coordinatedVersion = version
+    else if (version !== coordinatedVersion) {
+      errors.push(`${path}: version must match ${coordinatedVersion}`)
+    }
+  }
+  return errors
+}
+
 
 export function checkManifest(manifest: Manifest, path: string, releaseVersion?: string): string[] {
   const errors: string[] = []
@@ -82,7 +110,6 @@ export function checkManifest(manifest: Manifest, path: string, releaseVersion?:
       Object.values(manifest.engines).some((engine) => !engine.trim())) fail('engines must specify supported runtime requirements')
   } else {
     if (excludedFromExistingChecks) return errors
-    if (manifest.version !== '0.0.0') fail('version must be 0.0.0')
     if (!['git+https://git.wsagency.io/ws-agency/wseffect.git', 'git+https://github.com/wsagency/wseffect.git']
       .includes(manifest.repository?.url ?? '') || !manifest.repository?.directory) {
       fail('repository must identify the wseffect repository and package directory')
@@ -212,6 +239,7 @@ async function main(): Promise<void> {
   }
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const errors: string[] = []
+  const packageVersions: Record<string, string | undefined> = {}
   for (const path of await packageFiles(root)) {
     let manifest: Manifest
     try {
@@ -220,8 +248,13 @@ async function main(): Promise<void> {
       errors.push(`${relative(root, path)}: invalid package.json (${String(error)})`)
       continue
     }
-    errors.push(...checkManifest(manifest, relative(root, path), releaseVersion))
+    const packagePath = relative(root, path)
+    if (publishablePackagePaths.includes(packagePath as (typeof publishablePackagePaths)[number])) {
+      packageVersions[packagePath] = manifest.version
+    }
+    errors.push(...checkManifest(manifest, packagePath, releaseVersion))
   }
+  if (!releaseVersion) errors.push(...checkDevelopmentPackageVersions(packageVersions))
   errors.push(...checkWorkspace(await readFile(join(root, 'pnpm-workspace.yaml'), 'utf8')))
   errors.push(...checkEffectCopies(await readFile(join(root, 'pnpm-lock.yaml'), 'utf8')))
   errors.push(...await checkGalleryEffectSourceMaps(root))

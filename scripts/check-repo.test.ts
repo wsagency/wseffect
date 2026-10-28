@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import test from 'node:test'
-import { checkEffectCopies, checkManifest, checkWorkspace } from './check-repo.ts'
+import { checkDevelopmentPackageVersions, checkEffectCopies, checkManifest, checkWorkspace } from './check-repo.ts'
 
 const manifest = () => ({
   name: '@wsagency/wseffect-app',
@@ -22,8 +22,40 @@ const manifest = () => ({
   devDependencies: { typescript: '7.0.2' },
 })
 
+const developmentVersions = (version = '0.1.0-rc.0') => ({
+  'packages/app/package.json': version,
+  'packages/themes/package.json': version,
+  'packages/foldkit/package.json': version,
+  'packages/foldkit-ui/package.json': version,
+  'packages/vite-plugin/package.json': version,
+})
+
 test('acceptsDevelopmentVersionOutsideRelease', () => {
   assert.deepEqual(checkManifest(manifest(), 'packages/app/package.json'), [])
+})
+
+test('acceptsCoordinatedRcForDevelopment', () => {
+  const fixture = manifest()
+  fixture.version = '0.1.0-rc.0'
+  assert.deepEqual(checkManifest(fixture, 'packages/app/package.json'), [])
+})
+
+test('acceptsNextAlignedRcForDevelopment', () => {
+  const fixture = manifest()
+  fixture.version = '0.1.0-rc.1'
+  assert.deepEqual(checkManifest(fixture, 'packages/app/package.json'), [])
+  assert.deepEqual(checkDevelopmentPackageVersions(developmentVersions('0.1.0-rc.1')), [])
+})
+
+test('rejectsDevelopmentVersionSkew', () => {
+  const versions = { ...developmentVersions(), 'packages/themes/package.json': '0.1.0-rc.1' }
+  assert.ok(checkDevelopmentPackageVersions(versions).some((error) =>
+    error.includes('packages/themes/package.json: version must match 0.1.0-rc.0')))
+})
+
+test('rejectsInvalidDevelopmentSemver', () => {
+  assert.ok(checkDevelopmentPackageVersions(developmentVersions('0.1.0-rc.01')).some((error) =>
+    error.includes('version must be valid semver')))
 })
 
 test('acceptsCanonicalPublicRepositoryOutsideReleaseMode', () => {
@@ -36,6 +68,17 @@ test('acceptsOnlySamePreparedRcForRelease', () => {
   const fixture = releaseManifest()
   assert.deepEqual(checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0'), [])
   assert.ok(checkManifest(manifest(), 'packages/app/package.json', '0.1.0-rc.0').some((error) => error.includes('version')))
+})
+
+test('releaseModeStillRequiresExactVersionAndMetadata', () => {
+  const fixture = releaseManifest()
+  assert.deepEqual(checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0'), [])
+
+  fixture.version = '0.1.0-rc.1'
+  fixture.publishConfig.tag = 'latest'
+  const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
+  assert.ok(errors.some((error) => error.includes('version must be 0.1.0-rc.0')))
+  assert.ok(errors.some((error) => error.includes('publishConfig.tag must be next')))
 })
 
 test('rejectsVersionSkew', () => {
