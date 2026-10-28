@@ -107,6 +107,10 @@ test('all release package manifests have canonical npm metadata', async () => {
     const path = `packages/${name}/package.json`
     const fixture = JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'))
     assert.deepEqual(checkManifest(fixture, path, '0.0.0'), [], `${path} must be release-ready`)
+    if (name === 'app') {
+      assert.equal(fixture.description, 'A Foldkit application foundation with lazy page loading, offline support, update prompts, and deployment-version checks.')
+      assert.deepEqual(fixture.keywords, ['foldkit', 'effect', 'application', 'lazy-pages', 'pwa', 'vite'])
+    }
     assert.deepEqual(fixture.repository, {
       type: 'git',
       url: 'git+https://github.com/wsagency/wseffect.git',
