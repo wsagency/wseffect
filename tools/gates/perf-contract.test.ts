@@ -24,6 +24,8 @@ test('Gallery matches the shared virtual-list, form, and menu contract', async (
       assert.equal(await page.locator('[data-perf="vl-filter"]').getAttribute('type'), 'text')
       await page.locator('[data-perf="vl-sort"]').waitFor({ state: 'visible', timeout: 1_000 })
       assert.equal(await page.locator('[data-perf="vl-sort"]').count(), 1)
+      // The virtual list starts Unmeasured and renders no rows until its ResizeObserver reports the container.
+      await page.locator('[data-perf="vl-row"]').first().waitFor({ state: 'visible', timeout: 1_000 })
       const visibleRows = await page.locator('[data-perf="vl-row"]').count()
       assert.ok(visibleRows > 0 && visibleRows <= 20, `virtual list renders ${visibleRows} rows (limit 20)`)
       assert.equal(await page.locator('[data-perf="vl-row"]').first().locator(':scope > *').count(), 6)
