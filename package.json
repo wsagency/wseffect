@@ -19,7 +19,10 @@
     "gate:perf": "node tools/gates/perf.ts",
     "perf:noise": "pnpm exec node tools/gates/perf.ts --app apps/gallery --self-test --write-noise --reason 'Dedicated perf runner noise-floor measurement'",
     "gate:report": "node tools/gates/report.ts",
-    "bench:compare": "node tools/bench/compare-radix.ts"
+    "bench:compare": "node tools/bench/compare-radix.ts",
+    "release:preflight": "node scripts/release/preflight.ts",
+    "release:pack": "node scripts/release/preflight.ts --pack",
+    "release:verify": "node scripts/release/verify-registry.ts"
   },
   "devDependencies": {
     "@effect/platform-browser": "4.0.7",
