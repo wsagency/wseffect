@@ -21,6 +21,73 @@ const manifest = () => ({
   devDependencies: { typescript: '7.0.2' },
 })
 
+test('acceptsDevelopmentVersionOutsideRelease', () => {
+  assert.deepEqual(checkManifest(manifest(), 'packages/app/package.json'), [])
+})
+
+test('acceptsOnlySamePreparedRcForRelease', () => {
+  const fixture = releaseManifest()
+  assert.deepEqual(checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0'), [])
+  assert.ok(checkManifest(manifest(), 'packages/app/package.json', '0.1.0-rc.0').some((error) => error.includes('version')))
+})
+
+test('rejectsVersionSkew', () => {
+  const fixture = releaseManifest()
+  fixture.version = '0.1.0-rc.1'
+  assert.ok(checkManifest(fixture, 'packages/foldkit/package.json', '0.1.0-rc.0').some((error) => error.includes('version')))
+})
+
+test('requiresPublicGitHubRepositoryAndHomepage', () => {
+  const fixture = releaseManifest()
+  fixture.repository.url = 'git+https://git.wsagency.io/ws-agency/wseffect.git'
+  fixture.homepage = 'https://internal.example'
+  const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
+  assert.ok(errors.some((error) => error.includes('repository')))
+  assert.ok(errors.some((error) => error.includes('homepage')))
+})
+
+test('requiresNextTagAndPublicAccess', () => {
+  const fixture = releaseManifest()
+  fixture.publishConfig.access = 'restricted'
+  fixture.publishConfig.tag = 'latest'
+  const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
+  assert.ok(errors.some((error) => error.includes('publishConfig.access')))
+  assert.ok(errors.some((error) => error.includes('publishConfig.tag')))
+})
+
+test('requiresPublicPackageMetadata', () => {
+  const fixture = releaseManifest()
+  fixture.description = ''
+  fixture.keywords = []
+  fixture.author = ''
+  fixture.maintainers = []
+  fixture.engines = {}
+  const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
+  for (const field of ['description', 'keywords', 'author', 'maintainers', 'engines']) {
+    assert.ok(errors.some((error) => error.includes(field)), `expected ${field} validation`)
+  }
+})
+
+function releaseManifest() {
+  return {
+    ...manifest(),
+    version: '0.1.0-rc.0',
+    homepage: 'https://wseffect.com',
+    bugs: { url: 'https://github.com/wsagency/wseffect/issues' },
+    description: 'Effect integration packages',
+    keywords: ['effect'],
+    author: 'WS Agency',
+    maintainers: ['WS Agency'],
+    engines: { node: '>=20' },
+    publishConfig: { access: 'public', tag: 'next' },
+    repository: {
+      type: 'git',
+      url: 'git+https://github.com/wsagency/wseffect.git',
+      directory: 'packages/app',
+    },
+  }
+}
+
 test('checkManifest rejects ranged dev dependencies', () => {
   const fixture = manifest()
   fixture.devDependencies.typescript = '^7.0.2'

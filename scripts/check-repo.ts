@@ -8,8 +8,15 @@ type Manifest = {
   private?: boolean
   type?: string
   license?: string
-  publishConfig?: { access?: string }
+  publishConfig?: { access?: string; tag?: string }
   repository?: { type?: string; url?: string; directory?: string }
+  homepage?: string
+  bugs?: { url?: string }
+  description?: string
+  keywords?: string[]
+  author?: string | { name?: string }
+  maintainers?: Array<string | { name?: string }>
+  engines?: Record<string, string>
   files?: string[]
   exports?: Record<string, unknown>
   sideEffects?: unknown
@@ -21,7 +28,7 @@ type Manifest = {
 
 const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md'])
 
-export function checkManifest(manifest: Manifest, path: string): string[] {
+export function checkManifest(manifest: Manifest, path: string, releaseVersion?: string): string[] {
   const errors: string[] = []
   const fail = (message: string) => errors.push(`${path}: ${message}`)
   for (const [section, dependencies] of Object.entries({
@@ -38,16 +45,39 @@ export function checkManifest(manifest: Manifest, path: string): string[] {
     fail('pnpm.patchedDependencies is forbidden')
   }
   if (!path.replaceAll('\\', '/').startsWith('packages/')) return errors
-  if (['packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/'].some((prefix) => path.replaceAll('\\', '/').startsWith(prefix))) return errors
+  const excludedFromExistingChecks = ['packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/']
+    .some((prefix) => path.replaceAll('\\', '/').startsWith(prefix))
 
-  if (manifest.version !== '0.0.0') fail('version must be 0.0.0')
-  if (manifest.private !== false) fail('private must be false')
+  if (releaseVersion) {
+    if (manifest.version !== releaseVersion) fail(`version must be ${releaseVersion}`)
+    if (manifest.private !== false) fail('private must be false')
+    if (manifest.publishConfig?.access !== 'public') fail('publishConfig.access must be public')
+    if (manifest.publishConfig?.tag !== 'next') fail('publishConfig.tag must be next')
+    if (manifest.repository?.url !== 'git+https://github.com/wsagency/wseffect.git' || !manifest.repository.directory) {
+      fail('repository must use the public GitHub repository URL and include the package directory')
+    }
+    if (manifest.homepage !== 'https://wseffect.com') fail('homepage must be https://wseffect.com')
+    if (manifest.bugs?.url !== 'https://github.com/wsagency/wseffect/issues') fail('bugs.url must be the public GitHub issues URL')
+    if (!manifest.description?.trim()) fail('description is required')
+    if (!manifest.keywords?.length || manifest.keywords.some((keyword) => !keyword.trim())) fail('keywords must be a non-empty list')
+    if (typeof manifest.author === 'string' ? !manifest.author.trim() : !manifest.author?.name?.trim()) fail('author is required')
+    if (!manifest.maintainers?.length || manifest.maintainers.some((maintainer) =>
+      typeof maintainer === 'string' ? !maintainer.trim() : !maintainer.name?.trim())) fail('maintainers are required')
+    if (!manifest.engines || Object.keys(manifest.engines).length === 0 ||
+      Object.values(manifest.engines).some((engine) => !engine.trim())) fail('engines must specify supported runtime requirements')
+  } else {
+    if (excludedFromExistingChecks) return errors
+    if (manifest.version !== '0.0.0') fail('version must be 0.0.0')
+    if (manifest.repository?.url !== 'git+https://git.wsagency.io/ws-agency/wseffect.git' || !manifest.repository.directory) {
+      fail('repository must identify the wseffect repository and package directory')
+    }
+  }
+  if (excludedFromExistingChecks) return errors
+
+  if (!releaseVersion && manifest.private !== false) fail('private must be false')
   if (manifest.type !== 'module') fail('type must be module')
   if (manifest.license !== 'MIT') fail('license must be MIT')
-  if (manifest.publishConfig?.access !== 'public') fail('publishConfig.access must be public')
-  if (manifest.repository?.url !== 'git+https://git.wsagency.io/ws-agency/wseffect.git' || !manifest.repository.directory) {
-    fail('repository must identify the wseffect repository and package directory')
-  }
+  if (!releaseVersion && manifest.publishConfig?.access !== 'public') fail('publishConfig.access must be public')
   if (!manifest.files?.length || manifest.files.some((file) =>
     !allowedFiles.has(file) && !(path.replaceAll('\\', '/').startsWith('packages/themes/') && file === 'UPSTREAM.md'))) {
     fail('files must contain only dist, LICENSE, README.md, and CHANGELOG.md (plus UPSTREAM.md for Themes)')
@@ -156,6 +186,13 @@ export async function checkGalleryEffectSourceMaps(root: string): Promise<string
 }
 
 async function main(): Promise<void> {
+  const releaseVersionIndex = process.argv.indexOf('--release-version')
+  const releaseVersion = releaseVersionIndex === -1 ? undefined : process.argv[releaseVersionIndex + 1]
+  if (releaseVersionIndex !== -1 && !releaseVersion) {
+    console.error('--release-version requires a version')
+    process.exitCode = 1
+    return
+  }
   const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
   const errors: string[] = []
   for (const path of await packageFiles(root)) {
@@ -166,7 +203,7 @@ async function main(): Promise<void> {
       errors.push(`${relative(root, path)}: invalid package.json (${String(error)})`)
       continue
     }
-    errors.push(...checkManifest(manifest, relative(root, path)))
+    errors.push(...checkManifest(manifest, relative(root, path), releaseVersion))
   }
   errors.push(...checkWorkspace(await readFile(join(root, 'pnpm-workspace.yaml'), 'utf8')))
   errors.push(...checkEffectCopies(await readFile(join(root, 'pnpm-lock.yaml'), 'utf8')))
