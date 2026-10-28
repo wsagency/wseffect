@@ -16,6 +16,8 @@
 - `h.submodel` nested `viewInputs` validation caches successfully checked nested object and array identities in a `WeakSet`; it deliberately never caches the top-level `viewInputs` root because direct top-level functions are legal. The walk allocates no path strings/arrays on success and assembles the unchanged diagnostic path only when reporting a nested function. Inputs are immutable by convention. The root is checked on every render. Corrected by `1f1c5ba`.
 - Removed upstream website API-doc tooling (`typedoc.json`, `typedoc-entry.ts`, `typedoc-experimental.ts`, `typedoc-entry.test.ts`, `tsconfig.docs.json`); neither local builds nor tests use these files.
 
+- Effect 4.0.7 diagnosis test-only adjustments (no runtime-source delta): the OnMount interruption fixture opts into interruptible acquisition, the paused view-state assertion waits for the async observer's initial value, and the auto-resume fixture waits for its asynchronous subscription to attach before publishing. These eliminate assertions on incidental scheduler timing while retaining each behavioral contract.
+
 ## Sync procedure
 
 1. Select and record an upstream release tag and commit; check the package source and published build provenance.

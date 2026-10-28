@@ -42,7 +42,7 @@ test('README states project independence, package scope, and WS Agency attributi
 })
 
 test('README documents the vendored Foldkit ownership without an external peer workaround', () => {
-  assert.match(readme, /Vendored Foldkit packages[\s\S]*exact Effect 4\.0\.5 pins/)
+  assert.match(readme, /Vendored Foldkit packages[\s\S]*exact Effect 4\.0\.7 pins/)
   assert.doesNotMatch(readme, /<!-- up8:start -->|peerDependencyRules|PR #1699/)
 })
 

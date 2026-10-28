@@ -12,10 +12,10 @@
   "dependencies": {
     "@wsagency/wseffect-app": "workspace:*",
     "@wsagency/wseffect-themes": "workspace:*",
-    "@effect/platform-browser": "4.0.5",
+    "@effect/platform-browser": "4.0.7",
     "@wsagency/wseffect-foldkit-ui": "workspace:*",
     "@wsagency/wseffect-foldkit": "workspace:*",
-    "effect": "4.0.5"
+    "effect": "4.0.7"
   },
   "devDependencies": {
     "@types/node": "24.19.1",

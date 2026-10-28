@@ -14,8 +14,8 @@ test('latestEligibleEffect selects latest 4.x at least 24 hours old', () => {
 
 test('replaceEffectOverrides updates the workspace Effect pins without peer workaround rules', () => {
   const workspace = `overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
 `
   assert.equal(replaceEffectOverrides(workspace, '4.0.7'), `overrides:
   effect: 4.0.7

@@ -985,7 +985,9 @@ describe('Mount view-state awareness', () => {
       }
       const replayAcquisition = maybeReplayAcquisition.value
       expect(replayAcquisition.entityId).toBe(0)
-      expect(replayAcquisition.observedViewStates).toEqual(['Paused'])
+      await vi.waitFor(() => {
+        expect(replayAcquisition.observedViewStates).toEqual(['Paused'])
+      })
       const replayEditor = requireElement('#editor')
 
       PubSub.publishUnsafe(subscriptionMessages, Message.ShowedEditor())
@@ -2085,9 +2087,19 @@ describe('Mount view-state awareness', () => {
     const subscriptionMessages = await Effect.runPromise(
       PubSub.unbounded<Message>(),
     )
+    let subscriptionReady = false
     const subscriptions = Subscription.make<Model, Message>()(() => ({
       testMessages: Subscription.persistentEntry(
-        Stream.fromPubSub(subscriptionMessages),
+        Stream.unwrap(
+          PubSub.subscribe(subscriptionMessages).pipe(
+            Effect.tap(() =>
+              Effect.sync(() => {
+                subscriptionReady = true
+              }),
+            ),
+            Effect.map(Stream.fromSubscription),
+          ),
+        ),
       ),
     }))
     const observedViewStates: globalThis.Array<Mount.ViewState> = []
@@ -2135,6 +2147,7 @@ describe('Mount view-state awareness', () => {
         expect(observedViewStates).toEqual(['Live'])
       })
       const store = requireDevToolsStore(maybeStore)
+      await vi.waitFor(() => expect(subscriptionReady).toBe(true))
 
       PubSub.publishUnsafe(subscriptionMessages, Message.Ticked())
       await waitForBodyText('ticks:1')

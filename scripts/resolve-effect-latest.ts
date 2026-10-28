@@ -20,12 +20,12 @@ export function latestEligibleEffect(times: PublishTimes, now = new Date()): str
 }
 
 export function replaceEffectOverrides(workspaceText: string, version: string): string {
-  const expected = /(^overrides:\n)(  effect: 4\.0\.5\n  '@effect\/platform-browser': 4\.0\.5\n?)/m
+  const expected = /(^overrides:\n)(  effect: 4\.0\.7\n  '@effect\/platform-browser': 4\.0\.7\n?)/m
   const match = expected.exec(workspaceText)
   if (!match) throw new Error('pnpm-workspace.yaml does not contain the expected Effect overrides')
   return workspaceText.replace(match[0], `${match[1]}${match[2]
-    .replace('  effect: 4.0.5', `  effect: ${version}`)
-    .replace("  '@effect/platform-browser': 4.0.5", `  '@effect/platform-browser': ${version}`)}`)
+    .replace('  effect: 4.0.7', `  effect: ${version}`)
+    .replace("  '@effect/platform-browser': 4.0.7", `  '@effect/platform-browser': ${version}`)}`)
 
 }
 

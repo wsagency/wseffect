@@ -4,7 +4,7 @@ A Foldkit application foundation for lazy page modules, page loading, offline be
 
 ## Installation
 
-Install `@wsagency/wseffect-app`, `@wsagency/wseffect-foldkit`, `@wsagency/wseffect-foldkit-ui`, `@wsagency/wseffect-vite-plugin`, Effect `4.0.5`, Vite `8`, and `vite-plugin-pwa` `2.0.0`. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. `@wsagency/wseffect-themes` is a required peer dependency because breakpoints read its public tokens. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API.
+Install `@wsagency/wseffect-app`, `@wsagency/wseffect-foldkit`, `@wsagency/wseffect-foldkit-ui`, `@wsagency/wseffect-vite-plugin`, Effect `4.0.7`, Vite `8`, and `vite-plugin-pwa` `2.0.0`. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. `@wsagency/wseffect-themes` is a required peer dependency because breakpoints read its public tokens. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API.
 
 Create `src/pages/package.json` with `{"sideEffects":false}`. Each page is a lazy module named with a key matching `^[a-z][A-Za-z0-9]*$`. Run `wseffect-codegen .` to generate `src/pages.gen.ts`; use `wseffect-codegen --check .` in CI to reject stale generated output.
 
@@ -257,7 +257,7 @@ Only Persistence may add an Effect module to the packed consumer's baseline, and
 
 ## Effect version
 
-Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.5 pins. Consumers do not need Foldkit-specific overrides or `allowedVersions` rules.
+Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.7 pins. Consumers do not need Foldkit-specific overrides or `allowedVersions` rules.
 
 ## Server contract
 

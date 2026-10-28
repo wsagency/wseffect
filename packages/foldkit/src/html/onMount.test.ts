@@ -626,6 +626,7 @@ describe('OnMount', () => {
                         Effect.sync(() => {
                           cleanupCalls += 1
                         }),
+                      { interruptible: true },
                     )
                     return yield* Effect.never
                   }),

@@ -95,11 +95,11 @@ export function checkWorkspace(yamlText: string): string[] {
     }
     return lines.slice(start + 1, end).filter((line) => line.trim() && !line.trimStart().startsWith('#'))
   }
-  const expectedOverrides = ["  effect: 4.0.5", "  '@effect/platform-browser': 4.0.5"]
+  const expectedOverrides = ["  effect: 4.0.7", "  '@effect/platform-browser': 4.0.7"]
   const invalid = ['patchedDependencies', 'packageExtensions', 'peerDependencyRules'].some((key) => topLevelKeys.has(key))
     || topLevelKeys.get('overrides')?.length !== 1
     || JSON.stringify(sectionLines('overrides')) !== JSON.stringify(expectedOverrides)
-  return invalid ? ['pnpm-workspace.yaml: overrides must contain only the shared Effect 4.0.5 pins'] : []
+  return invalid ? ['pnpm-workspace.yaml: overrides must contain only the shared Effect 4.0.7 pins'] : []
 }
 
 export function checkEffectCopies(lockfileText: string): string[] {

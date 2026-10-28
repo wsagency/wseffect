@@ -66,8 +66,8 @@ test('checkManifest requires the workspace Foldkit peer name', () => {
 
 test('checkWorkspace rejects additional overrides', () => {
   const workspace = `overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
   solid-js: 1.9.9
 `
   assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
@@ -77,8 +77,8 @@ test('checkWorkspace rejects patchedDependencies', () => {
   const workspace = `patchedDependencies:
   foldkit: patches/foldkit.patch
 overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
 `
   assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
@@ -89,16 +89,16 @@ test('checkWorkspace rejects packageExtensions', () => {
     peerDependencies:
       effect: ^4.0.5
 overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
 `
   assert.match(checkWorkspace(workspace).join('\n'), /overrides/)
 })
 
 test('checkWorkspace rejects obsolete peer rules', () => {
   const workspace = `overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
 peerDependencyRules:
   allowedVersions:
     foldkit>effect: 4.0.5
@@ -108,11 +108,11 @@ peerDependencyRules:
 
 test('checkWorkspace accepts the exact shared Effect pins', () => {
   const workspace = `overrides:
-  effect: 4.0.5
-  '@effect/platform-browser': 4.0.5
+  effect: 4.0.7
+  '@effect/platform-browser': 4.0.7
 `
   assert.deepEqual(checkWorkspace(workspace), [])
-  assert.match(checkWorkspace(workspace.replace('effect: 4.0.5', 'effect: 4.0.6')).join('\n'), /overrides/)
+  assert.match(checkWorkspace(workspace.replace('effect: 4.0.7', 'effect: 4.0.6')).join('\n'), /overrides/)
 })
 
 test('checkEffectCopies reports duplicate Effect versions', () => {

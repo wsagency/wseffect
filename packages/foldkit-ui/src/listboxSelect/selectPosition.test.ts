@@ -94,8 +94,6 @@ const rect = (top: number, width: number, height: number) => ({
 const positionWithItem = async (itemTop?: number) => {
   let disconnected = 0
   let positioned: { top: string; left: string; minWidth: string } | undefined
-  let observed!: () => void
-  const observerReady = new Promise<void>(resolve => { observed = resolve })
   class Observer {
     constructor(_callback: ResizeObserverCallback) {}
     observe(): void {
@@ -104,7 +102,6 @@ const positionWithItem = async (itemTop?: number) => {
         left: panel.style.left,
         minWidth: panel.style.minWidth,
       }
-      observed()
     }
     disconnect(): void { disconnected += 1 }
   }
@@ -126,11 +123,10 @@ const positionWithItem = async (itemTop?: number) => {
     anchor: {},
     selectedItemId: 'selected',
   })
-  const result = await Effect.runPromise(Effect.race(
-    Stream.runHead(action.f(panel, Stream.empty)).pipe(Effect.as('finished')),
-    Effect.promise(() => observerReady).pipe(Effect.as('observed')),
-  ))
-  expect(result).toBe('observed')
+  await Effect.runPromise(Stream.runHead(action.f(panel, Stream.empty)))
+  if (positioned === undefined) {
+    throw new Error('Expected ResizeObserver to be attached after positioning')
+  }
   const geometry = { ...positioned, disconnected }
   trigger.remove()
   panel.remove()

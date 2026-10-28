@@ -25,7 +25,7 @@ The WS Agency name and logos are excluded from this project’s MIT license; see
 
 ## Effect version
 
-Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.5 pins; no Foldkit peer override snippet is needed by consumers.
+Vendored Foldkit packages and wseffect use the workspace's exact Effect 4.0.7 pins; no Foldkit peer override snippet is needed by consumers.
 
 ## Contributing
 
