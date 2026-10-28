@@ -147,7 +147,9 @@
     "LICENSE",
     "THIRD-PARTY-NOTICES.md",
     "README.md",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "UPSTREAM.md",
+    "WS-AGENCY-NOTICE.md"
   ],
   "scripts": {
     "clean": "rimraf dist *.tsbuildinfo",

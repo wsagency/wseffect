@@ -167,6 +167,31 @@ test('Themes may package the pinned upstream provenance record', () => {
   assert.deepEqual(checkManifest(fixture, 'packages/themes/package.json'), [])
 })
 
+test('release packages may ship WS Agency notices and upstream provenance', () => {
+  const packageFiles = [
+    ['app', ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'WS-AGENCY-NOTICE.md']],
+    ['themes', ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'UPSTREAM.md', 'WS-AGENCY-NOTICE.md']],
+    ['foldkit', ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md', 'WS-AGENCY-NOTICE.md']],
+    ['foldkit-ui', ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md', 'WS-AGENCY-NOTICE.md']],
+    ['vite-plugin', ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md', 'WS-AGENCY-NOTICE.md']],
+  ] as const
+  for (const [directory, files] of packageFiles) {
+    const fixture = {
+      ...releaseManifest(),
+      name: `@wsagency/wseffect-${directory}`,
+      repository: {
+        type: 'git',
+        url: 'git+https://github.com/wsagency/wseffect.git',
+        directory: `packages/${directory}`,
+      },
+      files: [...files],
+      ...(directory === 'themes' ? { sideEffects: ['**/*.css'] } : {}),
+      ...(['foldkit', 'foldkit-ui', 'vite-plugin'].includes(directory) ? { author: 'Devin Jameson' } : {}),
+    }
+    assert.deepEqual(checkManifest(fixture, `packages/${directory}/package.json`, '0.1.0-rc.0'), [], directory)
+  }
+})
+
 test('checkManifest rejects sideEffects true', () => {
   const fixture = manifest()
   fixture.sideEffects = true

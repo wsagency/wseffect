@@ -17,7 +17,7 @@
     "url": "git+https://github.com/wsagency/wseffect.git",
     "directory": "packages/themes"
   },
-  "files": ["dist", "LICENSE", "README.md", "CHANGELOG.md", "UPSTREAM.md"],
+  "files": ["dist", "LICENSE", "README.md", "CHANGELOG.md", "UPSTREAM.md", "WS-AGENCY-NOTICE.md"],
   "sideEffects": ["**/*.css"],
   "exports": {
     "./breakpoints": { "types": "./dist/breakpoints.d.ts", "default": "./dist/breakpoints.js" },

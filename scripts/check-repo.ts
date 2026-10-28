@@ -26,7 +26,8 @@ type Manifest = {
   pnpm?: { patchedDependencies?: Record<string, string> }
 }
 
-const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'UPSTREAM.md'])
+const allowedFiles = new Set(['dist', 'LICENSE', 'README.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.md', 'WS-AGENCY-NOTICE.md'])
+const upstreamPackages = ['packages/themes/', 'packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/'] as const
 
 export function checkManifest(manifest: Manifest, path: string, releaseVersion?: string): string[] {
   const errors: string[] = []
@@ -93,9 +94,10 @@ export function checkManifest(manifest: Manifest, path: string, releaseVersion?:
   if (manifest.type !== 'module') fail('type must be module')
   if (manifest.license !== 'MIT') fail('license must be MIT')
   if (!releaseVersion && manifest.publishConfig?.access !== 'public') fail('publishConfig.access must be public')
+  const normalizedPath = path.replaceAll('\\', '/')
   if (!manifest.files?.length || manifest.files.some((file) =>
-    !allowedFiles.has(file) && !(path.replaceAll('\\', '/').startsWith('packages/themes/') && file === 'UPSTREAM.md'))) {
-    fail('files must contain only dist, LICENSE, README.md, and CHANGELOG.md (plus UPSTREAM.md for Themes)')
+    !allowedFiles.has(file) && !(file === 'UPSTREAM.md' && upstreamPackages.some((prefix) => normalizedPath.startsWith(prefix))))) {
+    fail('files must contain only dist, LICENSE, README.md, CHANGELOG.md, THIRD-PARTY-NOTICES.md, and WS-AGENCY-NOTICE.md (plus UPSTREAM.md for provenance packages)')
   }
   if (!manifest.exports || Object.values(manifest.exports).some((entry) =>
     !entry || typeof entry !== 'object' || !('types' in entry) || !('default' in entry))) {
