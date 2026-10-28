@@ -41,6 +41,7 @@ type DependencyFields = Readonly<
 const PLUGIN_ROOT = resolve(import.meta.dirname, '..')
 const PLUGIN_SOURCE = resolve(PLUGIN_ROOT, 'src/index.ts')
 const CHILD_PROCESS_TEST_TIMEOUT_MS = 20_000
+const serverClosersByRoot = new Map<string, Array<() => Promise<void>>>()
 
 const writeFiles = async (root: string, files: Files): Promise<void> => {
   for (const [path, content] of Object.entries(files)) {
@@ -51,8 +52,15 @@ const writeFiles = async (root: string, files: Files): Promise<void> => {
 
 const makeTemporaryDirectory = async (): Promise<string> => {
   const directory = await mkdtemp(join(tmpdir(), 'foldkit-resolution-'))
+  serverClosersByRoot.set(directory, [])
   onTestFinished(async () => {
-    await rm(directory, { recursive: true, force: true })
+    const closeServers = serverClosersByRoot.get(directory) ?? []
+    try {
+      await Promise.all(closeServers.map(closeServer => closeServer()))
+    } finally {
+      serverClosersByRoot.delete(directory)
+      await rm(directory, { recursive: true, force: true })
+    }
   })
   return directory
 }
@@ -358,8 +366,11 @@ const startDevServer = async (
     plugins: foldkit({ devToolsMcpPort: false }),
     ...config,
   })
-  onTestFinished(() => server.close())
-
+  const closeServers = serverClosersByRoot.get(root)
+  if (closeServers === undefined) {
+    throw new Error(`No cleanup registry for Vite root ${root}`)
+  }
+  closeServers.push(() => server.close())
   return { root, server }
 }
 
