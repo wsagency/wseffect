@@ -106,7 +106,8 @@ test('all release package manifests have canonical npm metadata', async () => {
   for (const name of ['app', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin']) {
     const path = `packages/${name}/package.json`
     const fixture = JSON.parse(await readFile(new URL(`../${path}`, import.meta.url), 'utf8'))
-    assert.deepEqual(checkManifest(fixture, path, '0.0.0'), [], `${path} must be release-ready`)
+    assert.deepEqual(checkManifest(fixture, path, '0.1.0-rc.0'), [], `${path} must be release-ready`)
+    assert.equal(fixture.version, '0.1.0-rc.0', `${path} must use the coordinated RC`)
     if (name === 'app') {
       assert.equal(fixture.description, 'A Foldkit application foundation with lazy page loading, offline support, update prompts, and deployment-version checks.')
       assert.deepEqual(fixture.keywords, ['foldkit', 'effect', 'application', 'lazy-pages', 'pwa', 'vite'])
@@ -124,6 +125,13 @@ test('all release package manifests have canonical npm metadata', async () => {
       tag: 'next',
     })
     assert.deepEqual(fixture.engines, { node: '>=20.19.0' }, `${path} runtime floor`)
+  }
+})
+
+test('every release package has an RC.0 changelog entry', async () => {
+  for (const name of ['app', 'themes', 'foldkit', 'foldkit-ui', 'vite-plugin']) {
+    const changelog = await readFile(new URL(`../packages/${name}/CHANGELOG.md`, import.meta.url), 'utf8')
+    assert.match(changelog, /^# .*\n\n## 0\.1\.0-rc\.0\b/m, `${name} changelog must begin with coordinated RC.0`)
   }
 })
 

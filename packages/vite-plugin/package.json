@@ -1,6 +1,6 @@
 {
   "name": "@wsagency/wseffect-vite-plugin",
-  "version": "0.0.0",
+  "version": "0.1.0-rc.0",
   "private": false,
   "description": "Vite plugin for Foldkit with state-preserving live reload",
   "type": "module",

@@ -1,6 +1,6 @@
 # @wsagency/wseffect-foldkit-ui
 
-## Unreleased
+## 0.1.0-rc.0
 
 - Align item-aligned Select panels to their trigger after viewport clamping where the scroll range permits while tracking active/selected option geometry, route Menu context invocations through contextual anchors, focus the active ContextMenu item on initial open, invalidate closed touch long-presses, and restore Menu's typeahead and delay-clear public type.
 - Absorb CheckboxGroup, context-menu invocation, Tooltip group, Slider.Range, and the popup Select adapter into Foldkit UI. `VirtualList.view` supports custom container/row/spacer/window rendering, with `rowToView` replacing the default `itemToView` callback; Themes consumes these headless APIs while retaining themed rendering. Remove the unpublished primitives package.
