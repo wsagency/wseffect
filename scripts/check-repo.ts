@@ -8,14 +8,14 @@ type Manifest = {
   private?: boolean
   type?: string
   license?: string
-  publishConfig?: { access?: string; tag?: string }
+  publishConfig?: { registry?: string; access?: string; tag?: string }
   repository?: { type?: string; url?: string; directory?: string }
   homepage?: string
   bugs?: { url?: string }
   description?: string
   keywords?: string[]
-  author?: string | { name?: string }
-  maintainers?: Array<string | { name?: string }>
+  author?: string | { name?: string; url?: string }
+  maintainers?: Array<string | { name?: string; url?: string }>
   engines?: Record<string, string>
   files?: string[]
   exports?: Record<string, unknown>
@@ -51,18 +51,32 @@ export function checkManifest(manifest: Manifest, path: string, releaseVersion?:
   if (releaseVersion) {
     if (manifest.version !== releaseVersion) fail(`version must be ${releaseVersion}`)
     if (manifest.private !== false) fail('private must be false')
+    if (manifest.publishConfig?.registry !== 'https://registry.npmjs.org/') fail('publishConfig.registry must be https://registry.npmjs.org/')
     if (manifest.publishConfig?.access !== 'public') fail('publishConfig.access must be public')
     if (manifest.publishConfig?.tag !== 'next') fail('publishConfig.tag must be next')
-    if (manifest.repository?.url !== 'git+https://github.com/wsagency/wseffect.git' || !manifest.repository.directory) {
-      fail('repository must use the public GitHub repository URL and include the package directory')
+    if (manifest.repository?.url !== 'git+https://github.com/wsagency/wseffect.git') {
+      fail('repository.url must use the public GitHub repository URL')
+    }
+    if (manifest.repository?.directory !== dirname(path.replaceAll('\\', '/'))) {
+      fail(`repository.directory must be ${dirname(path.replaceAll('\\', '/'))}`)
     }
     if (manifest.homepage !== 'https://wseffect.com') fail('homepage must be https://wseffect.com')
     if (manifest.bugs?.url !== 'https://github.com/wsagency/wseffect/issues') fail('bugs.url must be the public GitHub issues URL')
     if (!manifest.description?.trim()) fail('description is required')
     if (!manifest.keywords?.length || manifest.keywords.some((keyword) => !keyword.trim())) fail('keywords must be a non-empty list')
-    if (typeof manifest.author === 'string' ? !manifest.author.trim() : !manifest.author?.name?.trim()) fail('author is required')
-    if (!manifest.maintainers?.length || manifest.maintainers.some((maintainer) =>
-      typeof maintainer === 'string' ? !maintainer.trim() : !maintainer.name?.trim())) fail('maintainers are required')
+    const vendoredPackage = ['packages/foldkit/', 'packages/foldkit-ui/', 'packages/vite-plugin/']
+      .some((prefix) => path.replaceAll('\\', '/').startsWith(prefix))
+    if (vendoredPackage) {
+      if (typeof manifest.author === 'string' ? manifest.author !== 'Devin Jameson' : manifest.author?.name !== 'Devin Jameson') {
+        fail('author must preserve upstream author Devin Jameson')
+      }
+    } else if (typeof manifest.author === 'string' ? !manifest.author.trim() : !manifest.author?.name?.trim()) {
+      fail('author is required')
+    }
+    if (!manifest.maintainers?.some((maintainer) =>
+      typeof maintainer !== 'string' && maintainer.name === 'WS Agency' && maintainer.url === 'https://ws.agency')) {
+      fail('maintainers must include WS Agency at https://ws.agency')
+    }
     if (!manifest.engines || Object.keys(manifest.engines).length === 0 ||
       Object.values(manifest.engines).some((engine) => !engine.trim())) fail('engines must specify supported runtime requirements')
   } else {

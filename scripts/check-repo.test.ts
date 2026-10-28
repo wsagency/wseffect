@@ -55,6 +55,33 @@ test('requiresNextTagAndPublicAccess', () => {
   assert.ok(errors.some((error) => error.includes('publishConfig.tag')))
 })
 
+test('requiresPublicNpmRegistry', () => {
+  const fixture = releaseManifest()
+  fixture.publishConfig.registry = 'https://registry.internal.example/'
+  assert.ok(checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0').some((error) => error.includes('publishConfig.registry')))
+})
+
+test('requiresRepositoryDirectoryToMatchManifestPath', () => {
+  const fixture = releaseManifest()
+  fixture.repository.directory = 'packages/themes'
+  assert.ok(checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0').some((error) => error.includes('repository.directory')))
+})
+
+test('requiresWsAgencyMaintainerAndVendoredUpstreamAuthor', () => {
+  const fixture = releaseManifest()
+  fixture.maintainers = [{ name: 'Other Agency', url: 'https://other.example' }]
+  fixture.author = 'Other Author'
+  fixture.repository.directory = 'packages/foldkit'
+  const errors = checkManifest(fixture, 'packages/foldkit/package.json', '0.1.0-rc.0')
+  assert.ok(errors.some((error) => error.includes('maintainers')))
+  assert.ok(errors.some((error) => error.includes('author')))
+
+  fixture.maintainers = [{ name: 'WS Agency', url: 'https://ws.agency' }]
+  fixture.author = 'Devin Jameson'
+  const validAttributionErrors = checkManifest(fixture, 'packages/foldkit/package.json', '0.1.0-rc.0')
+  assert.ok(!validAttributionErrors.some((error) => error.includes('maintainers') || error.includes('author')))
+})
+
 test('requiresPublicPackageMetadata', () => {
   const fixture = releaseManifest()
   fixture.description = ''
@@ -77,9 +104,9 @@ function releaseManifest() {
     description: 'Effect integration packages',
     keywords: ['effect'],
     author: 'WS Agency',
-    maintainers: ['WS Agency'],
+    maintainers: [{ name: 'WS Agency', url: 'https://ws.agency' }],
     engines: { node: '>=20' },
-    publishConfig: { access: 'public', tag: 'next' },
+    publishConfig: { registry: 'https://registry.npmjs.org/', access: 'public', tag: 'next' },
     repository: {
       type: 'git',
       url: 'git+https://github.com/wsagency/wseffect.git',
