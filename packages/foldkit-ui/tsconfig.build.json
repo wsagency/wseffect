@@ -4,8 +4,8 @@
     "noEmit": false,
     "composite": true,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
     "outDir": "dist"
   },
-  "exclude": ["src/**/*.test.ts"]
+  "exclude": ["src/**/*.test.ts", "src/test/**", "src/vitest-setup.ts"]
 }

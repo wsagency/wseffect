@@ -11,8 +11,8 @@
 - Package-name references in runtime diagnostics name the owned packages in `brand.ts`, `html/boundary.ts`, `html/runtimeSingleton.ts`, `runtime/hydrationHandoff.ts`, `runtime/modelPreservationBridge.ts`, and `runtime/start.ts`. No global key, symbol, virtual-module ID, or shared brand string changed.
 - Upstream examples retain upstream specifiers: `foldkit` maps to `@wsagency/wseffect-foldkit`, `@foldkit/ui` to `@wsagency/wseffect-foldkit-ui`, and `@foldkit/vite-plugin` to `@wsagency/wseffect-vite-plugin`.
 - This file, the provenance README, and the first local changelog entry are maintained by wseffect.
-- Lazy boundary callsite formatting: registration stores the captured `Error`; its stack is formatted only when a duplicate slot ID is reported. Ported from the upstream lazy-callsite PR in `/home/klukacin/projects/foldkit-wt/lazy-callsite`.
-- Keyed diff minimal moves: retained children in an already ordered subsequence are no longer moved unnecessarily. Ported from the upstream keyed-diff PR in `/home/klukacin/projects/foldkit-wt/keyed-diff`.
+- Lazy boundary callsite formatting: registration stores the captured `Error`; its stack is formatted only when a duplicate slot ID is reported. Ported from the upstream lazy-callsite PR.
+- Keyed diff minimal moves: retained children in an already ordered subsequence are no longer moved unnecessarily. Ported from the upstream keyed-diff PR.
 - `h.submodel` nested `viewInputs` validation caches successfully checked nested object and array identities in a `WeakSet`; it deliberately never caches the top-level `viewInputs` root because direct top-level functions are legal. The walk allocates no path strings/arrays on success and assembles the unchanged diagnostic path only when reporting a nested function. Inputs are immutable by convention. The root is checked on every render. Corrected by `1f1c5ba`.
 - Removed upstream website API-doc tooling (`typedoc.json`, `typedoc-entry.ts`, `typedoc-experimental.ts`, `typedoc-entry.test.ts`, `tsconfig.docs.json`); neither local builds nor tests use these files.
 
