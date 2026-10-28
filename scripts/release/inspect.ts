@@ -128,7 +128,7 @@ export async function inspectArchive({
       const contents = await readMember(path)
       if (!contents) continue
       const text = contents.toString('utf8')
-      const imports = /(?:\bfrom\s*|\bimport\s*\(\s*)['"](\.[^'"]+)['"]/g
+      const imports = /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+(?=['"]))['"](\.[^'"]+)['"]/g
       for (const match of text.matchAll(imports)) {
         const resolved = posix.normalize(posix.join(posix.dirname(path), match[1]!))
         const candidates = [resolved]

@@ -177,12 +177,15 @@ test('allowsOnlyFoldkitTestUtilityImportClosure', async () => {
     dependencies: {},
   }
   const extraFiles = {
-    'dist/test/public.js': `import './internal.js'\n`,
-    'dist/test/public.d.ts': `import type { Internal } from './internal.js'\nexport {}\n`,
-    'dist/test/vitest.js': `import './internal.js'\n`,
-    'dist/test/vitest.d.ts': 'export {}\n',
-    'dist/test/internal.js': 'export {}\n',
-    'dist/test/internal.d.ts': 'export type Internal = unknown\n',
+    'dist/test/public.js': `import './side-effect.js'\n`,
+    'dist/test/public.d.ts': `import type { Internal } from './types.js'\nexport {}\n`,
+    'dist/test/vitest.js': `export { helper } from './reexport.js'\nexport const load = () => import('./dynamic.js')\n`,
+    'dist/test/vitest.d.ts': `export { helper } from './reexport.js'\n`,
+    'dist/test/side-effect.js': 'export {}\n',
+    'dist/test/types.d.ts': 'export type Internal = unknown\n',
+    'dist/test/reexport.js': 'export const helper = 1\n',
+    'dist/test/reexport.d.ts': 'export declare const helper: number\n',
+    'dist/test/dynamic.js': 'export {}\n',
   }
   const accepted = await inspect(await createArchive({ manifest, extraFiles }))
   assert.deepEqual(accepted.errors, [])
