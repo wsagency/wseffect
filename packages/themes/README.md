@@ -4,11 +4,19 @@ Radix Themes' foundation CSS and thin, stateless Foldkit view helpers for applic
 
 ## Install
 
+For the `0.1.0-rc.0` prerelease, install from the `next` dist-tag:
+
 ```sh
-pnpm add @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui effect @effect/platform-browser
+pnpm add @wsagency/wseffect-themes@next @wsagency/wseffect-foldkit@next @wsagency/wseffect-foldkit-ui@next effect@^4.0.5 @effect/platform-browser@^4.0.5
 ```
 
-The package uses workspace-owned Foldkit core and UI packages from the vendored 0.168.0 snapshot and Effect 4.
+For the stable release, use the default dist-tag:
+
+```sh
+pnpm add @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui effect@^4.0.5 @effect/platform-browser@^4.0.5
+```
+
+The Foldkit core and UI packages, `effect`, and `@effect/platform-browser` are required peers. Effect peer ranges are `^4.0.5`. Node.js `>=20.19.0` is supported for tooling and builds. See the full [wseffect documentation](https://wseffect.com).
 
 ## Importing components
 

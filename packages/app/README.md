@@ -4,7 +4,19 @@ A Foldkit application foundation for lazy page modules, page loading, offline be
 
 ## Installation
 
-Install `@wsagency/wseffect-app`, `@wsagency/wseffect-foldkit`, `@wsagency/wseffect-foldkit-ui`, `@wsagency/wseffect-vite-plugin`, Effect `4.0.7`, Vite `8`, and `vite-plugin-pwa` `2.0.0`. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. `@wsagency/wseffect-themes` is a required peer dependency because breakpoints read its public tokens. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API.
+For the `0.1.0-rc.0` prerelease, install the coordinated packages from the `next` dist-tag with their peers:
+
+```sh
+pnpm add @wsagency/wseffect-app@next @wsagency/wseffect-themes@next @wsagency/wseffect-foldkit@next @wsagency/wseffect-foldkit-ui@next @wsagency/wseffect-vite-plugin@next effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
+```
+
+For the stable release, use the default dist-tag (omit `@next`):
+
+```sh
+pnpm add @wsagency/wseffect-app @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui @wsagency/wseffect-vite-plugin effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
+```
+
+The app requires Themes, Foldkit, Foldkit UI, the Vite plugin, `effect` and `@effect/platform-browser` (`^4.0.5`), Vite `8.3.4`, and `vite-plugin-pwa` `2.0.0` as peers. Node.js `>=20.19.0` is supported. The app package exposes its root API from `@wsagency/wseffect-app`, its Vite integration from `@wsagency/wseffect-app/vite`, its page generator from `@wsagency/wseffect-app/codegen`, and its Oxlint rules from `@wsagency/wseffect-app/oxlint-plugin`. Generated page code imports `@wsagency/wseffect-app/runtime`, the boot-runtime entry; application code should use the root API. See the full [wseffect documentation](https://wseffect.com).
 
 Create `src/pages/package.json` with `{"sideEffects":false}`. Each page is a lazy module named with a key matching `^[a-z][A-Za-z0-9]*$`. Run `wseffect-codegen .` to generate `src/pages.gen.ts`; use `wseffect-codegen --check .` in CI to reject stale generated output.
 

@@ -12,6 +12,24 @@ This repository contains:
 - `apps/gallery` — the integration gallery and browser-test fixture.
 - `bench/radix2solid` — a comparison app built from the radix2solid library.
 
+## Install
+
+wseffect is split into five npm packages: **app** adds lazy-page loading, offline/PWA behavior and deployment-version checks; **themes** provides CSS and typed component helpers; **foldkit** is the core runtime and HTML/routing framework; **foldkit-ui** provides accessible UI components; and **vite-plugin** integrates Foldkit with Vite and live reload.
+
+For the `0.1.0-rc.0` prerelease, install the coordinated packages using the `next` dist-tag:
+
+```sh
+pnpm add @wsagency/wseffect-app@next @wsagency/wseffect-themes@next @wsagency/wseffect-foldkit@next @wsagency/wseffect-foldkit-ui@next @wsagency/wseffect-vite-plugin@next effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
+```
+
+For a stable release, use the default dist-tag and omit `@next`:
+
+```sh
+pnpm add @wsagency/wseffect-app @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui @wsagency/wseffect-vite-plugin effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
+```
+
+The application package uses the complete set above; focused projects can install only the package(s) they use and their listed peers. All packages require `effect` and `@effect/platform-browser` peers at `^4.0.5`. Node.js `>=20.19.0` is supported. Start with the [wseffect documentation](https://wseffect.com); report bugs and request features at [GitHub Issues](https://github.com/wsagency/wseffect/issues).
+
 ## Created for WS Agency
 
 <picture>
