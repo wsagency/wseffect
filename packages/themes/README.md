@@ -37,14 +37,13 @@ Menus inherit that shared root Theme by default. A menu inside a nested Theme ca
 
 ## Stylesheets
 
-Import the token/theme CSS and component CSS in your application entry point:
+`styles.css` is the complete stylesheet: it includes theme tokens, utilities, layout styles, and the component styles. Import it alone:
 
 ```ts
 import '@wsagency/wseffect-themes/styles.css'
-import '@wsagency/wseffect-themes/components.css'
 ```
 
-The package exposes the generated utilities, token, layout, and per-component CSS files as separate subpaths when applications need a smaller stylesheet set.
+For a smaller footprint, import only the files you need. For example, an app using the TextField can import `@wsagency/wseffect-themes/tokens/base.css`, the specific `@wsagency/wseffect-themes/tokens/colors/<color>.css` token files it uses, `@wsagency/wseffect-themes/css/text-field.css`, and `@wsagency/wseffect-themes/utilities.css`. The gallery instead uses the `tokens/base.css` and selected `tokens/colors/*.css` files, plus the `components.css` and `utilities.css` aggregates. Do not import `styles.css` together with `components.css`; they overlap and duplicate component rules.
 
 ## License
 

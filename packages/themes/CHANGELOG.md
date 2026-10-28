@@ -44,3 +44,5 @@
 - Render DataTable through Foldkit UI VirtualList's single library-owned scroll viewport and `windowToView`; remove DataTable's local scroll command while retaining row focus behavior.
 
 - Preserve DataTable Grid focus after filter/sort changes, recover empty results at the grid root, and measure the caption/header offset for virtual row navigation.
+
+- Move TextField's visible label and optional description outside the fixed-height input root; correct README stylesheet guidance to avoid importing overlapping CSS aggregates together.

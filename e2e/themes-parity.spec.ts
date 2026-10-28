@@ -29,19 +29,36 @@ test('Card surface matches the pinned Radix2Solid Card surface', async ({ page }
   expect(style.surfaceRing).toContain('0px 0px 0px 1px')
 })
 
-test('TextField uses the pinned Radix2Solid boxed surface defaults', async ({ page }) => {
+test('TextField keeps its label and description outside the Radix-sized input root', async ({ page }) => {
   await page.goto('/text-field')
   const root = page.locator('main .rt-TextFieldRoot')
-  await expect(root).toHaveClass(/\brt-r-size-2\b.*\brt-variant-surface\b/)
-  const style = await root.evaluate((element) => {
-    const css = getComputedStyle(element)
-    return { background: css.backgroundColor, borderWidth: css.borderWidth, borderStyle: css.borderStyle, padding: css.padding, shadow: css.boxShadow }
+  const label = page.getByText('Email address', { exact: true })
+  const description = page.getByText('Enter an email address.', { exact: true })
+  await expect(root.locator('input')).toHaveCount(1)
+  await expect(root.locator('label, p')).toHaveCount(0)
+  await expect(label).toHaveAttribute('for', 'email-address')
+  await expect(page.locator('#email-address')).toHaveAttribute('aria-describedby', 'email-address-description')
+  const geometry = await page.evaluate(() => {
+    const root = document.querySelector('main .rt-TextFieldRoot')!
+    const label = document.querySelector('label[for="email-address"]')!
+    const description = document.querySelector('#email-address-description')!
+    const token = document.createElement('div')
+    token.style.height = 'var(--space-6)'
+    document.querySelector('.radix-themes')!.append(token)
+    const sizeHeight = token.getBoundingClientRect().height
+    token.remove()
+    return {
+      labelBottom: label.getBoundingClientRect().bottom,
+      inputTop: root.getBoundingClientRect().top,
+      rootBottom: root.getBoundingClientRect().bottom,
+      descriptionTop: description.getBoundingClientRect().top,
+      rootHeight: root.getBoundingClientRect().height,
+      sizeHeight,
+    }
   })
-  expect(style.background).toBe('rgba(255, 255, 255, 0.85)')
-  expect(style.borderWidth).toBe('0px')
-  expect(style.borderStyle).toBe('none')
-  expect(style.padding).toBe('1px')
-  expect(style.shadow).toContain('0px 0px 0px 1px inset')
+  expect(geometry.labelBottom).toBeLessThanOrEqual(geometry.inputTop)
+  expect(geometry.descriptionTop).toBeGreaterThanOrEqual(geometry.rootBottom)
+  expect(geometry.rootHeight).toBe(geometry.sizeHeight)
 })
 
 test('Dialog content uses the pinned 600px default max width', async ({ page }) => {

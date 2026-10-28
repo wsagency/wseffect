@@ -104,11 +104,64 @@ describe('themed controls', () => {
     )
   })
 
+  it('keeps the TextField root limited to its input and associates outer label and description', () => {
+    Scene.scene(
+      { update, view: (_model: Model, h: HtmlBuilder<Message>) => TextField.view({ id: 'profile-email', label: 'Email address' }, ['Used for account updates.'], h) },
+      Scene.given({ value: '', clicks: 0, ticks: 0 }),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot .rt-TextFieldInput')).toExist(),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot :not(.rt-TextFieldInput)')).not.toExist(),
+      Scene.expect(Scene.selector('label')).toHaveAttr('htmlFor', 'profile-email'),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot label')).not.toExist(),
+      Scene.expect(Scene.selector('#profile-email')).toHaveAttr('aria-describedby', 'profile-email-description'),
+      Scene.expect(Scene.selector('#profile-email-description')).toExist(),
+    )
+  })
+
+  it('preserves TextField states, native events, and all class/attribute variants', () => {
+    Scene.scene(
+      { update, view: (_model: Model, h: HtmlBuilder<Message>) => TextField.view({
+        id: 'settings-email',
+        label: 'Email',
+        size: { initial: '1', md: '3' },
+        variant: 'classic',
+        color: 'iris',
+        radius: 'small',
+        disabled: true,
+        readOnly: true,
+        invalid: true,
+        onInput: value => Message.Changed({ value }),
+      }, [], h) },
+      Scene.given({ value: '', clicks: 0, ticks: 0 }),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('class', 'rt-TextFieldRoot rt-r-size-1 md:rt-r-size-3 rt-variant-classic'),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('data-accent-color', 'iris'),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('data-radius', 'small'),
+      Scene.expect(Scene.role('textbox')).toHaveAttr('data-disabled', ''),
+      Scene.expect(Scene.role('textbox')).toHaveAttr('data-readonly', ''),
+      Scene.expect(Scene.role('textbox')).toHaveAttr('aria-invalid', 'true'),
+    )
+    Scene.scene(
+      { update, view: (model: Model, h: HtmlBuilder<Message>) => TextField.view({
+        id: 'editable-email',
+        value: model.value,
+        label: 'Editable',
+        size: '3',
+        variant: 'soft',
+        onInput: value => Message.Changed({ value }),
+      }, [], h) },
+      Scene.given({ value: '', clicks: 0, ticks: 0 }),
+      Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('class', 'rt-TextFieldRoot rt-r-size-3 rt-variant-soft'),
+      Scene.type(Scene.role('textbox'), 'edited@example.test'),
+      Scene.expect(Scene.role('textbox')).toHaveValue('edited@example.test'),
+    )
+  })
+
   it('labels TextField and dispatches typed values with themed classes', () => {
     Scene.scene(
       { update, view: fieldView },
       Scene.given({ value: '', clicks: 0, ticks: 0 }),
       Scene.expect(Scene.label('Email')).toExist(),
+      Scene.expect(Scene.selector('#email')).not.toHaveAttr('aria-describedby'),
+      Scene.expect(Scene.selector('#email-description')).not.toExist(),
       Scene.expect(Scene.role('textbox')).toHaveAttr('class', 'rt-reset rt-TextFieldInput'),
       Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('class', 'rt-TextFieldRoot rt-r-size-2 rt-variant-surface'),
       Scene.expect(Scene.selector('.rt-TextFieldRoot')).toHaveAttr('data-radius', 'full'),

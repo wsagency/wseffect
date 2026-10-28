@@ -56,14 +56,17 @@ export const view = <Message>(
     isInvalid: props.invalid,
     type: props.type,
     placeholder: props.placeholder,
+    hasDescription: children.length > 0,
     toView: ({ input, label, description }) => {
       const attributes: Attribute<Message>[] = [h.Class(rootClasses), ...(Object.keys(sizeStyle).length > 0 ? [h.Style(sizeStyle)] : [])]
       if (props.color !== undefined) attributes.push(h.DataAttribute('accent-color', props.color))
       if (props.radius !== undefined) attributes.push(h.DataAttribute('radius', props.radius))
-      return h.div(attributes, [
-        h.label([...label], [props.label]),
-        h.input([...input, ...(props.inputAttributes ?? []), h.Class('rt-reset rt-TextFieldInput')]),
-        ...(children.length > 0 ? [h.p([...description], children)] : []),
+      return h.div([h.Class('rt-Flex rt-r-fd-column rt-r-gap-1')], [
+        h.label([h.Class('rt-Text rt-r-size-2'), ...label], [props.label]),
+        h.div(attributes, [
+          h.input([...input, ...(props.inputAttributes ?? []), h.Class('rt-reset rt-TextFieldInput')]),
+        ]),
+        ...(children.length > 0 ? [h.p([...description, h.Class('rt-Text rt-r-size-1'), h.DataAttribute('accent-color', 'gray')], children)] : []),
       ])
     },
   }, h), 'wseffect/TextField')
