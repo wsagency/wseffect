@@ -27,6 +27,7 @@ import { view } from '@wsagency/wseffect-foldkit-ui/button'
 ```
 
 See the [wseffect documentation](https://wseffect.com) for setup guidance and the full component/API reference.
+Source and issue tracking: [GitHub repository](https://github.com/wsagency/wseffect) · [issues](https://github.com/wsagency/wseffect/issues).
 
 ## Upstream attribution
 

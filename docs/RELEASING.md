@@ -1,6 +1,6 @@
 # Publishing wseffect packages
 
-This runbook publishes the five `@wsagency/wseffect-*` packages as one coordinated release. The publishing operator is **klukacin**. The initial release is `0.1.0-rc.0`; every RC uses npm's `next` tag and the `latest` tag is explicitly advanced to that same RC until the stable `0.1.0` release.
+This runbook publishes the five `@wsagency/wseffect-*` packages as one coordinated release from the canonical source repository, [wsagency/wseffect on GitHub](https://github.com/wsagency/wseffect). The publishing operator is **klukacin**. The initial release is `0.1.0-rc.0`; every RC uses npm's `next` tag and the `latest` tag is explicitly advanced to that same RC until the stable `0.1.0` release. All builds, checks, publishes, and deploys are run locally; this project does not use CI workflows.
 
 ## Before tagging
 

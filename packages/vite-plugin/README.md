@@ -31,6 +31,7 @@ export default {
 ```
 
 See the [wseffect documentation](https://wseffect.com) for the full Vite/build guide and API reference.
+Source and issue tracking: [GitHub repository](https://github.com/wsagency/wseffect) · [issues](https://github.com/wsagency/wseffect/issues).
 
 ## Upstream attribution
 

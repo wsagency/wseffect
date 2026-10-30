@@ -165,7 +165,7 @@ export async function inspectArchive({
   const forbiddenMarkers: Array<[string, RegExp]> = [
     ['host path /home/', /\/home\//i],
     ['$HOME/.cache', /\$HOME\/\.cache/i],
-    ['internal host git.wsagency.io', /git\.wsagency\.io/i],
+    ['internal host', /wsagency\.io/i],
     ['npm token', /\bnpm_[A-Za-z0-9]{20,}\b/],
     ['GitHub token', /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/],
     ['private-key header', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/],

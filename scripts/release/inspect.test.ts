@@ -203,7 +203,7 @@ test('allowsOnlyFoldkitTestUtilityImportClosure', async () => {
 })
 
 test('rejectsSecretOrHostPathMarkers', async () => {
-  for (const marker of ['/home/person/private', '$HOME/.cache/file', 'git.wsagency.io', 'ghp_abcdefghijklmnopqrstuvwxyz123456', '-----BEGIN PRIVATE KEY-----']) {
+  for (const marker of ['/home/person/private', '$HOME/.cache/file', 'internal.wsagency.io', 'ghp_abcdefghijklmnopqrstuvwxyz123456', '-----BEGIN PRIVATE KEY-----']) {
     const result = await inspect(await createArchive({ extraFiles: { 'dist/secret.txt': marker } }))
     assert.ok(result.errors.some((error) => /forbidden|secret|host.path/i.test(error)), `expected rejection for ${marker}`)
   }

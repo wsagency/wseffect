@@ -29,13 +29,11 @@ async function sourceMapSourcesForFixture(fixture: string): Promise<string[]> {
   return sources
 }
 
-test('CI and consumer scripts enable requireAll', async () => {
+test('consumer scripts enable requireAll', async () => {
   const root = resolve(import.meta.dirname, '../..')
   const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')) as { scripts: Record<string, string> }
-  const workflow = await readFile(join(root, '.gitea/workflows/check.yml'), 'utf8')
   assert.match(packageJson.scripts['test:consumer']!, /WSEFFECT_REQUIRE_APP_CAPABILITIES=1/)
   assert.match(packageJson.scripts['gate:app-capabilities']!, /WSEFFECT_REQUIRE_APP_CAPABILITIES=1/)
-  assert.match(workflow, /WSEFFECT_REQUIRE_APP_CAPABILITIES:\s+'1'/)
 })
 
 test('export-star declarations build a Foldkit helper fixture against the shared baseline', async () => {
@@ -70,7 +68,7 @@ test('export-star declarations build a Foldkit helper fixture against the shared
   }
 })
 
-test('requireAll fails when the CI consumer is missing exactly one helper export', async () => {
+test('requireAll fails when the local consumer is missing exactly one helper export', async () => {
   const root = await createScratchDir('wseffect-app-required-export-')
   try {
     const missingExport = APP_CAPABILITIES[0]!.exports[0]!

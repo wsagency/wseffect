@@ -28,7 +28,7 @@ For a stable release, use the default dist-tag and omit `@next`:
 pnpm add @wsagency/wseffect-app @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui @wsagency/wseffect-vite-plugin effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
 ```
 
-The application package uses the complete set above; focused projects can install only the package(s) they use and their listed peers. All packages require `effect` and `@effect/platform-browser` peers at `^4.0.5`. Node.js `>=20.19.0` is supported. Start with the [wseffect documentation](https://wseffect.com); report bugs and request features at [GitHub Issues](https://github.com/wsagency/wseffect/issues).
+The application package uses the complete set above; focused projects can install only the package(s) they use and their listed peers. All packages require `effect` and `@effect/platform-browser` peers at `^4.0.5`. Node.js `>=20.19.0` is supported. Start with the [wseffect documentation](https://wseffect.com); source code is maintained at [GitHub](https://github.com/wsagency/wseffect). Report bugs and request features at [GitHub Issues](https://github.com/wsagency/wseffect/issues).
 
 ## Created for WS Agency
 
@@ -55,7 +55,7 @@ Use Node.js 24.21.0 and pnpm 11.5.0. Install the locked dependencies with `pnpm 
 
 ## Distribution and gates
 
-The app, themes, and vendored Foldkit packages are distributed as ESM packages. `pnpm check` runs the repository's automated checks, while the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises all five workspace packages from tarballs outside this workspace.
+The app, themes, and vendored Foldkit packages are distributed as ESM packages. Run `pnpm check` locally for the repository checks; the size and performance gates use the gallery and the radix2solid bench app. The packed-consumer check exercises all five workspace packages from tarballs outside this workspace.
 
 ## License
 

@@ -1,6 +1,6 @@
 # Contributing to wseffect
 
-Thanks for helping improve wseffect. Keep changes focused, preserve the upstream Foldkit behavior and the performance constraints below, and run the relevant checks before opening a pull request.
+Thanks for helping improve wseffect. Keep changes focused, preserve the upstream Foldkit behavior and the performance constraints below, and run `pnpm check` locally before opening a pull request to [the GitHub repository](https://github.com/wsagency/wseffect). Report bugs and request features at [GitHub Issues](https://github.com/wsagency/wseffect/issues).
 
 ## Vendored Foldkit maintenance
 

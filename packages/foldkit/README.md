@@ -27,6 +27,7 @@ import { makeElement, run } from '@wsagency/wseffect-foldkit/runtime'
 ```
 
 See the [wseffect documentation](https://wseffect.com) for the full getting-started guide and API reference.
+Source and issue tracking: [GitHub repository](https://github.com/wsagency/wseffect) · [issues](https://github.com/wsagency/wseffect/issues).
 
 ## Upstream attribution
 

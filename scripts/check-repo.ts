@@ -109,10 +109,8 @@ export function checkManifest(manifest: Manifest, path: string, releaseVersion?:
     if (!manifest.engines || Object.keys(manifest.engines).length === 0 ||
       Object.values(manifest.engines).some((engine) => !engine.trim())) fail('engines must specify supported runtime requirements')
   } else {
-    if (excludedFromExistingChecks) return errors
-    if (!['git+https://git.wsagency.io/ws-agency/wseffect.git', 'git+https://github.com/wsagency/wseffect.git']
-      .includes(manifest.repository?.url ?? '') || !manifest.repository?.directory) {
-      fail('repository must identify the wseffect repository and package directory')
+    if (manifest.repository?.url !== 'git+https://github.com/wsagency/wseffect.git' || !manifest.repository?.directory) {
+      fail('repository must identify the public GitHub wseffect repository and package directory')
     }
   }
   if (excludedFromExistingChecks) return errors

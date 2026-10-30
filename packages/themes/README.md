@@ -65,6 +65,7 @@ import '@wsagency/wseffect-themes/utilities.css'
 ```
 
 `css/common.css` supplies the shared reset and foundation rules; `css/flex.css` and `css/text.css` style the TextField wrapper and its label/description; `utilities.css` supplies its responsive direction and gap classes. Add the token files for the gray and accent palettes used by your Theme. The gallery instead imports its selected `tokens/base.css`/`tokens/colors/*.css` files with the `components.css` and `utilities.css` aggregates. Do not import `styles.css` together with `components.css`; they overlap and duplicate component rules.
+Source and issue tracking: [GitHub repository](https://github.com/wsagency/wseffect) · [issues](https://github.com/wsagency/wseffect/issues).
 
 ## License
 

@@ -12,7 +12,7 @@ const manifest = () => ({
   publishConfig: { access: 'public' },
   repository: {
     type: 'git',
-    url: 'git+https://git.wsagency.io/ws-agency/wseffect.git',
+    url: 'git+https://github.com/wsagency/wseffect.git',
     directory: 'packages/app',
   },
   files: ['dist', 'LICENSE', 'README.md', 'CHANGELOG.md'],
@@ -89,7 +89,7 @@ test('rejectsVersionSkew', () => {
 
 test('requiresPublicGitHubRepositoryAndHomepage', () => {
   const fixture = releaseManifest()
-  fixture.repository.url = 'git+https://git.wsagency.io/ws-agency/wseffect.git'
+  fixture.repository.url = 'git+https://github.com/other/wseffect.git'
   fixture.homepage = 'https://internal.example'
   const errors = checkManifest(fixture, 'packages/app/package.json', '0.1.0-rc.0')
   assert.ok(errors.some((error) => error.includes('repository')))
