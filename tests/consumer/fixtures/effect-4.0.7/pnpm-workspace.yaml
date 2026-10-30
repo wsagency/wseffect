@@ -1,9 +1,6 @@
-# Temporary exact Effect 4.0.7 age exclusions; remove them with the root exclusions after 2026-10-29T03:00Z.
 minimumReleaseAgeExclude:
   - '@wsagency/wseffect-app'
   - '@wsagency/wseffect-themes'
   - '@wsagency/wseffect-foldkit'
   - '@wsagency/wseffect-foldkit-ui'
   - '@wsagency/wseffect-vite-plugin'
-  - '@effect/platform-browser@4.0.7'
-  - effect@4.0.7

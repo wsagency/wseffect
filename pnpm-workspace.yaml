@@ -7,7 +7,6 @@ managePackageManagerVersions: false
 strictPeerDependencies: true
 
 # The global 24 h minimumReleaseAge stays.
-minimumReleaseAgeExclude: [ '@effect/platform-browser@4.0.7', '@effect/platform-node-shared@4.0.7', '@effect/platform-node@4.0.7', '@effect/vitest@4.0.7', effect@4.0.7 ]
 
 overrides:
   effect: 4.0.7
