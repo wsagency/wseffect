@@ -12,7 +12,7 @@ mise exec node@24.21.0 pnpm@11.5.0 -- bash
 
 In that shell, initialize the external paths once, then run the preparation checks:
 
-Before any GitHub mirror push, release tag, or package publish, the independent history auditor must complete the history audit and save its report outside Git at `"$HOME/.cache/wseffect-work/history-audit/REPORT.md"`. The publishing owner, **klukacin**, must read the report and verify it covers every ref, secrets, and internal-only content. Only after that review, run preflight with `--history-audit-reviewed` to explicitly confirm the owner-approved audit. Preflight refuses by default without that flag; never copy the report into the repository.
+Because GitHub `origin` is the canonical repository, before any release tag or package publish the independent history auditor must complete the history audit and save its report outside Git at `"$HOME/.cache/wseffect-work/history-audit/REPORT.md"`. The publishing owner, **klukacin**, must read the report and verify it covers every ref, secrets, and internal-only content. Only after that review, run preflight with `--history-audit-reviewed` to explicitly confirm the owner-approved audit. Preflight refuses by default without that flag; never copy the report into the repository.
 
 ```sh
 export TMPDIR="$HOME/.cache/wseffect-work/release-packages/tmp"
@@ -29,7 +29,7 @@ node scripts/check-repo.ts --release-version 0.1.0-rc.0
 pnpm release:preflight -- --version 0.1.0-rc.0 --history-audit-reviewed
 ```
 
-Before 2026-10-29T03:00Z, keep the temporary exact Effect 4.0.7 `minimumReleaseAgeExclude` entries in the root and `tests/consumer/fixtures/effect-4.0.7/pnpm-workspace.yaml` as-is. Preflight now automatically refuses if any `effect` or `@effect/*` entry remains in `minimumReleaseAgeExclude` in the root or any consumer fixture workspace; after the window, remove the temporary entries, reinstall with `pnpm install --frozen-lockfile`, then rerun `pnpm check`, release manifest tests, consumer tests, and release preflight before tagging.
+At tag time, no `effect` or `@effect/*` entry may exist in `minimumReleaseAgeExclude` in the root workspace or any `tests/consumer/fixtures/*` workspace; preflight refuses while any such entry remains. If a future Effect version must be adopted within its 24-hour age window, add only exact-version temporary exclusions. Remove them before tagging, reinstall with `pnpm install --frozen-lockfile`, then rerun `pnpm check`, release manifest tests, consumer tests, and release preflight.
 
 Do not tag if the checkout is dirty, stale, on a named branch other than `main`, any Effect exclusion remains, any check fails, metadata or version validation fails, the graph is unexpected, or the registry checks reveal a package name conflict. Correct the source and repeat the gates. No credentials belong in the repository, shell profile, or release package directory.
 
