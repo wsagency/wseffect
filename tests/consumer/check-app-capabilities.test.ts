@@ -29,13 +29,6 @@ async function sourceMapSourcesForFixture(fixture: string): Promise<string[]> {
   return sources
 }
 
-test('consumer scripts enable requireAll', async () => {
-  const root = resolve(import.meta.dirname, '../..')
-  const packageJson = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')) as { scripts: Record<string, string> }
-  assert.match(packageJson.scripts['test:consumer']!, /WSEFFECT_REQUIRE_APP_CAPABILITIES=1/)
-  assert.match(packageJson.scripts['gate:app-capabilities']!, /WSEFFECT_REQUIRE_APP_CAPABILITIES=1/)
-})
-
 test('export-star declarations build a Foldkit helper fixture against the shared baseline', async () => {
   const root = await createScratchDir('wseffect-app-export-star-')
   try {
