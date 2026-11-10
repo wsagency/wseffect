@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-rc.1
+
+- Coordinate the app package at RC.1 for the public-launch candidate; no app runtime changes from RC.0.
+
 ## 0.1.0-rc.0
 
 - Persist and sync values in the supplied Schema codec's encoded form, and validate decoded migration results with the current codec.

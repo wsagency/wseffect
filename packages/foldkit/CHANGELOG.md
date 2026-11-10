@@ -1,5 +1,9 @@
 # @wsagency/wseffect-foldkit
 
+## 0.1.0-rc.1
+
+- Coordinate the Foldkit core package at RC.1 for the public-launch candidate; no Foldkit runtime changes from RC.0.
+
 ## 0.1.0-rc.0
 
 - Vendor Foldkit 0.168.0 with workspace maintenance, exact Effect 4.0.7 development pins, and published Effect peer support beginning at 4.0.5.

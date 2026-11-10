@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-rc.1
+
+- Coordinate the Themes package at RC.1 for the public-launch candidate; no Themes runtime or stylesheet changes from RC.0.
+
 ## 0.1.0-rc.0
 
 - Add stateless themed views for the foundation layout, typography, and controls.

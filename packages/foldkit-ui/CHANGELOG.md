@@ -1,5 +1,9 @@
 # @wsagency/wseffect-foldkit-ui
 
+## 0.1.0-rc.1
+
+- Coordinate the Foldkit UI package at RC.1 for the public-launch candidate; no component runtime changes from RC.0.
+
 ## 0.1.0-rc.0
 
 - Align item-aligned Select panels to their trigger after viewport clamping where the scroll range permits while tracking active/selected option geometry, route Menu context invocations through contextual anchors, focus the active ContextMenu item on initial open, invalidate closed touch long-presses, and restore Menu's typeahead and delay-clear public type.

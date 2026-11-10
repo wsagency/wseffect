@@ -4,10 +4,10 @@ Radix Themes' foundation CSS and thin, stateless Foldkit view helpers for applic
 
 ## Install
 
-For the `0.1.0-rc.0` prerelease, install from the `next` dist-tag:
+For the `0.1.0-rc.1` prerelease, install the coordinated packages at the RC.1 version. The `next` dist-tag is also intended to point to this release:
 
 ```sh
-pnpm add @wsagency/wseffect-themes@next @wsagency/wseffect-foldkit@next @wsagency/wseffect-foldkit-ui@next effect@^4.0.5 @effect/platform-browser@^4.0.5
+pnpm add @wsagency/wseffect-themes@0.1.0-rc.1 @wsagency/wseffect-foldkit@0.1.0-rc.1 @wsagency/wseffect-foldkit-ui@0.1.0-rc.1 effect@^4.0.5 @effect/platform-browser@^4.0.5
 ```
 
 For the stable release, use the default dist-tag:

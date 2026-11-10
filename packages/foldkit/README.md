@@ -4,10 +4,10 @@ Foldkit is an Effect-based TypeScript framework for browser applications, with a
 
 ## Install
 
-For the `0.1.0-rc.0` prerelease, install from the `next` dist-tag:
+For the `0.1.0-rc.1` prerelease, install the exact RC.1 version. The `next` dist-tag is also intended to point to this release:
 
 ```sh
-pnpm add @wsagency/wseffect-foldkit@next effect@^4.0.5 @effect/platform-browser@^4.0.5
+pnpm add @wsagency/wseffect-foldkit@0.1.0-rc.1 effect@^4.0.5 @effect/platform-browser@^4.0.5
 ```
 
 For the stable release, use the default dist-tag:

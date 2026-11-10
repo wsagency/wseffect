@@ -4,13 +4,13 @@ A Foldkit application foundation for lazy page modules, page loading, offline be
 
 ## Installation
 
-For the `0.1.0-rc.0` prerelease, install the coordinated packages from the `next` dist-tag with their peers:
+For the `0.1.0-rc.1` prerelease, install the coordinated packages at the RC.1 version with their peers. The `next` dist-tag is also intended to point to this release:
 
 ```sh
-pnpm add @wsagency/wseffect-app@next @wsagency/wseffect-themes@next @wsagency/wseffect-foldkit@next @wsagency/wseffect-foldkit-ui@next @wsagency/wseffect-vite-plugin@next effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
+pnpm add @wsagency/wseffect-app@0.1.0-rc.1 @wsagency/wseffect-themes@0.1.0-rc.1 @wsagency/wseffect-foldkit@0.1.0-rc.1 @wsagency/wseffect-foldkit-ui@0.1.0-rc.1 @wsagency/wseffect-vite-plugin@0.1.0-rc.1 effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0
 ```
 
-For the stable release, use the default dist-tag (omit `@next`):
+For the stable release, use the default dist-tag (omit the explicit `@0.1.0-rc.1` suffix):
 
 ```sh
 pnpm add @wsagency/wseffect-app @wsagency/wseffect-themes @wsagency/wseffect-foldkit @wsagency/wseffect-foldkit-ui @wsagency/wseffect-vite-plugin effect@^4.0.5 @effect/platform-browser@^4.0.5 vite@8.3.4 vite-plugin-pwa@2.0.0

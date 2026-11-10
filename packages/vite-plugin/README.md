@@ -4,10 +4,10 @@ The wseffect Vite plugin integrates Foldkit builds with state-preserving live re
 
 ## Install
 
-For the `0.1.0-rc.0` prerelease, install from the `next` dist-tag:
+For the `0.1.0-rc.1` prerelease, install the coordinated packages at the RC.1 version. The `next` dist-tag is also intended to point to this release:
 
 ```sh
-pnpm add -D @wsagency/wseffect-vite-plugin@next @wsagency/wseffect-foldkit@next vite@8.3.4 effect@^4.0.5 @effect/platform-browser@^4.0.5
+pnpm add -D @wsagency/wseffect-vite-plugin@0.1.0-rc.1 @wsagency/wseffect-foldkit@0.1.0-rc.1 vite@8.3.4 effect@^4.0.5 @effect/platform-browser@^4.0.5
 ```
 
 For the stable release, use the default dist-tag:

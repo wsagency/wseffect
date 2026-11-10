@@ -1,5 +1,9 @@
 # @wsagency/wseffect-vite-plugin
 
+## 0.1.0-rc.1
+
+- Coordinate the Vite plugin package at RC.1 for the public-launch candidate; no plugin runtime changes from RC.0.
+
 ## 0.1.0-rc.0
 
 - Publish the Foldkit Vite integration with state-preserving live reload and an explicit public package surface.
